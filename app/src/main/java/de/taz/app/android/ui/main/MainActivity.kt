@@ -30,6 +30,7 @@ import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.persistence.repository.IssuePublicationWithPages
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.DateHelper
+import de.taz.app.android.singletons.IssueCountHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.singletons.WidgetHelper
 import de.taz.app.android.tracking.Tracker
@@ -151,6 +152,9 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>(), SuccessfulLogin
         // create WebView then throw it away so later instantiations are faster
         // otherwise we have lags in the [CoverFlowFragment]
         WebView(this)
+
+        // Ensure only the keep_issues_amount is hold
+        IssueCountHelper.getInstance(this)
     }
 
     override fun onResume() {
