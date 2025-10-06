@@ -54,20 +54,16 @@ class DrawerViewController(
     private var feedLogoDrawable: Drawable? = null
     private var wasHidden = false
 
-    fun handleDrawerLogoState(state: DrawerState) {
+    suspend fun handleDrawerLogoState(state: DrawerState) {
         when (state) {
             is DrawerState.Closed -> {
                 when {
                     state.isHidden -> {
                         if ((isLogoBurger && !state.isBurger) || isLogoClose) {
-                            CoroutineScope(Dispatchers.Main).launch {
-                                setFeedLogo()
-                                hideDrawerLogoAnimatedWithDelay()
-                            }
+                            setFeedLogo()
+                            hideDrawerLogoAnimatedWithDelay()
                         } else {
-                            CoroutineScope(Dispatchers.Main).launch {
-                                hideDrawerLogoAnimatedWithDelay()
-                            }
+                            hideDrawerLogoAnimatedWithDelay()
                         }
                         wasHidden = true
                     }
@@ -76,9 +72,7 @@ class DrawerViewController(
                     // we need to set to feed logo if we have burger icon
                     state.percentMorphedToBurger > 0f && state.percentMorphedToBurger < 1f -> {
                         if (isLogoBurger) {
-                            CoroutineScope(Dispatchers.Main).launch {
-                                setFeedLogo()
-                            }
+                            setFeedLogo()
                         }
                     }
 
@@ -92,13 +86,9 @@ class DrawerViewController(
                     }
 
                     state.percentMorphedToBurger == 0f -> {
+                        setFeedLogo()
                         if (wasHidden) {
                             showDrawerLogoAnimated()
-                        }
-                        if (isLogoBurger || isLogoClose) {
-                            CoroutineScope(Dispatchers.Main).launch {
-                                setFeedLogo()
-                            }
                         }
                         wasHidden = false
                     }
@@ -140,7 +130,7 @@ class DrawerViewController(
 
         val translationX = calculateTranslationXOnDrawerSlide(slideOffset)
         drawerLogoWrapper.translationX = translationX
-   }
+    }
 
     /**
      * Calculate the offsets of the drawerLogo for onDrawerSlide function.
