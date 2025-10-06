@@ -25,6 +25,7 @@ import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.SuccessfulLoginAction
+import de.taz.app.android.ui.login.LoginBottomSheetFragment.Companion.TAG
 import de.taz.app.android.ui.login.fragments.ConfirmEmailFragment
 import de.taz.app.android.ui.login.fragments.CredentialsMissingFragment
 import de.taz.app.android.ui.login.fragments.EmailAlreadyLinkedFragment
@@ -38,7 +39,6 @@ import de.taz.app.android.ui.login.fragments.SubscriptionAlreadyLinkedFragment
 import de.taz.app.android.ui.login.fragments.SubscriptionMissingFragment
 import de.taz.app.android.ui.login.fragments.SubscriptionTakenFragment
 import de.taz.app.android.ui.login.fragments.subscription.SubscriptionAccountFragment
-import de.taz.app.android.ui.login.fragments.subscription.SubscriptionExtendPrintPlusDigiFragment
 import de.taz.app.android.ui.login.fragments.subscription.SubscriptionNameFragment
 import de.taz.app.android.ui.login.fragments.subscription.SubscriptionSwitchPrint2DigiFragment
 import de.taz.app.android.ui.login.fragments.subscription.SubscriptionTrialOnlyFragment
@@ -235,7 +235,6 @@ class LoginBottomSheetFragment : FullscreenViewBindingBottomSheetFragment<Fragme
 
             LoginViewModelState.SUBSCRIPTION_ALREADY_LINKED -> showSubscriptionAlreadyLinked()
             LoginViewModelState.SWITCH_PRINT_2_DIGI_REQUEST -> showSwitchPrint2DigiForm()
-            LoginViewModelState.EXTEND_PRINT_WITH_DIGI_REQUEST -> showExtendPrintWithDigiForm()
         }
     }
 
@@ -387,13 +386,6 @@ class LoginBottomSheetFragment : FullscreenViewBindingBottomSheetFragment<Fragme
         log.verbose("showPrint2DigiForm")
         showFragment(
             SubscriptionSwitchPrint2DigiFragment()
-        )
-    }
-
-    private fun showExtendPrintWithDigiForm() {
-        log.verbose("showPrintPlusDigiForm")
-        showFragment(
-            SubscriptionExtendPrintPlusDigiFragment()
         )
     }
 

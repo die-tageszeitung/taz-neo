@@ -19,16 +19,6 @@ import de.taz.app.android.util.Log
 import de.taz.app.android.util.hideSoftInputKeyboard
 import kotlinx.coroutines.launch
 
-class SubscriptionExtendPrintPlusDigiFragment : SubscriptionInquiryFragment() {
-    override val titleStringRes: Int = R.string.subscription_inquiry_extend_title
-    override val descriptionStringRes: Int = R.string.subscription_inquiry_extend_description
-    override val inquiryType: SubscriptionFormDataType =  SubscriptionFormDataType.printPlusDigi
-
-    override fun onResume() {
-        super.onResume()
-        tracker.trackSubscriptionExtendFormScreen()
-    }
-}
 
 class SubscriptionSwitchPrint2DigiFragment : SubscriptionInquiryFragment() {
     override val titleStringRes: Int = R.string.subscription_inquiry_switch_title

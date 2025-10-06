@@ -118,10 +118,6 @@ class LoginFragment : LoginBaseFragment<FragmentLoginBinding>() {
             fragmentLoginSwitchPrint2digiBoxButton.setOnClickListener {
                 viewModel.requestSwitchPrint2Digi()
             }
-
-            fragmentLoginExtendPrintWithDigiBoxButton.setOnClickListener {
-                viewModel.requestExtendPrintWithDigi()
-            }
         }
     }
 
