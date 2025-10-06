@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
@@ -48,6 +47,7 @@ import de.taz.app.android.ui.navigation.setupBottomNavigation
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -142,10 +142,18 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
                 showCoachMarks()
             }
         }
-        generalDataStore.helpFabEnabled.asFlow()
+
+        combine(
+            generalDataStore.helpFabEnabled.asFlow(),
+            issueFeedViewModel.appBarVisible
+        ) { helpEnabled, appBarVisible -> helpEnabled && appBarVisible }
             .flowWithLifecycle(lifecycle)
             .onEach {
-                viewBinding.fabHelp.isVisible = it
+                if (it) {
+                    viewBinding.fabHelp.show()
+                } else {
+                    viewBinding.fabHelp.hide()
+                }
             }.launchIn(lifecycleScope)
     }
 
