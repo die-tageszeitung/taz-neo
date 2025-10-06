@@ -281,13 +281,6 @@ class MatomoTracker(applicationContext: Context) : Tracker {
             .with(matomoTracker)
     }
 
-    override fun trackSubscriptionExtendFormScreen() {
-        TrackHelper.track()
-            .screen("/subscription/extend")
-            .title("Subscription Extend With Digiabo")
-            .with(matomoTracker)
-    }
-
     override fun trackSubscriptionTrialInfoScreen() {
         TrackHelper.track()
             .screen("/subscription/trial_info")

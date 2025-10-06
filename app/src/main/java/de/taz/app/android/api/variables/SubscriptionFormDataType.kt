@@ -8,6 +8,4 @@ enum class SubscriptionFormDataType {
     trialSubscription,
     expiredDigiSubscription,
     print2Digi,
-    printPlusDigi,
-    weekendPlusDigi,
 }
