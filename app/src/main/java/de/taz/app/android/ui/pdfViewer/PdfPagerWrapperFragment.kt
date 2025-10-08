@@ -58,6 +58,7 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.launch
 
@@ -158,6 +159,27 @@ class PdfPagerWrapperFragment: ViewBindingFragment<ActivityPdfDrawerLayoutBindin
             pdfPagerViewModel.issueStubLiveData.observe(this, issueObserver)
         }
 
+
+        pdfPagerViewModel.continueReadDisplayable
+            .takeWhile { savedInstanceState == null }
+            .filterNotNull()
+            .take(1)
+            .flowWithLifecycle(lifecycle)
+            .onEach {
+                if (childFragmentManager.findFragmentByTag(
+                        ContinueReadBottomSheetFragment.TAG
+                    ) == null
+                ) {
+                    if (continueReadDirectly) {
+                        goDirectlyToDisplayable(it)
+                    } else {
+                        ContinueReadBottomSheetFragment.newInstance(it).show(
+                            childFragmentManager, ContinueReadBottomSheetFragment.TAG
+                        )
+                    }
+                }
+            }.launchIn(lifecycleScope)
+
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
@@ -197,25 +219,6 @@ class PdfPagerWrapperFragment: ViewBindingFragment<ActivityPdfDrawerLayoutBindin
                         drawerViewController.handleDrawerLogoState(it)
                     }
                 }
-
-                pdfPagerViewModel.continueReadDisplayable
-                    .takeWhile { savedInstanceState == null }
-                    .filterNotNull()
-                    .flowWithLifecycle(lifecycle)
-                    .onEach {
-                        if (childFragmentManager.findFragmentByTag(
-                                ContinueReadBottomSheetFragment.TAG
-                            ) == null
-                        ) {
-                            if (continueReadDirectly) {
-                                goDirectlyToDisplayable(it)
-                            } else {
-                                ContinueReadBottomSheetFragment.newInstance(it).show(
-                                    childFragmentManager, ContinueReadBottomSheetFragment.TAG
-                                )
-                            }
-                        }
-                    }.launchIn(lifecycleScope)
 
                 // Check whether maybe show dialog to always continue read or always show title page
                 val askEachTimeToContinueRead =
