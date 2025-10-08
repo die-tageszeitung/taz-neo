@@ -10,10 +10,10 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.taz.app.android.R
 import de.taz.app.android.dataStore.GeneralDataStore
+import de.taz.app.android.monkey.getApplicationScope
 import kotlinx.coroutines.launch
 
 
@@ -57,17 +57,17 @@ class ContinueReadSettingDialog : DialogFragment() {
             .setTitle(R.string.fragment_bottom_sheet_continue_read_dialog_title)
             .setMessage(R.string.fragment_bottom_sheet_continue_read_dialog_message)
             .setPositiveButton(R.string.fragment_bottom_sheet_continue_read_dialog_positive_button) { dialog, _ ->
-                lifecycleScope.launch {
+                getApplicationScope().launch {
                     generalDataStore.settingsContinueReadAskEachTime.set(false)
                     generalDataStore.settingsContinueRead.set(true)
-                    dialog.dismiss()
                 }
+                dialog.dismiss()
             }
             .setNegativeButton(R.string.fragment_bottom_sheet_continue_read_dialog_negative_button) { dialog, _ ->
-                lifecycleScope.launch {
+                getApplicationScope().launch {
                     generalDataStore.settingsContinueReadAskEachTime.set(true)
-                    dialog.dismiss()
                 }
+                dialog.dismiss()
             }
             .create()
     }
@@ -92,17 +92,17 @@ class AlwaysTitleSectionSettingDialog : DialogFragment() {
             .setTitle(R.string.fragment_bottom_sheet_always_title_section_dialog_title)
             .setMessage(R.string.fragment_bottom_sheet_always_title_section_dialog_message)
             .setPositiveButton(R.string.fragment_bottom_sheet_always_title_section_dialog_positive_button) { dialog, _ ->
-                lifecycleScope.launch {
+                getApplicationScope().launch {
                     generalDataStore.settingsContinueReadAskEachTime.set(true)
                     generalDataStore.settingsContinueRead.set(false)
-                    dialog.dismiss()
                 }
+                dialog.dismiss()
             }
             .setNegativeButton(R.string.fragment_bottom_sheet_always_title_section_dialog_negative_button) { dialog, _ ->
-                lifecycleScope.launch {
+                getApplicationScope().launch {
                     generalDataStore.settingsContinueReadAskEachTime.set(false)
-                    dialog.dismiss()
                 }
+                dialog.dismiss()
             }
             .create()
     }
