@@ -93,7 +93,7 @@ class DrawerViewController(
                         wasHidden = false
                     }
                 }
-                if (!state.isHidden) {
+                if (!state.isHidden && !state.percentMorphedToBurger.isNaN() ) {
                     morphLogosByPercent(state.percentMorphedToBurger)
                 }
                 closeDrawer()
