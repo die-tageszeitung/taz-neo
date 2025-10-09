@@ -171,7 +171,7 @@ class PdfPagerWrapperFragment: ViewBindingFragment<ActivityPdfDrawerLayoutBindin
                         ContinueReadBottomSheetFragment.TAG
                     ) == null
                 ) {
-                    if (continueReadDirectly) {
+                    if (continueReadDirectly || generalDataStore.settingsContinueRead.get()) {
                         goDirectlyToDisplayable(it)
                     } else {
                         continueReadBottomSheetShown = true
