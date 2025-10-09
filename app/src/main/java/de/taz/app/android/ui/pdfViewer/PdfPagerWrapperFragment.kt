@@ -101,6 +101,7 @@ class PdfPagerWrapperFragment: ViewBindingFragment<ActivityPdfDrawerLayoutBindin
     private lateinit var drawerViewController: DrawerViewController
     private val continueReadDirectly: Boolean
         get() = arguments?.getBoolean(IssueViewerWrapperFragment.Companion.KEY_CONTINUE_READ_DIRECTLY) ?: false
+    private var continueReadBottomSheetShown = false
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -161,7 +162,7 @@ class PdfPagerWrapperFragment: ViewBindingFragment<ActivityPdfDrawerLayoutBindin
 
 
         pdfPagerViewModel.continueReadDisplayable
-            .takeWhile { savedInstanceState == null }
+            .takeWhile { savedInstanceState == null && !continueReadBottomSheetShown}
             .filterNotNull()
             .take(1)
             .flowWithLifecycle(lifecycle)
@@ -173,6 +174,7 @@ class PdfPagerWrapperFragment: ViewBindingFragment<ActivityPdfDrawerLayoutBindin
                     if (continueReadDirectly) {
                         goDirectlyToDisplayable(it)
                     } else {
+                        continueReadBottomSheetShown = true
                         ContinueReadBottomSheetFragment.newInstance(it).show(
                             childFragmentManager, ContinueReadBottomSheetFragment.TAG
                         )
