@@ -55,6 +55,7 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
     private val drawerAndLogoViewModel: DrawerAndLogoViewModel by activityViewModels()
 
     private lateinit var tracker: Tracker
+    private var showFab = false
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -118,7 +119,7 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
      * On edge to edge we need to properly update the margins of the FAB:
      */
     private fun setupFAB() {
-        ViewCompat.setOnApplyWindowInsetsListener(viewBinding.fabHelp) { v, windowInsets ->
+        ViewCompat.setOnApplyWindowInsetsListener(viewBinding.sectionPagerFabHelp) { v, windowInsets ->
             val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
             // Apply the insets as a margin to the view. This solution sets
             // only the bottom, left, and right dimensions, but you can apply whichever
@@ -133,7 +134,7 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
             // down to descendant views.
             WindowInsetsCompat.CONSUMED
         }
-        viewBinding.fabHelp.setOnClickListener {
+        viewBinding.sectionPagerFabHelp.setOnClickListener {
             log.verbose("show coach marks in section pager")
             showCoachMarks()
         }
@@ -141,7 +142,8 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
         issueContentViewModel.fabHelpEnabledFlow
             .flowWithLifecycle(lifecycle)
             .onEach {
-                viewBinding.fabHelp.isVisible = it
+                viewBinding.sectionPagerFabHelp.isVisible = it
+                showFab = it
             }.launchIn(lifecycleScope)
     }
 
@@ -282,9 +284,11 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
         val isPodcast = currentSection.type == SectionType.podcast
         if (isAdvertisement || isPodcast) {
             drawerAndLogoViewModel.hideLogo()
-            viewBinding.fabHelp.hide()
+            viewBinding.sectionPagerFabHelp.hide()
         } else {
-            viewBinding.fabHelp.show()
+            if (showFab) {
+                viewBinding.sectionPagerFabHelp.show()
+            }
             if (sectionsStubs.isEmpty()) return
             val lastSection = try {
                 lastPage?.let { sectionsStubs[it] }
