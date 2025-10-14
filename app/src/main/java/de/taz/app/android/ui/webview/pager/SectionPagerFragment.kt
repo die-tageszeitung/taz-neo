@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
@@ -18,6 +19,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_DRAGGING
 import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_IDLE
+import com.google.android.material.behavior.HideBottomViewOnScrollBehavior
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.SectionStub
@@ -37,6 +39,7 @@ import de.taz.app.android.ui.issueViewer.IssueKeyWithDisplayableKey
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setupBottomNavigation
+import de.taz.app.android.ui.webview.HelpFabViewModel
 import de.taz.app.android.ui.webview.SectionImprintWebViewFragment
 import de.taz.app.android.ui.webview.SectionWebViewFragment
 import de.taz.app.android.util.Log
@@ -53,6 +56,7 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
 
     private val issueContentViewModel: IssueViewerViewModel by activityViewModels()
     private val drawerAndLogoViewModel: DrawerAndLogoViewModel by activityViewModels()
+    private val helpFabViewModel: HelpFabViewModel by activityViewModels()
 
     private lateinit var tracker: Tracker
     private var showFab = false
@@ -93,15 +97,8 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
                 }
 
                 launch {
-                    issueContentViewModel.activeDisplayModeFlow.collect {
-                        // We show here the couch mark for horizontal swipe. It is at this place because
-                        // the [SectionPagerFragment] is always created in the [IssueViewerActivity], even if
-                        // an article is shown. But the [activeDisplayMode] gives us the indication that we
-                        // are on an section.
-                        if (it == IssueContentDisplayMode.Section) {
-                     //       HorizontalSectionSwipeCoachMark(this@SectionPagerFragment)
-                       //         .maybeShow()
-                        }
+                    helpFabViewModel.showHelpFabFlow.collect {
+                        toggleHelpFab(it)
                     }
                 }
             }
@@ -321,5 +318,22 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
             sectionPlaylistCoachMark,
         )
         CoachMarkDialog.create(coachMarks).show(childFragmentManager, CoachMarkDialog.TAG)
+    }
+
+    private suspend fun toggleHelpFab(show: Boolean) {
+        if (issueContentViewModel.fabHelpEnabledFlow.first()) {
+            val fab = viewBinding.sectionPagerFabHelp
+            val layoutParams = fab.layoutParams
+            if (layoutParams is CoordinatorLayout.LayoutParams) {
+                val behavior = layoutParams.behavior
+                if (behavior is HideBottomViewOnScrollBehavior) {
+                    if (show) {
+                        behavior.slideUp(fab)
+                    } else {
+                        behavior.slideDown(fab)
+                    }
+                }
+            }
+        }
     }
 }

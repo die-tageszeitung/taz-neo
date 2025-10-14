@@ -14,9 +14,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.lifecycle.whenCreated
 import com.google.android.material.appbar.AppBarLayout
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import de.taz.app.android.DELAY_FOR_VIEW_HEIGHT_CALCULATION
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.ArticleOperations
@@ -28,7 +26,6 @@ import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.DEFAULT_COLUMN_GAP_PX
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
-import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.login.LoginBottomSheetFragment
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment
 import kotlinx.coroutines.delay
@@ -55,7 +52,6 @@ class ArticleWebViewFragment :
     override val viewModel by viewModels<ArticleWebViewViewModel>()
     private val tapIconsViewModel: TapIconsViewModel by activityViewModels()
     private val drawerAndLogoViewModel: DrawerAndLogoViewModel by activityViewModels()
-    private val issueContentViewModel: IssueViewerViewModel by activityViewModels()
 
     private var articleOperations: ArticleOperations? = null
     private lateinit var articleFileName: String
@@ -387,7 +383,7 @@ class ArticleWebViewFragment :
                         drawerAndLogoViewModel.morphLogoByPercent(percentToHide)
                     }
                 }
-                toggleFAB(show = false)
+                helpFabViewModel.hideHelpFab()
             } else if (drawerAndLogoViewModel.isBurgerIcon()) {
                 // we are scrolling to the left here
 
@@ -400,23 +396,9 @@ class ArticleWebViewFragment :
                     drawerAndLogoViewModel.setFeedLogo()
                     oldScrollXOnMultiColumnSaved = false
                     oldScrollXOnMultiColumn = 0
-                    toggleFAB(show = true)
+                    helpFabViewModel.showHelpFab()
                 } else {
                     drawerAndLogoViewModel.morphLogoByPercent(percentToHide)
-                }
-            }
-        }
-    }
-
-    private fun toggleFAB(show: Boolean) {
-        lifecycleScope.launch {
-            if (issueContentViewModel.fabHelpEnabledFlow.first()) {
-                if (show) {
-                    requireActivity().findViewById<FloatingActionButton>(R.id.article_pager_fab_help)
-                        .show()
-                } else {
-                    requireActivity().findViewById<FloatingActionButton>(R.id.article_pager_fab_help)
-                        .hide()
                 }
             }
         }

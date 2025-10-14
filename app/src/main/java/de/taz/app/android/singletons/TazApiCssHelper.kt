@@ -10,7 +10,7 @@ import kotlinx.coroutines.withContext
 
 private const val DEFAULT_NIGHT_COLOR = "#121212"
 private const val DEFAULT_DAY_COLOR = "#FFFFFF"
-private const val DEFAULT_FONT_SIZE = 18
+const val DEFAULT_FONT_SIZE = 18
 const val DEFAULT_COLUMN_GAP_PX = 34f
 
 class TazApiCssHelper private constructor(applicationContext: Context) {
