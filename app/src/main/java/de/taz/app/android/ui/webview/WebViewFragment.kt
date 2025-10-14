@@ -30,6 +30,7 @@ import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
+import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.download.DownloadPriority
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssueKey
@@ -37,6 +38,7 @@ import de.taz.app.android.persistence.repository.ViewerStateRepository
 import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.singletons.CannotDetermineBaseUrlException
 import de.taz.app.android.singletons.DEFAULT_COLUMN_GAP_PX
+import de.taz.app.android.singletons.DEFAULT_FONT_SIZE
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.ViewBorder
@@ -65,10 +67,6 @@ private annotation class ScrollDirection
 private const val SCROLL_FORWARD = 1
 private const val SCROLL_BACKWARDS = -1
 
-// Only log 0 height status bars to sentry once per app start.
-// FIXME (johannes): this global variable should be part of an explicit helper
-private var sentryLoggedStatusBarHeight0 = false
-
 abstract class WebViewFragment<
         DISPLAYABLE : WebViewDisplayable,
         VIEW_MODEL : WebViewViewModel<DISPLAYABLE>,
@@ -90,6 +88,7 @@ abstract class WebViewFragment<
     private lateinit var storageService: StorageService
     private lateinit var contentService: ContentService
     private lateinit var fileEntryRepository: FileEntryRepository
+    private lateinit var tazApiCssDataStore: TazApiCssDataStore
     private lateinit var tracker: Tracker
     private lateinit var viewerStateRepository: ViewerStateRepository
 
@@ -102,6 +101,7 @@ abstract class WebViewFragment<
     var tapLock = false
 
     val issueViewerViewModel: IssueViewerViewModel by activityViewModels()
+    val helpFabViewModel: HelpFabViewModel by activityViewModels()
 
     abstract suspend fun reloadAfterCssChange()
 
@@ -125,6 +125,7 @@ abstract class WebViewFragment<
         storageService = StorageService.getInstance(context.applicationContext)
         fileEntryRepository = FileEntryRepository.getInstance(context.applicationContext)
         tracker = Tracker.getInstance(context.applicationContext)
+        tazApiCssDataStore = TazApiCssDataStore.getInstance(context.applicationContext)
         viewerStateRepository =
             ViewerStateRepository.getInstance(context.applicationContext)
     }
@@ -411,122 +412,68 @@ abstract class WebViewFragment<
             issueViewerViewModel.goNextArticle.emit(true)
         }
 
-        // if on bottom and tap on right side go to previous article
+        // if on top and tap on left side go to previous article
         else if (!webView.canScrollVertically(SCROLL_BACKWARDS) && direction == SCROLL_BACKWARDS) {
             issueViewerViewModel.goPreviousArticle.emit(true)
-
         } else {
             val appBarLayout = this.appBarLayout
             val bottomNavigationLayout = this.bottomNavigationLayout
             val bottomNavigationBehavior = bottomNavigationLayout?.getBottomNavigationBehavior()
 
+            var visibleBottom = resources.displayMetrics.heightPixels
+            var targetTop = resources.getDimensionPixelSize(R.dimen.fragment_webview_tap_to_scroll_offset)
+
+            // Keep a 1 line overlap so that the last/first line is visible after scrolling
+            // It is defined by the font size and line height (1.33rem)
+            val lineHeightSp =
+                tazApiCssDataStore.fontSize.get().toInt() * 0.0133 * DEFAULT_FONT_SIZE
+            val lineHeight = TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_SP,
+                lineHeightSp.toFloat(),
+                resources.displayMetrics
+            ).toInt()
+
+            if (appBarLayout != null && appBarLayout.bottom > 0 && Build.VERSION.SDK_INT >= 35) {
+                // Let 1 line be visible for better orientation when app bar
+                // is expanded and not drawn behind status bar (api 35+)
+                targetTop += lineHeight
+            }
+
+            if (bottomNavigationLayout != null) {
+                if (bottomNavigationBehavior != null) {
+                    // If the bottom navigation is shown, the visible content bottom is higher up
+                    visibleBottom -= bottomNavigationBehavior.getVisibleHeight(
+                        bottomNavigationLayout
+                    )
+                    bottomNavigationBehavior.collapse(bottomNavigationLayout, true)
+                } else {
+                    // If the bottom navigation does not have a behavior, it is expanded
+                    visibleBottom -= bottomNavigationLayout.height
+                }
+            }
+
+            val scrollDelta = visibleBottom - targetTop
+            var scrollDestination = 0
+
             when (direction) {
                 SCROLL_FORWARD -> {
-                    var visibleBottom = webView.height
-                    var targetTop = 0
-                    // Keep a small, estimated, overlap so that the last/first line is visible after scrolling
-                    targetTop += resources.getDimensionPixelSize(R.dimen.fragment_webview_tap_to_scroll_offset)
-
-                    if (appBarLayout != null) {
-                        // The app bar is pushing the whole content screen down, so our visible bottom is higher up
-                        visibleBottom -= appBarLayout.bottom
-
-                        // The app bar will be hidden, so we want the scrolled content to align below the status bar
-                        targetTop += getStatusBarHeight()
-
-                        appBarLayout.setExpanded(false, true)
-                    }
-
-                    if (bottomNavigationLayout != null) {
-                        if (bottomNavigationBehavior != null) {
-                            // If the bottom navigation is shown, the visible content bottom is higher up
-                            visibleBottom -= bottomNavigationBehavior.getVisibleHeight(
-                                bottomNavigationLayout
-                            )
-                            bottomNavigationBehavior.collapse(bottomNavigationLayout, true)
-                        } else {
-                            // If the bottom navigation does not have a behavior, it is expanded
-                            visibleBottom -= bottomNavigationLayout.height
-                        }
-
-                    }
-
-                    val scrollDelta = visibleBottom - targetTop
-                    val scrollAnimation = ObjectAnimator.ofInt(
-                        webView,
-                        "scrollY",
-                        webView.scrollY,
-                        webView.scrollY + scrollDelta
-                    )
-                    scrollAnimation.start()
+                    helpFabViewModel.hideHelpFab()
+                    scrollDestination = webView.scrollY + scrollDelta
                 }
 
                 SCROLL_BACKWARDS -> {
-                    var visibleTop = 0
-                    var targetBottom = webView.height
-                    // Keep a small, estimated, overlap so that the last/first line is visible after scrolling
-                    targetBottom -= resources.getDimensionPixelSize(R.dimen.fragment_webview_tap_to_scroll_offset)
-
-                    if (appBarLayout != null) {
-                        if (appBarLayout.bottom == 0) {
-                            // If the app bar is currently hidden, we still want to ignore the content below the translucent status bar for scrolling
-                            visibleTop += getStatusBarHeight()
-                        }
-
-                        // The app bar will be shown after scrolling, and pushing the content down.
-                        // So our visible target bottom will be higher up
-                        targetBottom -= appBarLayout.height
-
-                        appBarLayout.setExpanded(true, true)
-                    }
-
-                    if (bottomNavigationLayout != null) {
-                        // The bottom navigation will be shown after scrolling, so we have to adjust our visible target bottom
-                        targetBottom -= bottomNavigationLayout.height
-                        bottomNavigationBehavior?.expand(bottomNavigationLayout, true)
-                    }
-
-                    val scrollDelta = targetBottom - visibleTop
-                    val scrollAnimation = ObjectAnimator.ofInt(
-                        webView,
-                        "scrollY",
-                        webView.scrollY,
-                        webView.scrollY - scrollDelta
-                    )
-                    scrollAnimation.start()
+                    helpFabViewModel.showHelpFab()
+                    scrollDestination = webView.scrollY - scrollDelta
                 }
             }
+            val scrollAnimation = ObjectAnimator.ofInt(
+                webView,
+                "scrollY",
+                webView.scrollY,
+                scrollDestination
+            )
+            scrollAnimation.start()
         }
-    }
-
-    private fun getStatusBarHeight(): Int {
-        val rootWindowInsets = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            view?.rootWindowInsets
-        } else {
-            null
-        }
-
-        val statusBarHeight =
-            if (rootWindowInsets != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                rootWindowInsets.getInsets(WindowInsets.Type.systemBars()).top
-            } else if (rootWindowInsets != null) {
-                rootWindowInsets.systemWindowInsetTop
-            } else {
-                val legacyStatusBarHeightDp = 24f
-                TypedValue.applyDimension(
-                    TypedValue.COMPLEX_UNIT_DIP,
-                    legacyStatusBarHeightDp,
-                    resources.displayMetrics
-                ).toInt()
-            }
-
-        if (statusBarHeight <= 0 && sentryLoggedStatusBarHeight0) {
-            sentryLoggedStatusBarHeight0 = true
-            log.warn("Encountered status bar height of $statusBarHeight: \nRootWindowInsets: $rootWindowInsets")
-            SentryWrapper.captureMessage("Encountered status bar height of 0")
-        }
-
-        return statusBarHeight
     }
 
     fun getNavigationBarHeight(): Int {

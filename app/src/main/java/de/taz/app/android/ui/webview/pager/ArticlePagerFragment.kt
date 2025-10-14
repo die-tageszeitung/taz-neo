@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -23,6 +24,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.behavior.HideBottomViewOnScrollBehavior
 import de.taz.app.android.ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
@@ -73,6 +75,7 @@ import de.taz.app.android.ui.pdfViewer.PdfPagerViewModel
 import de.taz.app.android.ui.pdfViewer.PdfPagerWrapperFragment.Companion.ARTICLE_PAGER_FRAGMENT_BACKSTACK_NAME
 import de.taz.app.android.ui.share.ShareArticleBottomSheet
 import de.taz.app.android.ui.webview.ArticleWebViewFragment.CollapsibleLayoutProvider
+import de.taz.app.android.ui.webview.HelpFabViewModel
 import de.taz.app.android.ui.webview.TapIconsViewModel
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
@@ -96,6 +99,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
     private val drawerAndLogoViewModel: DrawerAndLogoViewModel by activityViewModels()
     private val audioPlayerViewModel: ArticleAudioPlayerViewModel by viewModels()
     private val tapIconsViewModel: TapIconsViewModel by activityViewModels()
+    private val helpFabViewModel: HelpFabViewModel by activityViewModels()
 
     private lateinit var articleRepository: ArticleRepository
     private lateinit var authHelper: AuthHelper
@@ -265,6 +269,11 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
                         }
                     }
                 }
+                launch {
+                    helpFabViewModel.showHelpFabFlow.collect {
+                        toggleHelpFab(it)
+                    }
+                }
             }
         }
         setupDrawerLogoGhost()
@@ -383,7 +392,22 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
                 TAP_ICON_FADE_OUT_TIME
         }
     }
-
+    private suspend fun toggleHelpFab(show: Boolean) {
+        if (issueContentViewModel.fabHelpEnabledFlow.first()) {
+            val fab = viewBinding.articlePagerFabHelp
+            val layoutParams = fab.layoutParams
+            if (layoutParams is CoordinatorLayout.LayoutParams) {
+                val behavior = layoutParams.behavior
+                if (behavior is HideBottomViewOnScrollBehavior) {
+                    if (show) {
+                        behavior.slideUp(fab)
+                    } else {
+                        behavior.slideDown(fab)
+                    }
+                }
+            }
+        }
+    }
 
     private fun setupViewPager() {
         viewBinding.webviewPagerViewpager.apply {
@@ -437,6 +461,10 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
 
         override fun onPageSelected(position: Int) {
             tapIconsViewModel.hideTapIcons()
+            lifecycleScope.launch {
+                toggleHelpFab(true)
+                helpFabViewModel.showHelpFab()
+            }
 
             val adapter = (viewBinding.webviewPagerViewpager.adapter as ArticlePagerAdapter)
             val selectedItem = adapter.articlePagerItems[position]
