@@ -433,10 +433,15 @@ abstract class WebViewFragment<
                 resources.displayMetrics
             ).toInt()
 
-            if (appBarLayout != null && appBarLayout.bottom > 0 && Build.VERSION.SDK_INT >= 35) {
+            // Since API 35 content is drawn edge to edge
+            if (Build.VERSION.SDK_INT >= 35) {
                 // Let 1 line be visible for better orientation when app bar
                 // is expanded and not drawn behind status bar (api 35+)
-                targetTop += lineHeight
+                if (appBarLayout != null && appBarLayout.bottom > 0) {
+                    targetTop += lineHeight
+                }
+                // And remove the navigation bar from the bottom
+                visibleBottom -= getNavigationBarHeight()
             }
 
             if (bottomNavigationLayout != null) {
