@@ -106,6 +106,7 @@ abstract class WebViewFragment<
     abstract suspend fun reloadAfterCssChange()
 
     abstract val webView: AppWebView
+    // TODO: Make loadingScreen a nullable View?, as it might get destroyed and throw a npe.
     abstract val loadingScreen: View
 
     private var webViewInnerWidth: Int? = null
@@ -546,7 +547,12 @@ abstract class WebViewFragment<
 
     open fun hideLoadingScreen() {
         activity?.runOnUiThread {
-            loadingScreen.animate()?.alpha(0f)?.duration = LOADING_SCREEN_FADE_OUT_TIME
+            try {
+                loadingScreen.animate()?.alpha(0f)?.duration = LOADING_SCREEN_FADE_OUT_TIME
+            } catch (npe: NullPointerException) {
+                log.error("Tried to access loading screen which is already closed.")
+                SentryWrapper.captureException(npe)
+            }
         }
     }
 
