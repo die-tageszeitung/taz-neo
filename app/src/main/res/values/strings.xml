@@ -311,9 +311,9 @@
     <string name="login_trial_subscription_title">Noch kein Abo?</string>
     <string name="login_trial_subscription_body">Testen Sie uns doch einfach mal 6 Wochen kostenlos! Und wenn Sie danach weiterlesen wollen – was wir natürlich stark hoffen – können Sie unseren unabhängigen Journalismus in verschiedenen Abo-Modellen lesen.</string>
     <string name="login_trial_subscription_button_text">Jetzt kostenlos testen</string>
-    <string name="login_switch_print2digi_title">Papierlos glücklich lesen</string>
-    <string name="login_switch_print2digi_body">Sie haben ein Print-Abo und wollen aber nur noch digital lesen? Auf in die Zukunft! Machen Sie es wie bereits 45.000 andere digitale Leser:innen. Wie? Kontaktieren Sie einfach unser Service-Team.</string>
-    <string name="login_switch_print2digi_button_text">Jetzt informieren</string>
+    <string name="login_switch_print2digi_title">Digitaler Zugang für Abonnent:innen</string>
+    <string name="login_switch_print2digi_body">Sie hatten bisher ein Print-Abo und benötigen Zugang zur digitalen taz oder Hilfe beim Anmelden?</string>
+    <string name="login_switch_print2digi_button_text">Hier Kontakt aufnehmen</string>
 
     <string name="login_first_name_helper">Mit dem Nachnamen max 24 Zeichen.</string>
     <string name="login_first_name_hint">Vorname</string>
@@ -467,8 +467,8 @@
     <string name="table_of_content">Inhalt –\u0020</string>
     <string name="author_list">von %s</string>
 
-    <string name="subscription_inquiry_switch_title">Ja! Ich möchte nur noch digital lesen.</string>
-    <string name="subscription_inquiry_switch_description">Super! Auf in die Zukunft. Herzlichen Glückwunsch zu diesem Schritt. Um Sie einordnen zu können, brauchen wir ein paar Daten von Ihnen.\nWir kontaktieren Sie in den nächsten Tagen per Mail.</string>
+    <string name="subscription_inquiry_switch_title">Mein Zugang zur digitalen taz</string>
+    <string name="subscription_inquiry_switch_description">Um Ihnen den Zugang zur digitalen taz ermöglichen zu können, benötigen wir einige Informationen von Ihnen.\nWir melden uns so schnell wie möglich bei Ihnen.</string>
     <string name="subscription_inquiry_subscription_id_title">Abo-Nummer (wenn vorhanden)</string>
     <string name="subscription_inquiry_email_title">E-Mail-Adresse</string>
     <string name="subscription_inquiry_surname_title">Nachname</string>
