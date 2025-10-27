@@ -79,9 +79,7 @@ class DrawerViewController(
                     // If logo ends up at an extreme, we set force the main logo state to fit it
                     state.percentMorphedToBurger == 1f -> {
                         if (!isLogoBurger || state.isBurger || isLogoClose) {
-                            CoroutineScope(Dispatchers.Main).launch {
-                                setBurgerIcon()
-                            }
+                            setBurgerIcon()
                         }
                     }
 
