@@ -4,6 +4,8 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.Rect
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
@@ -85,9 +87,16 @@ abstract class BaseCoachMark(@LayoutRes private val layoutResId: Int) : Fragment
             requireView().findViewById<View>(R.id.coach_mark_icon_wrapper)
         val canvas = requireView().findViewById<ImageView>(R.id.coach_mark_canvas)
 
+        // Before edge-to-edge was enforced (35) we need to subtract the status bar height from y
+        val statusBarHeight = if (Build.VERSION.SDK_INT < 35) {
+            getStatusBarHeight()
+        } else {
+            0
+        }
+
         coachMarkIconWrapper?.apply {
             x = location[0].toFloat()
-            y = location[1].toFloat()
+            y = location[1].toFloat() - statusBarHeight
             textString?.let {
                 findViewById<TextView>(R.id.coach_mark_text_view)?.text = it
             }
@@ -112,7 +121,11 @@ abstract class BaseCoachMark(@LayoutRes private val layoutResId: Int) : Fragment
 
     private fun drawLineToIconFromMid(icon: View, imageView: ImageView) {
         // factor of how much % should be the padding
-        val factorPaddingToCenter = if (useShortArrow) { 0.65 } else { 0.25 }
+        val factorPaddingToCenter = if (useShortArrow) {
+            0.65
+        } else {
+            0.25
+        }
 
         // unfortunately icon.width is not working, so we take the menuItem!!.width
         val width = menuItem!!.width
@@ -142,7 +155,7 @@ abstract class BaseCoachMark(@LayoutRes private val layoutResId: Int) : Fragment
         val centerX = resources.displayMetrics.widthPixels * 0.5
         val centerY = resources.displayMetrics.heightPixels * 0.5
 
-        val slope = abs(centerY - midOfIconY)/ abs(centerX - midOfIconX)
+        val slope = abs(centerY - midOfIconY) / abs(centerX - midOfIconX)
 
         val startCoordinates =
             if (-height * 0.5 <= slope * width * 0.5 && slope * width * 0.5 <= height * 0.5) {
@@ -192,9 +205,21 @@ abstract class BaseCoachMark(@LayoutRes private val layoutResId: Int) : Fragment
         val stopY = (centerY - (centerY - midOfIconY) * factorPaddingToCenter).toFloat()
 
         // Draw the line
-        canvas.drawLine(startCoordinates.first.toFloat(), startCoordinates.second.toFloat(), stopX, stopY, paint)
+        canvas.drawLine(
+            startCoordinates.first.toFloat(),
+            startCoordinates.second.toFloat(),
+            stopX,
+            stopY,
+            paint
+        )
 
         // Set this bitmap to the ImageView
         imageView.setImageBitmap(bitmap)
+    }
+
+    private fun getStatusBarHeight(): Int {
+        val rectangle = Rect()
+        requireActivity().window.decorView.getWindowVisibleDisplayFrame(rectangle)
+        return rectangle.top
     }
 }

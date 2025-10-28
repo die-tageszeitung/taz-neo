@@ -3,10 +3,6 @@ package de.taz.app.android.ui.home.page.archive
 import android.content.Context
 import android.os.Bundle
 import android.view.View
-import android.view.ViewGroup
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -110,6 +106,9 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
     private fun scrollToDate(date: Date) {
         val adapter = adapter ?: return
 
+        // Show the app bar layout when skipping to a date:
+        viewBinding.appBarLayout.setExpanded(true)
+
         adapter.getPosition(date).let { position ->
             gridLayoutManager.scrollToPositionWithOffset(position, 0)
         }
@@ -133,6 +132,8 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
             appBarLayout.addOnOffsetChangedListener { _, verticalOffset ->
                 // hide appbar content if it's collapsed
                 collapsingToolbarLayout.alpha = 1f- abs(verticalOffset) / collapsingToolbarLayout.height.toFloat()
+                // Even on a little offset set to false:
+                viewModel.appBarVisible.value = verticalOffset == 0
             }
 
 

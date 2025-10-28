@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
@@ -18,6 +19,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_DRAGGING
 import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_IDLE
+import com.google.android.material.behavior.HideBottomViewOnScrollBehavior
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.SectionStub
@@ -29,6 +31,7 @@ import de.taz.app.android.coachMarks.SectionPlaylistCoachMark
 import de.taz.app.android.coachMarks.TazLogoCoachMark
 import de.taz.app.android.databinding.FragmentWebviewSectionPagerBinding
 import de.taz.app.android.monkey.reduceDragSensitivity
+import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
 import de.taz.app.android.ui.issueViewer.IssueContentDisplayMode
@@ -36,6 +39,7 @@ import de.taz.app.android.ui.issueViewer.IssueKeyWithDisplayableKey
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setupBottomNavigation
+import de.taz.app.android.ui.webview.HelpFabViewModel
 import de.taz.app.android.ui.webview.SectionImprintWebViewFragment
 import de.taz.app.android.ui.webview.SectionWebViewFragment
 import de.taz.app.android.util.Log
@@ -52,8 +56,10 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
 
     private val issueContentViewModel: IssueViewerViewModel by activityViewModels()
     private val drawerAndLogoViewModel: DrawerAndLogoViewModel by activityViewModels()
+    private val helpFabViewModel: HelpFabViewModel by activityViewModels()
 
     private lateinit var tracker: Tracker
+    private var showFab = false
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -91,15 +97,8 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
                 }
 
                 launch {
-                    issueContentViewModel.activeDisplayModeFlow.collect {
-                        // We show here the couch mark for horizontal swipe. It is at this place because
-                        // the [SectionPagerFragment] is always created in the [IssueViewerActivity], even if
-                        // an article is shown. But the [activeDisplayMode] gives us the indication that we
-                        // are on an section.
-                        if (it == IssueContentDisplayMode.Section) {
-                     //       HorizontalSectionSwipeCoachMark(this@SectionPagerFragment)
-                       //         .maybeShow()
-                        }
+                    helpFabViewModel.showHelpFabFlow.collect {
+                        toggleHelpFab(it)
                     }
                 }
             }
@@ -117,7 +116,7 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
      * On edge to edge we need to properly update the margins of the FAB:
      */
     private fun setupFAB() {
-        ViewCompat.setOnApplyWindowInsetsListener(viewBinding.fabHelp) { v, windowInsets ->
+        ViewCompat.setOnApplyWindowInsetsListener(viewBinding.sectionPagerFabHelp) { v, windowInsets ->
             val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
             // Apply the insets as a margin to the view. This solution sets
             // only the bottom, left, and right dimensions, but you can apply whichever
@@ -132,7 +131,7 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
             // down to descendant views.
             WindowInsetsCompat.CONSUMED
         }
-        viewBinding.fabHelp.setOnClickListener {
+        viewBinding.sectionPagerFabHelp.setOnClickListener {
             log.verbose("show coach marks in section pager")
             showCoachMarks()
         }
@@ -140,7 +139,8 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
         issueContentViewModel.fabHelpEnabledFlow
             .flowWithLifecycle(lifecycle)
             .onEach {
-                viewBinding.fabHelp.isVisible = it
+                viewBinding.sectionPagerFabHelp.isVisible = it
+                showFab = it
             }.launchIn(lifecycleScope)
     }
 
@@ -234,8 +234,14 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
             issueContentViewModel.lastSectionKey = displayableKey
 
             getSupposedPagerPosition()?.let {
-                if (it >= 0 && it != getCurrentPagerPosition()) {
-                    viewBinding.webviewPagerViewpager.setCurrentItem(it, false)
+                try {
+                    if (it >= 0 && it != getCurrentPagerPosition()) {
+                        viewBinding.webviewPagerViewpager.setCurrentItem(it, false)
+                    }
+                } catch (e: IndexOutOfBoundsException) {
+                    val message = "Tried to access position outside of adapter. ${e.message}"
+                    log.warn(message)
+                    SentryWrapper.captureException(e)
                 }
             }
         }
@@ -275,7 +281,11 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
         val isPodcast = currentSection.type == SectionType.podcast
         if (isAdvertisement || isPodcast) {
             drawerAndLogoViewModel.hideLogo()
+            viewBinding.sectionPagerFabHelp.hide()
         } else {
+            if (showFab) {
+                viewBinding.sectionPagerFabHelp.show()
+            }
             if (sectionsStubs.isEmpty()) return
             val lastSection = try {
                 lastPage?.let { sectionsStubs[it] }
@@ -308,5 +318,22 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
             sectionPlaylistCoachMark,
         )
         CoachMarkDialog.create(coachMarks).show(childFragmentManager, CoachMarkDialog.TAG)
+    }
+
+    private suspend fun toggleHelpFab(show: Boolean) {
+        if (issueContentViewModel.fabHelpEnabledFlow.first()) {
+            val fab = viewBinding.sectionPagerFabHelp
+            val layoutParams = fab.layoutParams
+            if (layoutParams is CoordinatorLayout.LayoutParams) {
+                val behavior = layoutParams.behavior
+                if (behavior is HideBottomViewOnScrollBehavior) {
+                    if (show) {
+                        behavior.slideUp(fab)
+                    } else {
+                        behavior.slideDown(fab)
+                    }
+                }
+            }
+        }
     }
 }

@@ -19,6 +19,7 @@
         android:translationX="@dimen/drawer_logo_translation_x"
         android:translationY="@dimen/drawer_logo_translation_y"
         android:translationZ="100dp"
+        android:alpha="0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

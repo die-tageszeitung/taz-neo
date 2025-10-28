@@ -6,6 +6,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
 import android.widget.FrameLayout
+import androidx.core.view.isNotEmpty
 import androidx.viewpager2.widget.ViewPager2
 import kotlin.math.abs
 import kotlin.math.sign
@@ -25,7 +26,7 @@ class NestedScrollableHost @JvmOverloads constructor(
     }
 
     private fun child(): View? {
-        return (if (this.childCount > 0) this.getChildAt(0) else null)
+        return (if (this.isNotEmpty()) this.getChildAt(0) else null)
     }
 
     init {

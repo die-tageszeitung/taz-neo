@@ -54,16 +54,14 @@ class DrawerViewController(
     private var feedLogoDrawable: Drawable? = null
     private var wasHidden = false
 
-    fun handleDrawerLogoState(state: DrawerState) {
+    suspend fun handleDrawerLogoState(state: DrawerState) {
         when (state) {
             is DrawerState.Closed -> {
                 when {
                     state.isHidden -> {
                         if ((isLogoBurger && !state.isBurger) || isLogoClose) {
-                            CoroutineScope(Dispatchers.Main).launch {
-                                setFeedLogo()
-                                hideDrawerLogoAnimatedWithDelay()
-                            }
+                            setFeedLogo()
+                            hideDrawerLogoAnimatedWithDelay()
                         } else {
                             hideDrawerLogoAnimatedWithDelay()
                         }
@@ -74,34 +72,26 @@ class DrawerViewController(
                     // we need to set to feed logo if we have burger icon
                     state.percentMorphedToBurger > 0f && state.percentMorphedToBurger < 1f -> {
                         if (isLogoBurger) {
-                            CoroutineScope(Dispatchers.Main).launch {
-                                setFeedLogo()
-                            }
+                            setFeedLogo()
                         }
                     }
 
                     // If logo ends up at an extreme, we set force the main logo state to fit it
                     state.percentMorphedToBurger == 1f -> {
                         if (!isLogoBurger || state.isBurger || isLogoClose) {
-                            CoroutineScope(Dispatchers.Main).launch {
-                                setBurgerIcon()
-                            }
+                            setBurgerIcon()
                         }
                     }
 
                     state.percentMorphedToBurger == 0f -> {
+                        setFeedLogo()
                         if (wasHidden) {
                             showDrawerLogoAnimated()
-                        }
-                        if (isLogoBurger || isLogoClose) {
-                            CoroutineScope(Dispatchers.Main).launch {
-                                setFeedLogo()
-                            }
                         }
                         wasHidden = false
                     }
                 }
-                if (!state.isHidden) {
+                if (!state.isHidden && !state.percentMorphedToBurger.isNaN() ) {
                     morphLogosByPercent(state.percentMorphedToBurger)
                 }
                 closeDrawer()
@@ -138,7 +128,7 @@ class DrawerViewController(
 
         val translationX = calculateTranslationXOnDrawerSlide(slideOffset)
         drawerLogoWrapper.translationX = translationX
-   }
+    }
 
     /**
      * Calculate the offsets of the drawerLogo for onDrawerSlide function.
@@ -174,7 +164,20 @@ class DrawerViewController(
         return offsetOnOpenDrawer + offsetOnClosedDrawer
     }
 
-    private fun hideDrawerLogoAnimatedWithDelay() {
+    private suspend fun hideDrawerLogoAnimatedWithDelay() {
+        val extraPadding =
+            if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                generalDataStore.displayCutoutExtraPadding.get()
+            } else {
+                0
+            }
+        updateTheGhosts(
+            resources.getDimensionPixelSize(R.dimen.drawer_logo_peak_when_hidden),
+            drawerLogoWrapper.height,
+            null,
+            extraPadding
+        )
+
         // Ignore any events before we the logo is even set
         if (drawerLogoWidth == UNKNOWN_DRAWER_LOGO_WIDTH)
             return

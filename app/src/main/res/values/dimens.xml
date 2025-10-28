@@ -172,7 +172,7 @@
     we need to translate it upwards the amount of the appBarHeight:
     (appBarHeight (107) is calculated by fragment_header_default_height and different paddings) -->
     <dimen name="fragment_webview_loading_screen_padding_bottom">107dp</dimen>
-    <dimen name="fragment_webview_tap_to_scroll_offset">53dp</dimen>
+    <dimen name="fragment_webview_tap_to_scroll_offset">118dp</dimen>
 
     <!-- Manually align the baseline to the bottom of the download icons.
          Value depends on the font but 2dp seems to work for all our variants -->
@@ -366,8 +366,8 @@
     <!-- endregion -->
 
     <!-- region coach marks  -->
-    <dimen name="coach_mark_text_layout_margin_start">70dp</dimen>
-    <dimen name="coach_mark_text_layout_margin_end">50dp</dimen>
+    <dimen name="coach_mark_text_layout_padding_start">30dp</dimen>
+    <dimen name="coach_mark_text_layout_padding_end">5dp</dimen>
     <dimen name="coach_mark_text_layout_margin_top">40dp</dimen>
     <dimen name="coach_mark_text_layout_padding_bottom">238dp</dimen>
     <dimen name="coach_mark_button_close_size">@dimen/default_touch_area_size</dimen>
