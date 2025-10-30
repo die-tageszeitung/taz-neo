@@ -61,10 +61,8 @@ class DrawerViewController(
                     state.isHidden -> {
                         if ((isLogoBurger && !state.isBurger) || isLogoClose) {
                             setFeedLogo()
-                            hideDrawerLogoAnimatedWithDelay()
-                        } else {
-                            hideDrawerLogoAnimatedWithDelay()
                         }
+                        hideDrawerLogoAnimatedWithDelay()
                         wasHidden = true
                     }
 
@@ -172,7 +170,7 @@ class DrawerViewController(
                 0
             }
         updateTheGhosts(
-            resources.getDimensionPixelSize(R.dimen.drawer_logo_peak_when_hidden),
+            resources.getDimensionPixelSize(R.dimen.drawer_burger_menu_width),
             drawerLogoWrapper.height,
             null,
             extraPadding

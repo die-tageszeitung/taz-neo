@@ -42,12 +42,6 @@ class DrawerAndLogoViewModel(
             is DrawerState.Open -> state.copy(isHidden = true)
         }
     }
-    fun setFeedLogoAndHide() {
-        _drawerState.value = when (val state = _drawerState.value) {
-            is DrawerState.Closed -> state.copy(isBurger = false, isHidden = true, percentMorphedToBurger = 0f)
-            is DrawerState.Open -> state.copy(isBurger = false, isHidden = true, percentMorphedToBurger = 0f)
-        }
-    }
 
     fun showLogo() {
         _drawerState.value = when (val state = _drawerState.value) {
