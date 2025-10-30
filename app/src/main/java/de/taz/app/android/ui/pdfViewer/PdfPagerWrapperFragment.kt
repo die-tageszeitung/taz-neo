@@ -18,7 +18,6 @@ import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Observer
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -129,11 +128,11 @@ class PdfPagerWrapperFragment: ViewBindingFragment<ActivityPdfDrawerLayoutBindin
         pdfPagerViewModel.setIssuePublication(issuePublication, continueReadDirectly)
 
         pdfPagerViewModel.issueDownloadFailedErrorFlow
+            .flowWithLifecycle(lifecycle)
             .filter { it }
-            .asLiveData()
-            .observe(this) {
+            .onEach {
                 requireActivity().showIssueDownloadFailedDialog(issuePublication)
-            }
+            }.launchIn(lifecycleScope)
 
         if (savedInstanceState == null) {
             childFragmentManager.beginTransaction().add(

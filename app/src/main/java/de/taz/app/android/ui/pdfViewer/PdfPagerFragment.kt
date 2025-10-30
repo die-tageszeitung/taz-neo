@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
@@ -22,13 +23,19 @@ import de.taz.app.android.ui.pdfViewer.mupdf.OnCoordinatesClickedListener
 import de.taz.app.android.ui.pdfViewer.mupdf.PageAdapter
 import de.taz.app.android.ui.pdfViewer.mupdf.PageView
 import de.taz.app.android.util.Log
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 /**
- * The PdfPagerFragment uses a [ReaderView] to render the [PdfPagerViewModel.pdfPageList]
+ * The PdfPagerFragment uses a [ReaderView] to render the [PdfPagerViewModel.pdfPageListFlow]
  */
 class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
-    private val pdfPagerViewModel: PdfPagerViewModel by viewModels({requireParentFragment()})
+    private val pdfPagerViewModel: PdfPagerViewModel by viewModels({ requireParentFragment() })
     private val drawerAndLogoViewModel: DrawerAndLogoViewModel by activityViewModels()
 
     private lateinit var tazApiCssDataStore: TazApiCssDataStore
@@ -48,18 +55,21 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        pdfPagerViewModel.pdfPageList.observe(viewLifecycleOwner) { pdfPageList ->
-            if (pdfPageList.isEmpty()) {
-                return@observe
-            }
+        pdfPagerViewModel.pdfPageListFlow
+            .flowWithLifecycle(lifecycle)
+            .filterNotNull()
+            .onEach { pdfPageList ->
+                if (pdfPageList.isEmpty()) {
+                    return@onEach
+                }
 
-            if (!isReaderViewInitialized) {
-                initReaderView(pdfPageList)
-                hideLoadingScreen()
-            } else {
-                updateReaderView(pdfPageList)
-            }
-        }
+                if (!isReaderViewInitialized) {
+                    initReaderView(pdfPageList)
+                    hideLoadingScreen()
+                } else {
+                    updateReaderView(pdfPageList)
+                }
+            }.launchIn(lifecycleScope)
 
         pdfPagerViewModel.currentItem.observe(viewLifecycleOwner) { position ->
             // only update currentItem if it has not been swiped
@@ -79,8 +89,6 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
     }
 
     override fun onDestroy() {
-        // Remove the observers, otherwise the drawerLogo handling might kick in
-        pdfPagerViewModel.pdfPageList.removeObservers(this)
         // And show the logo, so the state is not with a hidden logo
         drawerAndLogoViewModel.showLogo()
         super.onDestroy()
@@ -153,7 +161,13 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
     /**
      * Handle a click on the page, if tap to scroll is enabled.
      */
-    private fun handleClickWithTapToScroll(page: Page, xPage: Float, yPage: Float, xAbs: Float, yAbs: Float) {
+    private fun handleClickWithTapToScroll(
+        page: Page,
+        xPage: Float,
+        yPage: Float,
+        xAbs: Float,
+        yAbs: Float
+    ) {
         val tapBarWidth = resources.getDimension(R.dimen.tap_bar_width).toInt()
 
         val isPortrait =
@@ -219,9 +233,9 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
         }
     }
 
-    private fun trackOnPageChange(position: Int) {
+    private fun trackOnPageChange(position: Int) = CoroutineScope(Dispatchers.Default).launch {
         val issueStub = pdfPagerViewModel.issueStub
-        val page = pdfPagerViewModel.pdfPageList.value?.getOrNull(position)
+        val page = pdfPagerViewModel.pdfPageListFlow.first()?.getOrNull(position)
 
         if (issueStub != null && page != null) {
             val pagina = page.pagina ?: (position + 1).toString()

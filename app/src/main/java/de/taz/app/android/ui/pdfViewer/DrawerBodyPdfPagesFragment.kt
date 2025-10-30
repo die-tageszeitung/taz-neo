@@ -8,6 +8,7 @@ import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
@@ -29,6 +30,8 @@ import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
 import de.taz.app.android.ui.pdfViewer.PdfPagerWrapperFragment.Companion.ARTICLE_PAGER_FRAGMENT_BACKSTACK_NAME
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 /**
@@ -40,7 +43,7 @@ class DrawerBodyPdfPagesFragment : ViewBindingFragment<FragmentDrawerBodyPdfPage
 
     private lateinit var adapter: PdfDrawerRecyclerViewAdapter
 
-    private val pdfPagerViewModel: PdfPagerViewModel by viewModels({requireParentFragment()})
+    private val pdfPagerViewModel: PdfPagerViewModel by viewModels({ requireParentFragment() })
     private val drawerAndLogoViewModel: DrawerAndLogoViewModel by activityViewModels()
     private val drawerAudioPlayerViewModel: DrawerAudioPlayerViewModel by viewModels()
 
@@ -69,14 +72,17 @@ class DrawerBodyPdfPagesFragment : ViewBindingFragment<FragmentDrawerBodyPdfPage
         // it seems like a good try to disable the not-needed animations at all.
         viewBinding.navigationRecyclerView.itemAnimator = null
 
-        pdfPagerViewModel.pdfPageList.observe(viewLifecycleOwner) { pages ->
-            // Keep showing the drawer loading screen until all pages are fully downloaded
-            val allPagesDownloaded = pages.all { it.dateDownload != null }
-            if (allPagesDownloaded && pages.isNotEmpty()) {
-                initDrawAdapter(pages)
-                hideLoadingScreen()
-            }
-        }
+        pdfPagerViewModel.pdfPageListFlow
+            .flowWithLifecycle(lifecycle)
+            .filterNotNull()
+            .onEach { pages ->
+                // Keep showing the drawer loading screen until all pages are fully downloaded
+                val allPagesDownloaded = pages.all { it.dateDownload != null }
+                if (allPagesDownloaded && pages.isNotEmpty()) {
+                    initDrawAdapter(pages)
+                    hideLoadingScreen()
+                }
+            }.launchIn(lifecycleScope)
 
         viewBinding.navigationRecyclerView.addOnItemTouchListener(
             RecyclerTouchListener(

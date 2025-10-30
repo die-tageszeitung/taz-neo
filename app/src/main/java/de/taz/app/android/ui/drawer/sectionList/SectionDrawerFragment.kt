@@ -13,7 +13,6 @@ import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.asFlow
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -61,6 +60,7 @@ import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.webview.pager.BookmarkPagerViewModel
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.showIssueDownloadFailedDialog
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
@@ -165,15 +165,16 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
                 }
 
                 // or the bookmarkpager
-                launch {
-                    bookmarkPagerViewModel.currentIssueAndArticleLiveData.asFlow()
-                        .distinctUntilChanged().filterNotNull().collect { (issueStub, _) ->
+                bookmarkPagerViewModel.articleFileNameFlow
+                    .flowWithLifecycle(lifecycle)
+                    .filterNotNull()
+                    .onEach { articleFileName ->
+                        issueRepository.getIssueStubForArticle(articleFileName)?.let { issueStub ->
                             log.debug("Set issue ${issueStub.issueKey} from BookmarkPager")
-                            if (issueStub.issueKey == bookmarkPagerViewModel.currentIssue?.issueKey) {
-                                showIssue(issueStub.issueKey)
-                            }
+                            showIssue(issueStub.issueKey)
                         }
-                }
+                    }
+                    .launchIn(CoroutineScope(Dispatchers.Default))
 
                 launch {
                     drawerAudioPlayerViewModel.isIssueActiveAudio.collect { isActive ->
