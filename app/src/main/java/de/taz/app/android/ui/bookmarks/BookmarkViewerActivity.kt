@@ -8,7 +8,12 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import de.taz.app.android.audioPlayer.AudioPlayerViewController
+import de.taz.app.android.dataStore.GeneralDataStore
+import de.taz.app.android.persistence.repository.IssueKey
+import de.taz.app.android.persistence.repository.IssuePublication
+import de.taz.app.android.persistence.repository.IssuePublicationWithPages
 import de.taz.app.android.ui.TazViewerFragment
+import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.webview.pager.BookmarkPagerFragment
 import de.taz.app.android.ui.webview.pager.BookmarkPagerViewModel
 import kotlin.reflect.KClass
@@ -45,6 +50,30 @@ class BookmarkViewerActivity : AppCompatActivity() {
         }
 
         super.onBackPressed()
+    }
+
+    /**
+     * Function to show a [displayableKey] for the given [issueKey].
+     */
+    suspend fun showDisplayable(issueKey: IssueKey, displayableKey: String) {
+        val generalDataStore = GeneralDataStore.getInstance(applicationContext)
+        val isPdfMode = generalDataStore.pdfMode.get()
+        val intent = if (isPdfMode) {
+            MainActivity.newIntent(
+                applicationContext,
+                IssuePublicationWithPages(issueKey),
+                displayableKey,
+                continueReadDirectly = true,
+            )
+        } else {
+            MainActivity.newIntent(
+                applicationContext,
+                IssuePublication(issueKey),
+                displayableKey,
+                continueReadDirectly = true,
+            )
+        }
+        this.startActivity(intent)
     }
 }
 

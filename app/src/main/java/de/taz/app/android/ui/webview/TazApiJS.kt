@@ -103,7 +103,7 @@ class TazApiJS(private val webViewFragment: WebViewFragment<*, out WebViewViewMo
             lifecycleScope.launch {
                 if (!tapLock) {
                     if (url.endsWith(".html") && (url.startsWith("art") || url.startsWith("section"))) {
-                        setDisplayable(url)
+                        setDisplayable(url, linkClicked = true)
                     } else {
                         openExternally(url)
                     }
