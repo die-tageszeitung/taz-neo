@@ -42,6 +42,7 @@ import de.taz.app.android.singletons.DEFAULT_FONT_SIZE
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.ViewBorder
+import de.taz.app.android.ui.bookmarks.BookmarkViewerActivity
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.getBottomNavigationBehavior
@@ -591,10 +592,14 @@ abstract class WebViewFragment<
         setDisplayable(displayableKey)
     }
 
-    fun setDisplayable(displayableKey: String) {
+    fun setDisplayable(displayableKey: String, linkClicked: Boolean = false) {
         currentIssueKey?.let {
             lifecycleScope.launch {
-                issueViewerViewModel.setDisplayable(it, displayableKey)
+                if (activity is BookmarkViewerActivity && linkClicked) {
+                    (activity as BookmarkViewerActivity).showDisplayable(it, displayableKey)
+                } else {
+                    issueViewerViewModel.setDisplayable(it, displayableKey)
+                }
             }
         }
     }
