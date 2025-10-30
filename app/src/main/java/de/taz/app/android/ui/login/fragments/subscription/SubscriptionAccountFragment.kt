@@ -210,10 +210,10 @@ class SubscriptionAccountFragment :
             if (password.isNullOrBlank()) {
                 done = false
                 setPasswordError(R.string.login_password_error_empty)
-            } else {
-                viewModel.password = password
             }
 
+            // Check password again without validation hint
+            checkPassword(showValidationHint = false)
             if (!isPasswordValid) {
                 done = false
             }
@@ -248,8 +248,9 @@ class SubscriptionAccountFragment :
             viewBinding.scrollView.scrollY = 0
         }
 
-        // Persist the username and confirm-password  to the view model:
+        // Persist the username and (confirm-)password to the view model:
         viewBinding.fragmentSubscriptionAccountEmail.text?.let { viewModel.username = it.toString() }
+        viewBinding.fragmentSubscriptionAccountPassword.text?.let { viewModel.password = it.toString() }
         viewBinding.fragmentSubscriptionAccountPasswordConfirm.text?.let { viewModel.passwordConfirm = it.toString() }
 
         return done
@@ -284,16 +285,18 @@ class SubscriptionAccountFragment :
         }
     }
 
-    private fun checkPassword() {
+    private fun checkPassword(showValidationHint: Boolean = true) {
         try {
             val mail = viewBinding.fragmentSubscriptionAccountEmail.text?.toString() ?: ""
             val password = viewBinding.fragmentSubscriptionAccountPassword.text?.toString() ?: ""
             viewLifecycleOwner.lifecycleScope.launch {
                 val passwordHintResponse = passwordCheckHelper.checkPassword(password, mail)
                 isPasswordValid = passwordHintResponse.valid
-                viewBinding.fragmentSubscriptionAccountPasswordLayout.setPasswordHintResponse(
-                    passwordHintResponse
-                )
+                if (showValidationHint) {
+                    viewBinding.fragmentSubscriptionAccountPasswordLayout.setPasswordHintResponse(
+                        passwordHintResponse
+                    )
+                }
             }
         } catch (npe: NullPointerException) {
             log.warn("Somehow we lost the viewBinding. Exit the fragment and show Toast.")
