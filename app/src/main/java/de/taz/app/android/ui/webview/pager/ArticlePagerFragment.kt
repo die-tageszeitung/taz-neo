@@ -333,12 +333,15 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
                 textSizeCoachMark,
                 articleImageCoachMark,
                 articleImagePagerCoachMark,
-                articleSectionCoachMark,
             )
 
         lifecycleScope.launch {
             if (tazApiCssDataStore.multiColumnMode.get()) {
                 coachMarks.add(0, articleTapToScrollCoachMark)
+            }
+            val appBarFullyExpanded = viewBinding.appBarLayout.height - viewBinding.appBarLayout.bottom == 0
+            if (appBarFullyExpanded) {
+                coachMarks.add(articleSectionCoachMark)
             }
             CoachMarkDialog.create(coachMarks).show(childFragmentManager, CoachMarkDialog.TAG)
         }
