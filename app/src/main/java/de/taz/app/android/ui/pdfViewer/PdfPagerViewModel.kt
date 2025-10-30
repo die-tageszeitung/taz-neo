@@ -82,8 +82,7 @@ class PdfPagerViewModel(
     val issueStub: IssueStub?
         get() = issueStubFlow.value
 
-    private val pdfPageListFlow: MutableStateFlow<List<Page>?> = MutableStateFlow(null)
-    val pdfPageList: LiveData<List<Page>> = pdfPageListFlow.filterNotNull().asLiveData()
+    val pdfPageListFlow: MutableStateFlow<List<Page>?> = MutableStateFlow(null)
 
     val issueDownloadFailedErrorFlow = MutableStateFlow(false)
 
