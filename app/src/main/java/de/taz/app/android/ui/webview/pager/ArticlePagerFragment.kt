@@ -735,6 +735,9 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
     }
 
     override fun onDestroyView() {
+        viewBinding.webviewPagerViewpager.unregisterOnPageChangeCallback(
+            pageChangeListener
+        )
         viewBinding.webviewPagerViewpager.adapter = null
         sectionChangeHandler = null
         articleBottomActionBarNavigationHelper.onDestroyView()

@@ -46,7 +46,12 @@ class ArticlePagerAdapter(
 
     val articleStubs: List<ArticleStub> = articleRepresentations.map { it.art.articleStub }
 
-    val articlePagerItems = articleRepresentations + tomItems
+    // The if else statement is needed, otherwise on slow devices the tom header may appear
+    val articlePagerItems = if (articleRepresentations.isEmpty()) {
+        articleRepresentations
+    } else {
+        articleRepresentations + tomItems
+    }
 
     override fun createFragment(position: Int): Fragment {
         return if (articlePagerItems[position] is ArticlePagerItem.ArticleRepresentation) {
