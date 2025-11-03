@@ -183,7 +183,6 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>(), SuccessfulLogin
             return
         }
 
-        val isPdfMode = generalDataStore.pdfMode.get()
         val allowNotificationsDoNotShowAgain =
             generalDataStore.allowNotificationsDoNotShowAgain.get()
         val allowNotificationsLastTimeShown = generalDataStore.allowNotificationsLastTimeShown.get()
@@ -202,7 +201,6 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>(), SuccessfulLogin
 
         when {
             elapsedBottomSheetConditions -> showSubscriptionElapsedBottomSheet()
-            isPdfMode && !authHelper.isLoggedIn() && !authHelper.isElapsed() -> showLoggedOutDialog()
             trackingOptInBottomSheetConditions -> showTrackingConsentBottomSheet(
                 allowNotificationsBottomSheetConditions
             )
@@ -233,7 +231,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>(), SuccessfulLogin
     }
 
     private var loggedOutDialog: AlertDialog? = null
-    private fun showLoggedOutDialog() {
+    fun showLoggedOutDialog() {
         loggedOutDialog = MaterialAlertDialogBuilder(this@MainActivity)
             .setMessage(R.string.pdf_mode_better_to_be_logged_in_hint)
             .setPositiveButton(android.R.string.ok) { dialog, _ ->
