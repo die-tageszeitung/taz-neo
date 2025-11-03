@@ -20,6 +20,7 @@ import de.taz.app.android.singletons.DatePickerHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.bottomSheet.HomePresentationBottomSheet
 import de.taz.app.android.ui.home.page.IssueFeedFragment
+import de.taz.app.android.ui.main.MainActivity
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.first
@@ -97,10 +98,12 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
         combine(
             authHelper.isPollingForConfirmationEmail.asFlow(),
             authHelper.isLoggedInFlow,
-        ) { isPolling, isLoggedIn -> isPolling || isLoggedIn }
+            generalDataStore.pdfMode.asFlow(),
+        ) { isPolling, isLoggedIn, isPdf -> (isPolling || isLoggedIn) to isPdf }
             .flowWithLifecycle(lifecycle)
             .onEach {
-                viewBinding.homeLoginButton.visibility = if (it) View.GONE else View.VISIBLE
+                viewBinding.homeLoginButton.visibility = if (it.first) View.GONE else View.VISIBLE
+                if (!it.first && it.second) (activity as? MainActivity)?.showLoggedOutDialog()
             }.launchIn(lifecycleScope)
     }
     private fun scrollToDate(date: Date) {
