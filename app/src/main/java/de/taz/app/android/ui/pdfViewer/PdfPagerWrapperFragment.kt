@@ -99,7 +99,7 @@ class PdfPagerWrapperFragment: ViewBindingFragment<ActivityPdfDrawerLayoutBindin
     private lateinit var generalDataStore: GeneralDataStore
     private lateinit var drawerViewController: DrawerViewController
     private val continueReadDirectly: Boolean
-        get() = arguments?.getBoolean(IssueViewerWrapperFragment.Companion.KEY_CONTINUE_READ_DIRECTLY) ?: false
+        get() = arguments?.getBoolean(IssueViewerWrapperFragment.KEY_CONTINUE_READ_DIRECTLY) ?: false
     private var continueReadBottomSheetShown = false
 
     override fun onAttach(context: Context) {
@@ -125,8 +125,9 @@ class PdfPagerWrapperFragment: ViewBindingFragment<ActivityPdfDrawerLayoutBindin
             )
         }
 
-        pdfPagerViewModel.setIssuePublication(issuePublication, continueReadDirectly)
+        val displayableKey: String? = arguments?.getString(KEY_DISPLAYABLE)
 
+        pdfPagerViewModel.setIssuePublication(issuePublication, continueReadDirectly, displayableKey)
         pdfPagerViewModel.issueDownloadFailedErrorFlow
             .flowWithLifecycle(lifecycle)
             .filter { it }
@@ -141,7 +142,6 @@ class PdfPagerWrapperFragment: ViewBindingFragment<ActivityPdfDrawerLayoutBindin
             ).commit()
         }
 
-        val displayableKey: String? = arguments?.getString(KEY_DISPLAYABLE)
         // I guess this is used by LMd or when clicked a notification with article link,
         // but it should not be triggered when [continueReadDirectly] is true
         if (displayableKey != null && !continueReadDirectly) {
