@@ -376,7 +376,6 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>(), SuccessfulLogin
                 intent.getParcelableExtra<AbstractIssuePublication>(KEY_ISSUE_PUBLICATION)
             }
         val displayableKey = intent.getStringExtra(KEY_DISPLAYABLE)
-        val continueReadDirectly = intent.getBooleanExtra(KEY_CONTINUE_READ_DIRECTLY, false)
         if (issuePublication != null && displayableKey != null) {
             when (issuePublication) {
                 is IssuePublication -> {

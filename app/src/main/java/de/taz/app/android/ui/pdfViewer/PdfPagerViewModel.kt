@@ -128,6 +128,7 @@ class PdfPagerViewModel(
     fun setIssuePublication(
         issuePublication: IssuePublicationWithPages,
         continueReadDirectly: Boolean = false,
+        displayableKey: String? = null,
     ) {
         require(this.issuePublication == null || this.issuePublication == issuePublication) {
             "Each PdfPagerViewModel instance may only be used for exactly one issue. Updating it to another is not allowed."
@@ -136,11 +137,11 @@ class PdfPagerViewModel(
         if (this.issuePublication == null) {
             // Reload the issue if a new publication is set
             this.issuePublication = issuePublication
-            loadIssue(continueReadDirectly)
+            loadIssue(continueReadDirectly, displayableKey)
         }
     }
 
-    private fun loadIssue(continueReadDirectly: Boolean = false) {
+    private fun loadIssue(continueReadDirectly: Boolean = false, displayableKey: String? = null) {
         val issuePublicationWithPages = this.issuePublication
         if (issuePublicationWithPages != null) {
             viewModelScope.launch {
@@ -191,7 +192,7 @@ class PdfPagerViewModel(
                 }
 
                 // get last displayable
-                val lastDisplayable = issueStub.lastDisplayableName
+                val lastDisplayable = displayableKey ?: issueStub.lastDisplayableName
                 val lastPage = issueStub.lastPagePosition
 
                 val continueReadAutomatically = generalDataStore.settingsContinueRead.get()
