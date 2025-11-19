@@ -334,12 +334,12 @@ class PdfPagerViewModel(
      */
     fun showArticle(link: String, givenIssueKey: IssueKey? = null) {
         viewModelScope.launch(Dispatchers.Main) {
-            val article = getCorrectArticle(link)
             val issueKeyWithPages = givenIssueKey ?: issueStubFlow.value?.issueKey
             if (issueKeyWithPages == null) {
                 log.warn("Could not show article because there is no issue selected")
                 return@launch
             }
+            val article = getCorrectArticle(link, issueKeyWithPages!!)
 
             val issueKey = IssueKey(issueKeyWithPages)
 
@@ -367,15 +367,12 @@ class PdfPagerViewModel(
         _openLinkEventFlow.value = null
     }
 
-    private suspend fun getCorrectArticle(link: String): ArticleOperations? {
-        val correctLink = if (issueStubFlow.value?.status == IssueStatus.public) {
-            // if we are not on a regular issue all the articles have "public" indication
-            // unfortunately it is not delivered via [page.frameList] so we need to modify it here:
-            link.replace(".html", ".public.html")
-        } else {
-            link
-        }
-        return articleRepository.getStub(correctLink)
+    private suspend fun getCorrectArticle(link: String, issueKey: IssueKey): ArticleOperations? {
+        val publicLink = link.replace(".html", ".public.html")
+        // If we do not have regular article (try to) get the public one
+        val article = articleRepository.getStub(link) ?: articleRepository.getStub(publicLink)
+
+        return article
     }
 
     /**

@@ -341,8 +341,11 @@ class ArticleWebViewFragment :
             val article = viewModel.articleFlow.first()
             val issueStub = viewModel.issueStubFlow.first()
             val isPublic = issueStub.status == IssueStatus.public
+            // IssueStatus.demo is not reliable, it might be also a demo issue if we have an onlineLink or authors
+            val isProbablyDemo =
+                isPublic && (article.getAuthorNames(requireContext().applicationContext).isNotEmpty() || !article.onlineLink.isNullOrBlank())
 
-            if (isPublic && !article.isImprint() && isResumed) {
+            if (isPublic && !article.isImprint() && !isProbablyDemo && isResumed) {
                 if (authHelper.isElapsed()) {
                     SubscriptionElapsedBottomSheetFragment
                         .showSingleInstance(parentFragmentManager)
