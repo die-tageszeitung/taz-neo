@@ -32,7 +32,6 @@ import androidx.lifecycle.asFlow
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.whenCreated
 import com.google.android.material.appbar.AppBarLayout
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.SectionOperations
@@ -543,6 +542,9 @@ class SectionWebViewFragment : WebViewFragment<
                     audioPlayerService.playPodcast(issueStub, section, podcast)
                     return true
                 }
+                // We have to "consume" (return true) the onSingleTapUp event too, so that the
+                // Android event system is sending the subsequent UP event to this component.
+                override fun onSingleTapUp(e: MotionEvent) = true
             }
             val gestureDetectorCompat = GestureDetector(requireContext(), onGestureListener).apply {
                 setIsLongpressEnabled(false)
