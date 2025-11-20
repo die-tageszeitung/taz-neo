@@ -81,6 +81,7 @@ class SearchActivity :
         viewBinding.apply {
             searchCancelButton.setOnClickListener {
                 viewModel.clearSearch()
+                hideSoftInputKeyboard()
             }
             searchText.apply {
                 setOnEditorActionListener { _, actionId, _ ->
