@@ -1,10 +1,12 @@
 package de.taz.app.android.audioPlayer
 
 import android.content.Intent
+import android.os.Build
 import android.view.Gravity
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+import android.view.WindowInsets
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.activity.OnBackPressedCallback
@@ -14,6 +16,7 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
+import androidx.core.view.updatePadding
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
@@ -637,11 +640,24 @@ class AudioPlayerViewController(
             }
 
             DISPLAY_MODE_MOBILE_EXPANDED -> {
+                val rootView = activity.window.decorView.rootView
+                // on open drawers we need to handle edge-to-edge properly
+                val isDrawerOpen =
+                    rootView.findViewById<LinearLayout>(R.id.wrapper)?.isShown == true
+                            || rootView.findViewById<CoordinatorLayout>(R.id.drawer_body_pdf_with_sections_layout)?.isShown == true
+                var navBarHeight = 0
+                if (isDrawerOpen && Build.VERSION.SDK_INT >= 35) {
+                    navBarHeight =
+                        audioPlayerOverlay.rootWindowInsets.getInsets(WindowInsets.Type.navigationBars()).bottom
+                    val containerPadding =
+                        resources.getDimensionPixelSize(R.dimen.audioplayer_expanded_container_padding)
+                    expandedPlayer.updatePadding(bottom = navBarHeight + containerPadding)
+                }
                 audioPlayerOverlay.updateLayoutParams<FrameLayout.LayoutParams> {
                     width = MATCH_PARENT
                     height = newHeight
                     gravity = Gravity.BOTTOM
-                    bottomMargin = 0
+                    bottomMargin = -navBarHeight
                     marginStart = 0
                     marginEnd = 0
                 }
