@@ -43,7 +43,8 @@ class PdfDrawerRecyclerViewAdapter(
                     pageType = itemList[position].type ?: PageType.left,
                     position = position,
                     activePosition = activePosition,
-                    pdfFile = itemList[position].pagePdf
+                    pdfFile = itemList[position].pagePdf,
+                    pagina = if (hasArticles(itemList[position])) itemList[position].pagina else null,
                 ),
                 glideRequestManager
             )
@@ -52,6 +53,13 @@ class PdfDrawerRecyclerViewAdapter(
         fun unbind() {
             binder?.unbindView()
             binder = null
+        }
+
+        private fun hasArticles(page: Page): Boolean {
+            val hasArticle = page.frameList?.any { frame ->
+                frame.link?.startsWith("art") == true && frame.link.endsWith(".html")
+            }
+            return hasArticle == true
         }
     }
 

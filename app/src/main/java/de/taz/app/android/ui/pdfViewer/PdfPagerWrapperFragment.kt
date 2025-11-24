@@ -216,6 +216,12 @@ class PdfPagerWrapperFragment: ViewBindingFragment<ActivityPdfDrawerLayoutBindin
                 }
 
                 launch {
+                    generalDataStore.useListDrawer.asFlow().collect {
+                        drawerAndLogoViewModel.setNewDrawer(it)
+                    }
+                }
+
+                launch {
                     drawerAndLogoViewModel.drawerState.collect {
                         drawerViewController.handleDrawerLogoState(it)
                     }
@@ -269,7 +275,7 @@ class PdfPagerWrapperFragment: ViewBindingFragment<ActivityPdfDrawerLayoutBindin
                 pdfDrawerLayout,
                 drawerLogoWrapper,
                 navView,
-                view
+                view,
             )
 
             // Adjust extra padding when we have cutout display

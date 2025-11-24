@@ -10,7 +10,7 @@
     android:paddingStart="@dimen/fragment_drawer_thumbnail_margin"
     android:paddingTop="@dimen/fragment_drawer_pdf_item_padding_top"
     android:paddingEnd="@dimen/fragment_drawer_thumbnail_margin"
-    tools:background="@color/navigation_drawer_pdf_background">
+    tools:background="@color/navigation_pdf_drawer_grid_background">
 
     <androidx.cardview.widget.CardView
         android:id="@+id/view_drawer_pdf_page_card"
@@ -33,13 +33,26 @@
 
     </androidx.cardview.widget.CardView>
 
-    <TextView
-        android:id="@+id/view_drawer_pdf_title"
-        style="@style/Widget.App.Drawer.Pdf.Section.Title"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/fragment_drawer_pdf_section_title_margin_top"
-        tools:text="Title of page"
-        tools:textColor="@color/pdf_drawer_sections_item" />
+        android:orientation="horizontal">
 
+        <TextView
+            android:id="@+id/view_drawer_pdf_pagina"
+            style="@style/Widget.App.Drawer.Pdf.Section.Pagina"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="1"
+            tools:textColor="@color/pdf_drawer_sections_item" />
+
+        <TextView
+            android:id="@+id/view_drawer_pdf_title"
+            style="@style/Widget.App.Drawer.Pdf.Section.Title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:text="Title of page"
+            tools:textColor="@color/pdf_drawer_sections_item" />
+    </LinearLayout>
 </LinearLayout>

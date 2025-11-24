@@ -1,14 +1,19 @@
+
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.Group
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.bumptech.glide.Glide
 import com.bumptech.glide.signature.EmptySignature
 import com.bumptech.glide.signature.ObjectKey
+import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.singletons.StorageService
@@ -17,7 +22,7 @@ import de.taz.app.android.ui.pdfViewer.PageWithArticles
 import de.taz.app.android.ui.pdfViewer.PageWithArticlesListItem
 import kotlinx.coroutines.flow.Flow
 
-private const val TYPE_PAGE = 0
+const val TYPE_PAGE = 0
 private const val TYPE_IMPRINT = 1
 
 /**
@@ -39,6 +44,8 @@ class PageWithArticlesAdapter(
 ) :
     RecyclerView.Adapter<ViewHolder>() {
 
+    var activePosition = 0
+
     private class PageWithArticlesHolder(
         view: View,
         private val onPageCLick: (pageName: String) -> Unit,
@@ -50,6 +57,10 @@ class PageWithArticlesAdapter(
     ) :
         ViewHolder(view) {
 
+        private val layout: ConstraintLayout = itemView.findViewById(R.id.list_item_pdf_page_with_content)
+        private val sectionGroup: Group = itemView.findViewById(R.id.page_title_group)
+        private val sectionTitle: TextView = itemView.findViewById(R.id.preview_page_title)
+        private val sectionTitleWrapper: ConstraintLayout = itemView.findViewById(R.id.preview_page_title_wrapper)
         private val pagePreviewImage: ImageView = itemView.findViewById(R.id.preview_page_image)
         private val pagePreviewPagina: TextView = itemView.findViewById(R.id.preview_page_pagina)
         private val pageTocRecyclerView: RecyclerView =
@@ -61,7 +72,12 @@ class PageWithArticlesAdapter(
          *
          * @param page Page with articles (TOC) to be displayed.
          */
-        fun bind(page: PageWithArticles) {
+        fun bind(
+            page: PageWithArticles,
+            sameSectionTitle: Boolean,
+            position: Int,
+            activePosition: Int
+        ) {
             val storageService = StorageService.getInstance(itemView.context)
             val signature = page.pagePdf.dateDownload
                 ?.let { ObjectKey(it.time) }
@@ -75,14 +91,25 @@ class PageWithArticlesAdapter(
             pagePreviewImage.setOnClickListener {
                 onPageCLick(page.pagePdf.name)
             }
-
-            pagePreviewPagina.text = itemView.context.getString(
-                R.string.fragment_header_article_pagina,
-                page.pagina?.split('-')?.get(0)
-            )
+            if (sameSectionTitle || BuildConfig.IS_LMD) {
+                sectionGroup.visibility = View.GONE
+            } else {
+                sectionTitle.text = page.title
+                sectionTitleWrapper.setOnClickListener {
+                    onPageCLick(page.pagePdf.name)
+                }
+            }
+            if (page.pagina == null) {
+                pagePreviewPagina.visibility = View.GONE
+            } else {
+                pagePreviewPagina.text = itemView.context.getString(
+                    R.string.fragment_header_article_pagina,
+                    page.pagina.split('-')[0]
+                )
+            }
 
             pageTocRecyclerView.layoutManager = LinearLayoutManager(itemView.context)
-            pageTocRecyclerView.adapter = page.articles?.let {
+            pageTocRecyclerView.adapter = page.articles?.distinct()?.let {
                 ArticleAdapter(
                     it,
                     { article -> onArticleClick(absoluteAdapterPosition, article) },
@@ -94,6 +121,22 @@ class PageWithArticlesAdapter(
 
             if (showDivider) {
                 pageDivider.visibility = View.VISIBLE
+            }
+
+            if (position == activePosition) {
+                layout.setBackgroundColor(
+                    ContextCompat.getColor(
+                        itemView.context,
+                        R.color.pdf_drawer_sections_item_pdf_page_with_content_highlighted
+                    )
+                )
+            } else {
+                layout.setBackgroundColor(
+                    ContextCompat.getColor(
+                        itemView.context,
+                        R.color.navigation_pdf_drawer_list_background
+                    )
+                )
             }
         }
     }
@@ -150,8 +193,15 @@ class PageWithArticlesAdapter(
         position: Int
     ) {
         val listItem = pages[position]
+        val samePageTitle = isSameTitleAsOnBeforePage(position)
         when (holder.itemViewType) {
-            TYPE_PAGE -> (holder as PageWithArticlesHolder).bind((listItem as PageWithArticlesListItem.Page).page)
+            TYPE_PAGE -> (holder as PageWithArticlesHolder).bind(
+                (listItem as PageWithArticlesListItem.Page).page,
+                samePageTitle,
+                position,
+                activePosition
+            )
+
             TYPE_IMPRINT -> (holder as ImprintHolder).bind((listItem as PageWithArticlesListItem.Imprint).imprint)
             else -> error("Unknown ViewHolder type: ${holder::class.java.simpleName}")
         }
@@ -163,5 +213,13 @@ class PageWithArticlesAdapter(
             is PageWithArticlesListItem.Imprint -> TYPE_IMPRINT
         }
     }
-
+    private fun isSameTitleAsOnBeforePage(position: Int): Boolean {
+        return if (position == 0) {
+            false
+        } else {
+            val thisTitle = (pages[position] as? PageWithArticlesListItem.Page)?.page?.title
+            val beforeTitle = (pages[position - 1] as? PageWithArticlesListItem.Page)?.page?.title
+            thisTitle == beforeTitle
+        }
+    }
 }

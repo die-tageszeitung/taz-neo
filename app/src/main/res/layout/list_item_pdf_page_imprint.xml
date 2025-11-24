@@ -4,6 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:paddingBottom="30dp"
+    android:clipToPadding="false"
     android:orientation="horizontal">
 
     <TextView
@@ -12,6 +14,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/list_item_pdf_page_with_content_imprint_margin_start"
+        android:layout_marginTop="@dimen/list_item_pdf_page_with_content_divider_margin_top"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="Imprint" />

@@ -46,7 +46,8 @@ class ArticleAdapter(
         override val coroutineContext: CoroutineContext = SupervisorJob() + Dispatchers.Main
         private val applicationContext = itemView.context.applicationContext
 
-        private val audioPlayerService: AudioPlayerService = AudioPlayerService.getInstance(applicationContext)
+        private val audioPlayerService: AudioPlayerService =
+            AudioPlayerService.getInstance(applicationContext)
 
         private val articleTitle: TextView = itemView.findViewById(R.id.article_title)
         private val articleTeaser: TextView = itemView.findViewById(R.id.article_teaser)
@@ -66,10 +67,9 @@ class ArticleAdapter(
          * @param article Article to be displayed.
          */
         fun bind(article: ArticleOperations) {
-
             articleTitle.text = article.title
             if (!article.teaser.isNullOrBlank()) {
-                articleTeaser.apply{
+                articleTeaser.apply {
                     visibility = View.VISIBLE
                     text = article.teaser
                 }
@@ -79,10 +79,7 @@ class ArticleAdapter(
 
             launch {
                 val authorNames: String = article.getAuthorNames(applicationContext)
-                val authorsString = if (authorNames.isNotEmpty()) itemView.context.getString(
-                    R.string.author_list,
-                    authorNames
-                ) else ""
+                val authorsString = authorNames.ifEmpty { "" }
                 val readMinutesString = if (article.readMinutes != null) {
                     itemView.context.getString(
                         R.string.read_minutes,
@@ -94,7 +91,10 @@ class ArticleAdapter(
                 val twoStyledSpannable =
                     constructAuthorsAndReadMinutesSpannable(authorsString, readMinutesString)
 
-                articleAuthorAndReadMinutes.setText(twoStyledSpannable, TextView.BufferType.SPANNABLE)
+                articleAuthorAndReadMinutes.setText(
+                    twoStyledSpannable,
+                    TextView.BufferType.SPANNABLE
+                )
             }
 
             if (showDivider) {
@@ -105,7 +105,7 @@ class ArticleAdapter(
                 onArticleClick(article)
             }
 
-            if (article.isImprint()){
+            if (article.isImprint()) {
                 articleIsBookmarked.visibility = View.GONE
                 articleEnqueueIcon.visibility = View.GONE
             } else {
@@ -200,7 +200,7 @@ class ArticleAdapter(
                 text.setSpan(
                     TextAppearanceSpan(
                         itemView.context,
-                        R.style.TextAppearance_App_Drawer_Lmd_Meta_Author
+                        R.style.TextAppearance_App_Drawer_Sections_Article_Meta_Author
                     ),
                     0,
                     authors.length,
@@ -212,7 +212,7 @@ class ArticleAdapter(
                 text.setSpan(
                     TextAppearanceSpan(
                         itemView.context,
-                        R.style.TextAppearance_App_Drawer_Lmd_Meta_ReadMinutes
+                        R.style.TextAppearance_App_Drawer_Sections_Article_Meta_ReadMinutes
                     ),
                     readMinutesSpanStart,
                     readMinutesSpanEnd,

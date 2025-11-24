@@ -492,6 +492,9 @@
     <string name="fragment_drawer_sections_collapse_all">alle ressorts schließen</string>
     <string name="fragment_drawer_article_item_enqueue">Zur Audioliste hinzufügen</string>
     <string name="fragment_drawer_article_item_enqueued">Bereits in Audioliste</string>
+    <string name="fragment_drawer_switch_grid_view">Kachelansicht</string>
+    <string name="fragment_drawer_switch_list_view">Listenansicht</string>
+    <string name="fragment_drawer_moment_content_description">heutige Ausgabe</string>
     <string name="drawer_play_issue">Ausgabe hören</string>
     <string name="drawer_go_to_playlist">Audioliste</string>
 

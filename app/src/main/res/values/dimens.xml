@@ -29,9 +29,13 @@
     <dimen name="default_touch_area_size">48dp</dimen>
 
     <dimen name="drawer_margin_vertical">40dp</dimen>
-    <dimen name="drawer_margin_horizontal">20dp</dimen>
+    <dimen name="drawer_padding_horizontal">20dp</dimen>
     <dimen name="drawer_margin_top">12dp</dimen>
+    <dimen name="drawer_margin_top_old_sdk">25dp</dimen>
     <dimen name="drawer_width">@dimen/custom_match_parent</dimen>
+    <!--    For more explanation about this value see
+    https://stackoverflow.com/questions/16754305/full-width-navigation-drawer -->
+    <dimen name="negated_min_drawer_width">-64dp</dimen>
 
     <dimen name="bottom_sheet_padding_horizontal">18dp</dimen>
     <dimen name="bottom_sheet_padding_top">45dp</dimen>
@@ -54,7 +58,7 @@
     <dimen name="fragment_drawer_padding_end">14dp</dimen>
     <dimen name="fragment_drawer_moment_width">128dp</dimen>
     <dimen name="fragment_drawer_thumbnail_margin">5dp</dimen>
-    <dimen name="fragment_drawer_pdf_section_title_margin_top">5dp</dimen>
+    <dimen name="fragment_drawer_pdf_section_title_margin_top">8dp</dimen>
     <dimen name="fragment_drawer_pdf_item_padding_top">20dp</dimen>
     <dimen name="fragment_drawer_date_margin_start">16dp</dimen>
     <dimen name="fragment_drawer_header_action_margin_top">18dp</dimen>
@@ -71,11 +75,12 @@
     <dimen name="fragment_drawer_margin_end">-45dp</dimen>
 
     <dimen name="drawer_play_issue_icon_size">24dp</dimen>
+    <dimen name="drawer_play_issue_big_icon_size">32dp</dimen>
     <dimen name="drawer_text_icon_margin">5dp</dimen>
     <dimen name="drawer_margin_between_actions">15dp</dimen>
 
     <dimen name="fragment_drawer_body_table_of_content_header_margin_top">15dp</dimen>
-    <dimen name="fragment_drawer_separator_margin_top">8dp</dimen>
+    <dimen name="fragment_drawer_separator_margin_top">20dp</dimen>
     <dimen name="fragment_drawer_card_width">62dp</dimen>
     <dimen name="fragment_drawer_card_height">92dp</dimen>
 
@@ -83,15 +88,17 @@
     <dimen name="list_item_pdf_page_with_content_toc_margin_start">14dp</dimen>
     <dimen name="list_item_pdf_page_with_content_divider_margin_top">15dp</dimen>
     <dimen name="list_item_pdf_page_with_content_thumbnail_margin_end">5dp</dimen>
-    <!--Sum of: list_item_pdf_page_with_content_card_width + list_item_pdf_page_with_content_thumbnail_margin_end + list_item_pdf_page_with_content_toc_margin_start-->
-    <dimen name="list_item_pdf_page_with_content_imprint_margin_start">81dp</dimen>
+    <!--Sum of: fragment_drawer_card_width
+              + list_item_pdf_page_with_content_thumbnail_margin_end
+              + list_item_pdf_page_with_content_toc_margin_start
+              + drawer_padding_horizontal = -->
+    <dimen name="list_item_pdf_page_with_content_imprint_margin_start">96dp</dimen>
 
 
     <dimen name="list_item_pdf_page_toc_margin_bottom">20dp</dimen>
     <dimen name="list_item_pdf_page_toc_bookmark_icon_size">22dp</dimen>
     <dimen name="list_item_pdf_page_toc_divider_margin_vertical">20dp</dimen>
 
-    <dimen name="drawer_logo_margin_top">49dp</dimen>
     <dimen name="drawer_logo_translation_x">-5dp</dimen>
     <dimen name="drawer_logo_translation_y">40dp</dimen>
     <dimen name="drawer_logo_elevation">5dp</dimen>
@@ -99,6 +106,7 @@
     <dimen name="drawer_logo_peak_when_hidden">8dp</dimen>
     <dimen name="drawer_logo_peak__when_hidden_click_area">38dp</dimen>
     <dimen name="drawer_burger_menu_width">48dp</dimen>
+    <dimen name="drawer_pdf_layout_margin_top">-8dp</dimen>
 
     <dimen name="fragment_cover_flow_login_button_padding">10dp</dimen>
     <dimen name="fragment_cover_flow_login_button_margin_vertical">32dp</dimen>
@@ -244,6 +252,7 @@
     <dimen name="fragment_drawer_sections_item_height">45dp</dimen>
     <dimen name="fragment_drawer_separator_line_height">0.5dp</dimen>
     <dimen name="fragment_drawer_dotted_separator_width">28dp</dimen>
+    <dimen name="fragment_drawer_sections_tool_bar_height">97dp</dimen>
 
     <dimen name="fragment_article_read_on_padding_bottom">20dp</dimen>
     <dimen name="fragment_article_padding_bottom">@dimen/nav_bottom_height</dimen>
@@ -396,15 +405,13 @@
 
     <!--  region dimens just used in LMd, but still needs to be defined inside of taz build variants   -->
     <dimen name="fragment_drawer_body_pdf_with_sections_pagina_margin_top">7dp</dimen>
-    <dimen name="fragment_drawer_body_pdf_with_sections_negative_margin">-3dp</dimen>
+    <dimen name="fragment_drawer_body_pdf_with_sections_negative_margin">-10dp</dimen>
     <dimen name="fragment_drawer_body_pdf_with_sections_small_margin">5dp</dimen>
     <dimen name="fragment_drawer_body_pdf_with_sections_medium_margin">10dp</dimen>
     <dimen name="fragment_drawer_body_pdf_with_sections_large_margin">20dp</dimen>
     <dimen name="fragment_drawer_body_pdf_with_sections_preview_corners">0dp</dimen>
     <dimen name="fragment_drawer_body_pdf_with_sections_divider_padding">20dp</dimen>
     <dimen name="fragment_drawer_body_pdf_with_sections_divider_height">0.5dp</dimen>
-    <dimen name="list_item_pdf_page_toc_teaser_margin_top">5dp</dimen>
-    <dimen name="list_item_pdf_page_toc_meta_margin_top">4dp</dimen>
     <dimen name="list_item_pdf_page_toc_bookmark_icon_left_margin">14dp</dimen>
     <!-- endregion -->
 

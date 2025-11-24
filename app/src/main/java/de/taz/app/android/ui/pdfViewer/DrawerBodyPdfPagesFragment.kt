@@ -1,9 +1,14 @@
 package de.taz.app.android.ui.pdfViewer
 
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -63,6 +68,17 @@ class DrawerBodyPdfPagesFragment : ViewBindingFragment<FragmentDrawerBodyPdfPage
         super.onViewCreated(view, savedInstanceState)
 
         viewBinding.wrapper.setDefaultVerticalInsets()
+
+        if (Build.VERSION.SDK_INT < 35) {
+            ViewCompat.setOnApplyWindowInsetsListener(viewBinding.wrapper) { v, windowInsets ->
+                val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+                val margin = resources.getDimensionPixelSize(R.dimen.drawer_margin_top_old_sdk)
+                v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                    topMargin = insets.top + margin
+                }
+                WindowInsetsCompat.CONSUMED
+            }
+        }
 
         // Disable animations on the RV in hope of preventing some internal crashes:
         // See: https://redmine.hal.taz.de/issues/15694
@@ -193,8 +209,14 @@ class DrawerBodyPdfPagesFragment : ViewBindingFragment<FragmentDrawerBodyPdfPage
                 pdfPagerViewModel.issueStub?.let { setDrawerDate(it) } ?: ""
 
             viewBinding.apply {
-                fragmentDrawerPlayIssueIcon.setOnClickListener { drawerAudioPlayerViewModel.handleOnPlayAllClicked() }
-                fragmentDrawerPlayIssueText.setOnClickListener { drawerAudioPlayerViewModel.handleOnPlayAllClicked() }
+                playIssueLayout.setOnClickListener {
+                    drawerAudioPlayerViewModel.handleOnPlayAllClicked()
+                }
+            }
+            viewBinding.apply {
+                switchDrawerLayout.setOnClickListener {
+                    drawerAndLogoViewModel.setNewDrawer(isNew = true)
+                }
             }
 
             adapter =

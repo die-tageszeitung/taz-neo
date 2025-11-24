@@ -19,8 +19,8 @@
         android:layout_width="@dimen/drawer_width"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:layout_marginEnd="@dimen/fragment_drawer_margin_end"
-        android:background="@color/navigation_drawer_pdf_background"
+        android:layout_marginEnd="@dimen/negated_min_drawer_width"
+        android:background="@color/navigation_pdf_drawer_grid_background"
         android:clipChildren="false"
         android:clipToPadding="false">
 
@@ -30,6 +30,15 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipChildren="false" />
+
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/fragment_container_view_drawer_body_list"
+            android:name="de.taz.app.android.ui.pdfViewer.DrawerBodyPdfWithSectionsFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/navigation_pdf_drawer_list_background"
+            android:clipChildren="false"
+            android:visibility="gone" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"

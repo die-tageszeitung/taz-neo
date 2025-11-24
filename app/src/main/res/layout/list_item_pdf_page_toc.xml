@@ -7,85 +7,90 @@
     tools:context=".ui.pdfViewer.ArticleAdapter"
     tools:showIn="@layout/list_item_pdf_page_with_content">
 
-    <TextView
-        android:id="@+id/article_title"
-        style="@style/Widget.App.Drawer.Lmd.Title"
-        android:layout_width="0dp"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/toc_item"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/drawer_default_icon_size"
-        app:layout_constraintEnd_toStartOf="@id/article_is_bookmarked"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit" />
+        app:layout_constraintTop_toTopOf="parent">
 
-    <TextView
-        android:id="@+id/article_teaser"
-        style="@style/Widget.App.Drawer.Lmd.Teaser"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/list_item_pdf_page_toc_teaser_margin_top"
-        android:visibility="gone"
-        app:layout_constraintEnd_toStartOf="@id/article_enqueue_wrapper"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/article_title"
-        tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-        tools:visibility="visible" />
+        <TextView
+            android:id="@+id/article_title"
+            style="@style/Widget.App.Drawer.Lmd.Title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/drawer_default_icon_size"
+            app:layout_constraintEnd_toStartOf="@id/article_is_bookmarked"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit" />
 
-    <TextView
-        android:id="@+id/article_author_and_read_minutes"
-        style="@style/Widget.App.Drawer.Lmd.Meta"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/list_item_pdf_page_toc_meta_margin_top"
-        app:layout_constraintEnd_toStartOf="@id/article_is_bookmarked"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/article_teaser"
-        app:layout_constraintVertical_bias="1"
-        tools:fontFamily="@font/appFontAlternativeItalic"
-        tools:text="Auto Rindesartikels, Zweit Erautor, Mitga Nzlangennamen 13 min" />
-
-    <FrameLayout
-        android:id="@+id/article_enqueue_wrapper"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/article_is_bookmarked">
-
-        <ImageView
-            android:id="@+id/article_enqueue"
-            android:layout_width="@dimen/drawer_default_icon_size"
-            android:layout_height="@dimen/drawer_default_icon_size"
-            android:layout_marginEnd="@dimen/drawer_icon_negative_margin"
-            android:contentDescription="@string/fragment_drawer_article_item_enqueue"
-            android:padding="@dimen/drawer_default_icon_padding"
-            android:src="@drawable/ic_audio_enqueue"
-            app:tint="@color/textColorAccent" />
-
-        <ImageView
-            android:id="@+id/article_is_enqueued"
-            android:layout_width="@dimen/drawer_default_icon_size"
-            android:layout_height="@dimen/drawer_default_icon_size"
-            android:layout_marginEnd="@dimen/drawer_icon_negative_margin"
-            android:contentDescription="@string/fragment_drawer_article_item_enqueued"
-            android:padding="@dimen/drawer_default_icon_padding"
-            android:src="@drawable/ic_audio_enqueued"
+        <TextView
+            android:id="@+id/article_teaser"
+            style="@style/Widget.App.Drawer.Sections.Article.Teaser"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:visibility="gone"
-            app:tint="@color/textColor" />
-    </FrameLayout>
+            app:layout_constraintEnd_toStartOf="@id/article_enqueue_wrapper"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/article_title"
+            tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+            tools:visibility="visible" />
 
-    <ImageView
-        android:id="@+id/article_is_bookmarked"
-        android:layout_width="@dimen/drawer_default_icon_size"
-        android:layout_height="@dimen/drawer_default_icon_size"
-        android:layout_marginTop="@dimen/drawer_icon_negative_margin"
-        android:layout_marginEnd="@dimen/drawer_icon_negative_margin"
-        android:padding="@dimen/drawer_default_icon_padding"
-        android:src="@drawable/ic_bookmark"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/article_title"
-        app:tint="@color/drawer_bookmark_icon_tint"
-        tools:ignore="contentDescription" />
+        <TextView
+            android:id="@+id/article_author_and_read_minutes"
+            style="@style/Widget.App.Drawer.Sections.Article.Meta"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/fragment_drawer_author_read_min_margin_top"
+            app:layout_constraintEnd_toStartOf="@id/article_is_bookmarked"
+            app:layout_constraintHeight_min="16sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/article_teaser"
+            tools:text="Auto Rindesartikels, Zweit Erautor, Mitga Nzlangennamen 13 min" />
 
+        <FrameLayout
+            android:id="@+id/article_enqueue_wrapper"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/article_is_bookmarked">
+
+            <ImageView
+                android:id="@+id/article_enqueue"
+                android:layout_width="@dimen/drawer_default_icon_size"
+                android:layout_height="@dimen/drawer_default_icon_size"
+                android:layout_marginEnd="@dimen/drawer_icon_negative_margin"
+                android:contentDescription="@string/fragment_drawer_article_item_enqueue"
+                android:padding="@dimen/drawer_default_icon_padding"
+                android:src="@drawable/ic_audio_enqueue"
+                app:tint="@color/textColorAccent" />
+
+            <ImageView
+                android:id="@+id/article_is_enqueued"
+                android:layout_width="@dimen/drawer_default_icon_size"
+                android:layout_height="@dimen/drawer_default_icon_size"
+                android:layout_marginEnd="@dimen/drawer_icon_negative_margin"
+                android:contentDescription="@string/fragment_drawer_article_item_enqueued"
+                android:padding="@dimen/drawer_default_icon_padding"
+                android:src="@drawable/ic_audio_enqueued"
+                android:visibility="gone"
+                app:tint="@color/textColor" />
+        </FrameLayout>
+
+        <ImageView
+            android:id="@+id/article_is_bookmarked"
+            android:layout_width="@dimen/drawer_default_icon_size"
+            android:layout_height="@dimen/drawer_default_icon_size"
+            android:layout_marginTop="@dimen/drawer_icon_negative_margin"
+            android:layout_marginEnd="@dimen/drawer_icon_negative_margin"
+            android:padding="@dimen/drawer_default_icon_padding"
+            android:src="@drawable/ic_bookmark"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/article_title"
+            app:tint="@color/drawer_bookmark_icon_tint"
+            tools:ignore="contentDescription" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <View
         android:id="@+id/article_divider"
@@ -95,8 +100,7 @@
         android:background="@color/pdf_section_font"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/article_author_and_read_minutes"
+        app:layout_constraintTop_toBottomOf="@id/toc_item"
         tools:visibility="visible" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
