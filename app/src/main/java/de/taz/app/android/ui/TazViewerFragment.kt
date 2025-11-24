@@ -120,7 +120,7 @@ abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>
 
         // assumes setupDrawer is called from onCreate
         lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
+            repeatOnLifecycle(Lifecycle.State.CREATED) {
                 try {
                     drawerViewController.setFeedLogo()
                 } catch (e: ExecutionException) {
@@ -149,6 +149,9 @@ abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>
     override fun onDestroy() {
         // Show the logo, so the state is not with a hidden logo
         drawerAndLogoViewModel.setFeedLogo()
+        if (drawerAndLogoViewModel.drawerState.value is DrawerState.Open) {
+            drawerAndLogoViewModel.closeDrawer()
+        }
         super.onDestroy()
     }
 }

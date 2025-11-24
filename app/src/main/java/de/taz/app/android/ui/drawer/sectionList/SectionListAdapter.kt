@@ -23,6 +23,12 @@ class SectionListAdapter(
 
     val allOpened = MutableStateFlow(false)
     private var completeList: List<SectionDrawerItem> = emptyList()
+    var currentKey: String? = null
+        set(value) {
+            notifyPositionOfKey(field)
+            field = value
+            notifyPositionOfKey(value)
+        }
 
     private var sectionDrawerItemList: MutableList<SectionDrawerItem> = mutableListOf()
         set(value) {
@@ -82,13 +88,13 @@ class SectionListAdapter(
             is SectionHeaderViewHolder -> {
                 if (position != RecyclerView.NO_POSITION) {
                     val headerItem = sectionDrawerItemList[position] as SectionDrawerItem.Header
-                    holder.bind(headerItem, typeface)
+                    holder.bind(headerItem, typeface, currentKey)
                 }
             }
             is ArticleItemViewHolder -> {
                 holder.coroutineContext.cancelChildren()
                 val article = sectionDrawerItemList[position] as SectionDrawerItem.Item
-                holder.bind(article)
+                holder.bind(article, currentKey)
             }
         }
     }
@@ -143,7 +149,9 @@ class SectionListAdapter(
             indexOutOfBounds = indexOfFirstArticle >= sectionDrawerItemList.size
         }
         updateAllOpenedOrClosed()
-        sectionDrawerItemList[index] = SectionDrawerItem.Header(section, isExpanded = false)
+        val newList = sectionDrawerItemList
+        newList[index] = SectionDrawerItem.Header(section, isExpanded = false)
+        sectionDrawerItemList = newList
         notifyItemChanged(index)
         notifyItemRangeRemoved(indexOfFirstArticle, amountCollapsed)
     }
@@ -153,7 +161,9 @@ class SectionListAdapter(
         val articlesToExpand = getArticlesToShow(section)
         sectionDrawerItemList.addAll(index+1, articlesToExpand)
         updateAllOpenedOrClosed()
-        sectionDrawerItemList[index] = SectionDrawerItem.Header(section, isExpanded = true)
+        val newList = sectionDrawerItemList
+        newList[index] = SectionDrawerItem.Header(section, isExpanded = true)
+        sectionDrawerItemList = newList
         notifyItemChanged(index)
         notifyItemRangeInserted(index+1, articlesToExpand.size)
     }
@@ -208,5 +218,20 @@ class SectionListAdapter(
                     is SectionDrawerItem.Item -> it
                 }
             }.toMutableList()
+    }
+
+    private fun notifyPositionOfKey(key: String?) {
+        if (key != null) {
+            val position = if (key.startsWith("art") && key.endsWith(".html")) {
+                sectionDrawerItemList.indexOfFirst { (it as? SectionDrawerItem.Item)?.article?.key == key }
+            } else if (key.startsWith("section") && key.endsWith(".html")) {
+                sectionDrawerItemList.indexOfFirst { (it as? SectionDrawerItem.Header)?.section?.key == key }
+            } else {
+                -1
+            }
+            if (position >= 0) {
+                notifyItemChanged(position)
+            }
+        }
     }
 }
