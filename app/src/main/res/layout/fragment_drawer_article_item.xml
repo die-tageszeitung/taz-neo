@@ -2,8 +2,11 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawer_article_item_layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:paddingStart="@dimen/fragment_drawer_padding_start"
+    android:paddingEnd="@dimen/fragment_drawer_padding_end"
     android:orientation="vertical">
 
     <!-- layerType="software" is necessary because on some whack devices the dotted lines morph into a solid line-->

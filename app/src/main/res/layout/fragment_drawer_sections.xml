@@ -16,13 +16,13 @@
             android:layout_height="wrap_content"
             android:clipChildren="false"
             android:clipToPadding="false"
-            android:orientation="vertical"
-            android:paddingStart="@dimen/fragment_drawer_padding_start"
-            android:paddingEnd="@dimen/fragment_drawer_padding_end">
+            android:orientation="vertical">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:paddingStart="@dimen/fragment_drawer_padding_start"
+                android:paddingEnd="@dimen/fragment_drawer_padding_end"
                 android:clipChildren="false">
 
                 <de.taz.app.android.ui.cover.CoverView
@@ -142,6 +142,8 @@
                 android:clipChildren="false"
                 android:minHeight="@dimen/fragment_drawer_sections_item_height"
                 android:visibility="gone"
+                android:paddingStart="@dimen/fragment_drawer_padding_start"
+                android:paddingEnd="@dimen/fragment_drawer_padding_end"
                 tools:visibility="visible">
 
                 <TextView

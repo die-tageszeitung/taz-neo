@@ -62,7 +62,6 @@ import de.taz.app.android.util.Log
 import de.taz.app.android.util.showIssueDownloadFailedDialog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
@@ -192,6 +191,13 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
                         toastHelper.showToast(message, long = true)
                         drawerAudioPlayerViewModel.clearErrorMessage()
                     }
+                }
+
+                launch {
+                    issueContentViewModel.displayableKeyFlow
+                        .collect { key ->
+                            sectionListAdapter.currentKey = key
+                        }
                 }
             }
         }

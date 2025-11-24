@@ -102,6 +102,7 @@
     <color name="fragment_bookmarks_delete">@color/white</color>
     <color name="fragment_drawer_date_text_color">@color/superLightGrey</color>
     <color name="navigation_drawer_background">@color/white</color>
+    <color name="navigation_drawer_highlight_background">@color/superSuperSuperLightGrey</color>
     <color name="navigation_pdf_drawer_list_background">@color/background_forms</color>
     <color name="pdf_drawer_card_background">@color/white</color>
     <color name="pdf_drawer_item_card_background">@color/white</color>

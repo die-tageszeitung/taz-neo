@@ -8,6 +8,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Section
@@ -25,15 +26,32 @@ class SectionHeaderViewHolder(
         )
     ) {
 
+    private val rootLayout: ConstraintLayout = itemView.findViewById(R.id.drawer_section_item_layout)
     private val sectionTitle: TextView = itemView.findViewById(R.id.fragment_drawer_section_title)
     private val sectionTitleWrapper: ConstraintLayout = itemView.findViewById(R.id.section_title_wrapper)
     private val toggleIcon: ImageView = itemView.findViewById(R.id.fragment_drawer_section_collapse_icon)
     private val toggleSeparator: ImageView = itemView.findViewById(R.id.dotted_separator)
     private val toggleWrapper: LinearLayout = itemView.findViewById(R.id.section_toggle_wrapper)
 
-    fun bind(header: SectionDrawerItem.Header, typeface: Typeface? = null) {
+    fun bind(header: SectionDrawerItem.Header, typeface: Typeface? = null, currentKey: String?) {
         typeface?.let { sectionTitle.typeface = it }
         sectionTitle.text = header.section.title
+
+        if (header.section.key == currentKey) {
+            rootLayout.setBackgroundColor(
+                ContextCompat.getColor(
+                    itemView.context,
+                    R.color.navigation_drawer_highlight_background
+                )
+            )
+        } else {
+            rootLayout.setBackgroundColor(
+                ContextCompat.getColor(
+                    itemView.context,
+                    R.color.navigation_drawer_background
+                )
+            )
+        }
 
         sectionTitleWrapper.setOnClickListener {
             onTitleClickListener(header.section)

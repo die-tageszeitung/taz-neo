@@ -8,6 +8,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -43,6 +45,7 @@ class ArticleItemViewHolder(
     override val coroutineContext: CoroutineContext = SupervisorJob() + Dispatchers.Main
     private val audioPlayerService: AudioPlayerService = AudioPlayerService.getInstance(itemView.context.applicationContext)
 
+    private var rootLayout: ConstraintLayout = itemView.findViewById(R.id.drawer_article_item_layout)
     private var titleTextView: TextView = itemView.findViewById(R.id.fragment_drawer_article_title)
     private var teaserTextView: TextView = itemView.findViewById(R.id.fragment_drawer_article_teaser)
     private var authorAndReadMinutesTextView: TextView = itemView.findViewById(R.id.fragment_drawer_article_author_and_read_minutes)
@@ -53,9 +56,25 @@ class ArticleItemViewHolder(
 
     private val fileHelper = StorageService.getInstance(parent.context.applicationContext)
 
-    fun bind(sectionDrawerItem: SectionDrawerItem.Item) {
+    fun bind(sectionDrawerItem: SectionDrawerItem.Item, currentKey: String?) {
         val article = sectionDrawerItem.article
         titleTextView.text = article.title
+
+        if (article.key == currentKey) {
+            rootLayout.setBackgroundColor(
+                ContextCompat.getColor(
+                    itemView.context,
+                    R.color.navigation_drawer_highlight_background
+                )
+            )
+        } else {
+            rootLayout.setBackgroundColor(
+                ContextCompat.getColor(
+                    itemView.context,
+                    R.color.navigation_drawer_background
+                )
+            )
+        }
 
         if (article.teaser.isNullOrBlank()) {
             teaserTextView.visibility = View.GONE
