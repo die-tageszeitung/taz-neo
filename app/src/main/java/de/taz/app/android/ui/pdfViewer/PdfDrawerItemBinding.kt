@@ -21,7 +21,8 @@ data class PdfDrawerItemData(
     val pageType: PageType,
     val position: Int,
     val activePosition: Int,
-    val pdfFile: FileEntry
+    val pdfFile: FileEntry,
+    val pagina: String?,
 )
 
 class PdfDrawerItemBinding(
@@ -39,18 +40,28 @@ class PdfDrawerItemBinding(
     ) {
         boundView = itemView
         val viewDrawerPdfTitle = itemView.findViewById<TextView>(R.id.view_drawer_pdf_title)
+        val viewDrawerPdfPagina = itemView.findViewById<TextView>(R.id.view_drawer_pdf_pagina)
 
         if (itemData.position == itemData.activePosition) {
             viewDrawerPdfTitle.setTextColor(
+                ContextCompat.getColor(context, R.color.pdf_drawer_sections_item_highlighted)
+            )
+            viewDrawerPdfPagina.setTextColor(
                 ContextCompat.getColor(context, R.color.pdf_drawer_sections_item_highlighted)
             )
         } else {
             viewDrawerPdfTitle.setTextColor(
                 ContextCompat.getColor(context, R.color.pdf_drawer_sections_item)
             )
+            viewDrawerPdfPagina.setTextColor(
+                ContextCompat.getColor(context, R.color.pdf_drawer_sections_item)
+            )
         }
         // Set the title:
         viewDrawerPdfTitle.text = itemData.title
+        itemData.pagina?.let {
+            viewDrawerPdfPagina.text = "$it  "
+        }
 
         // Set the image:
         CoroutineScope(Dispatchers.Main).launch {

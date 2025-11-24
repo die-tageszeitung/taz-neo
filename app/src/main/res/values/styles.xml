@@ -203,13 +203,16 @@
         <item name="android:textColor">@color/fragment_drawer_date_text_color</item>
     </style>
 
-    <style name="Widget.App.Drawer.Pdf.Header.Play" parent="Widget.App.TextView.TextButton.Small">
+    <style name="Widget.App.Drawer.Pdf.Header.IconTexts" parent="Widget.App.TextView.IconText">
         <item name="android:textColor">@color/pdf_drawer_header_action</item>
     </style>
 
     <style name="Widget.App.Drawer.Pdf.Section.Title" parent="Widget.App.Draw.Section.Pdf">
         <item name="android:maxLines">1</item>
         <item name="android:ellipsize">end</item>
+    </style>
+    <style name="Widget.App.Drawer.Pdf.Section.Pagina" parent="Widget.App.Draw.Section.Pdf">
+        <item name="fontFamily">@font/appFontRegular</item>
     </style>
 
     <style name="Widget.App.Drawer.Pdf.Header.Title" parent="Widget.App.Drawer.Pdf.Section.Title">

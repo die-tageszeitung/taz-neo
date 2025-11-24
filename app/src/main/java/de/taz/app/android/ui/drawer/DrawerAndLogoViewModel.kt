@@ -60,7 +60,7 @@ class DrawerAndLogoViewModel(
 
     fun openDrawer() {
         _drawerState.value = when (val state = _drawerState.value) {
-            is DrawerState.Closed -> DrawerState.Open(state.isBurger, state.isHidden, state.percentMorphedToBurger)
+            is DrawerState.Closed -> DrawerState.Open(state.isBurger, state.isHidden, state.percentMorphedToBurger, state.isListDrawer)
             is DrawerState.Open -> state
         }
     }
@@ -68,7 +68,7 @@ class DrawerAndLogoViewModel(
     fun closeDrawer() {
         _drawerState.value = when (val state = _drawerState.value) {
             is DrawerState.Closed -> state
-            is DrawerState.Open -> DrawerState.Closed(state.isBurger, state.isHidden, state.percentMorphedToBurger)
+            is DrawerState.Open -> DrawerState.Closed(state.isBurger, state.isHidden, state.percentMorphedToBurger, state.isListDrawer)
         }
     }
 
@@ -76,17 +76,26 @@ class DrawerAndLogoViewModel(
         is DrawerState.Closed -> state.isBurger
         is DrawerState.Open -> state.isBurger
     }
+
+    fun setNewDrawer(isNew: Boolean) {
+        _drawerState.value = when (val state = _drawerState.value) {
+            is DrawerState.Closed -> state.copy(isListDrawer = isNew)
+            is DrawerState.Open -> state.copy(isListDrawer = isNew)
+        }
+    }
 }
 
 sealed class DrawerState {
     abstract val isBurger: Boolean
     abstract val isHidden: Boolean
     abstract val percentMorphedToBurger: Float
+    abstract val isListDrawer: Boolean
 
     data class Open(
         override val isBurger: Boolean = false,
         override val isHidden: Boolean = false,
         override val percentMorphedToBurger: Float = 0f,
+        override val isListDrawer: Boolean = false,
     ) :
         DrawerState()
 
@@ -94,6 +103,7 @@ sealed class DrawerState {
         override val isBurger: Boolean = false,
         override val isHidden: Boolean = false,
         override val percentMorphedToBurger: Float = 0f,
+        override val isListDrawer: Boolean = false,
     ) :
         DrawerState()
 }

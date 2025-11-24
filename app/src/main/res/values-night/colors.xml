@@ -8,6 +8,7 @@
 
     <color name="bottom_sheet_background">@color/background_darkmode</color>
     <color name="navigation_drawer_background">#272727</color>
+    <color name="navigation_pdf_drawer_list_background">@color/darkGrey</color>
     <color name="search_field_background_color">@color/darkGrey</color>
     <color name="activity_search_field_background_color">@color/darkGrey</color>
 
@@ -63,4 +64,7 @@
     <color name="audio_player_enqueue_button_color">@color/mediumGreen</color>
     <color name="audio_player_text_color">@color/black</color>
     <color name="audio_player_progress_time_text_color">@color/darkGrey</color>
+
+    <color name="pdf_section_font">@color/superLightGrey</color>
+    <color name="pdf_drawer_sections_item_pdf_page_with_content_highlighted">@color/mediumGrey</color>
 </resources>

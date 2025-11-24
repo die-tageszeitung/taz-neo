@@ -2,20 +2,56 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/list_item_pdf_page_with_content"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal">
+    android:paddingHorizontal="@dimen/drawer_padding_horizontal">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/preview_page_title_wrapper"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/fragment_drawer_sections_item_height"
+        android:clickable="true"
+        android:clipChildren="false"
+        android:focusable="true"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/preview_page_title"
+            style="@style/Widget.App.Drawer.Sections.Title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:context="de.taz.app.android.ui.drawer.sectionList.SectionDrawerFragment"
+            tools:text="gefahrengebiet" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <View
+        android:id="@+id/dotted_line"
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:background="@drawable/dotted_line_bookmarks"
+        app:layout_constraintTop_toBottomOf="@id/preview_page_title_wrapper" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/page_title_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:constraint_referenced_ids="preview_page_title_wrapper, dotted_line" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/preview_page_card"
         android:layout_width="@dimen/fragment_drawer_card_width"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/list_item_pdf_page_with_content_thumbnail_margin_end"
+        android:layout_marginTop="@dimen/fragment_drawer_body_pdf_with_sections_divider_padding"
         app:cardBackgroundColor="@color/pdf_drawer_card_background"
-        app:cardElevation="@dimen/moment_elevation"
         app:cardCornerRadius="@dimen/fragment_drawer_body_pdf_with_sections_preview_corners"
+        app:cardElevation="@dimen/moment_elevation"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@id/dotted_line">
 
         <ImageView
             android:id="@+id/preview_page_image"
@@ -37,6 +73,7 @@
         android:layout_marginTop="@dimen/fragment_drawer_body_pdf_with_sections_pagina_margin_top"
         android:ellipsize="end"
         android:maxLines="1"
+        android:textColor="@color/textColor"
         app:layout_constraintEnd_toEndOf="@+id/preview_page_card"
         app:layout_constraintStart_toStartOf="@id/preview_page_card"
         app:layout_constraintTop_toBottomOf="@id/preview_page_card"
@@ -51,8 +88,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/preview_page_card"
         app:layout_constraintTop_toTopOf="@id/preview_page_card"
-        tools:listitem="@layout/list_item_pdf_page_toc"
-        tools:itemCount="2"/>
+        tools:itemCount="2"
+        tools:listitem="@layout/list_item_pdf_page_toc" />
 
     <androidx.constraintlayout.widget.Barrier
         android:id="@+id/page_content_barrier"
@@ -67,7 +104,6 @@
         android:layout_height="@dimen/fragment_drawer_body_pdf_with_sections_divider_height"
         android:layout_marginTop="@dimen/list_item_pdf_page_with_content_divider_margin_top"
         android:background="@color/pdf_section_font"
-        android:layout_marginBottom="@dimen/fragment_drawer_body_pdf_with_sections_divider_padding"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"

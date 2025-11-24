@@ -15,13 +15,19 @@
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/fragment_container_view_drawer_body_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+
     <de.taz.app.android.ui.drawer.DrawerContainer
         android:id="@+id/nav_view"
         android:layout_width="@dimen/drawer_width"
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:layout_marginEnd="@dimen/negated_min_drawer_width"
-        android:background="@color/navigation_drawer_pdf_background"
+        android:background="@color/navigation_pdf_drawer_grid_background"
         android:clipChildren="false"
         android:clipToPadding="false"
         app:layout_constraintStart_toStartOf="parent"

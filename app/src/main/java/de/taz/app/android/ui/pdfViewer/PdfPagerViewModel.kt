@@ -4,9 +4,9 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.asFlow
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
+import de.taz.app.android.BuildConfig
 import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.Frame
@@ -47,6 +47,7 @@ private const val KEY_CURRENT_ITEM = "KEY_CURRENT_ITEM"
 data class PageWithArticles(
     val pagePdf: FileEntry,
     val pagina: String?,
+    val title: String?,
     val articles: List<ArticleOperations>? = null
 )
 
@@ -160,7 +161,7 @@ class PdfPagerViewModel(
 
                     val issue = try {
                         downloadMetadata(maxRetries = 3)
-                    } catch (e: CacheOperationFailedException) {
+                    } catch (_: CacheOperationFailedException) {
                         // show error then retry infinitely
                         issueDownloadFailedErrorFlow.emit(true)
                         downloadMetadata()
@@ -403,11 +404,14 @@ class PdfPagerViewModel(
                         frame.link?.let { link ->
                             if (link.startsWith("art") && link.endsWith(".html")) {
                                 val article = getArticleForFrame(frame)
-                                if (article != null && !isArticleListed(
-                                        article,
-                                        pages as List<PageWithArticlesListItem>
-                                    )
-                                ) {
+                                val articleBeginsHere = articleBeginsOnPage(article, page)
+                                val articleNotListed = !isArticleListed(
+                                    article,
+                                    pages as List<PageWithArticlesListItem>
+                                )
+                                val showArticleOnThisPage =
+                                    (BuildConfig.IS_LMD || articleBeginsHere) && articleNotListed
+                                if (article != null && showArticleOnThisPage) {
                                     if (article.isImprint()) {
                                         imprint = article
                                     } else {
@@ -418,28 +422,27 @@ class PdfPagerViewModel(
                         }
                     }
                     // Add pages only if articles are starting on it
-                    if (articlesOfPage.isNotEmpty()) {
-                        val sortedArticlesOfPage =
-                            articlesOfPage.sortedBy {
-                                sortedArticlesOfIssueMap.getOrDefault(
-                                    it.key,
-                                    Int.MAX_VALUE
-                                )
-                            }
-                        pages.add(
-                            PageWithArticlesListItem.Page(
-                                PageWithArticles(
-                                    pagePdf = requireNotNull(
-                                        fileEntryRepository.get(page.pagePdf.name)
-                                    ) {
-                                        "Refreshing pagePdf fileEntry failed as fileEntry was null"
-                                    },
-                                    page.pagina,
-                                    sortedArticlesOfPage
-                                )
+                    val sortedArticlesOfPage =
+                        articlesOfPage.sortedBy {
+                            sortedArticlesOfIssueMap.getOrDefault(
+                                it.key,
+                                Int.MAX_VALUE
+                            )
+                        }
+                    pages.add(
+                        PageWithArticlesListItem.Page(
+                            PageWithArticles(
+                                pagePdf = requireNotNull(
+                                    fileEntryRepository.get(page.pagePdf.name)
+                                ) {
+                                    "Refreshing pagePdf fileEntry failed as fileEntry was null"
+                                },
+                                if (articlesOfPage.isNotEmpty()) page.pagina else null,
+                                page.title,
+                                sortedArticlesOfPage
                             )
                         )
-                    }
+                    )
                 }
                 imprint?.let { pages.add(PageWithArticlesListItem.Imprint(it)) }
                 pages
@@ -455,13 +458,17 @@ class PdfPagerViewModel(
      * @param itemsToC items of ToC either Page or Imprint
      */
     private fun isArticleListed(
-        article: ArticleOperations,
+        article: ArticleOperations?,
         itemsToC: List<PageWithArticlesListItem>
     ): Boolean {
         return itemsToC.any { item ->
             item is PageWithArticlesListItem.Page &&
-                    item.page.articles?.any { it.key == article.key } == true
+                    item.page.articles?.any { it.key == article?.key } == true
         }
+    }
+
+    private fun articleBeginsOnPage(article: ArticleOperations?, page: Page): Boolean {
+        return page.pagePdf.name == article?.pageNameList?.first()
     }
 
     /**
@@ -499,14 +506,5 @@ class PdfPagerViewModel(
 
 
     val itemsToC = itemsToCFlow.filterNotNull().asLiveData()
-
-    private val currentPageFlow = combine(
-        pdfPageListFlow.filterNotNull(),
-        _currentItem.asFlow()
-    ) { pdfPageList, currentItem ->
-        pdfPageList.getOrNull(currentItem)
-    }
-
-    val currentPage = currentPageFlow.filterNotNull().asLiveData()
 
 }

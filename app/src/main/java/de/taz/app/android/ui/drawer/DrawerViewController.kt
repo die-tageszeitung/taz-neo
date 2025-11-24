@@ -10,8 +10,11 @@ import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.ImageView
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.GravityCompat
+import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
+import androidx.fragment.app.FragmentContainerView
 import com.bumptech.glide.Glide
+import de.taz.app.android.BuildConfig
 import de.taz.app.android.HIDE_LOGO_DELAY_MS
 import de.taz.app.android.LOGO_ANIMATION_DURATION_MS
 import de.taz.app.android.R
@@ -53,6 +56,16 @@ class DrawerViewController(
     private var isLogoClose = false
     private var feedLogoDrawable: Drawable? = null
     private var wasHidden = false
+    private var isListDrawer = false
+
+    init {
+        CoroutineScope(Dispatchers.Default).launch {
+            if (!BuildConfig.IS_LMD && generalDataStore.pdfMode.get()) {
+                isListDrawer = generalDataStore.useListDrawer.get()
+                togglePdfDrawer(isListDrawer)
+            }
+        }
+    }
 
     suspend fun handleDrawerLogoState(state: DrawerState) {
         when (state) {
@@ -96,6 +109,9 @@ class DrawerViewController(
             }
 
             is DrawerState.Open -> {
+                if (isListDrawer != state.isListDrawer) {
+                    togglePdfDrawer(state.isListDrawer)
+                }
                 openDrawer()
             }
         }
@@ -107,7 +123,7 @@ class DrawerViewController(
      */
     fun handleOnDrawerSlider(slideOffset: Float) = CoroutineScope(Dispatchers.Main).launch {
         // Decide on icon:
-        if (slideOffset > 0 && !isDrawerOpen()) {
+        if (slideOffset > 0.5) {
             if (!isLogoClose) {
                 setCloseIcon()
             }
@@ -400,6 +416,17 @@ class DrawerViewController(
                 translationX = drawerLogoWrapper.translationX
                 translationY = drawerLogoWrapper.translationY + extraPadding
             }
+        }
+    }
+
+    private fun togglePdfDrawer(showList: Boolean) = CoroutineScope(Dispatchers.Main).launch {
+        if (!BuildConfig.IS_LMD && generalDataStore.pdfMode.get()) {
+            drawerLayout.findViewById<FragmentContainerView>(R.id.fragment_container_view_drawer_body)
+                ?.isVisible = !showList
+            drawerLayout.findViewById<FragmentContainerView>(R.id.fragment_container_view_drawer_body_list)
+                ?.isVisible = showList
+            isListDrawer = showList
+            generalDataStore.useListDrawer.set(showList)
         }
     }
 }

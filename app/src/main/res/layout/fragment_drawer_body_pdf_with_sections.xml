@@ -5,126 +5,191 @@
     android:id="@+id/drawer_body_pdf_with_sections_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_marginTop="@dimen/drawer_pdf_layout_margin_top"
+    android:background="@color/navigation_pdf_drawer_list_background"
     tools:context=".ui.pdfViewer.DrawerBodyPdfWithSectionsFragment">
 
-    <include
-        android:id="@+id/pdf_drawer_loading_screen"
-        layout="@layout/include_loading_screen"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        tools:visibility="invisible" />
-
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/constraint_layout"
-        android:layout_width="wrap_content"
+        android:id="@+id/pdf_drawer_loading_screen"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:paddingHorizontal="@dimen/drawer_margin_horizontal">
+        android:background="@color/navigation_pdf_drawer_list_background"
+        android:translationZ="@dimen/loading_screen_translationZ"
+        tools:visibility="invisible">
 
-
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cardView"
+        <ProgressBar
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/fragment_drawer_body_pdf_with_sections_medium_margin"
-            app:cardBackgroundColor="@color/pdf_drawer_card_background"
-            app:cardCornerRadius="@dimen/fragment_drawer_body_pdf_with_sections_preview_corners"
-            app:cardElevation="@dimen/moment_elevation"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-            <ImageView
-                android:id="@+id/fragment_drawer_body_pdf_with_sections_current_page_image"
-                android:layout_width="wrap_content"
-                android:layout_height="@dimen/fragment_drawer_card_height"
-                android:adjustViewBounds="true"
-                tools:ignore="ContentDescription"
-                tools:layout_height="@dimen/fragment_drawer_card_height"
-                tools:layout_width="@dimen/fragment_drawer_card_width"
-                tools:src="@tools:sample/avatars" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/drawer_app_bar_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@null"
+        android:paddingHorizontal="@dimen/drawer_padding_horizontal"
+        app:elevation="0dp">
 
-        </androidx.cardview.widget.CardView>
-
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/play_issue_layout"
-            android:layout_width="wrap_content"
+        <com.google.android.material.appbar.CollapsingToolbarLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="8dp"
-            android:layout_marginBottom="@dimen/fragment_drawer_body_pdf_with_sections_negative_margin"
-            android:clickable="true"
-            android:focusable="true"
-            app:layout_constraintBottom_toBottomOf="@id/fragment_drawer_body_pdf_with_sections_separator_line"
-            app:layout_constraintStart_toStartOf="@+id/fragment_drawer_body_pdf_with_sections_title">
+            android:background="@color/navigation_pdf_drawer_list_background"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed|snap"
+            app:toolbarId="@+id/toolbar">
 
-            <ImageView
-                android:id="@+id/fragment_drawer_play_issue_icon"
-                android:layout_width="@dimen/drawer_play_issue_icon_size"
-                android:layout_height="@dimen/drawer_play_issue_icon_size"
-                android:contentDescription="@string/drawer_play_issue"
-                android:src="@drawable/ic_audio"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:tint="@color/drawer_sections_header_action" />
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/fragment_drawer_sections_tool_bar_height"
+                app:layout_collapseMode="parallax" />
 
-            <TextView
-                android:layout_width="wrap_content"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/activity_pdf_drawer_header"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                style="@style/Widget.App.Drawer.Lmd.Header.Content"
-                android:text="@string/drawer_play_issue"
-                android:layout_marginStart="@dimen/fragment_drawer_body_pdf_with_sections_small_margin"
-                app:layout_constraintStart_toEndOf="@id/fragment_drawer_play_issue_icon"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
-            android:id="@+id/fragment_drawer_body_pdf_with_sections_current_page_title"
-            style="@style/Widget.App.Drawer.Lmd.Header.Page"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/fragment_drawer_body_pdf_with_sections_pagina_margin_top"
-            app:layout_constraintEnd_toEndOf="@+id/cardView"
-            app:layout_constraintStart_toStartOf="@+id/cardView"
-            app:layout_constraintTop_toBottomOf="@id/cardView"
-            tools:text="Seite 5" />
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/activity_pdf_drawer_front_page_card"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    app:cardBackgroundColor="@color/pdf_drawer_card_background"
+                    app:cardElevation="@dimen/moment_elevation"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintWidth_percent="0.487"
+                    tools:layout_height="166dp"
+                    tools:layout_width="112dp">
 
-        <TextView
-            android:id="@+id/fragment_drawer_body_pdf_with_sections_title"
-            style="@style/Widget.App.Drawer.Lmd.Header.Date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/fragment_drawer_body_pdf_with_sections_medium_margin"
-            android:layout_marginStart="@dimen/fragment_drawer_body_pdf_with_sections_large_margin"
-            app:layout_constraintStart_toEndOf="@id/cardView"
-            app:layout_constraintTop_toTopOf="@id/cardView"
-            tools:text="März 2023" />
+                    <ImageView
+                        android:id="@+id/activity_pdf_drawer_front_page"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:clickable="true"
+                        android:contentDescription="@string/fragment_drawer_moment_content_description"
+                        android:focusable="true"
+                        android:scaleType="fitXY" />
+
+                </androidx.cardview.widget.CardView>
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guideline_mid"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent="0.5" />
+
+                <TextView
+                    android:id="@+id/activity_pdf_drawer_date"
+                    style="@style/Widget.App.Drawer.Pdf.Header.Date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginTop="@dimen/fragment_drawer_thumbnail_margin"
+                    android:textColor="@color/textColor"
+                    app:layout_constraintStart_toEndOf="@id/activity_pdf_drawer_front_page_card"
+                    app:layout_constraintTop_toTopOf="@id/activity_pdf_drawer_front_page_card"
+                    tools:text="weekday,\nDD.MM.JJJJ" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/switch_drawer_layout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/fragment_drawer_body_pdf_with_sections_negative_margin"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:padding="8dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/play_issue_layout"
+                    app:layout_constraintStart_toStartOf="@id/guideline_mid">
+
+                    <ImageView
+                        android:id="@+id/switch_drawer_icon"
+                        android:layout_width="@dimen/drawer_play_issue_big_icon_size"
+                        android:layout_height="@dimen/drawer_play_issue_big_icon_size"
+                        android:contentDescription="@string/fragment_drawer_switch_grid_view"
+                        android:src="@drawable/ic_grid_icon"
+                        app:layout_constraintBottom_toTopOf="@id/switch_drawer_icon_text"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:tint="@color/textColor" />
+
+                    <TextView
+                        android:id="@+id/switch_drawer_icon_text"
+                        style="@style/Widget.App.Drawer.Pdf.Header.IconTexts"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/fragment_drawer_body_pdf_with_sections_small_margin"
+                        android:text="@string/fragment_drawer_switch_grid_view"
+                        android:textColor="@color/textColor"
+                        app:layout_constraintBottom_toBottomOf="parent" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/play_issue_layout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/fragment_drawer_body_pdf_with_sections_negative_margin"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:padding="8dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/switch_drawer_layout">
+
+                    <ImageView
+                        android:id="@+id/fragment_drawer_play_issue_icon"
+                        android:layout_width="@dimen/drawer_play_issue_big_icon_size"
+                        android:layout_height="@dimen/drawer_play_issue_big_icon_size"
+                        android:contentDescription="@string/drawer_play_issue"
+                        android:src="@drawable/ic_audio"
+                        app:layout_constraintBottom_toTopOf="@id/fragment_drawer_play_issue_icon_text"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:tint="@color/textColor" />
+
+                    <TextView
+                        android:id="@+id/fragment_drawer_play_issue_icon_text"
+                        style="@style/Widget.App.Drawer.Pdf.Header.IconTexts"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/fragment_drawer_body_pdf_with_sections_small_margin"
+                        android:text="@string/drawer_play_issue"
+                        android:textColor="@color/textColor"
+                        app:layout_constraintBottom_toBottomOf="parent" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clipToPadding="false"
+        android:orientation="vertical"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <View
             android:id="@+id/fragment_drawer_body_pdf_with_sections_separator_line"
             android:layout_width="match_parent"
             android:layout_height="@dimen/fragment_drawer_body_pdf_with_sections_divider_height"
             android:layout_marginTop="@dimen/fragment_drawer_separator_margin_top"
-            android:background="@color/pdf_section_font"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/fragment_drawer_body_pdf_with_sections_current_page_title" />
+            android:background="@color/pdf_section_font" />
 
-        <androidx.core.widget.NestedScrollView
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/navigation_page_article_recycler_view"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/match_constraint"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/fragment_drawer_body_pdf_with_sections_separator_line">
+            android:layout_height="wrap_content"
+            android:clipToPadding="false"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:listitem="@layout/list_item_pdf_page_with_content" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/navigation_page_article_recycler_view"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:paddingVertical="@dimen/fragment_drawer_body_pdf_with_sections_divider_padding"
-                tools:listitem="@layout/list_item_pdf_page_with_content" />
-
-        </androidx.core.widget.NestedScrollView>
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
+    </LinearLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
