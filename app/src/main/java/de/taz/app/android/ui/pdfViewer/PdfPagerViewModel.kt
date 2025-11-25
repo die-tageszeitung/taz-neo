@@ -468,7 +468,7 @@ class PdfPagerViewModel(
     }
 
     private fun articleBeginsOnPage(article: ArticleOperations?, page: Page): Boolean {
-        return page.pagePdf.name == article?.pageNameList?.first()
+        return page.pagePdf.name == article?.pageNameList?.firstOrNull()
     }
 
     /**
