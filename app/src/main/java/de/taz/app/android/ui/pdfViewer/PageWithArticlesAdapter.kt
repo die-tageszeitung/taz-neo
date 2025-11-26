@@ -1,4 +1,4 @@
-
+package de.taz.app.android.ui.pdfViewer
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,9 +17,6 @@ import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.singletons.StorageService
-import de.taz.app.android.ui.pdfViewer.ArticleAdapter
-import de.taz.app.android.ui.pdfViewer.PageWithArticles
-import de.taz.app.android.ui.pdfViewer.PageWithArticlesListItem
 import kotlinx.coroutines.flow.Flow
 
 const val TYPE_PAGE = 0
@@ -35,7 +32,7 @@ private const val TYPE_IMPRINT = 1
  * table of content.
  */
 class PageWithArticlesAdapter(
-    val pages: List<PageWithArticlesListItem>,
+    var pages: List<PageWithArticlesListItem>,
     private val onPageCLick: (pageName: String) -> Unit,
     private val onArticleClick: (pagePosition: Int, article: ArticleOperations) -> Unit,
     private val onArticleBookmarkClick: (article: ArticleOperations) -> Unit,
@@ -44,18 +41,22 @@ class PageWithArticlesAdapter(
 ) :
     RecyclerView.Adapter<ViewHolder>() {
 
-    var activePosition = 0
+    var activePosition = RecyclerView.NO_POSITION
+        set(value) {
+            val oldValue = field
+            field = value
+            if (value >= 0 && pages.size > value) {
+                notifyItemChanged(value)
+            }
+            if (oldValue >= 0 && pages.size > value) {
+                notifyItemChanged(oldValue)
+            }
+        }
 
-    private class PageWithArticlesHolder(
+    inner class PageWithArticlesHolder(
         view: View,
-        private val onPageCLick: (pageName: String) -> Unit,
-        private val onArticleClick: (pagePosition: Int, article: ArticleOperations) -> Unit,
-        private val onArticleBookmarkClick: (article: ArticleOperations) -> Unit,
-        private val onAudioEnqueueClick: (article: ArticleOperations, isEnqueued: Boolean) -> Unit,
-        private val articleBookmarkStateFlowCreator: (article: ArticleOperations) -> Flow<Boolean>,
         private val showDivider: Boolean
-    ) :
-        ViewHolder(view) {
+    ) : ViewHolder(view) {
 
         private val layout: ConstraintLayout = itemView.findViewById(R.id.list_item_pdf_page_with_content)
         private val sectionGroup: Group = itemView.findViewById(R.id.page_title_group)
@@ -167,11 +168,6 @@ class PageWithArticlesAdapter(
                     .inflate(R.layout.list_item_pdf_page_with_content, parent, false)
                 PageWithArticlesHolder(
                     view,
-                    onPageCLick,
-                    onArticleClick,
-                    onArticleBookmarkClick,
-                    onAudioEnqueueClick,
-                    articleBookmarkStateFlowCreator,
                     showDivider = true
                 )
             }
