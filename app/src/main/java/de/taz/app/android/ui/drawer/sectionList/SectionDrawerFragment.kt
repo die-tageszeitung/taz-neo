@@ -13,6 +13,7 @@ import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.asFlow
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -60,8 +61,8 @@ import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.webview.pager.BookmarkPagerViewModel
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.showIssueDownloadFailedDialog
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
@@ -164,16 +165,15 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
                 }
 
                 // or the bookmarkpager
-                bookmarkPagerViewModel.articleFileNameFlow
-                    .flowWithLifecycle(lifecycle)
-                    .filterNotNull()
-                    .onEach { articleFileName ->
-                        issueRepository.getIssueStubForArticle(articleFileName)?.let { issueStub ->
+                launch {
+                    bookmarkPagerViewModel.currentIssueAndArticleLiveData.asFlow()
+                        .distinctUntilChanged().filterNotNull().collect { (issueStub, _) ->
                             log.debug("Set issue ${issueStub.issueKey} from BookmarkPager")
-                            showIssue(issueStub.issueKey)
+                            if (issueStub.issueKey == bookmarkPagerViewModel.currentIssue?.issueKey) {
+                                showIssue(issueStub.issueKey)
+                            }
                         }
-                    }
-                    .launchIn(CoroutineScope(Dispatchers.Default))
+                }
 
                 launch {
                     drawerAudioPlayerViewModel.isIssueActiveAudio.collect { isActive ->
