@@ -13,7 +13,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.asLiveData
-import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.withResumed
@@ -49,11 +49,8 @@ import de.taz.app.android.ui.share.ShareArticleBottomSheet
 import de.taz.app.android.ui.webview.ArticleWebViewFragment
 import de.taz.app.android.ui.webview.ArticleWebViewFragment.CollapsibleLayoutProvider
 import de.taz.app.android.util.Log
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 class BookmarkPagerFragment :
@@ -115,13 +112,11 @@ class BookmarkPagerFragment :
         }
 
 
-        viewModel.articleFileNameFlow
-            .flowWithLifecycle(lifecycle)
-            .onEach {
-                if (it != null) {
-                    setHeader(it)
-                }
-            }.launchIn(lifecycleScope)
+        viewModel.articleFileNameLiveData.distinctUntilChanged().observe(viewLifecycleOwner) {
+            if (it != null) {
+                setHeader(it)
+            }
+        }
 
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -246,7 +241,7 @@ class BookmarkPagerFragment :
             }
             val articleStub = articlePagerAdapter.getArticleStub(position)
             articleStub?.let {
-                viewModel.articleFileNameFlow.value = it.articleFileName
+                viewModel.articleFileNameLiveData.value = it.articleFileName
                 rebindBottomNavigation(it)
                 audioPlayerViewModel.setVisible(it)
             }
@@ -297,7 +292,7 @@ class BookmarkPagerFragment :
     }
 
     private suspend fun tryScrollToArticle() {
-        val articleFileName = viewModel.articleFileNameFlow.value
+        val articleFileName = viewModel.articleFileNameLiveData.value
         if (
             articleFileName?.startsWith("art") == true &&
             viewModel.bookmarkedArticleStubsFlow.first().map { it.key }.contains(articleFileName)
@@ -323,7 +318,7 @@ class BookmarkPagerFragment :
 
     private fun getSupposedPagerPosition(): Int? {
         val position = articlePagerAdapter.articleStubs.indexOfFirst {
-            it.key == viewModel.articleFileNameFlow.value
+            it.key == viewModel.articleFileNameLiveData.value
         }
         return if (position >= 0) {
             position
@@ -372,33 +367,35 @@ class BookmarkPagerFragment :
         super.onDestroyView()
     }
 
-    private suspend fun setHeader(displayableKey: String) {
-        val articleStub = articleRepository.getStub(displayableKey)
-        articleStub?.let { stub ->
-            val issueStub = issueRepository.getIssueStubForArticle(stub.key)
+    private fun setHeader(displayableKey: String) {
+        lifecycleScope.launch {
+            val articleStub = articleRepository.getStub(displayableKey)
+            articleStub?.let { stub ->
+                val issueStub = issueRepository.getIssueStubForArticle(stub.key)
 
-            viewBinding.header.root.isVisible = false
+                viewBinding.header.root.isVisible = false
 
-            val position =
-                articlePagerAdapter.articleStubs.indexOf(
-                    getCurrentlyDisplayedArticleStub()
-                ) + 1
-            val total = articlePagerAdapter.itemCount
+                val position =
+                    articlePagerAdapter.articleStubs.indexOf(
+                        getCurrentlyDisplayedArticleStub()
+                    ) + 1
+                val total = articlePagerAdapter.itemCount
 
-            viewBinding.headerCustom.apply {
-                root.isVisible = true
-                indexIndicator.text =
-                    getString(
-                        R.string.fragment_header_custom_index_indicator,
-                        position,
-                        total
+                viewBinding.headerCustom.apply {
+                    root.isVisible = true
+                    indexIndicator.text =
+                        getString(
+                            R.string.fragment_header_custom_index_indicator,
+                            position,
+                            total
+                        )
+                    sectionTitle.text =
+                        stub.getSectionStub(requireContext().applicationContext)?.title
+                    publishedDate.text = getString(
+                        R.string.fragment_header_custom_published_date,
+                        determineDateString(stub, issueStub)
                     )
-                sectionTitle.text =
-                    stub.getSectionStub(requireContext().applicationContext)?.title
-                publishedDate.text = getString(
-                    R.string.fragment_header_custom_published_date,
-                    determineDateString(stub, issueStub)
-                )
+                }
             }
         }
     }
