@@ -1,7 +1,5 @@
 package de.taz.app.android.ui.pdfViewer
 
-import PageWithArticlesAdapter
-import TYPE_PAGE
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
@@ -132,10 +130,7 @@ class DrawerBodyPdfWithSectionsFragment :
         }
 
         pdfPagerViewModel.currentItem.observe(viewLifecycleOwner) { position ->
-            val oldPosition = adapter.activePosition
             adapter.activePosition = position
-            adapter.notifyItemChanged(oldPosition)
-            adapter.notifyItemChanged(position)
         }
 
         viewBinding.activityPdfDrawerFrontPage.setOnClickListener {
@@ -224,14 +219,7 @@ class DrawerBodyPdfWithSectionsFragment :
      * @param items List of pages and articles on each page
      */
     private fun updateToc(items: List<PageWithArticlesListItem>) {
-        adapter = PageWithArticlesAdapter(
-            items,
-            { pageName -> handlePageClick(pageName) },
-            { pagePosition, article -> handleArticleClick(pagePosition, article) },
-            ::handleArticleBookmarkClick,
-            ::handleAudioEnqueueClick,
-            ::createArticleBookmarkStateFlow
-        )
+        adapter.pages = items
 
         // Setup drawer header front page
         Glide
