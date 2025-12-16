@@ -6,6 +6,7 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import de.taz.app.android.R
@@ -21,6 +22,8 @@ import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import de.taz.app.android.ui.webview.pager.SectionPagerFragment
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
@@ -69,21 +72,24 @@ class IssueViewerFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                launch {
-                    viewModel.activeDisplayModeFlow.collect {
-                        setDisplayMode(it)
-                    }
-                }
-
-                launch {
-                    tazApiCssDataStore.keepScreenOn.asFlow().collect {
-                        KeepScreenOnHelper.toggleScreenOn(it, activity)
-                    }
-                }
+        viewModel.activeDisplayModeFlow
+            .flowWithLifecycle(lifecycle)
+            .onEach {
+                setDisplayMode(it)
             }
+            .launchIn(lifecycleScope)
 
+        tazApiCssDataStore.keepScreenOn.asFlow()
+            .flowWithLifecycle(lifecycle)
+            .onEach {
+                KeepScreenOnHelper.toggleScreenOn(it, activity)
+            }
+            .launchIn(lifecycleScope)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        lifecycleScope.launch {
             bookmarkRepository.checkForSynchronizedBookmarksIfEnabled()
         }
     }
