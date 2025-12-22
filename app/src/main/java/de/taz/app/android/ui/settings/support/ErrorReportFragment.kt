@@ -82,11 +82,12 @@ class ErrorReportFragment : BaseMainFragment<FragmentErrorReportBinding>() {
                 }
 
                 var errorReportEmail: String? = null
-                // Ignore provided mail if we are logged in
-                if (!authHelper.isLoggedIn()) {
-                    if (emailValidator(email)) {
-                        errorReportEmail = email
-                    } else {
+                // If email provided, use it
+                if (emailValidator(email)) {
+                    errorReportEmail = email
+                } else {
+                    // if no email provided, use the tazID email if logged in, otherwise error
+                    if (!authHelper.isLoggedIn()) {
                         inputErrors = true
                         viewBinding.fragmentErrorReportEmail.error =
                             requireContext().getString(R.string.login_email_error_empty)
