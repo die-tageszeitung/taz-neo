@@ -3,7 +3,6 @@ package de.taz.app.android.ui.webview
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.util.AttributeSet
 import android.util.Base64
 import android.view.GestureDetector
@@ -19,6 +18,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.net.URLDecoder
 import kotlin.math.abs
+import androidx.core.net.toUri
 
 
 private const val MAILTO_PREFIX = "mailto:"
@@ -58,7 +58,7 @@ class AppWebView @JvmOverloads constructor(
         val mail = url.replaceFirst(MAILTO_PREFIX, "")
         log.debug("sending mail to $url")
         val intent = Intent(Intent.ACTION_SENDTO).apply {
-            data = Uri.parse(MAILTO_PREFIX)
+            data = MAILTO_PREFIX.toUri()
             putExtra(Intent.EXTRA_EMAIL, arrayOf(mail))
         }
         context?.startActivity(intent)
@@ -76,16 +76,14 @@ class AppWebView @JvmOverloads constructor(
 
     @UiThread
     fun callTazApi(functionName: String, vararg arguments: Any, callback: ValueCallback<String>? = null) {
-        val argumentsString = arguments
-            .map { argument ->
-                when (argument) {
-                    is Number -> argument.toString()
-                    is Boolean -> if (argument) "true" else "false"
-                    is String -> "\"$argument\""
-                    else -> throw IllegalArgumentException("Only string, numbers and booleans are supported for tazApiJs calls")
-                }
+        val argumentsString = arguments.joinToString(",") { argument ->
+            when (argument) {
+                is Number -> argument.toString()
+                is Boolean -> if (argument) "true" else "false"
+                is String -> "\"$argument\""
+                else -> throw IllegalArgumentException("Only string, numbers and booleans are supported for tazApiJs calls")
             }
-            .joinToString(",")
+        }
         evaluateJavascript("(function(){ return tazApi.$functionName($argumentsString);})()", callback)
     }
 

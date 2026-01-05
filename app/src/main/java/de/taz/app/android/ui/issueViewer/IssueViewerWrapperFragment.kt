@@ -5,8 +5,9 @@ import android.os.Bundle
 import android.view.View
 import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import de.taz.app.android.METADATA_DOWNLOAD_RETRY_INDEFINITELY
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Issue
@@ -183,22 +184,6 @@ class IssueViewerWrapperFragment : TazViewerFragment(), SuccessfulLoginAction {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // show an error if downloading the metadata, the issue, or another file fails
-        issueViewerViewModel.issueLoadingFailedErrorFlow
-            .flowWithLifecycle(lifecycle)
-            .filter { it }
-            .onEach {
-                activity?.showIssueDownloadFailedDialog(issuePublication)
-            }.launchIn(lifecycleScope)
-
-        issueViewerViewModel.showSubscriptionElapsedFlow
-            .flowWithLifecycle(lifecycle)
-            .distinctUntilChanged()
-            .filter { it }
-            .onEach {
-                SubscriptionElapsedBottomSheetFragment.showSingleInstance(childFragmentManager)
-            }.launchIn(lifecycleScope)
-
         // Check whether maybe show dialog to always continue read or always show title section
         val showFlow: Flow<Boolean> = combine(
             generalDataStore.settingsContinueReadAskEachTime.asFlow(),
@@ -209,29 +194,48 @@ class IssueViewerWrapperFragment : TazViewerFragment(), SuccessfulLoginAction {
             .filter { it }
             .distinctUntilChanged()
 
-        combine(
-            showFlow,
-            generalDataStore.continueReadClicked.asFlow(),
-        ) { _, readClicked -> readClicked }
-            .flowWithLifecycle(lifecycle)
-            .filter { it == SHOW_CONTINUE_READ_THE_SAME_NOT_MORE_THAN }
-            .onEach {
-                showContinueReadSettingDialog()
-                generalDataStore.settingsContinueReadDialogShown.set(true)
-            }
-            .launchIn(lifecycleScope)
+        lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                // show an error if downloading the metadata, the issue, or another file fails
+                issueViewerViewModel.issueLoadingFailedErrorFlow
+                    .filter { it }
+                    .onEach {
+                        activity?.showIssueDownloadFailedDialog(issuePublication)
+                    }.launchIn(lifecycleScope)
 
-        combine(
-            showFlow,
-            generalDataStore.continueReadDismissed.asFlow(),
-        ) { _, continueReadDismissed -> continueReadDismissed }
-            .flowWithLifecycle(lifecycle)
-            .filter { it == SHOW_CONTINUE_READ_THE_SAME_NOT_MORE_THAN }
-            .onEach {
-                showAlwaysTitleSectionSettingDialog()
-                generalDataStore.settingsContinueReadDialogShown.set(true)
+                issueViewerViewModel.showSubscriptionElapsedFlow
+                    .distinctUntilChanged()
+                    .filter { it }
+                    .onEach {
+                        SubscriptionElapsedBottomSheetFragment.showSingleInstance(
+                            childFragmentManager
+                        )
+                    }.launchIn(lifecycleScope)
+
+                combine(
+                    showFlow,
+                    generalDataStore.continueReadClicked.asFlow(),
+                ) { _, readClicked -> readClicked }
+                    .filter { it == SHOW_CONTINUE_READ_THE_SAME_NOT_MORE_THAN }
+                    .onEach {
+                        showContinueReadSettingDialog()
+                        generalDataStore.settingsContinueReadDialogShown.set(true)
+                    }
+                    .launchIn(lifecycleScope)
+
+                combine(
+                    showFlow,
+                    generalDataStore.continueReadDismissed.asFlow(),
+                ) { _, continueReadDismissed -> continueReadDismissed }
+                    .filter { it == SHOW_CONTINUE_READ_THE_SAME_NOT_MORE_THAN }
+                    .onEach {
+                        showAlwaysTitleSectionSettingDialog()
+                        generalDataStore.settingsContinueReadDialogShown.set(true)
+                    }
+                    .launchIn(lifecycleScope)
+
             }
-            .launchIn(lifecycleScope)
+        }
     }
 
     override fun onLogInSuccessful(articleName: String?) {

@@ -25,7 +25,6 @@ import androidx.core.text.HtmlCompat
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewModelScope
@@ -343,142 +342,128 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         }
 
 
-        viewModel.apply {
-            fontSizeFlow
-                .flowWithLifecycle(lifecycle)
-                .onEach { textSize ->
-                    textSize.toIntOrNull()?.let { textSizeInt ->
-                        showFontSize(textSizeInt)
-                    }
-                }.launchIn(lifecycleScope)
-
-            textJustificationFlow
-                .flowWithLifecycle(lifecycle)
-                .onEach { justified ->
-                    showTextJustification(justified)
-                }.launchIn(lifecycleScope)
-
-            nightModeFlow
-                .flowWithLifecycle(lifecycle)
-                .onEach { nightMode ->
-                    showNightMode(nightMode)
-                }.launchIn(lifecycleScope)
-
-            multiColumnModeFlow
-                .flowWithLifecycle(lifecycle)
-                .onEach { enabled ->
-                    showMultiColumnMode(enabled)
-                }.launchIn(lifecycleScope)
-
-            tapToScrollFlow
-                .flowWithLifecycle(lifecycle)
-                .onEach { enabled ->
-                    showTapToScroll(enabled)
-                }.launchIn(lifecycleScope)
-
-            keepScreenOnFlow
-                .flowWithLifecycle(lifecycle)
-                .onEach { screenOn ->
-                    showKeepScreenOn(screenOn)
-                }.launchIn(lifecycleScope)
-
-            showAnimatedMomentsFlow
-                .flowWithLifecycle(lifecycle)
-                .onEach { screenOn ->
-                    showAnimatedMomentsSetting(screenOn)
-                }.launchIn(lifecycleScope)
-
-            showContinueReadFlow
-                .flowWithLifecycle(lifecycle)
-                .onEach { enabled ->
-                    showContinueReadSetting(enabled)
-                }.launchIn(lifecycleScope)
-
-            showContinueReadAskEachTimeFlow
-                .flowWithLifecycle(lifecycle)
-                .onEach { askEachTime ->
-                    showContinueReadAskEachTimeSetting(askEachTime)
-                }.launchIn(lifecycleScope)
-
-            storedIssueNumberFlow
-                .flowWithLifecycle(lifecycle)
-                .onEach { storedIssueNumber ->
-                    showStoredIssueNumber(storedIssueNumber)
-                }.launchIn(lifecycleScope)
-
-            downloadOnlyWifiFlow
-                .flowWithLifecycle(lifecycle)
-                .onEach { onlyWifi ->
-                    showOnlyWifi(onlyWifi)
-                }.launchIn(lifecycleScope)
-
-            downloadAutomaticallyFlow
-                .flowWithLifecycle(lifecycle)
-                .onEach { downloadsEnabled ->
-                    showDownloadsEnabled(downloadsEnabled)
-                }.launchIn(lifecycleScope)
-
-            downloadAdditionallyPdf
-                .flowWithLifecycle(lifecycle)
-                .onEach { additionallyEnabled ->
-                    showDownloadAdditionallyPdf(additionallyEnabled)
-                }.launchIn(lifecycleScope)
-
-            bookmarksSynchronization
-                .flowWithLifecycle(lifecycle)
-                .onEach { enabled ->
-                    showBookmarksSynchronization(enabled)
-                }.launchIn(lifecycleScope)
-
-            trackingAccepted
-                .flowWithLifecycle(lifecycle)
-                .onEach { isTrackingAccepted ->
-                    viewBinding.fragmentSettingsAcceptTrackingSwitch.isChecked = isTrackingAccepted
-                }.launchIn(lifecycleScope)
-
-            if (pushNotificationsFeatureEnabled) {
-                notificationsEnabledLivedata
-                    .flowWithLifecycle(lifecycle)
-                    .onEach { notificationsEnabled ->
-                        updateNotificationViews(notificationsEnabled, systemNotificationsAllowed())
-                    }.launchIn(lifecycleScope)
-            }
-
-            storageLocationFlow
-                .flowWithLifecycle(lifecycle)
-                .onEach { storageLocation ->
-                    if (lastStorageLocation != null && lastStorageLocation != storageLocation) {
-                        toastHelper.showToast(R.string.settings_storage_migration_hint)
-                    }
-                    lastStorageLocation = storageLocation
-                    val storageLocationString = requireContext().getStorageLocationCaption(
-                        storageLocation
-                    )
-                    view.findViewById<TextView>(R.id.settings_storage_location_value).text =
-                        storageLocationString
-                }.launchIn(lifecycleScope)
-
-            elapsedString
-                .flowWithLifecycle(lifecycle)
-                .onEach {
-                    setElapsedString(it)
-                }.launchIn(lifecycleScope)
-
-            helpFabEnabledFlow
-                .onEach { helpFabEnabled ->
-                    viewBinding.fragmentSettingsFabEnabled.isChecked = helpFabEnabled
-                }
-                .launchIn(viewModelScope)
-        }
-
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.apply {
+                    fontSizeFlow
+                        .onEach { textSize ->
+                            textSize.toIntOrNull()?.let { textSizeInt ->
+                                showFontSize(textSizeInt)
+                            }
+                        }.launchIn(lifecycleScope)
+
+                    textJustificationFlow
+                        .onEach { justified ->
+                            showTextJustification(justified)
+                        }.launchIn(lifecycleScope)
+
+                    nightModeFlow
+                        .onEach { nightMode ->
+                            showNightMode(nightMode)
+                        }.launchIn(lifecycleScope)
+
+                    multiColumnModeFlow
+                        .onEach { enabled ->
+                            showMultiColumnMode(enabled)
+                        }.launchIn(lifecycleScope)
+
+                    tapToScrollFlow
+                        .onEach { enabled ->
+                            showTapToScroll(enabled)
+                        }.launchIn(lifecycleScope)
+
+                    keepScreenOnFlow
+                        .onEach { screenOn ->
+                            showKeepScreenOn(screenOn)
+                        }.launchIn(lifecycleScope)
+
+                    showAnimatedMomentsFlow
+                        .onEach { screenOn ->
+                            showAnimatedMomentsSetting(screenOn)
+                        }.launchIn(lifecycleScope)
+
+                    showContinueReadFlow
+                        .onEach { enabled ->
+                            showContinueReadSetting(enabled)
+                        }.launchIn(lifecycleScope)
+
+                    showContinueReadAskEachTimeFlow
+                        .onEach { askEachTime ->
+                            showContinueReadAskEachTimeSetting(askEachTime)
+                        }.launchIn(lifecycleScope)
+
+                    storedIssueNumberFlow
+                        .onEach { storedIssueNumber ->
+                            showStoredIssueNumber(storedIssueNumber)
+                        }.launchIn(lifecycleScope)
+
+                    downloadOnlyWifiFlow
+                        .onEach { onlyWifi ->
+                            showOnlyWifi(onlyWifi)
+                        }.launchIn(lifecycleScope)
+
+                    downloadAutomaticallyFlow
+                        .onEach { downloadsEnabled ->
+                            showDownloadsEnabled(downloadsEnabled)
+                        }.launchIn(lifecycleScope)
+
+                    downloadAdditionallyPdf
+                        .onEach { additionallyEnabled ->
+                            showDownloadAdditionallyPdf(additionallyEnabled)
+                        }.launchIn(lifecycleScope)
+
+                    bookmarksSynchronization
+                        .onEach { enabled ->
+                            showBookmarksSynchronization(enabled)
+                        }.launchIn(lifecycleScope)
+
+                    trackingAccepted
+                        .onEach { isTrackingAccepted ->
+                            viewBinding.fragmentSettingsAcceptTrackingSwitch.isChecked =
+                                isTrackingAccepted
+                        }.launchIn(lifecycleScope)
+
+                    if (pushNotificationsFeatureEnabled) {
+                        notificationsEnabledLivedata
+                            .onEach { notificationsEnabled ->
+                                updateNotificationViews(
+                                    notificationsEnabled,
+                                    systemNotificationsAllowed()
+                                )
+                            }.launchIn(lifecycleScope)
+                    }
+
+                    storageLocationFlow
+                        .onEach { storageLocation ->
+                            if (lastStorageLocation != null && lastStorageLocation != storageLocation) {
+                                toastHelper.showToast(R.string.settings_storage_migration_hint)
+                            }
+                            lastStorageLocation = storageLocation
+                            val storageLocationString = requireContext().getStorageLocationCaption(
+                                storageLocation
+                            )
+                            view.findViewById<TextView>(R.id.settings_storage_location_value).text =
+                                storageLocationString
+                        }.launchIn(lifecycleScope)
+
+                    elapsedString
+                        .onEach {
+                            setElapsedString(it)
+                        }.launchIn(lifecycleScope)
+
+                    helpFabEnabledFlow
+                        .onEach { helpFabEnabled ->
+                            viewBinding.fragmentSettingsFabEnabled.isChecked = helpFabEnabled
+                        }
+                        .launchIn(viewModelScope)
+                }
+
                 val authStatusFlow: Flow<AuthStatus> = authHelper.status.asFlow()
                 val authEmailFlow: Flow<String> = authHelper.email.asFlow()
 
                 combine(authStatusFlow, authEmailFlow) { authStatus, email -> authStatus to email }
                     .distinctUntilChanged()
-                    .collect { (authStatus, email) ->
+                    .onEach { (authStatus, email) ->
                         val isLoggedIn = authStatus in arrayOf(AuthStatus.valid, AuthStatus.elapsed)
                         val isElapsed = authStatus == AuthStatus.elapsed
                         val isValidEmail = emailValidator(email)
@@ -497,7 +482,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                             hideAndUnsetMultiColumnSetting()
                         }
                         showElapsedIndication(isElapsed)
-                    }
+                    }.launchIn(lifecycleScope)
             }
         }
 

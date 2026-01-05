@@ -18,9 +18,9 @@ import androidx.core.view.marginBottom
 import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.distinctUntilChanged
-import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewbinding.ViewBinding
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.appbar.AppBarLayout
@@ -50,6 +50,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -107,6 +108,7 @@ abstract class WebViewFragment<
     abstract suspend fun reloadAfterCssChange()
 
     abstract val webView: AppWebView
+
     // TODO: Make loadingScreen a nullable View?, as it might get destroyed and throw a npe.
     abstract val loadingScreen: View
 
@@ -135,50 +137,45 @@ abstract class WebViewFragment<
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        viewModel.displayableLiveData.distinctUntilChanged().observe(this) { displayable ->
-            if (displayable != null) {
-                setHeader(displayable)
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.displayableFlow
+                    .filterNotNull()
+                    .onEach { displayable ->
+                        log.debug("Received a new displayable ${displayable.key}")
+                        setHeader(displayable)
+                        currentIssueKey =
+                            displayable.getIssueStub(requireContext().applicationContext)?.issueKey
+                        configureWebView()
+                        ensureDownloadedAndShow()
+                    }.launchIn(lifecycleScope)
+
+                viewModel.nightModeFlow
+                    .onEach {
+                        reloadAfterCssChange()
+                    }.launchIn(lifecycleScope)
+
+                viewModel.tapToScrollFlow
+                    .onEach {
+                        tapToScroll = it
+                    }.launchIn(lifecycleScope)
+
+                viewModel.fontSizeFlow
+                    .onEach {
+                        reloadAfterCssChange()
+                    }.launchIn(lifecycleScope)
+
+                viewModel.multiColumnModeFlow
+                    .onEach {
+                        multiColumnMode = it
+                        setupScrollPositionListener(it)
+                    }.launchIn(lifecycleScope)
             }
         }
-        viewModel.nightModeFlow
-            .flowWithLifecycle(lifecycle)
-            .onEach {
-                reloadAfterCssChange()
-            }.launchIn(lifecycleScope)
-
-        viewModel.tapToScrollFlow
-            .flowWithLifecycle(lifecycle)
-            .onEach {
-                tapToScroll = it
-            }.launchIn(lifecycleScope)
-
-        viewModel.fontSizeFlow
-            .flowWithLifecycle(lifecycle)
-            .onEach {
-                reloadAfterCssChange()
-            }.launchIn(lifecycleScope)
-
-        viewModel.multiColumnModeFlow
-            .flowWithLifecycle(lifecycle)
-            .onEach {
-                multiColumnMode = it
-                setupScrollPositionListener(it)
-            }.launchIn(lifecycleScope)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        viewModel.displayableLiveData.distinctUntilChanged().observe(viewLifecycleOwner) {
-            if (it != null) {
-                log.debug("Received a new displayable ${it.key}")
-                lifecycleScope.launch {
-                    currentIssueKey = it.getIssueStub(requireContext().applicationContext)?.issueKey
-                    configureWebView()
-                    ensureDownloadedAndShow()
-                }
-            }
-        }
 
         if (savedInstanceState != null) {
             appBarLayout?.setExpanded(true, false)
@@ -423,7 +420,8 @@ abstract class WebViewFragment<
             val bottomNavigationBehavior = bottomNavigationLayout?.getBottomNavigationBehavior()
 
             var visibleBottom = resources.displayMetrics.heightPixels
-            var targetTop = resources.getDimensionPixelSize(R.dimen.fragment_webview_tap_to_scroll_offset)
+            var targetTop =
+                resources.getDimensionPixelSize(R.dimen.fragment_webview_tap_to_scroll_offset)
 
             // Keep a 1 line overlap so that the last/first line is visible after scrolling
             // It is defined by the font size and line height (1.33rem)
@@ -576,7 +574,7 @@ abstract class WebViewFragment<
                     storageService.getFileUri(it)
                 }
                 path?.let { loadUrl(it) }
-            } catch (e: CacheOperationFailedException) {
+            } catch (_: CacheOperationFailedException) {
                 issueViewerViewModel.issueLoadingFailedErrorFlow.emit(true)
             } catch (e: CannotDetermineBaseUrlException) {
                 // FIXME (johannes): Workaround to #14367

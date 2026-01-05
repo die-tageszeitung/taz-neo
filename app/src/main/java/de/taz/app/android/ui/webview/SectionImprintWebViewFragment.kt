@@ -8,18 +8,19 @@ import android.view.View
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.SavedStateViewModelFactory
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
-import androidx.lifecycle.whenCreated
 import com.google.android.material.appbar.AppBarLayout
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentWebviewSectionBinding
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 
@@ -60,15 +61,12 @@ class SectionImprintWebViewFragment : WebViewFragment<
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewLifecycleOwner.lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                issueContentViewModel.imprintArticleFlow.collect {
-                    if (it != null) {
-                        viewModel.displayableLiveData.postValue(it)
-                    }
-                }
+        issueContentViewModel.imprintArticleFlow.filterNotNull()
+            .flowWithLifecycle(lifecycle)
+            .onEach {
+                viewModel.displayable = it
             }
-        }
+            .launchIn(lifecycleScope)
     }
 
     override fun onPageRendered() {
