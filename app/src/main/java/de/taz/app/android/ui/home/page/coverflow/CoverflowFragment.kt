@@ -10,8 +10,8 @@ import android.view.View
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.bumptech.glide.Glide
 import com.github.rubensousa.gravitysnaphelper.GravitySnapHelper
 import de.taz.app.android.BuildConfig
@@ -113,45 +113,46 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
     /**
      * react to scrolling
      */
-    private fun observeScrollViewModel() {
-        // adjust date alpha when scrolling
-        coverFlowOnScrollListenerViewModel.dateAlpha
-            .flowWithLifecycle(lifecycle)
-            .onEach {
-                viewBinding.fragmentCoverFlowDateDownloadWrapper.alpha = it
-            }.launchIn(lifecycleScope)
+    private fun observeScrollViewModel() = lifecycleScope.launch {
+        repeatOnLifecycle(Lifecycle.State.STARTED) {
+            // adjust date alpha when scrolling
+            coverFlowOnScrollListenerViewModel.dateAlpha
+                .onEach {
+                    viewBinding.fragmentCoverFlowDateDownloadWrapper.alpha = it
+                }.launchIn(lifecycleScope)
 
-        // adjust date when scrolling
-        coverFlowOnScrollListenerViewModel.currentDate
-            .flowWithLifecycle(lifecycle)
-            .filterNotNull()
-            .onEach { date ->
-                updateUIForCurrentDate()
-            }.launchIn(lifecycleScope)
+            // adjust date when scrolling
+            coverFlowOnScrollListenerViewModel.currentDate
+                .filterNotNull()
+                .onEach { date ->
+                    updateUIForCurrentDate()
+                }.launchIn(lifecycleScope)
 
-        // trigger refresh when scrolling into the left void
-        coverFlowOnScrollListenerViewModel.refresh
-            .flowWithLifecycle(lifecycle)
-            .onEach {
-                getHomeFragment().refresh()
-            }.launchIn(lifecycleScope)
+            // trigger refresh when scrolling into the left void
+            coverFlowOnScrollListenerViewModel.refresh
+                .onEach {
+                    getHomeFragment().refresh()
+                }.launchIn(lifecycleScope)
+        }
     }
 
     /**
      * hide or show login button depending on auth status
      */
-    private fun maybeShowLoginButton() {
-        // create new flow that indicates if waiting for mail or logged in
-        combine(
-            authHelper.isPollingForConfirmationEmail.asFlow(),
-            authHelper.isLoggedInFlow,
-            generalDataStore.pdfMode.asFlow()
-        ) { isPolling, isLoggedIn, isPdf -> (isPolling || isLoggedIn) to isPdf }
-            .flowWithLifecycle(lifecycle)
-            .onEach {
-                viewBinding.homeLoginButton.visibility = if (it.first) View.GONE else View.VISIBLE
-                if (!it.first && it.second) (activity as? MainActivity)?.showLoggedOutDialog()
-            }.launchIn(lifecycleScope)
+    private fun maybeShowLoginButton() = lifecycleScope.launch {
+        repeatOnLifecycle(Lifecycle.State.STARTED) {
+            // create new flow that indicates if waiting for mail or logged in
+            combine(
+                authHelper.isPollingForConfirmationEmail.asFlow(),
+                authHelper.isLoggedInFlow,
+                generalDataStore.pdfMode.asFlow()
+            ) { isPolling, isLoggedIn, isPdf -> (isPolling || isLoggedIn) to isPdf }
+                .collect {
+                    viewBinding.homeLoginButton.visibility =
+                        if (it.first) View.GONE else View.VISIBLE
+                    if (!it.first && it.second) (activity as? MainActivity)?.showLoggedOutDialog()
+                }
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

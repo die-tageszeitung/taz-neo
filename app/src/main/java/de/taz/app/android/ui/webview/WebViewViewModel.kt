@@ -2,10 +2,10 @@ package de.taz.app.android.ui.webview
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.dataStore.TazApiCssDataStore
+import kotlinx.coroutines.flow.MutableStateFlow
 
 const val KEY_SCROLL_POSITION = "KEY_SCROLL_POSITION"
 const val KEY_SCROLL_POSITION_HORIZONTAL = "KEY_SCROLL_POSITION_HORIZONTAL"
@@ -15,10 +15,13 @@ open class WebViewViewModel<DISPLAYABLE : WebViewDisplayable>(
     private val savedStateHandle: SavedStateHandle
 ) : AndroidViewModel(application) {
 
-    val displayableLiveData = MutableLiveData<DISPLAYABLE?>(null)
+    val displayableFlow = MutableStateFlow<DISPLAYABLE?>(null)
 
-    val displayable: DISPLAYABLE?
-        get() = displayableLiveData.value
+    var displayable: DISPLAYABLE?
+        get() = displayableFlow.value
+        set(value) {
+            displayableFlow.value = value
+        }
 
     var scrollPosition: Int?
         get() = savedStateHandle[KEY_SCROLL_POSITION]

@@ -9,8 +9,9 @@ import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import de.taz.app.android.R
 import de.taz.app.android.base.ViewBindingBottomSheetFragment
@@ -107,34 +108,33 @@ class TextSettingsBottomSheetFragment :
                 viewBinding.fragmentBottomSheetMultiColumnMode.isVisible = false
                 viewBinding.fragmentBottomSheetColumnDescription.isVisible = false
             }
+
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.nightModeFlow
+                    .onEach { activated ->
+                        if (activated) {
+                            setNightModeSelected()
+                        } else {
+                            setDayModeSelected()
+                        }
+                        setNightMode(activated)
+                    }.launchIn(lifecycleScope)
+
+                viewModel.multiColumnModeFlow
+                    .onEach { activated ->
+                        if (activated) {
+                            setMultiColumnModeSelected()
+                        } else {
+                            setSingleColumnModeSelected()
+                        }
+                    }.launchIn(lifecycleScope)
+
+                viewModel.textSizeFlow
+                    .onEach { textSizePercentage ->
+                        setFontSizePercentage(textSizePercentage)
+                    }.launchIn(lifecycleScope)
+            }
         }
-
-        viewModel.nightModeFlow
-            .flowWithLifecycle(lifecycle)
-            .onEach { activated ->
-                if (activated) {
-                    setNightModeSelected()
-                } else {
-                    setDayModeSelected()
-                }
-                setNightMode(activated)
-            }.launchIn(lifecycleScope)
-
-        viewModel.multiColumnModeFlow
-            .flowWithLifecycle(lifecycle)
-            .onEach { activated ->
-                if (activated) {
-                    setMultiColumnModeSelected()
-                } else {
-                    setSingleColumnModeSelected()
-                }
-            }.launchIn(lifecycleScope)
-
-        viewModel.textSizeFlow
-            .flowWithLifecycle(lifecycle)
-            .onEach { textSizePercentage ->
-                setFontSizePercentage(textSizePercentage)
-            }.launchIn(lifecycleScope)
 
         val displayWidth =
             resources.displayMetrics.widthPixels.toFloat() / resources.displayMetrics.density

@@ -120,16 +120,10 @@ class ArticleWebViewFragment :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         articleFileName = requireArguments().getString(ARTICLE_FILE_NAME)!!
-        if (articleOperations != null) {
-            viewModel.displayableLiveData.postValue(articleOperations)
-        } else {
-            lifecycleScope.launch {
-                articleRepository.getStub(articleFileName)?.let {
-                    viewModel.displayableLiveData.postValue(
-                        it
-                    )
-                }
-            }
+
+        lifecycleScope.launch {
+            articleOperations = articleOperations ?: articleRepository.getStub(articleFileName)
+            viewModel.displayable = articleOperations
         }
     }
 

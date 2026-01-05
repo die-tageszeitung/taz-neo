@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.shareIn
 class ArticleWebViewViewModel(application: Application, savedStateHandle: SavedStateHandle) :
     WebViewViewModel<ArticleOperations>(application, savedStateHandle) {
 
-    val articleFlow: Flow<ArticleOperations> = displayableLiveData.asFlow().filterNotNull()
+    val articleFlow: Flow<ArticleOperations> = displayableFlow.filterNotNull()
     val sectionStubFlow: Flow<SectionStub> = articleFlow
         .mapNotNull {
             it.getSectionStub(application.applicationContext)

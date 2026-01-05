@@ -68,7 +68,7 @@ import kotlin.math.ceil
 class SectionWebViewViewModel(application: Application, savedStateHandle: SavedStateHandle) :
     WebViewViewModel<SectionOperations>(application, savedStateHandle) {
 
-    val sectionFlow = displayableLiveData.asFlow().filterNotNull()
+    val sectionFlow = displayableFlow.filterNotNull()
     val issueStubFlow = sectionFlow
         .mapNotNull {
             it.getIssueStub(application.applicationContext)
@@ -151,14 +151,9 @@ class SectionWebViewFragment : WebViewFragment<
         sectionFileName = requireArguments().getString(SECTION_FILE_NAME)!!
         log.debug("Creating a SectionWebViewFragment for $sectionFileName")
 
-        if (sectionOperation != null) {
-            viewModel.displayableLiveData.postValue(sectionOperation)
-        } else {
-            lifecycleScope.launch {
-                viewModel.displayableLiveData.postValue(
-                    sectionRepository.getStub(sectionFileName)
-                )
-            }
+        lifecycleScope.launch {
+            sectionOperation = sectionOperation ?: sectionRepository.getStub(sectionFileName)
+            viewModel.displayable = sectionOperation
         }
     }
 
