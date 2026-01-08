@@ -106,7 +106,7 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
         super.onViewCreated(view, savedInstanceState)
 
         articleBottomActionBarNavigationHelper
-            .setBottomNavigationFromContainer(viewBinding.navigationBottomLayout)
+            .setBottomNavigationFromContainer(viewBinding.navigationBottom)
 
         if (resources.getBoolean(R.bool.isTablet)) {
             articleBottomActionBarNavigationHelper.fixToolbarForever()

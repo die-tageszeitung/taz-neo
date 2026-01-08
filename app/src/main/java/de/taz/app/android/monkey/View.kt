@@ -46,3 +46,7 @@ fun View.setDefaultHorizontalInsets() {
 fun View.setDefaultVerticalInsets() {
     setDefaultInsets(left = false, right = false)
 }
+
+fun View.getVisibleHeight(): Int {
+    return (this.height - this.translationY).toInt()
+}

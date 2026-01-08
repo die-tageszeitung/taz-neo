@@ -101,7 +101,7 @@ class BookmarkPagerFragment :
         setupViewPager()
 
         articleBottomActionBarNavigationHelper
-            .setBottomNavigationFromContainer(viewBinding.navigationBottomLayout)
+            .setBottomNavigationFromContainer(viewBinding.navigationBottom)
 
         if (resources.getBoolean(R.bool.isTablet)) {
             articleBottomActionBarNavigationHelper.fixToolbarForever()
@@ -434,5 +434,5 @@ class BookmarkPagerFragment :
 
     // Helper functions used on from the ArticleWebViewFragment to control the collapsible elements while scrolling programmatically
     override fun getAppBarLayout(): AppBarLayout = viewBinding.appBarLayout
-    override fun getBottomNavigationLayout(): View = viewBinding.navigationBottomLayout
+    override fun getBottomNavigationLayout(): View = viewBinding.navigationBottom
 }
