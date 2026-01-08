@@ -8,21 +8,24 @@ import androidx.work.OneTimeWorkRequest
 import androidx.work.Operation
 import androidx.work.WorkManager
 import androidx.work.WorkRequest
-import androidx.work.workDataOf
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.dataStore.DownloadDataStore
-import de.taz.app.android.download.IssueDownloadWorkManagerWorker
-import de.taz.app.android.download.KEY_SCHEDULE_NEXT
+import de.taz.app.android.download.ISSUE_DOWNLOAD_WORKER_POLL_TAG
+import de.taz.app.android.download.IssueDownloadWorker
 import de.taz.app.android.util.SingletonHolder
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 
 @Mockable
 class DownloadScheduler(
-    private val context: Context
+    context: Context
 ) {
     companion object : SingletonHolder<DownloadScheduler, Context>(::DownloadScheduler)
 
     private val downloadDataStore = DownloadDataStore.getInstance(context)
+    private val workerManager = WorkManager.getInstance(context)
 
     /**
      * get Constraints for [WorkRequest] of [WorkManager]
@@ -39,24 +42,27 @@ class DownloadScheduler(
      */
     suspend fun scheduleNewestIssueDownload(
         tag: String,
-        polling: Boolean = false,
         delay: Long = 0L
     ): Operation {
         val requestBuilder =
-            OneTimeWorkRequest.Builder(IssueDownloadWorkManagerWorker::class.java)
+            OneTimeWorkRequest.Builder(IssueDownloadWorker::class.java)
                 .setConstraints(getBackgroundDownloadConstraints())
                 .setInitialDelay(delay, TimeUnit.MILLISECONDS)
-                .setInputData(
-                    workDataOf(
-                        KEY_SCHEDULE_NEXT to polling
-                    )
-                )
                 .addTag(tag)
 
-        return WorkManager.getInstance(context).enqueueUniqueWork(
+        return workerManager.enqueueUniqueWork(
             tag,
-            ExistingWorkPolicy.KEEP,
+            ExistingWorkPolicy.APPEND_OR_REPLACE,
             requestBuilder.build()
         )
+    }
+
+    @Suppress("Unused") // this is used in the free build version
+    public fun ensurePollingWorkerIsScheduled() {
+        if(workerManager.getWorkInfosByTag(ISSUE_DOWNLOAD_WORKER_POLL_TAG).get().isEmpty()) {
+            CoroutineScope(Dispatchers.IO).launch {
+                scheduleNewestIssueDownload(ISSUE_DOWNLOAD_WORKER_POLL_TAG)
+            }
+        }
     }
 }

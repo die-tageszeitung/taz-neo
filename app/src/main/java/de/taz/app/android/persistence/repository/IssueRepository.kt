@@ -4,6 +4,7 @@ import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
 import android.os.Parcelable
 import androidx.room.withTransaction
+import de.taz.app.android.BuildConfig
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.interfaces.ObservableDownload
 import de.taz.app.android.api.models.Article
@@ -583,6 +584,12 @@ data class IssuePublication(
     override val feedName: String,
     override val date: String
 ) : AbstractIssuePublication {
+
+    constructor(date: String) : this(
+        BuildConfig.DISPLAYED_FEED,
+        date,
+    )
+
     constructor(issueKey: AbstractIssuePublication) : this(
         issueKey.feedName,
         issueKey.date
