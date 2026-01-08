@@ -142,7 +142,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
         super.onViewCreated(view, savedInstanceState)
 
         articleBottomActionBarNavigationHelper
-            .setBottomNavigationFromContainer(viewBinding.navigationBottomLayout)
+            .setBottomNavigationFromContainer(viewBinding.navigationBottom)
 
         if (resources.getBoolean(R.bool.isTablet)) {
             articleBottomActionBarNavigationHelper.fixToolbarForever()
@@ -287,31 +287,31 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
                 TazLogoCoachMark.create(requireActivity().findViewById(R.id.drawer_logo))
 
             val bookmarkCoachMark = ArticleBookmarkCoachMark.create(
-                viewBinding.navigationBottomLayout
+                viewBinding.navigationBottom
                     .findViewById<View?>(R.id.bottom_navigation_action_bookmark)!!
                     .findViewById(com.google.android.material.R.id.navigation_bar_item_icon_view)
             )
 
             val homeCoachMark = ArticleHomeCoachMark.create(
-                viewBinding.navigationBottomLayout
+                viewBinding.navigationBottom
                     .findViewById<View?>(R.id.bottom_navigation_action_home_article)!!
                     .findViewById(com.google.android.material.R.id.navigation_bar_item_icon_view)
             )
 
             val textSizeCoachMark = ArticleSizeCoachMark.create(
-                viewBinding.navigationBottomLayout
+                viewBinding.navigationBottom
                     .findViewById<View?>(R.id.bottom_navigation_action_size)!!
                     .findViewById(com.google.android.material.R.id.navigation_bar_item_icon_view)
             )
 
             val shareCoachMark = ArticleShareCoachMark.create(
-                viewBinding.navigationBottomLayout
+                viewBinding.navigationBottom
                     .findViewById<View?>(R.id.bottom_navigation_action_share)!!
                     .findViewById(com.google.android.material.R.id.navigation_bar_item_icon_view)
             )
 
             val audioCoachMark = ArticleAudioCoachMark.create(
-                viewBinding.navigationBottomLayout
+                viewBinding.navigationBottom
                     .findViewById<View?>(R.id.bottom_navigation_action_audio)!!
                     .findViewById(com.google.android.material.R.id.navigation_bar_item_icon_view)
             )
@@ -763,7 +763,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
         lifecycleScope.launch {
             val extraPadding = generalDataStore.displayCutoutExtraPadding.get()
             if (extraPadding > 0 && resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                viewBinding.collapsingToolbarLayout.setPadding(0, extraPadding, 0, 0)
+                viewBinding.header.root.setPadding(0, extraPadding, 0, 0)
             }
         }
     }
@@ -940,5 +940,5 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
     }
 
     override fun getAppBarLayout(): AppBarLayout = viewBinding.appBarLayout
-    override fun getBottomNavigationLayout(): View = viewBinding.navigationBottomLayout
+    override fun getBottomNavigationLayout(): View = viewBinding.navigationBottom
 }

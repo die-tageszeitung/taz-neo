@@ -4,13 +4,12 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.DrawableRes
-import androidx.coordinatorlayout.widget.CoordinatorLayout
+import com.google.android.material.behavior.HideBottomViewOnScrollBehavior
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.models.SearchHit
 import de.taz.app.android.ui.share.ShareArticleBottomSheet
-import de.taz.app.android.util.BottomNavigationBehavior
 import de.taz.app.android.util.getBottomNavigationBehavior
 import de.taz.app.android.util.setBottomNavigationBehavior
 
@@ -26,14 +25,13 @@ class ArticleBottomActionBarNavigationHelper(
 
     private var isFixed = false
     private var isFixedForever = false
-    private var defaultBehavior: BottomNavigationBehavior<View>? = null
+    private var defaultBehavior: HideBottomViewOnScrollBehavior<View>? = null
 
     // The behavior is set on a container. See fragment_webview_pager.xml
     fun setBottomNavigationFromContainer(containerView: ViewGroup) {
-        val bottomNavigationView = containerView.getChildAt(0) as? BottomNavigationView
+        val bottomNavigationView = containerView as? BottomNavigationView
         requireNotNull(bottomNavigationView)
         initializeBottomNavigation(bottomNavigationView)
-        initializeBehaviorView(containerView)
 
         this.bottomNavigationView = bottomNavigationView
         this.behaviorView = containerView
@@ -45,12 +43,6 @@ class ArticleBottomActionBarNavigationHelper(
         }
         bottomNavigationView = null
         behaviorView = null
-        defaultBehavior = null
-    }
-
-    private fun initializeBehaviorView(view: View) {
-        val behavior = view.getBottomNavigationBehavior()
-        behavior?.initialize(view)
     }
 
     private fun initializeBottomNavigation(bottomNavigationView: BottomNavigationView) {
@@ -121,7 +113,7 @@ class ArticleBottomActionBarNavigationHelper(
         val view = behaviorView
         val behavior = view?.getBottomNavigationBehavior()
         if (view != null && behavior != null) {
-            behavior.expand(view, animate)
+            behavior.slideUp(view, animate)
         }
     }
 
@@ -129,7 +121,7 @@ class ArticleBottomActionBarNavigationHelper(
         val view = behaviorView
         val behavior = view?.getBottomNavigationBehavior()
         if (view != null && behavior != null) {
-            behavior.collapse(view, animate)
+            behavior.slideDown(view, animate)
         }
     }
 
@@ -137,7 +129,7 @@ class ArticleBottomActionBarNavigationHelper(
         expand(animate = false)
         if (!isFixed && !isFixedForever) {
             defaultBehavior = behaviorView?.getBottomNavigationBehavior()
-            behaviorView?.setBehavior(null)
+            behaviorView?.setBottomNavigationBehavior(null)
             isFixed = true
         }
     }
@@ -152,14 +144,6 @@ class ArticleBottomActionBarNavigationHelper(
     fun fixToolbarForever() {
         fixToolbar()
         isFixedForever = true
-    }
-
-    private fun View.setBehavior(behavior: BottomNavigationBehavior<View>?) {
-        val coordinatorLayoutParams = layoutParams as? CoordinatorLayout.LayoutParams
-        if (coordinatorLayoutParams != null) {
-            coordinatorLayoutParams.behavior = behavior
-            layoutParams = coordinatorLayoutParams
-        }
     }
 
     companion object {

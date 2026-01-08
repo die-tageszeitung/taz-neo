@@ -32,6 +32,7 @@ import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.download.DownloadPriority
+import de.taz.app.android.monkey.getVisibleHeight
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.ViewerStateRepository
@@ -406,8 +407,9 @@ abstract class WebViewFragment<
      * scroll article into [direction]. If at the top or the end - go to previous or next article
      */
     private suspend fun scrollVertically(@ScrollDirection direction: Int) {
-        // if on bottom and tap on right side go to next article
-        if (!webView.canScrollVertically(SCROLL_FORWARD) && direction == SCROLL_FORWARD) {
+        // if on bottom and bottom bar is hidden tap on right side go to next article
+        if (!webView.canScrollVertically(SCROLL_FORWARD) && direction == SCROLL_FORWARD
+            && (bottomNavigationLayout?.getVisibleHeight() == 0 || bottomNavigationLayout?.getBottomNavigationBehavior() == null)) {
             issueViewerViewModel.goNextArticle.emit(true)
         }
 
@@ -447,10 +449,8 @@ abstract class WebViewFragment<
             if (bottomNavigationLayout != null) {
                 if (bottomNavigationBehavior != null) {
                     // If the bottom navigation is shown, the visible content bottom is higher up
-                    visibleBottom -= bottomNavigationBehavior.getVisibleHeight(
-                        bottomNavigationLayout
-                    )
-                    bottomNavigationBehavior.collapse(bottomNavigationLayout, true)
+                    visibleBottom -= bottomNavigationLayout.getVisibleHeight()
+                    bottomNavigationBehavior.slideDown(bottomNavigationLayout, true)
                 } else {
                     // If the bottom navigation does not have a behavior, it is expanded
                     visibleBottom -= bottomNavigationLayout.height
