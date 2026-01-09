@@ -31,6 +31,7 @@ class AppWebView @JvmOverloads constructor(
     init {
         isHorizontalScrollBarEnabled = false
         settings.allowFileAccess = true
+        setCoordinatorBottomMatchingBehaviourEnabled(true)
     }
 
     private val log by Log
