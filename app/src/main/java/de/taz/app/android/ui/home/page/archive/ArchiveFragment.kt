@@ -40,10 +40,6 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
     private lateinit var tracker: Tracker
     private lateinit var generalDataStore: GeneralDataStore
 
-    private val gridLayoutManager by lazy {
-        GridLayoutManager(requireContext(), calculateNoOfColumns())
-    }
-
     override fun onAttach(context: Context) {
         super.onAttach(context)
         authHelper = AuthHelper.getInstance(context.applicationContext)
@@ -112,9 +108,8 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
         // Show the app bar layout when skipping to a date:
         viewBinding.appBarLayout.setExpanded(true)
 
-        adapter.getPosition(date).let { position ->
-            gridLayoutManager.scrollToPositionWithOffset(position, 0)
-        }
+        (viewBinding.fragmentArchiveGrid.layoutManager as? GridLayoutManager)
+            ?.scrollToPositionWithOffset(adapter.getPosition(date), 0)
     }
 
     private val enableRefreshViewOnScrollListener = object: RecyclerView.OnScrollListener() {
@@ -145,7 +140,9 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
             )
 
 
-            fragmentArchiveGrid.layoutManager = gridLayoutManager
+            fragmentArchiveGrid.layoutManager = GridLayoutManager(requireContext(), calculateNoOfColumns())
+            fragmentArchiveGrid.adapter = adapter
+
             fragmentArchiveGrid.setHasFixedSize(true)
 
             representation.setOnClickListener {
@@ -156,6 +153,11 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
             }
             homeLoginButton.setOnClickListener { showLoginBottomSheet() }
         }
+    }
+
+    override fun onDestroyView() {
+        viewBinding.fragmentArchiveGrid.layoutManager = null
+        super.onDestroyView()
     }
 
     private fun openDatePicker() = lifecycleScope.launch {
