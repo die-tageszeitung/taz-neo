@@ -556,6 +556,6 @@ class SectionWebViewFragment : WebViewFragment<
     private fun updateDrawerLogoByCurrentAppBarOffset() {
         val percentToHide =
             -currentAppBarOffset.toFloat() / viewBinding.appBarLayout.height.toFloat()
-        drawerAndLogoViewModel.morphLogoByPercent(percentToHide.coerceIn(0f, 1f))
+        drawerAndLogoViewModel.morphLogoByPercent(percentToHide)
     }
 }

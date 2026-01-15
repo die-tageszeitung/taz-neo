@@ -2,8 +2,11 @@ package de.taz.app.android.ui.drawer
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import de.taz.app.android.dataStore.GeneralDataStore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 
 /**
  * This View Model should handle the sates of the drawer and the logo.

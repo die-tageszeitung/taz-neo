@@ -373,7 +373,8 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
             if (!isMultiColumnMode) {
                 val percentToMorph =
                     -currentAppBarOffset.toFloat() / viewBinding.appBarLayout.height.toFloat()
-                drawerAndLogoViewModel.morphLogoByPercent(percentToMorph.coerceIn(0f, 1f))
+
+                drawerAndLogoViewModel.morphLogoByPercent(percentToMorph)
             }
         }
     }

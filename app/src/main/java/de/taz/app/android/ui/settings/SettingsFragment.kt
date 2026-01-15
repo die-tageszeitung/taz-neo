@@ -216,6 +216,10 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                 setShowAnimatedMoments(isChecked)
             }
 
+            fragmentSettingsAnimateDrawerLogo.setOnCheckedChangeListener { _, isChecked ->
+                setAnimateDrawerLogo(isChecked)
+            }
+
             fragmentSettingsContinueRead.setOnCheckedChangeListener { _, isChecked ->
                 setContinueRead(isChecked)
             }
@@ -381,6 +385,10 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                         .onEach { screenOn ->
                             showAnimatedMomentsSetting(screenOn)
                         }.launchIn(lifecycleScope)
+
+                    animateDrawerLogoFlow.onEach {
+                        animatedDrawerLogoSetting(it)
+                    }.launchIn(lifecycleScope)
 
                     showContinueReadFlow
                         .onEach { enabled ->
@@ -742,6 +750,10 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         viewBinding.fragmentSettingsShowAnimatedMoments.isChecked = enabled
     }
 
+    private fun animatedDrawerLogoSetting(enabled: Boolean) {
+        viewBinding.fragmentSettingsAnimateDrawerLogo.isChecked = enabled
+    }
+
     private fun showContinueReadSetting(enabled: Boolean) {
         viewBinding.fragmentSettingsContinueRead.isChecked = enabled
         // Disable the continue read ask each time setting when ask each time is enabled:
@@ -859,6 +871,10 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
 
     private fun setShowAnimatedMoments(enabled: Boolean) {
         viewModel.setShowAnimatedMoments(enabled)
+    }
+
+    private fun setAnimateDrawerLogo(enabled: Boolean) {
+        viewModel.setAnimateDrawerLogo(enabled)
     }
 
     private fun setContinueRead(enabled: Boolean) {
