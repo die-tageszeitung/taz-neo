@@ -22,6 +22,7 @@ import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.persistence.repository.ImageRepository
 import de.taz.app.android.singletons.StorageService
+import de.taz.app.android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -42,6 +43,8 @@ class DrawerViewController(
     private val navView: View,
     private val rootView: View,
 ) {
+
+    private val log by Log
 
     private val resources = context.resources
     private val imageRepository = ImageRepository.getInstance(context)
@@ -68,6 +71,8 @@ class DrawerViewController(
     }
 
     suspend fun handleDrawerLogoState(state: DrawerState) {
+        log.info("handling DrawerState: ${state}")
+
         when (state) {
             is DrawerState.Closed -> {
                 when {
@@ -230,7 +235,10 @@ class DrawerViewController(
      * Morph the logo by the given [percent] to the burger icon.
      * @param [percent] Float between [0,1] - indicating how much to morph to burger icon
      */
-    private fun morphLogosByPercent(percent: Float) {
+    private suspend fun morphLogosByPercent(percent: Float) {
+        if (!generalDataStore.animateDrawerLogo.get())
+            return
+
         // Ignore any events before we the logo is even set
         if (drawerLogoWidth == UNKNOWN_DRAWER_LOGO_WIDTH)
             return
@@ -256,6 +264,8 @@ class DrawerViewController(
     }
 
     private suspend fun setBurgerIcon() {
+        log.info("setBurgerLogo")
+
         isLogoBurger = true
         isLogoClose = false
 
@@ -265,13 +275,14 @@ class DrawerViewController(
             width = widthFromDimens
         }
         val burgerDrawable = ResourcesCompat.getDrawable(resources, R.drawable.ic_burger_menu, null)
-        drawerLogoWrapper.translationX = NO_TRANSLATION
         drawerLogoWrapper.findViewById<ImageView>(R.id.drawer_logo).apply {
             updateLayoutParams {
                 width = widthFromDimens
             }
             setImageDrawable(burgerDrawable)
+            translationX = NO_TRANSLATION
         }
+
         val extraPadding =
             if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
                 generalDataStore.displayCutoutExtraPadding.get()
@@ -289,7 +300,6 @@ class DrawerViewController(
             width = widthFromDimens
         }
         val closeDrawable = ResourcesCompat.getDrawable(resources, R.drawable.ic_close_drawer, null)
-        drawerLogoWrapper.translationX = NO_TRANSLATION
         drawerLogoWrapper.findViewById<ImageView>(R.id.drawer_logo).apply {
             updateLayoutParams {
                 width = widthFromDimens
@@ -310,6 +320,8 @@ class DrawerViewController(
     }
 
     suspend fun setFeedLogo(): Drawable? {
+        log.info("setFeedLogo")
+
         isLogoBurger = false
         isLogoClose = false
 

@@ -390,7 +390,6 @@ class ArticleWebViewFragment :
                     (scrollX / burgerLogoWidth).coerceIn(0f, 1f)
 
                 if (percentToHide == 0f) {
-                    drawerAndLogoViewModel.setFeedLogo()
                     oldScrollXOnMultiColumnSaved = false
                     oldScrollXOnMultiColumn = 0
                     helpFabViewModel.showHelpFab()
