@@ -237,7 +237,7 @@ android {
         debug {
             debuggable true
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
 
             // Use the default debug signing config provided by Android
             // This will overwrite any signingConfig setting from the productFlavors, as the
@@ -246,13 +246,13 @@ android {
         }
         release {
             minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             // Uses the signingConfig defined in productFlavors
         }
         leakCanary {
             debuggable true
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             matchingFallbacks = ['debug', 'release']
             // Use the default debug signing config provided by Android
             signingConfig signingConfigs.debug
@@ -265,7 +265,7 @@ android {
         }
         manualUpdateRelease {
             minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             buildConfigField "Boolean", "MANUAL_UPDATE", "true"
             matchingFallbacks = ['release']
             // Uses the signingConfig defined in productFlavors
