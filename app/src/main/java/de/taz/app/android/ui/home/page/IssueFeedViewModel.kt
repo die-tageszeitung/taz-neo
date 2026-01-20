@@ -4,7 +4,6 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import de.taz.app.android.BuildConfig
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.content.FeedService
 import de.taz.app.android.dataStore.GeneralDataStore
@@ -22,7 +21,6 @@ import java.util.LinkedList
 
 typealias MomentChangedListener = (Date) -> Unit
 
-const val KEY_FEED_NAME = "KEY_FEED_NAME"
 const val KEY_REFRESH_VIEW_ENABLED = "KEY_REFRESH_VIEW_ENABLED"
 const val KEY_ARCHIVE_APP_BAR_VISIBLE = "KEY_ARCHIVE_APP_BAR_VISIBLE"
 
@@ -73,11 +71,11 @@ class IssueFeedViewModel(
     suspend fun getPdfMode() = pdfModeFlow.first()
 
     val feed: Flow<Feed> = feedService
-        .getFeedFlowByName(BuildConfig.DISPLAYED_FEED)
+        .getFeedFlow()
         .distinctUntilChanged { old, new -> Feed.equalsShallow(old, new) }
         .filterNotNull()
 
-    private val _forceRefreshTimeMs = MutableStateFlow<Long>(0L)
+    private val _forceRefreshTimeMs = MutableStateFlow(0L)
     val forceRefreshTimeMs: Flow<Long> = _forceRefreshTimeMs.asStateFlow()
 
     /**

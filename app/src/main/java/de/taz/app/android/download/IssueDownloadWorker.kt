@@ -67,7 +67,7 @@ class IssueDownloadWorker(
 
     private suspend fun downloadNewestIssue() {
         // get the latest date we know about before refreshing
-        val oldFeed = feedService.getFeedFlowByName(DISPLAYED_FEED).first()
+        val oldFeed = feedService.getFeedFlow().first()
         val oldNewestIssueDate = oldFeed?.publicationDates?.getOrNull(0)?.date
 
         // update feed and newest issue metadata
@@ -89,7 +89,7 @@ class IssueDownloadWorker(
             }
         }
 
-        // either download the new issue or the newest we know about before
+        // either download the new issue or the newest we knew about before
         val downloadDate = newestIssueDate ?: oldNewestIssueDate
 
         // if we have no issue to download return
@@ -98,7 +98,7 @@ class IssueDownloadWorker(
         }
 
         contentService.downloadIssuePublicationToCache(
-            IssuePublication(DISPLAYED_FEED, simpleDateFormat.format(downloadDate))
+            IssuePublication(simpleDateFormat.format(downloadDate))
         )
         log.info("Downloaded new issue automatically: $downloadDate")
     }

@@ -4,7 +4,6 @@ import android.app.Application
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
@@ -211,7 +210,7 @@ class LoginViewModel @JvmOverloads constructor(
                         log.debug("We got a login with 'loginWeek = true'. Refreshing feed")
                         getApplicationScope().launch {
                             try {
-                                feedService.refreshFeed(BuildConfig.DISPLAYED_FEED)
+                                feedService.refreshFeed()
                             } catch (e: ConnectivityException) {
                                 log.error("Could not refresh the feed after wochentaz login", e)
                             }

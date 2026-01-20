@@ -121,12 +121,12 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
                     viewBinding.fragmentCoverFlowDateDownloadWrapper.alpha = it
                 }.launchIn(lifecycleScope)
 
-            // adjust date when scrolling
-            coverFlowOnScrollListenerViewModel.currentDate
-                .filterNotNull()
-                .onEach { date ->
-                    updateUIForCurrentDate()
-                }.launchIn(lifecycleScope)
+        // adjust date when scrolling
+        coverFlowOnScrollListenerViewModel.currentDate
+            .filterNotNull()
+            .onEach {
+                updateUIForCurrentDate()
+            }.launchIn(lifecycleScope)
 
             // trigger refresh when scrolling into the left void
             coverFlowOnScrollListenerViewModel.refresh
@@ -244,7 +244,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
                         }
                     }
                 } else {
-                    val oldPosition = savedInstanceState?.getInt(KEY_POSITION, -1) ?: -1
+                    val oldPosition = savedInstanceState.getInt(KEY_POSITION, -1)
                     if (oldPosition > 0) {
                         viewBinding.fragmentCoverFlowGrid.scrollToPosition(oldPosition)
 

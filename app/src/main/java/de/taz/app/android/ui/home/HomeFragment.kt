@@ -12,9 +12,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.withStarted
-import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.base.BaseMainFragment
@@ -38,7 +36,6 @@ import de.taz.app.android.databinding.FragmentHomeBinding
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.monkey.setRefreshingWithCallback
 import de.taz.app.android.singletons.ToastHelper
-import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.home.page.IssueFeedViewModel
 import de.taz.app.android.ui.home.page.archive.ArchiveFragment
 import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
@@ -69,7 +66,6 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
 
     private lateinit var feedService: FeedService
     private lateinit var toastHelper: ToastHelper
-    private lateinit var tracker: Tracker
     private lateinit var generalDataStore: GeneralDataStore
 
     private val issueFeedViewModel: IssueFeedViewModel by activityViewModels()
@@ -78,7 +74,6 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
         super.onAttach(context)
         feedService = FeedService.getInstance(context.applicationContext)
         toastHelper = ToastHelper.getInstance(context.applicationContext)
-        tracker = Tracker.getInstance(context.applicationContext)
         generalDataStore = GeneralDataStore.getInstance(context.applicationContext)
     }
 
@@ -97,21 +92,18 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewBinding.apply {
-            coverflowRefreshLayout.apply {
-                setOnRefreshListener {
-                    refreshFeedDebounced()
-                }
-                reduceDragSensitivity(10)
+        viewBinding.coverflowRefreshLayout.apply {
+            setOnRefreshListener {
+                refreshFeedDebounced()
             }
+            reduceDragSensitivity(10)
         }
 
         // show Fragment if state changes and lifecycle in STARTED
         generalDataStore.homeFragmentState.asFlow()
+            .flowWithLifecycle(lifecycle)
             .onEach {
-                withStarted {
-                    showFragmentForState(it)
-                }
+                showFragmentForState(it)
             }.launchIn(lifecycleScope)
 
         setupFAB()
@@ -191,12 +183,12 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
     private fun refreshFeedDebounced() {
         refreshJob?.cancel()
         refreshJob = lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                val start = Date().time
-                refreshFeed()
-                val end = Date().time
-                // show animation at least 1000 ms so it looks smoother
-                delay(1000L - (end - start))
+            val start = Date().time
+            refreshFeed()
+            val end = Date().time
+            // show animation at least 1000 ms so it looks smoother
+            delay(1000L - (end - start))
+            withStarted {
                 hideRefreshLoadingIcon()
             }
         }
@@ -212,15 +204,12 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
 
     private suspend fun refreshFeed() {
         try {
-            val feedService = FeedService.getInstance(requireContext().applicationContext)
-            feedService.refreshFeed(BuildConfig.DISPLAYED_FEED)
+            feedService.refreshFeed()
             issueFeedViewModel.forceRefresh()
-        } catch (e: ConnectivityException.NoInternetException) {
-            ToastHelper.getInstance(requireContext().applicationContext)
-                .showNoConnectionToast()
-        } catch (e: ConnectivityException.ImplementationException) {
-            ToastHelper.getInstance(requireContext().applicationContext)
-                .showSomethingWentWrongToast()
+        } catch (_: ConnectivityException.NoInternetException) {
+            toastHelper.showNoConnectionToast()
+        } catch (_: ConnectivityException.ImplementationException) {
+            toastHelper.showSomethingWentWrongToast()
         }
     }
 
@@ -250,24 +239,19 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
             homePresentationCoachMark
         )
         val homeHomeCoachMark = HomeHomeCoachMark.create(
-            viewBinding.root
-                .findViewById<View?>(R.id.bottom_navigation_action_home)!!
+            viewBinding.root.findViewById(R.id.bottom_navigation_action_home)!!
         )
         val homeBookmarksCoachMark = HomeBookmarksCoachMark.create(
-            viewBinding.root
-                .findViewById<View?>(R.id.bottom_navigation_action_bookmark)!!
+            viewBinding.root.findViewById(R.id.bottom_navigation_action_bookmark)!!
         )
         val homePlaylistCoachMark = HomePlaylistCoachMark.create(
-            viewBinding.root
-                .findViewById<View?>(R.id.bottom_navigation_action_playlist)!!
+            viewBinding.root.findViewById(R.id.bottom_navigation_action_playlist)!!
         )
         val homeSearchCoachMark = HomeSearchCoachMark.create(
-            viewBinding.root
-                .findViewById<View?>(R.id.bottom_navigation_action_search)!!
+            viewBinding.root.findViewById(R.id.bottom_navigation_action_search)!!
         )
         val homeSettingsCoachMark = HomeSettingsCoachMark.create(
-            viewBinding.root
-                .findViewById<View?>(R.id.bottom_navigation_action_settings)!!
+            viewBinding.root.findViewById(R.id.bottom_navigation_action_settings)!!
         )
         val genericHomeCoachMarks = listOf(
             homeHomeCoachMark,

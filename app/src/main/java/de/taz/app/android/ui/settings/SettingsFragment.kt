@@ -95,7 +95,9 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
 
     private val emailValidator = EmailValidator()
 
+    @Suppress("KotlinConstantConditions", "SimplifyBooleanWithConstants")
     private val pushNotificationsFeatureEnabled = (BuildConfig.FLAVOR_source == "nonfree")
+    @Suppress("KotlinConstantConditions", "SimplifyBooleanWithConstants")
     private val isTrackingFeatureEnabled =
         (BuildConfig.FLAVOR_source == "nonfree" && !BuildConfig.IS_LMD)
 
@@ -1130,7 +1132,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         getApplicationScope().launch {
             // Refresh the feed in the background to show all public issues again when the user was logged in as a wochentaz user
             try {
-                feedService.refreshFeed(BuildConfig.DISPLAYED_FEED)
+                feedService.refreshFeed()
             } catch (e: ConnectivityException) {
                 log.error("Could not refresh the feed after logout", e)
             }
