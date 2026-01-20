@@ -63,7 +63,7 @@ class IssueDownloadWorkerTest {
 
     @Test
     fun scheduleDownloadWithoutPoll() = runBlocking {
-        whenever(mockFeedService.getFeedFlowByName(anyString())).thenReturn(flowOf(null))
+        whenever(mockFeedService.getFeedFlow(anyString())).thenReturn(flowOf(null))
 
         val worker = TestListenableWorkerBuilder<IssueDownloadWorker>(context = context)
             .setTags(listOf(ISSUE_DOWNLOAD_WORKER_FIREBASE_TAG))
@@ -82,7 +82,7 @@ class IssueDownloadWorkerTest {
 
     @Test
     fun pollNewIssue() = runBlocking {
-        whenever(mockFeedService.getFeedFlowByName(anyString())).thenReturn(flowOf(null))
+        whenever(mockFeedService.getFeedFlow(anyString())).thenReturn(flowOf(null))
 
         val worker = TestListenableWorkerBuilder<IssueDownloadWorker>(context = context)
             .setTags(listOf(ISSUE_DOWNLOAD_WORKER_POLL_TAG))
