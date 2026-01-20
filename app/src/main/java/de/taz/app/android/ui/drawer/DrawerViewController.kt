@@ -235,13 +235,13 @@ class DrawerViewController(
      * Morph the logo by the given [percent] to the burger icon.
      * @param [percent] Float between [0,1] - indicating how much to morph to burger icon
      */
-    private suspend fun morphLogosByPercent(percent: Float) {
+    private suspend fun morphLogosByPercent(percent: Float) = withContext(Dispatchers.Default) {
         if (!generalDataStore.animateDrawerLogo.get())
-            return
+            return@withContext
 
         // Ignore any events before we the logo is even set
         if (drawerLogoWidth == UNKNOWN_DRAWER_LOGO_WIDTH)
-            return
+            return@withContext
 
         val hiddenTrans = resources.getDimension(R.dimen.drawer_logo_translation_x)
         val openTrans = resources.getDimensionPixelSize(R.dimen.drawer_burger_menu_width)
@@ -252,15 +252,16 @@ class DrawerViewController(
         val transX =
             percent * drawerLogoWidth - (transInHiddenState + transInOpenState)
 
-        drawerLogoWrapper.translationX = -transX
-        listOf(
-            R.id.article_pager_drawer_logo_ghost,
-            R.id.section_pager_drawer_logo_ghost,
-            R.id.pdf_pager_drawer_logo_ghost,
-        ).forEach {
-            rootView.findViewById<ImageView>(it)?.translationX = -transX
+        withContext(Dispatchers.Main) {
+            drawerLogoWrapper.translationX = -transX
+            listOf(
+                R.id.article_pager_drawer_logo_ghost,
+                R.id.section_pager_drawer_logo_ghost,
+                R.id.pdf_pager_drawer_logo_ghost,
+            ).forEach {
+                rootView.findViewById<ImageView>(it)?.translationX = -transX
+            }
         }
-
     }
 
     private suspend fun setBurgerIcon() {
@@ -319,7 +320,7 @@ class DrawerViewController(
         updateTheGhosts(widthFromDimens, drawerLogoWrapper.height, closeDrawable, extraPadding)
     }
 
-    suspend fun setFeedLogo(): Drawable? {
+    suspend fun setFeedLogo() = withContext(Dispatchers.Default) {
         log.info("setFeedLogo")
 
         isLogoBurger = false
@@ -327,8 +328,8 @@ class DrawerViewController(
 
         val defaultDrawerFileName =
             resources.getString(R.string.DEFAULT_NAV_DRAWER_FILE_NAME)
-        val feedLogo = imageRepository.get(defaultDrawerFileName) ?: return null
-        val feedLogoPath = storageService.getAbsolutePath(feedLogo) ?: return null
+        val feedLogo = imageRepository.get(defaultDrawerFileName) ?: return@withContext
+        val feedLogoPath = storageService.getAbsolutePath(feedLogo) ?: return@withContext
         val imageDrawable = feedLogoDrawable ?: withContext(Dispatchers.IO) {
             glide
                 .load(feedLogoPath)
@@ -337,6 +338,11 @@ class DrawerViewController(
         }
         feedLogoDrawable = imageDrawable
 
+        val drawerLogo = drawerLogoWrapper.findViewById<ImageView>(R.id.drawer_logo)
+        if (drawerLogo.drawable == feedLogoDrawable)
+            return@withContext
+
+        log.info("setFeedLogo - actually setting")
         // scale factor determined in resources
         val scaleFactor = resources.getFraction(
             R.fraction.nav_button_scale_factor,
@@ -358,26 +364,33 @@ class DrawerViewController(
             resources.displayMetrics
         ) * scaleFactor
 
-        drawerLogoWrapper.updateLayoutParams {
-            width = drawerLogoWidth
-        }
+        withContext(Dispatchers.Main) {
 
-        drawerLogoWrapper.findViewById<ImageView>(R.id.drawer_logo).apply {
-            setImageDrawable(imageDrawable)
-            updateLayoutParams<LayoutParams> {
-                width = logicalWidth.toInt()
-                height = logicalHeight.toInt()
+            drawerLogoWrapper.updateLayoutParams {
+                width = drawerLogoWidth
             }
-        }
-        val extraPadding =
-            if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                generalDataStore.displayCutoutExtraPadding.get()
-            } else {
-                0
-            }
-        updateTheGhosts(logicalWidth.toInt(), logicalHeight.toInt(), imageDrawable, extraPadding)
 
-        return imageDrawable
+            drawerLogoWrapper.findViewById<ImageView>(R.id.drawer_logo).apply {
+                setImageDrawable(imageDrawable)
+                updateLayoutParams<LayoutParams> {
+                    width = logicalWidth.toInt()
+                    height = logicalHeight.toInt()
+                }
+            }
+            val extraPadding =
+                if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                    generalDataStore.displayCutoutExtraPadding.get()
+                } else {
+                    0
+                }
+            updateTheGhosts(
+                logicalWidth.toInt(),
+                logicalHeight.toInt(),
+                imageDrawable,
+                extraPadding
+            )
+        }
+        return@withContext
     }
 
     private fun closeDrawer() {
