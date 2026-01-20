@@ -13,6 +13,9 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.withStarted
+import com.google.android.material.behavior.HideViewOnScrollBehavior
+import com.google.android.material.behavior.HideViewOnScrollBehavior.EDGE_BOTTOM
+import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.base.BaseMainFragment
@@ -42,6 +45,7 @@ import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setupBottomNavigation
 import de.taz.app.android.util.Log
+import de.taz.app.android.util.getBottomNavigationBehavior
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
@@ -134,6 +138,8 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
                 showCoachMarks()
             }
         }
+
+        viewBinding.fabHelp.getBottomNavigationBehavior()?.setViewEdge(EDGE_BOTTOM)
 
         combine(
             generalDataStore.helpFabEnabled.asFlow(),

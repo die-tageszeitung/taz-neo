@@ -33,7 +33,7 @@
             </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <com.google.android.material.bottomnavigation.BottomNavigationView
+        <de.taz.app.android.ui.NoPaddingBottomNavigation
             android:id="@+id/navigation_bottom"
             style="@style/Widget.App.BottomNavigation.TabBar"
             android:layout_width="match_parent"
@@ -60,6 +60,6 @@
         app:iconGravity="start"
         app:iconPadding="@dimen/fab_icon_padding"
         app:iconTint="@color/lightGrey"
-        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"
+        app:layout_behavior="com.google.android.material.behavior.HideViewOnScrollBehavior"
         app:tint="@color/lightGrey" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -34,7 +34,7 @@
         android:id="@+id/pdf_loading_screen"
         layout="@layout/include_loading_screen" />
 
-    <com.google.android.material.bottomnavigation.BottomNavigationView
+    <de.taz.app.android.ui.NoPaddingBottomNavigation
         android:id="@+id/navigation_bottom_pdf"
         style="@style/Widget.App.BottomNavigation.TabBar"
         android:layout_width="match_parent"
