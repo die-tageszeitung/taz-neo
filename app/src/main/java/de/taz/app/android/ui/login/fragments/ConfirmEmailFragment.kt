@@ -37,11 +37,11 @@ class ConfirmEmailFragment : LoginBaseFragment<FragmentLoginConfirmEmailBinding>
 
         if (!viewModel.backToArticle) {
             if (viewModel.backToHome) {
-                viewBinding.fragmentLoginConfirmDone.text = getString(
+                viewBinding?.fragmentLoginConfirmDone?.text = getString(
                     R.string.fragment_login_success_login_back_coverflow
                 )
             } else {
-                viewBinding.fragmentLoginConfirmDone.text = getString(
+                viewBinding?.fragmentLoginConfirmDone?.text = getString(
                     R.string.fragment_login_success_login_back_settings
                 )
             }
@@ -49,10 +49,10 @@ class ConfirmEmailFragment : LoginBaseFragment<FragmentLoginConfirmEmailBinding>
 
         runBlocking {
             if (viewModel.isElapsed()) {
-                viewBinding.fragmentLoginConfirmDone.text = getString(
+                viewBinding?.fragmentLoginConfirmDone?.text = getString(
                     R.string.fragment_login_success_login_back_coverflow
                 )
-                viewBinding.fragmentLoginConfirmEmailHeader.text = getString(
+                viewBinding?.fragmentLoginConfirmEmailHeader?.text = getString(
                     R.string.fragment_login_confirm_email_elapsed_header
                 )
             }
@@ -71,11 +71,11 @@ class ConfirmEmailFragment : LoginBaseFragment<FragmentLoginConfirmEmailBinding>
             authHelper.status.asFlow().collect { status ->
                 if (status == AuthStatus.valid) {
                     if (emailAlreadyConfirmed()) {
-                        viewBinding.fragmentLoginConfirmEmailHeader.text = getString(
+                        viewBinding?.fragmentLoginConfirmEmailHeader?.text = getString(
                             R.string.fragment_login_confirm_email_already_confirmed_header
                         )
                     } else {
-                        viewBinding.fragmentLoginConfirmEmailHeader.text = getString(
+                        viewBinding?.fragmentLoginConfirmEmailHeader?.text = getString(
                             R.string.fragment_login_confirm_email_confirmed_header
                         )
                     }
@@ -83,7 +83,7 @@ class ConfirmEmailFragment : LoginBaseFragment<FragmentLoginConfirmEmailBinding>
             }
         }
 
-        viewBinding.fragmentLoginConfirmDone.setOnClickListener {
+        viewBinding?.fragmentLoginConfirmDone?.setOnClickListener {
             viewModel.setDone()
         }
     }

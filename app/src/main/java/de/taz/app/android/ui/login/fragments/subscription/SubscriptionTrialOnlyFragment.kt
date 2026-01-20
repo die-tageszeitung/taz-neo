@@ -32,7 +32,7 @@ class SubscriptionTrialOnlyFragment : SubscriptionBaseFragment<FragmentSubscript
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         if (elapsed) {
-            viewBinding.apply {
+            viewBinding?.apply {
                 fragmentSubscriptionTrialOnlyDescription.setText(R.string.fragment_subscription_trial_only_description_elapsed)
                 fragmentSubscriptionTrialOnlyProceed.apply {
                     setText(R.string.close_okay)
@@ -42,7 +42,7 @@ class SubscriptionTrialOnlyFragment : SubscriptionBaseFragment<FragmentSubscript
                 }
             }
         } else {
-            viewBinding.apply {
+            viewBinding?.apply {
                 fragmentSubscriptionTrialOnlyDescription.setText(R.string.fragment_subscription_trial_only_description)
                 fragmentSubscriptionTrialOnlyProceed.apply {
                     setText(R.string.next_button)
@@ -56,7 +56,7 @@ class SubscriptionTrialOnlyFragment : SubscriptionBaseFragment<FragmentSubscript
             }
         }
 
-        viewBinding.backButton.setOnClickListener {
+        viewBinding?.backButton?.setOnClickListener {
             loginFlowBack()
         }
     }

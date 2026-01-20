@@ -54,7 +54,7 @@ abstract class SubscriptionInquiryFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewBinding.apply {
+        viewBinding?.apply {
             title.setText(titleStringRes)
             description.setText(descriptionStringRes)
 
@@ -76,71 +76,74 @@ abstract class SubscriptionInquiryFragment :
     private fun validateAndSubmitForm() {
         showLoadingState()
 
-        // Get the trimmed data from the ViewBinding
-        val email = viewBinding.email.text?.trim()?.toString()?.lowercase() ?: ""
-        val subscriptionIdString = viewBinding.subscriptionId.text?.trim()?.toString() ?: ""
-        val surname = viewBinding.surname.text?.trim()?.toString() ?: ""
-        val firstname = viewBinding.firstName.text?.trim()?.toString() ?: ""
-        val addressStreetNr = viewBinding.addressStreet.text?.trim()?.toString() ?: ""
-        val addressCity = viewBinding.addressCity.text?.trim()?.toString() ?: ""
-        val addressZipCode = viewBinding.addressZipcode.text?.trim()?.toString() ?: ""
-        val addressCountry = viewBinding.addressCountry.text?.trim()?.toString() ?: ""
-        val message = viewBinding.message.text?.trim()?.toString() ?: ""
-
         var isValid = true
 
-        val subscriptionId = subscriptionIdString.toIntOrNull()
-        if (!subscriptionIdString.isDigitsOnly()) {
-            viewBinding.subscriptionId.error =
-                getString(R.string.login_subscription_id_error_not_numeric)
-            isValid = false
-        }
-        if (email.isEmpty()) {
-            viewBinding.emailLayout.error = getString(R.string.login_email_error_empty)
-            isValid = false
-        }
-        if (surname.isEmpty()) {
-            viewBinding.surnameLayout.error = getString(R.string.login_surname_error_empty)
-            isValid = false
-        }
-        if (firstname.isEmpty()) {
-            viewBinding.firstNameLayout.error = getString(R.string.login_first_name_error_empty)
-            isValid = false
-        }
-        if (addressStreetNr.isEmpty()) {
-            viewBinding.addressStreetLayout.error = getString(R.string.street_error_empty)
-            isValid = false
-        }
-        if (addressZipCode.isEmpty()) {
-            viewBinding.addressZipcodeLayout.error = getString(R.string.postcode_error_empty)
-            isValid = false
-        }
-        if (addressCity.isEmpty()) {
-            viewBinding.addressCityLayout.error = getString(R.string.city_error_empty)
-            isValid = false
-        }
-        if (addressCountry.isEmpty()) {
-            viewBinding.addressCountryLayout.error = getString(R.string.country_error_empty)
-            isValid = false
-        }
+        viewBinding?.apply {
 
-        if (isValid) {
-            submitForm(
-                email,
-                subscriptionId,
-                surname,
-                firstname,
-                addressStreetNr,
-                addressCity,
-                addressZipCode,
-                addressCountry,
-                message
-            )
-        } else {
-            tracker.trackSubscriptionInquiryFormValidationErrorEvent()
-            hideLoadingState()
-            // Scroll to the top:
-            viewBinding.nestedScrollView.scrollY = 0
+            // Get the trimmed data from the ViewBinding
+            val email = email.text?.trim()?.toString()?.lowercase() ?: ""
+            val subscriptionIdString = subscriptionId.text?.trim()?.toString() ?: ""
+            val surname = surname.text?.trim()?.toString() ?: ""
+            val firstname = firstName.text?.trim()?.toString() ?: ""
+            val addressStreetNr = addressStreet.text?.trim()?.toString() ?: ""
+            val addressCity = addressCity.text?.trim()?.toString() ?: ""
+            val addressZipCode = addressZipcode.text?.trim()?.toString() ?: ""
+            val addressCountry = addressCountry.text?.trim()?.toString() ?: ""
+            val message = message.text?.trim()?.toString() ?: ""
+
+            val subscriptionId = subscriptionIdString.toIntOrNull()
+            if (!subscriptionIdString.isDigitsOnly()) {
+                this.subscriptionId.error =
+                    getString(R.string.login_subscription_id_error_not_numeric)
+                isValid = false
+            }
+            if (email.isEmpty()) {
+                emailLayout.error = getString(R.string.login_email_error_empty)
+                isValid = false
+            }
+            if (surname.isEmpty()) {
+                surnameLayout.error = getString(R.string.login_surname_error_empty)
+                isValid = false
+            }
+            if (firstname.isEmpty()) {
+                firstNameLayout.error = getString(R.string.login_first_name_error_empty)
+                isValid = false
+            }
+            if (addressStreetNr.isEmpty()) {
+                addressStreetLayout.error = getString(R.string.street_error_empty)
+                isValid = false
+            }
+            if (addressZipCode.isEmpty()) {
+                addressZipcodeLayout.error = getString(R.string.postcode_error_empty)
+                isValid = false
+            }
+            if (addressCity.isEmpty()) {
+                addressCityLayout.error = getString(R.string.city_error_empty)
+                isValid = false
+            }
+            if (addressCountry.isEmpty()) {
+                addressCountryLayout.error = getString(R.string.country_error_empty)
+                isValid = false
+            }
+
+            if (isValid) {
+                submitForm(
+                    email,
+                    subscriptionId,
+                    surname,
+                    firstname,
+                    addressStreetNr,
+                    addressCity,
+                    addressZipCode,
+                    addressCountry,
+                    message
+                )
+            } else {
+                tracker.trackSubscriptionInquiryFormValidationErrorEvent()
+                hideLoadingState()
+                // Scroll to the top:
+                nestedScrollView.scrollY = 0
+            }
         }
     }
 
@@ -203,14 +206,14 @@ abstract class SubscriptionInquiryFragment :
 
     private fun showLoadingState() {
         hideSoftInputKeyboard()
-        viewBinding.apply {
+        viewBinding?.apply {
             loadingScreen.root.visibility = View.VISIBLE
             sendButton.isEnabled = false
         }
     }
 
     private fun hideLoadingState() {
-        viewBinding.apply {
+        viewBinding?.apply {
             loadingScreen.root.visibility = View.GONE
             sendButton.isEnabled = true
         }

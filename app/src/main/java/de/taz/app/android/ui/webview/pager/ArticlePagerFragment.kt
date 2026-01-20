@@ -143,148 +143,152 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        articleBottomActionBarNavigationHelper
-            .setBottomNavigationFromContainer(viewBinding.navigationBottom)
+        viewBinding?.apply {
+            articleBottomActionBarNavigationHelper
+                .setBottomNavigationFromContainer(navigationBottom)
 
-        if (resources.getBoolean(R.bool.isTablet)) {
-            articleBottomActionBarNavigationHelper.fixToolbarForever()
-        }
+            if (resources.getBoolean(R.bool.isTablet)) {
+                articleBottomActionBarNavigationHelper.fixToolbarForever()
+            }
 
-        viewBinding.webviewPagerViewpager.apply {
+            webviewPagerViewpager.apply {
 
-            reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
+                reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
 
-            (adapter as ArticlePagerAdapter?)?.notifyDataSetChanged()
-        }
-        viewBinding.loadingScreen.root.visibility = View.GONE
+                (adapter as ArticlePagerAdapter?)?.notifyDataSetChanged()
+            }
+            loadingScreen.root.visibility = View.GONE
 
-        sectionChangeHandler =
-            SectionChangeHandler(viewBinding.webviewPagerViewpager, viewBinding.appBarLayout)
+            sectionChangeHandler =
+                SectionChangeHandler(webviewPagerViewpager, appBarLayout)
 
-        val isArticleActiveModeFlow = issueContentViewModel.activeDisplayModeFlow.map {
-            it == IssueContentDisplayMode.Article
-        }
+            val isArticleActiveModeFlow = issueContentViewModel.activeDisplayModeFlow.map {
+                it == IssueContentDisplayMode.Article
+            }
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                launch {
-                    issueContentViewModel.articleListFlow.collect { articleStubsWithSectionKey ->
-                        if (
-                            articleStubsWithSectionKey.map { it.articleStub.key } !=
-                            (viewBinding.webviewPagerViewpager.adapter as? ArticlePagerAdapter)?.articleStubs?.map { it.key }
-                        ) {
-                            viewBinding.webviewPagerViewpager.adapter =
-                                ArticlePagerAdapter(
-                                    articleStubsWithSectionKey,
-                                    this@ArticlePagerFragment
-                                )
+            viewLifecycleOwner.lifecycleScope.launch {
+                repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    launch {
+                        issueContentViewModel.articleListFlow.collect { articleStubsWithSectionKey ->
+                            if (
+                                articleStubsWithSectionKey.map { it.articleStub.key } !=
+                                (webviewPagerViewpager.adapter as? ArticlePagerAdapter)?.articleStubs?.map { it.key }
+                            ) {
+                                webviewPagerViewpager.adapter =
+                                    ArticlePagerAdapter(
+                                        articleStubsWithSectionKey,
+                                        this@ArticlePagerFragment
+                                    )
+                            }
                         }
                     }
-                }
-                launch {
-                    combine(
-                        issueContentViewModel.displayableKeyFlow,
-                        issueContentViewModel.articleListFlow
-                    ) { displayableKey, articleList ->
-                        tryScrollToArticle(displayableKey, articleList)
-                        setHeader(displayableKey)
-                    }.collect {}
-                }
-
-                launch {
-                    isArticleActiveModeFlow.collect {
-                        if (!it)
-                            hasBeenSwiped = false
+                    launch {
+                        combine(
+                            issueContentViewModel.displayableKeyFlow,
+                            issueContentViewModel.articleListFlow
+                        ) { displayableKey, articleList ->
+                            tryScrollToArticle(displayableKey, articleList)
+                            setHeader(displayableKey)
+                        }.collect {}
                     }
-                }
 
-                launch {
-                    isArticleActiveModeFlow.filter { it }.collect {
-                        if (resources.getBoolean(R.bool.isTablet) && authHelper.isValid()) {
-                            // Observer multi column mode only when tablet and logged in
-                            tazApiCssDataStore.multiColumnMode.asLiveData()
-                                .observe(viewLifecycleOwner) { isMultiColumn ->
-                                    viewBinding.collapsingToolbarLayout.pinToolbar(isMultiColumn)
-                                }
-                            maybeShowMultiColumnBottomSheet()
+                    launch {
+                        isArticleActiveModeFlow.collect {
+                            if (!it)
+                                hasBeenSwiped = false
                         }
                     }
-                }
 
-                launch {
-                    issueContentViewModel.goNextArticle.collect {
-                        if (it) {
-                            viewBinding.webviewPagerViewpager.currentItem =
-                                getCurrentPagerPosition() + 1
-                            issueContentViewModel.goNextArticle.value = false
+                    launch {
+                        isArticleActiveModeFlow.filter { it }.collect {
+                            if (resources.getBoolean(R.bool.isTablet) && authHelper.isValid()) {
+                                // Observer multi column mode only when tablet and logged in
+                                tazApiCssDataStore.multiColumnMode.asLiveData()
+                                    .observe(viewLifecycleOwner) { isMultiColumn ->
+                                        collapsingToolbarLayout.pinToolbar(isMultiColumn)
+                                    }
+                                maybeShowMultiColumnBottomSheet()
+                            }
                         }
                     }
-                }
 
-                launch {
-                    issueContentViewModel.goPreviousArticle.collect {
-                        if (it) {
-                            viewBinding.webviewPagerViewpager.currentItem =
-                                getCurrentPagerPosition() - 1
-                            issueContentViewModel.goPreviousArticle.value = false
+                    launch {
+                        issueContentViewModel.goNextArticle.collect {
+                            if (it) {
+                                webviewPagerViewpager.currentItem =
+                                    getCurrentPagerPosition() + 1
+                                issueContentViewModel.goNextArticle.value = false
+                            }
                         }
                     }
-                }
 
-                launch {
-                    issueContentViewModel.issueKeyAndDisplayableKeyFlow.collect {
-                        if (it != null) {
-                            audioPlayerViewModel.visibleIssueKey = it.issueKey
+                    launch {
+                        issueContentViewModel.goPreviousArticle.collect {
+                            if (it) {
+                                webviewPagerViewpager.currentItem =
+                                    getCurrentPagerPosition() - 1
+                                issueContentViewModel.goPreviousArticle.value = false
+                            }
                         }
                     }
-                }
 
-                launch {
-                    audioPlayerViewModel.isActiveAudio.collect {
-                        articleBottomActionBarNavigationHelper.setArticleAudioMenuIcon(it)
-                    }
-                }
-
-                launch {
-                    audioPlayerViewModel.isPlayerVisible.collect { isVisible ->
-                        if (isVisible) {
-                            articleBottomActionBarNavigationHelper.fixToolbar()
-                        } else {
-                            articleBottomActionBarNavigationHelper.releaseToolbar()
+                    launch {
+                        issueContentViewModel.issueKeyAndDisplayableKeyFlow.collect {
+                            if (it != null) {
+                                audioPlayerViewModel.visibleIssueKey = it.issueKey
+                            }
                         }
                     }
-                }
 
-                launch {
-                    audioPlayerViewModel.errorMessageFlow.filterNotNull().collect { message ->
-                        toastHelper.showToast(message, long = true)
-                        audioPlayerViewModel.clearErrorMessage()
-                    }
-                }
-
-                launch {
-                    tapIconsViewModel.showTapIconsFlow.collect {
-                        if (it) {
-                            showTapIcons()
-                        } else {
-                            hideTapIcons()
+                    launch {
+                        audioPlayerViewModel.isActiveAudio.collect {
+                            articleBottomActionBarNavigationHelper.setArticleAudioMenuIcon(it)
                         }
                     }
-                }
-                launch {
-                    helpFabViewModel.showHelpFabFlow.collect {
-                        toggleHelpFab(it)
+
+                    launch {
+                        audioPlayerViewModel.isPlayerVisible.collect { isVisible ->
+                            if (isVisible) {
+                                articleBottomActionBarNavigationHelper.fixToolbar()
+                            } else {
+                                articleBottomActionBarNavigationHelper.releaseToolbar()
+                            }
+                        }
+                    }
+
+                    launch {
+                        audioPlayerViewModel.errorMessageFlow.filterNotNull().collect { message ->
+                            toastHelper.showToast(message, long = true)
+                            audioPlayerViewModel.clearErrorMessage()
+                        }
+                    }
+
+                    launch {
+                        tapIconsViewModel.showTapIconsFlow.collect {
+                            if (it) {
+                                showTapIcons()
+                            } else {
+                                hideTapIcons()
+                            }
+                        }
+                    }
+                    launch {
+                        helpFabViewModel.showHelpFabFlow.collect {
+                            toggleHelpFab(it)
+                        }
                     }
                 }
             }
+            setupDrawerLogoGhost()
+            setupHeader()
+            setupViewPager()
+            setupFAB()
         }
-        setupDrawerLogoGhost()
-        setupHeader()
-        setupViewPager()
-        setupFAB()
     }
 
     private fun showCoachMarks() {
+            val viewBinding = viewBinding ?: return
+
             val tazLogoCoachMark =
                 TazLogoCoachMark.create(requireActivity().findViewById(R.id.drawer_logo))
 
@@ -374,7 +378,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
             val isMultiColumnMode = tazApiCssDataStore.multiColumnMode.get()
             if (!isMultiColumnMode) {
                 val percentToMorph =
-                    -currentAppBarOffset.toFloat() / viewBinding.appBarLayout.height.toFloat()
+                    -currentAppBarOffset.toFloat() / (viewBinding?.appBarLayout?.height?.toFloat() ?: 1f)
 
                 drawerAndLogoViewModel.morphLogoByPercent(percentToMorph)
             }
@@ -382,7 +386,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
     }
 
     private fun showTapIcons() {
-        viewBinding.apply {
+        viewBinding?.apply {
             leftTapIcon.animate().alpha(1f).duration =
                 TAP_ICON_FADE_OUT_TIME
             rightTapIcon.animate().alpha(1f).duration =
@@ -391,7 +395,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
     }
 
     private fun hideTapIcons() {
-        viewBinding.apply {
+        viewBinding?.apply {
             leftTapIcon.animate().alpha(0f).duration =
                 TAP_ICON_FADE_OUT_TIME
             rightTapIcon.animate().alpha(0f).duration =
@@ -400,8 +404,8 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
     }
     private suspend fun toggleHelpFab(show: Boolean) {
         if (issueContentViewModel.fabHelpEnabledFlow.first()) {
-            val fab = viewBinding.articlePagerFabHelp
-            val layoutParams = fab.layoutParams
+            val fab = viewBinding?.articlePagerFabHelp
+            val layoutParams = fab?.layoutParams
             if (layoutParams is CoordinatorLayout.LayoutParams) {
                 val behavior = layoutParams.behavior
                 if (behavior is HideViewOnScrollBehavior) {
@@ -416,7 +420,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
     }
 
     private fun setupViewPager() {
-        viewBinding.webviewPagerViewpager.apply {
+        viewBinding?.webviewPagerViewpager?.apply {
             orientation = ViewPager2.ORIENTATION_HORIZONTAL
             offscreenPageLimit = 2
             registerOnPageChangeCallback(pageChangeListener)
@@ -427,36 +431,39 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
      * On edge to edge we need to properly update the margins of the FAB:
      */
     private fun setupFAB() {
-        ViewCompat.setOnApplyWindowInsetsListener(viewBinding.articlePagerFabHelp) { v, windowInsets ->
-            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-            // Apply the insets as a margin to the view. This solution sets
-            // only the bottom, left, and right dimensions, but you can apply whichever
-            // insets are appropriate to your layout. You can also update the view padding
-            // if that's more appropriate.
-            val marginBottomFromDimens = resources.getDimensionPixelSize(R.dimen.fab_margin_bottom)
-            v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                bottomMargin = insets.bottom + marginBottomFromDimens
+        viewBinding?.articlePagerFabHelp?.let { floatingActionButton ->
+            ViewCompat.setOnApplyWindowInsetsListener(floatingActionButton) { v, windowInsets ->
+                val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+                // Apply the insets as a margin to the view. This solution sets
+                // only the bottom, left, and right dimensions, but you can apply whichever
+                // insets are appropriate to your layout. You can also update the view padding
+                // if that's more appropriate.
+                val marginBottomFromDimens =
+                    resources.getDimensionPixelSize(R.dimen.fab_margin_bottom)
+                v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                    bottomMargin = insets.bottom + marginBottomFromDimens
+                }
+
+                // Return CONSUMED if you don't want the window insets to keep passing
+                // down to descendant views.
+                WindowInsetsCompat.CONSUMED
+            }
+            floatingActionButton.setOnClickListener {
+                // Expand the tool bar as some coachmarks are pointing to it
+                articleBottomActionBarNavigationHelper.expand(true)
+
+                log.verbose("show coach marks in article pager")
+                showCoachMarks()
             }
 
-            // Return CONSUMED if you don't want the window insets to keep passing
-            // down to descendant views.
-            WindowInsetsCompat.CONSUMED
+            floatingActionButton.getBottomNavigationBehavior()?.setViewEdge(EDGE_BOTTOM)
+
+            issueContentViewModel.fabHelpEnabledFlow
+                .flowWithLifecycle(lifecycle)
+                .onEach {
+                    floatingActionButton.isVisible = it
+                }.launchIn(lifecycleScope)
         }
-        viewBinding.articlePagerFabHelp.setOnClickListener {
-            // Expand the tool bar as some coachmarks are pointing to it
-            articleBottomActionBarNavigationHelper.expand(true)
-
-            log.verbose("show coach marks in article pager")
-            showCoachMarks()
-        }
-
-        viewBinding.articlePagerFabHelp.getBottomNavigationBehavior()?.setViewEdge(EDGE_BOTTOM)
-
-        issueContentViewModel.fabHelpEnabledFlow
-            .flowWithLifecycle(lifecycle)
-            .onEach {
-                viewBinding.articlePagerFabHelp.isVisible = it
-            }.launchIn(lifecycleScope)
     }
 
     private val pageChangeListener = object : ViewPager2.OnPageChangeCallback() {
@@ -474,41 +481,43 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
                 helpFabViewModel.showHelpFab()
             }
 
-            val adapter = (viewBinding.webviewPagerViewpager.adapter as ArticlePagerAdapter)
-            val selectedItem = adapter.articlePagerItems[position]
-            val prevItem = lastPage?.let { adapter.articlePagerItems[it] }
+            viewBinding?.webviewPagerViewpager?.let { webviewPagerViewpager ->
+                val adapter = (webviewPagerViewpager.adapter as ArticlePagerAdapter)
+                val selectedItem = adapter.articlePagerItems[position]
+                val prevItem = lastPage?.let { adapter.articlePagerItems[it] }
 
-            when (selectedItem) {
-                is ArticlePagerItem.ArticleRepresentation -> {
-                    onArticleSelected(
-                        position, selectedItem.art.articleStub
-                    )
+                when (selectedItem) {
+                    is ArticlePagerItem.ArticleRepresentation -> {
+                        onArticleSelected(
+                            position, selectedItem.art.articleStub
+                        )
 
-                    if (prevItem !is ArticlePagerItem.ArticleRepresentation) {
-                        // Restore the default behavior for the pager
-                        // Must be called after the [onArticleSelected] block, so that the displayable is correct
-                        issueContentViewModel.currentDisplayable?.let { setHeader(it) }
-                        viewBinding.webviewPagerViewpager.isUserInputEnabled =
-                            wasUserInputEnabledOnArticles
+                        if (prevItem !is ArticlePagerItem.ArticleRepresentation) {
+                            // Restore the default behavior for the pager
+                            // Must be called after the [onArticleSelected] block, so that the displayable is correct
+                            issueContentViewModel.currentDisplayable?.let { setHeader(it) }
+                            webviewPagerViewpager.isUserInputEnabled =
+                                wasUserInputEnabledOnArticles
+                        }
+                        wasUserInputEnabledOnArticles =
+                            webviewPagerViewpager.isUserInputEnabled
+                        // always show taz logo when on new article:
+                        drawerAndLogoViewModel.setFeedLogo()
                     }
-                    wasUserInputEnabledOnArticles =
-                        viewBinding.webviewPagerViewpager.isUserInputEnabled
-                    // always show taz logo when on new article:
-                    drawerAndLogoViewModel.setFeedLogo()
-                }
 
-                is ArticlePagerItem.Tom -> {
-                    if (prevItem !is ArticlePagerItem.Tom) {
-                        // If the previous page was not a tom, we have to setup the header
-                        setHeaderForTom()
-                        // and ensure the viewpager is enabled
-                        viewBinding.webviewPagerViewpager.isUserInputEnabled = true
-                        // ensure the action bar is showing when the tom is views
-                        // as tom is not vertically scrollable the coordinator layout won't trigger to show/hide it
-                        articleBottomActionBarNavigationHelper.expand(animate = true)
-                        expandAppBarIfCollapsed()
+                    is ArticlePagerItem.Tom -> {
+                        if (prevItem !is ArticlePagerItem.Tom) {
+                            // If the previous page was not a tom, we have to setup the header
+                            setHeaderForTom()
+                            // and ensure the viewpager is enabled
+                            webviewPagerViewpager.isUserInputEnabled = true
+                            // ensure the action bar is showing when the tom is views
+                            // as tom is not vertically scrollable the coordinator layout won't trigger to show/hide it
+                            articleBottomActionBarNavigationHelper.expand(animate = true)
+                            expandAppBarIfCollapsed()
+                        }
+                        lastPage = position
                     }
-                    lastPage = position
                 }
             }
         }
@@ -598,12 +607,11 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
     /**
      * Check if appBarLayout is fully expanded and if not then expand it and show the logo.
      */
-    private fun expandAppBarIfCollapsed() {
-        val appBarFullyExpanded =
-            viewBinding.appBarLayout.height - viewBinding.appBarLayout.bottom == 0
+    private fun expandAppBarIfCollapsed() = viewBinding?.appBarLayout?.apply {
+        val appBarFullyExpanded = height - bottom == 0
 
         if (!appBarFullyExpanded) {
-            viewBinding.appBarLayout.setExpanded(true, false)
+            setExpanded(true, false)
             drawerAndLogoViewModel.setFeedLogo()
         }
     }
@@ -642,6 +650,9 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
                         }
 
                     is ArticlePagerItem.Tom -> toastHelper.showToast(R.string.toast_tom_not_possible_to_bookmark)
+
+                    null ->
+                        log.warn("Current item in ArticlePagerFragemnt is null")
                 }
             }
 
@@ -658,19 +669,19 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
         }
     }
 
-    private fun toggleBookmark(article: ArticleOperations) {
+    private fun toggleBookmark(article: ArticleOperations) = viewBinding?.webviewPagerViewpager?.let {
         lifecycleScope.launch {
             val isBookmarked = bookmarkRepository.toggleBookmarkAsync(article).await()
             if (isBookmarked) {
                 SnackBarHelper.showBookmarkSnack(
                     context = requireContext(),
-                    view = viewBinding.webviewPagerViewpager.rootView,
+                    view = it.rootView,
                     anchor = getBottomNavigationLayout(),
                 )
             } else {
                 SnackBarHelper.showDebookmarkSnack(
                     context = requireContext(),
-                    view = viewBinding.webviewPagerViewpager.rootView,
+                    view = it.rootView,
                     anchor = getBottomNavigationLayout(),
                 )
             }
@@ -688,6 +699,9 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
 
             is ArticlePagerItem.Tom ->
                 toastHelper.showToast(R.string.toast_tom_not_possible_to_share)
+
+            null ->
+                log.warn("Current item in ArticlePagerFragment is null")
         }
     }
 
@@ -704,7 +718,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
                 getSupposedPagerPosition()?.let {
                     if (it >= 0) {
                         try {
-                            viewBinding.webviewPagerViewpager.setCurrentItem(it, false)
+                            viewBinding?.webviewPagerViewpager?.setCurrentItem(it, false)
                         } catch (npe: NullPointerException) {
                             log.warn("We lost the viewBindings web view. Abort horizontal scrolling…")
                             SentryWrapper.captureException(npe)
@@ -716,12 +730,12 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
     }
 
     private fun getCurrentPagerPosition(): Int {
-        return viewBinding.webviewPagerViewpager.currentItem
+        return viewBinding?.webviewPagerViewpager?.currentItem ?: 0
     }
 
     private suspend fun getSupposedPagerPosition(): Int? {
         val position =
-            (viewBinding.webviewPagerViewpager.adapter as? ArticlePagerAdapter)?.articleStubs?.indexOfFirst {
+            (viewBinding?.webviewPagerViewpager?.adapter as? ArticlePagerAdapter)?.articleStubs?.indexOfFirst {
                 it.key == issueContentViewModel.displayableKeyFlow.first()
             }
         return if (position != null && position >= 0) {
@@ -731,8 +745,8 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
         }
     }
 
-    private fun getCurrentArticlePagerItem(): ArticlePagerItem {
-        return (viewBinding.webviewPagerViewpager.adapter as ArticlePagerAdapter).articlePagerItems[getCurrentPagerPosition()]
+    private fun getCurrentArticlePagerItem(): ArticlePagerItem? {
+        return (viewBinding?.webviewPagerViewpager?.adapter as? ArticlePagerAdapter)?.articlePagerItems[getCurrentPagerPosition()]
     }
 
     private fun getCurrentArticleStub(): ArticleStub? {
@@ -740,10 +754,10 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
     }
 
     override fun onDestroyView() {
-        viewBinding.webviewPagerViewpager.unregisterOnPageChangeCallback(
+        viewBinding?.webviewPagerViewpager?.unregisterOnPageChangeCallback(
             pageChangeListener
         )
-        viewBinding.webviewPagerViewpager.adapter = null
+        viewBinding?.webviewPagerViewpager?.adapter = null
         sectionChangeHandler = null
         articleBottomActionBarNavigationHelper.onDestroyView()
         super.onDestroyView()
@@ -751,9 +765,9 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
 
     // region header functions
     private fun setupHeader() {
-        viewBinding.header.root.visibility = View.VISIBLE
+        viewBinding?.header?.root?.visibility = View.VISIBLE
 
-        viewBinding.appBarLayout.apply {
+        viewBinding?.appBarLayout?.apply {
             addOnOffsetChangedListener { _, verticalOffset ->
                 if (!lockOffsetChangedListener) {
                     currentAppBarOffset = verticalOffset
@@ -768,7 +782,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
         lifecycleScope.launch {
             val extraPadding = generalDataStore.displayCutoutExtraPadding.get()
             if (extraPadding > 0 && resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                viewBinding.header.root.setPadding(0, extraPadding, 0, 0)
+                viewBinding?.header?.root?.setPadding(0, extraPadding, 0, 0)
             }
         }
     }
@@ -805,7 +819,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
     }
 
     private fun setHeaderForTom() {
-        viewBinding.header.apply {
+        viewBinding?.header?.apply {
             section.apply {
                 text = getString(R.string.article_tom_at_the_end_title)
                 setOnClickListener(null)
@@ -815,7 +829,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
     }
 
     private fun setHeaderForImprint() {
-        viewBinding.header.apply {
+        viewBinding?.header?.apply {
             section.apply {
                 text = getString(R.string.imprint)
                 setOnClickListener(null)
@@ -830,7 +844,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
         sectionStub: SectionStub?,
         pageFileName: String?,
     ) {
-        viewBinding.header.apply {
+        viewBinding?.header?.apply {
             section.apply {
                 text = sectionStub?.title
                 setOnClickListener {
@@ -862,7 +876,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
         // A 'pdf-page' could be double page, where a pagina could look like this '9-10', due to
         // this we added the split and get(0) to get the first page number.
         val firstPageNum = pageRepository.getStub(pageFileName)?.pagina?.split('-')?.get(0)
-        viewBinding.header.apply {
+        viewBinding?.header?.apply {
             articleNum.isVisible = false
             section.apply {
                 text = getString(R.string.fragment_header_article_pagina, firstPageNum)
@@ -879,7 +893,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
 
 
     private fun hideHeaderWithPage() {
-        viewBinding.header.apply {
+        viewBinding?.header?.apply {
             section.isVisible = false
             articleNum.isVisible = false
         }
@@ -887,7 +901,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
 
     private fun applyWeekendTypefacesToHeader() {
         val context = context ?: return
-        viewBinding.header.apply {
+        viewBinding?.header?.apply {
             section.typeface = ResourcesCompat.getFont(context, R.font.appFontKnileSemiBold)
             articleNum.typeface = ResourcesCompat.getFont(context, R.font.appFontKnileRegular)
         }
@@ -913,9 +927,9 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
      */
     fun pageRight() {
         val currentPosition = getCurrentPagerPosition()
-        val total = viewBinding.webviewPagerViewpager.adapter?.itemCount ?: 0
+        val total = viewBinding?.webviewPagerViewpager?.adapter?.itemCount ?: 0
         if (currentPosition < total - 1) {
-            viewBinding.webviewPagerViewpager.setCurrentItem(currentPosition + 1, false)
+            viewBinding?.webviewPagerViewpager?.setCurrentItem(currentPosition + 1, false)
         }
     }
 
@@ -926,12 +940,12 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
     fun pageLeft() {
         val currentPosition = getCurrentPagerPosition()
         if (currentPosition > 0) {
-            viewBinding.webviewPagerViewpager.setCurrentItem(currentPosition - 1, false)
+            viewBinding?.webviewPagerViewpager?.setCurrentItem(currentPosition - 1, false)
         }
     }
 
     private fun setupDrawerLogoGhost() {
-        viewBinding.articlePagerDrawerLogoGhost.setOnClickListener {
+        viewBinding?.articlePagerDrawerLogoGhost?.setOnClickListener {
             tracker.trackDrawerOpenEvent(dragged = false)
             drawerAndLogoViewModel.openDrawer()
         }
@@ -941,9 +955,9 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
      * Scroll to the very first page/item.
      */
     fun pageToFirst() {
-        viewBinding.webviewPagerViewpager.setCurrentItem(0, true)
+        viewBinding?.webviewPagerViewpager?.setCurrentItem(0, true)
     }
 
-    override fun getAppBarLayout(): AppBarLayout = viewBinding.appBarLayout
-    override fun getBottomNavigationLayout(): View = viewBinding.navigationBottom
+    override fun getAppBarLayout(): AppBarLayout? = viewBinding?.appBarLayout
+    override fun getBottomNavigationLayout(): View? = viewBinding?.navigationBottom
 }

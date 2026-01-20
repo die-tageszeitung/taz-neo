@@ -108,10 +108,8 @@ abstract class WebViewFragment<
 
     abstract suspend fun reloadAfterCssChange()
 
-    abstract val webView: AppWebView
-
-    // TODO: Make loadingScreen a nullable View?, as it might get destroyed and throw a npe.
-    abstract val loadingScreen: View
+    abstract val webView: AppWebView?
+    abstract val loadingScreen: View?
 
     private var webViewInnerWidth: Int? = null
     private var paddingAdded = false
@@ -197,7 +195,7 @@ abstract class WebViewFragment<
     @SuppressLint("SetJavaScriptEnabled", "AddJavascriptInterface")
     private suspend fun configureWebView() = withContext(Dispatchers.Main) {
 
-        webView.apply {
+        webView?.apply {
             webViewClient = AppWebViewClient(
                 requireContext().applicationContext,
                 this@WebViewFragment
@@ -244,7 +242,7 @@ abstract class WebViewFragment<
 
     private fun setupScrollPositionListener(isMultiColumnMode: Boolean) {
         if (isMultiColumnMode) {
-            webView.scrollListener = object : AppWebView.WebViewScrollListener {
+            webView?.scrollListener = object : AppWebView.WebViewScrollListener {
                 override fun onScroll(
                     scrollX: Int,
                     scrollY: Int,
@@ -256,7 +254,7 @@ abstract class WebViewFragment<
                 }
             }
         } else {
-            webView.scrollListener = object : AppWebView.WebViewScrollListener {
+            webView?.scrollListener = object : AppWebView.WebViewScrollListener {
                 override fun onScroll(
                     scrollX: Int,
                     scrollY: Int,
@@ -267,7 +265,8 @@ abstract class WebViewFragment<
 
                     if (oldScrollY < scrollY) {
                         try {
-                            val isScrolledToBottom = webView.bottom <= (webView.height + scrollY)
+                            val isScrolledToBottom =
+                                (webView?.bottom ?: 0) <= (webView?.height ?: (0 + scrollY))
                             if (isScrolledToBottom) {
                                 onScrolledToBottom()
                             }
@@ -279,7 +278,7 @@ abstract class WebViewFragment<
                 }
             }
 
-            webView.overScrollListener = object : AppWebView.WebViewOverScrollListener {
+            webView?.overScrollListener = object : AppWebView.WebViewOverScrollListener {
                 override fun onOverScroll(
                     scrollX: Int,
                     scrollY: Int,
@@ -331,51 +330,54 @@ abstract class WebViewFragment<
             isUserInputEnabled = false
             requestDisallowInterceptTouchEvent(true)
         }
-        webView.touchDisabled = true
+        webView?.apply {
+            touchDisabled = true
 
-        if (webView.canScrollHorizontally(direction)) {
-            val webViewWidth = webView.width
-            val gap = (DEFAULT_COLUMN_GAP_PX * resources.displayMetrics.density).toInt()
-            val scrollXWithBuffer = webView.scrollX + gap
-            val scrollBy = webViewWidth - gap
+            if (canScrollHorizontally(direction)) {
+                val webViewWidth = width
+                val gap = (DEFAULT_COLUMN_GAP_PX * resources.displayMetrics.density).toInt()
+                val scrollXWithBuffer = scrollX + gap
+                val scrollBy = webViewWidth - gap
 
-            val targetScrollX = if (direction == SCROLL_FORWARD)
-                (scrollXWithBuffer / scrollBy + 1) * scrollBy
-            else
-                max(0, (scrollXWithBuffer / scrollBy - 1) * scrollBy)
+                val targetScrollX = if (direction == SCROLL_FORWARD)
+                    (scrollXWithBuffer / scrollBy + 1) * scrollBy
+                else
+                    max(0, (scrollXWithBuffer / scrollBy - 1) * scrollBy)
 
-            // Check if scrolling would overscroll - if so add padding
-            if (webViewInnerWidth != null && direction == SCROLL_FORWARD) {
-                val articleWidth = webViewInnerWidth!!
+                // Check if scrolling would overscroll - if so add padding
+                if (webViewInnerWidth != null && direction == SCROLL_FORWARD) {
+                    val articleWidth = webViewInnerWidth!!
 
-                val targetWidth = targetScrollX + webViewWidth
-                val isOverscroll = targetWidth > articleWidth
-                if (!paddingAdded && isOverscroll) {
-                    val overScroll = targetWidth - articleWidth
-                    val paddingToAdd = floor(overScroll / resources.displayMetrics.density).toInt()
-                    webView.callTazApi(
-                        "setPaddingRight",
-                        paddingToAdd
-                    )
-                    paddingAdded = true
+                    val targetWidth = targetScrollX + webViewWidth
+                    val isOverscroll = targetWidth > articleWidth
+                    if (!paddingAdded && isOverscroll) {
+                        val overScroll = targetWidth - articleWidth
+                        val paddingToAdd =
+                            floor(overScroll / resources.displayMetrics.density).toInt()
+                        callTazApi(
+                            "setPaddingRight",
+                            paddingToAdd
+                        )
+                        paddingAdded = true
+                    }
                 }
+                val scrollAnimation = ObjectAnimator.ofInt(
+                    this,
+                    "scrollX",
+                    scrollX,
+                    targetScrollX
+                )
+                scrollAnimation.start()
+            } else {
+                scrollToNextItem(direction)
             }
-            val scrollAnimation = ObjectAnimator.ofInt(
-                webView,
-                "scrollX",
-                webView.scrollX,
-                targetScrollX
-            )
-            scrollAnimation.start()
-        } else {
-            scrollToNextItem(direction)
-        }
-        lifecycleScope.launch {
-            delay(TAP_LOCK_DELAY_MS)
-            webView.touchDisabled = false
-            findParentViewPager()?.apply {
-                isUserInputEnabled = true
-                requestDisallowInterceptTouchEvent(false)
+            lifecycleScope.launch {
+                delay(TAP_LOCK_DELAY_MS)
+                touchDisabled = false
+                findParentViewPager()?.apply {
+                    isUserInputEnabled = true
+                    requestDisallowInterceptTouchEvent(false)
+                }
             }
         }
     }
@@ -392,9 +394,9 @@ abstract class WebViewFragment<
     private fun findParentViewPager(): ViewPager2? {
         if (viewPagerCache != null) return viewPagerCache
 
-        var current: ViewParent = webView
-        while (current.parent != null) {
-            current = current.parent
+        var current: ViewParent? = webView
+        while (current?.parent != null) {
+            current = current?.parent
             if (current is ViewPager2) {
                 viewPagerCache = current
                 return current
@@ -407,6 +409,8 @@ abstract class WebViewFragment<
      * scroll article into [direction]. If at the top or the end - go to previous or next article
      */
     private suspend fun scrollVertically(@ScrollDirection direction: Int) {
+        val webView = this.webView ?: return
+
         // if on bottom and bottom bar is hidden tap on right side go to next article
         if (!webView.canScrollVertically(SCROLL_FORWARD) && direction == SCROLL_FORWARD
             && (bottomNavigationLayout?.getVisibleHeight() == 0 || bottomNavigationLayout?.getBottomNavigationBehavior() == null)) {
@@ -547,7 +551,7 @@ abstract class WebViewFragment<
     open fun hideLoadingScreen() {
         activity?.runOnUiThread {
             try {
-                loadingScreen.animate()?.alpha(0f)?.duration = LOADING_SCREEN_FADE_OUT_TIME
+                loadingScreen?.animate()?.alpha(0f)?.duration = LOADING_SCREEN_FADE_OUT_TIME
             } catch (npe: NullPointerException) {
                 log.error("Tried to access loading screen which is already closed.")
                 SentryWrapper.captureException(npe)
@@ -556,11 +560,11 @@ abstract class WebViewFragment<
     }
 
     private suspend fun loadUrl(url: String) = withContext(Dispatchers.Main) {
-        webView.loadUrl(url)
+        webView?.loadUrl(url)
     }
 
     override fun onDestroyView() {
-        webView.destroy()
+        webView?.destroy()
         super.onDestroyView()
     }
 
@@ -608,7 +612,7 @@ abstract class WebViewFragment<
             viewModel.scrollPosition = persistedScrollPosition ?: viewModel.scrollPosition
         }
         viewModel.scrollPosition?.let {
-            webView.scrollY = it
+            webView?.scrollY = it
         } ?: run {
             appBarLayout?.setExpanded(true, false)
         }
@@ -663,9 +667,9 @@ abstract class WebViewFragment<
 
     fun addBottomMarginIfNecessary() {
         val isTablet = resources.getBoolean(R.bool.isTablet)
-        if (isTablet && !multiColumnMode && webView.marginBottom == 0) {
+        if (isTablet && !multiColumnMode && webView?.marginBottom == 0) {
             val heightOfToolBar = bottomNavigationLayout?.height ?: 0
-            webView.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+            webView?.updateLayoutParams<ViewGroup.MarginLayoutParams> {
                 bottomMargin = heightOfToolBar
             }
         }

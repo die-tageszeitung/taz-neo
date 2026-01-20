@@ -19,7 +19,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
-import com.google.android.material.behavior.HideViewOnScrollBehavior
 import com.google.android.material.behavior.HideViewOnScrollBehavior.EDGE_BOTTOM
 import de.taz.app.android.R
 import de.taz.app.android.api.ConnectivityException
@@ -127,9 +126,9 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewBinding.wrapper.setDefaultVerticalInsets()
+        viewBinding?.wrapper?.setDefaultVerticalInsets()
 
-        viewBinding.fragmentDrawerSectionsList.apply {
+        viewBinding?.fragmentDrawerSectionsList?.apply {
             adapter = sectionListAdapter
             layoutManager = LinearLayoutManager(this@SectionDrawerFragment.context)
         }
@@ -140,13 +139,13 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
                 launch {
                     sectionListAdapter.allOpened.collect { allOpened ->
                         if (allOpened) {
-                            viewBinding.fragmentDrawerToggleAllSections.apply {
+                            viewBinding?.fragmentDrawerToggleAllSections?.apply {
                                 setImageResource(R.drawable.ic_chevron_double_up)
                                 contentDescription =
                                     getString(R.string.fragment_drawer_sections_collapse_all)
                             }
                         } else {
-                            viewBinding.fragmentDrawerToggleAllSections.apply {
+                            viewBinding?.fragmentDrawerToggleAllSections?.apply {
                                 setImageResource(R.drawable.ic_chevron_double_down)
                                 contentDescription =
                                     getString(R.string.fragment_drawer_sections_expand_all)
@@ -185,7 +184,7 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
                         } else {
                             R.drawable.ic_audio
                         }
-                        viewBinding.fragmentDrawerPlayIssueIcon.setImageResource(imageResource)
+                        viewBinding?.fragmentDrawerPlayIssueIcon?.setImageResource(imageResource)
                     }
                 }
 
@@ -209,30 +208,33 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
     private fun showCoachMarks() {
         val coachMarks = mutableListOf<BaseCoachMark>()
 
-        coachMarkMomentBinder?.let {
-            val momentCoachMark = SectionDrawerMomentCoachMark.create(
-                viewBinding.fragmentDrawerSectionsMoment,
-                it,
+        viewBinding?.apply {
+            coachMarkMomentBinder?.let {
+                val momentCoachMark = SectionDrawerMomentCoachMark.create(
+                    fragmentDrawerSectionsMoment,
+                    it,
+                )
+                coachMarks.add(momentCoachMark)
+            } ?: {
+                SentryWrapper.captureMessage("Unable to create SectionDrawerMomentCoachMark - binding is null")
+            }
+
+            // don't worry - we only show the FAB button if the sections are filled in so the id is
+            // found. See showIssue()
+            val firstSection =
+                requireView().findViewById<TextView>(R.id.fragment_drawer_section_title)
+
+            coachMarks.addAll(
+                listOf(
+                    SectionDrawerToggleAllCoachMark.create(fragmentDrawerToggleAllSections),
+                    SectionDrawerPlayAllCoachMark.create(fragmentDrawerPlayIssueLayout),
+                    SectionDrawerSectionCoachMark.create(firstSection),
+                    SectionDrawerToggleOneCoachMark(),
+                    SectionDrawerEnqueueCoachMark(),
+                    SectionDrawerBookmarkCoachMark(),
+                )
             )
-            coachMarks.add(momentCoachMark)
-        } ?: {
-            SentryWrapper.captureMessage("Unable to create SectionDrawerMomentCoachMark - binding is null")
         }
-
-        // don't worry - we only show the FAB button if the sections are filled in so the id is
-        // found. See showIssue()
-        val firstSection = requireView().findViewById<TextView>(R.id.fragment_drawer_section_title)
-
-        coachMarks.addAll(
-            listOf(
-                SectionDrawerToggleAllCoachMark.create(viewBinding.fragmentDrawerToggleAllSections),
-                SectionDrawerPlayAllCoachMark.create(viewBinding.fragmentDrawerPlayIssueLayout),
-                SectionDrawerSectionCoachMark.create(firstSection),
-                SectionDrawerToggleOneCoachMark(),
-                SectionDrawerEnqueueCoachMark(),
-                SectionDrawerBookmarkCoachMark(),
-            )
-        )
 
         if (coachMarks.isNotEmpty()) {
             CoachMarkDialog.create(coachMarks).show(childFragmentManager, CoachMarkDialog.TAG)
@@ -256,7 +258,7 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
 
     private suspend fun showIssue(issueKey: IssueKey) = withContext(Dispatchers.Main) {
         try {
-            viewBinding.fabHelp.isVisible = false
+            viewBinding?.fabHelp?.isVisible = false
             // Wait for the first issueStub that matches the required key. This must succeed at some point as the the IssueStub must be present to show the Issue
             currentIssueStub =
                 issueRepository.getStubFlow(issueKey.feedName, issueKey.date, issueKey.status)
@@ -273,21 +275,21 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
 
             view?.scrollY = 0
             view?.animate()?.alpha(1f)?.duration = 500
-            viewBinding.fragmentDrawerSectionsImprint.apply {
+            viewBinding?.fragmentDrawerSectionsImprint?.apply {
                 val imprint = issueRepository.getImprintStub(issueKey)
                 if (imprint != null) {
                     visibility = View.VISIBLE
-                    viewBinding.separatorLineImprintTop.visibility = View.VISIBLE
+                    viewBinding?.separatorLineImprintTop?.visibility = View.VISIBLE
                     setOnClickListener {
                         tracker.trackDrawerTapImprintEvent()
                         showImprint(issueKey, imprint.key)
                     }
                 } else {
                     visibility = View.GONE
-                    viewBinding.separatorLineImprintTop.visibility = View.GONE
+                    viewBinding?.separatorLineImprintTop?.visibility = View.GONE
                 }
             }
-            viewBinding.apply {
+            viewBinding?.apply {
                 fragmentDrawerHeaderActionGroup.visibility = View.VISIBLE
                 fragmentDrawerToggleAllSectionsTouchArea.setOnClickListener {
                     tracker.trackDrawerToggleAllSectionsEvent()
@@ -302,8 +304,8 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
                 launchWaitForIssueDownloadComplete(issueKey)
             }
 
-            viewBinding.fabHelp.isVisible = issueContentViewModel.fabHelpEnabledFlow.first()
-        } catch (e: ConnectivityException.Recoverable) {
+            viewBinding?.fabHelp?.isVisible = issueContentViewModel.fabHelpEnabledFlow.first()
+        } catch (_: ConnectivityException.Recoverable) {
             // do nothing we can not load the issueStub as not in database yet.
             // TODO wait for internet and show it once internet is available
         }
@@ -345,9 +347,9 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
                     object : CoverViewActionListener {},
                     observeDownloads = false,
                 )
-                momentBinder?.prepareDataAndBind(viewBinding.fragmentDrawerSectionsMoment)
+                viewBinding?.fragmentDrawerSectionsMoment?.let { momentBinder?.prepareDataAndBind(it) }
 
-            } catch (e: CacheOperationFailedException) {
+            } catch (_: CacheOperationFailedException) {
                 requireActivity().showIssueDownloadFailedDialog(moment.issueKey)
             }
         }
@@ -361,7 +363,7 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
 
 
     private fun setMomentDate(issueStub: IssueStub?) {
-        viewBinding.fragmentDrawerSectionsDate.text =
+        viewBinding?.fragmentDrawerSectionsDate?.text =
             if (issueStub?.isWeekend == true
                 && !issueStub.validityDate.isNullOrBlank()
             ) {
@@ -372,7 +374,7 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
     }
 
     override fun onDestroyView() {
-        viewBinding.fragmentDrawerSectionsList.adapter = null
+        viewBinding?.fragmentDrawerSectionsList?.adapter = null
         super.onDestroyView()
     }
 
@@ -391,18 +393,20 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
 
     private fun handleArticleBookmarkClick(article: Article) {
         tracker.trackDrawerTapBookmarkEvent()
-        lifecycleScope.launch {
-            val isBookmarked = bookmarkRepository.toggleBookmarkAsync(article).await()
-            if (isBookmarked) {
-                SnackBarHelper.showBookmarkSnack(
-                    context = requireContext(),
-                    view = viewBinding.root,
-                )
-            } else {
-                SnackBarHelper.showDebookmarkSnack(
-                    context = requireContext(),
-                    view = viewBinding.root,
-                )
+        viewBinding?.root?.let {
+            lifecycleScope.launch {
+                val isBookmarked = bookmarkRepository.toggleBookmarkAsync(article).await()
+                if (isBookmarked) {
+                    SnackBarHelper.showBookmarkSnack(
+                        context = requireContext(),
+                        view = it,
+                    )
+                } else {
+                    SnackBarHelper.showDebookmarkSnack(
+                        context = requireContext(),
+                        view = it,
+                    )
+                }
             }
         }
     }
@@ -451,32 +455,35 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
      * On edge to edge we need to properly update the margins of the FAB:
      */
     private fun setupFAB() {
-        ViewCompat.setOnApplyWindowInsetsListener(viewBinding.fabHelp) { v, windowInsets ->
-            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-            // Apply the insets as a margin to the view. This solution sets
-            // only the bottom, left, and right dimensions, but you can apply whichever
-            // insets are appropriate to your layout. You can also update the view padding
-            // if that's more appropriate.
-            val marginBottomFromDimens = resources.getDimensionPixelSize(R.dimen.fab_margin_bottom)
-            v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                bottomMargin = insets.bottom + marginBottomFromDimens
+        viewBinding?.fabHelp?.let { fabHelp ->
+            ViewCompat.setOnApplyWindowInsetsListener(fabHelp) { v, windowInsets ->
+                val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+                // Apply the insets as a margin to the view. This solution sets
+                // only the bottom, left, and right dimensions, but you can apply whichever
+                // insets are appropriate to your layout. You can also update the view padding
+                // if that's more appropriate.
+                val marginBottomFromDimens =
+                    resources.getDimensionPixelSize(R.dimen.fab_margin_bottom)
+                v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                    bottomMargin = insets.bottom + marginBottomFromDimens
+                }
+
+                // Return CONSUMED if you don't want the window insets to keep passing
+                // down to descendant views.
+                WindowInsetsCompat.CONSUMED
+            }
+            fabHelp.setOnClickListener {
+                log.verbose("show coach marks in section drawer")
+                showCoachMarks()
             }
 
-            // Return CONSUMED if you don't want the window insets to keep passing
-            // down to descendant views.
-            WindowInsetsCompat.CONSUMED
-        }
-        viewBinding.fabHelp.setOnClickListener {
-            log.verbose("show coach marks in section drawer")
-            showCoachMarks()
-        }
+            fabHelp.getBottomNavigationBehavior()?.setViewEdge(EDGE_BOTTOM)
 
-        viewBinding.fabHelp.getBottomNavigationBehavior()?.setViewEdge(EDGE_BOTTOM)
-
-        issueContentViewModel.fabHelpEnabledFlow
-            .flowWithLifecycle(lifecycle)
-            .onEach {
-                viewBinding.fabHelp.isVisible = it
-            }.launchIn(lifecycleScope)
+            issueContentViewModel.fabHelpEnabledFlow
+                .flowWithLifecycle(lifecycle)
+                .onEach {
+                    fabHelp.isVisible = it
+                }.launchIn(lifecycleScope)
+        }
     }
 }

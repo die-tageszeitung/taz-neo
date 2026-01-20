@@ -71,10 +71,10 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
     private lateinit var generalDataStore: GeneralDataStore
 
     // region views
-    private val webViewPager: ViewPager2
-        get() = viewBinding.webviewPagerViewpager
-    private val loadingScreen: ConstraintLayout
-        get() = viewBinding.loadingScreen.root
+    private val webViewPager: ViewPager2?
+        get() = viewBinding?.webviewPagerViewpager
+    private val loadingScreen: ConstraintLayout?
+        get() = viewBinding?.loadingScreen?.root
     // endregion
 
     private var initialPosition = RecyclerView.NO_POSITION
@@ -105,14 +105,16 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        articleBottomActionBarNavigationHelper
-            .setBottomNavigationFromContainer(viewBinding.navigationBottom)
+        viewBinding?.navigationBottom?.let {
+            articleBottomActionBarNavigationHelper
+                .setBottomNavigationFromContainer(it)
+        }
 
         if (resources.getBoolean(R.bool.isTablet)) {
             articleBottomActionBarNavigationHelper.fixToolbarForever()
         }
 
-        loadingScreen.visibility = View.GONE
+        loadingScreen?.visibility = View.GONE
 
         // we either want to restore the last position or the one given on initialization
         initialPosition = savedInstanceState?.getInt(RESTORATION_POSITION)
@@ -134,7 +136,7 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
             if (initialPosition < searchResults.loadedResults) {
                 searchResultPagerAdapter?.updateSearchResults(searchResults)
                 log.verbose("setting currentItem to initialPosition $initialPosition")
-                webViewPager.setCurrentItem(initialPosition, false)
+                webViewPager?.setCurrentItem(initialPosition, false)
                 viewModel.setCurrentPosition(initialPosition)
             }
         }
@@ -171,7 +173,7 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
         lifecycleScope.launch {
             val extraPadding = generalDataStore.displayCutoutExtraPadding.get()
             if (extraPadding > 0 && resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                viewBinding.collapsingToolbarLayout.setPadding(0, extraPadding, 0, 0)
+                viewBinding?.collapsingToolbarLayout?.setPadding(0, extraPadding, 0, 0)
             }
         }
     }
@@ -179,7 +181,7 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
     private fun setupViewPager() {
         searchResultPagerAdapter =
             SearchResultPagerAdapter(this)
-        webViewPager.apply {
+        webViewPager?.apply {
             reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
             orientation = ViewPager2.ORIENTATION_HORIZONTAL
             offscreenPageLimit = 2
@@ -227,11 +229,11 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
 
     override fun onResume() {
         super.onResume()
-        webViewPager.registerOnPageChangeCallback(pageChangeCallback)
+        webViewPager?.registerOnPageChangeCallback(pageChangeCallback)
     }
 
     override fun onStop() {
-        webViewPager.unregisterOnPageChangeCallback(pageChangeCallback)
+        webViewPager?.unregisterOnPageChangeCallback(pageChangeCallback)
         (activity as? SearchActivity)?.updateRecyclerView(
             getCurrentPagerPosition()
         )
@@ -264,37 +266,40 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
         applicationScope.launch {
             val articleStub = articleRepository.getStub(articleFileName)
 
-            when {
-                articleStub != null -> {
-                    val isBookmarked = bookmarkRepository.toggleBookmarkAsync(articleStub).await()
-                    if (isBookmarked) {
+            viewBinding?.apply {
+                when {
+                    articleStub != null -> {
+                        val isBookmarked =
+                            bookmarkRepository.toggleBookmarkAsync(articleStub).await()
+                        if (isBookmarked) {
+                            SnackBarHelper.showBookmarkSnack(
+                                context = requireContext(),
+                                view = root,
+                                anchor = navigationBottom,
+                            )
+                        } else {
+                            SnackBarHelper.showDebookmarkSnack(
+                                context = requireContext(),
+                                view = root,
+                                anchor = navigationBottom,
+                            )
+                        }
+                    }
+
+                    date != null -> {
+                        // We can assume that we want to bookmark it as we cannot de-bookmark a not downloaded article
+                        articleBottomActionBarNavigationHelper.setBookmarkIcon(isBookmarked = true)
                         SnackBarHelper.showBookmarkSnack(
                             context = requireContext(),
-                            view = viewBinding.root,
-                            anchor = viewBinding.navigationBottom,
+                            view = root,
+                            anchor = navigationBottom,
                         )
-                    } else {
-                        SnackBarHelper.showDebookmarkSnack(
-                            context = requireContext(),
-                            view = viewBinding.root,
-                            anchor = viewBinding.navigationBottom,
-                        )
+                        // no articleStub so probably article not downloaded, so download it:
+                        downloadArticleAndSetBookmark(articleFileName, date)
                     }
+                    // This is an unexpected case with the date being null. We simply have to ignore this
+                    else -> Unit
                 }
-
-                date != null -> {
-                    // We can assume that we want to bookmark it as we cannot de-bookmark a not downloaded article
-                    articleBottomActionBarNavigationHelper.setBookmarkIcon(isBookmarked = true)
-                    SnackBarHelper.showBookmarkSnack(
-                        context = requireContext(),
-                        view = viewBinding.root,
-                        anchor = viewBinding.navigationBottom,
-                    )
-                    // no articleStub so probably article not downloaded, so download it:
-                    downloadArticleAndSetBookmark(articleFileName, date)
-                }
-                // This is an unexpected case with the date being null. We simply have to ignore this
-                else -> Unit
             }
         }
     }
@@ -333,7 +338,7 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
     }
 
     private fun getCurrentPagerPosition(): Int {
-        return webViewPager.currentItem
+        return webViewPager?.currentItem ?: 0
     }
 
     private fun getCurrentSearchHit(): SearchHit? {
@@ -341,13 +346,13 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
     }
 
     override fun onDestroyView() {
-        webViewPager.adapter = null
+        webViewPager?.adapter = null
         articleBottomActionBarNavigationHelper.onDestroyView()
         super.onDestroyView()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        outState.putInt(RESTORATION_POSITION, webViewPager.currentItem)
+        outState.putInt(RESTORATION_POSITION, webViewPager?.currentItem ?: 0)
         super.onSaveInstanceState(outState)
     }
 
@@ -378,7 +383,7 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
             DateHelper.stringToMediumLocalizedString(searchHit.date)
         }
 
-        viewBinding.headerCustom.apply {
+        viewBinding?.headerCustom?.apply {
             indexIndicator.text = getString(
                 R.string.fragment_header_custom_index_indicator,
                 currentPosition + 1,
@@ -394,12 +399,14 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
      * Check if appBarLayout is fully expanded and if not then expand it and show the logo.
      */
     private fun expandAppBarIfCollapsed() {
-        val appBarFullyExpanded =
-            viewBinding.appBarLayout.height - viewBinding.appBarLayout.bottom == 0
+        viewBinding?.appBarLayout?.apply {
+            val appBarFullyExpanded =
+                height - bottom == 0
 
-        if (!appBarFullyExpanded) {
-            viewBinding.appBarLayout.setExpanded(true, false)
-            drawerAndLogoViewModel.setFeedLogo()
+            if (!appBarFullyExpanded) {
+                setExpanded(true, false)
+                drawerAndLogoViewModel.setFeedLogo()
+            }
         }
     }
 

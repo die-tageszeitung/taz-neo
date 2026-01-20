@@ -75,60 +75,62 @@ class SubscriptionAccountFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewBinding.fragmentSubscriptionAccountEmail.apply {
-            setText(viewModel.username)
-        }
-
-        viewBinding.fragmentSubscriptionAccountPassword.apply {
-            setText(viewModel.password)
-        }
-
-        viewBinding.fragmentSubscriptionAccountPasswordConfirm.apply {
-            setText(viewModel.passwordConfirm)
-        }
-
-        drawLayout()
-
-        viewBinding.fragmentSubscriptionAccountProceed.setOnClickListener {
-            ifDoneNext()
-        }
-
-        viewBinding.backButton.setOnClickListener {
-            loginFlowBack()
-        }
-
-        viewBinding.fragmentSubscriptionAccountForgotPasswordText.setOnClickListener {
-            done()
-            viewModel.requestPasswordReset()
-        }
-
-        viewBinding.fragmentSubscriptionOrderNote.setOnClickListener {
-            showHelpDialog(R.string.order_note_text_detail)
-            tracker.trackSubscriptionHelpDialog()
-        }
-
-        viewBinding.fragmentSubscriptionAccountTermsAndConditions.apply {
-            val spannableString = SpannableString(text?.toString() ?: "")
-
-            spannableString.onClick(resources.getString(R.string.terms_and_conditions_terms)) {
-                showTermsAndConditions()
-            }
-            spannableString.onClick(resources.getString(R.string.terms_and_conditions_data_policy)) {
-                showDataPolicy()
-            }
-            spannableString.onClick(resources.getString(R.string.terms_and_conditions_revocation)) {
-                showRevocation()
+        viewBinding?.apply {
+            fragmentSubscriptionAccountEmail.apply {
+                setText(viewModel.username)
             }
 
-            text = spannableString
+            fragmentSubscriptionAccountPassword.apply {
+                setText(viewModel.password)
+            }
 
-            movementMethod = LinkMovementMethod.getInstance()
-        }
+            fragmentSubscriptionAccountPasswordConfirm.apply {
+                setText(viewModel.passwordConfirm)
+            }
 
-        viewBinding.fragmentSubscriptionAccountPassword.doAfterTextChanged { checkPassword() }
-        viewBinding.fragmentSubscriptionAccountEmail.doAfterTextChanged {
-            if (viewBinding.fragmentSubscriptionAccountPassword.text?.isNotEmpty() == true) {
-                checkPassword()
+            drawLayout()
+
+            fragmentSubscriptionAccountProceed.setOnClickListener {
+                ifDoneNext()
+            }
+
+            backButton.setOnClickListener {
+                loginFlowBack()
+            }
+
+            fragmentSubscriptionAccountForgotPasswordText.setOnClickListener {
+                done()
+                viewModel.requestPasswordReset()
+            }
+
+            fragmentSubscriptionOrderNote.setOnClickListener {
+                showHelpDialog(R.string.order_note_text_detail)
+                tracker.trackSubscriptionHelpDialog()
+            }
+
+            fragmentSubscriptionAccountTermsAndConditions.apply {
+                val spannableString = SpannableString(text?.toString() ?: "")
+
+                spannableString.onClick(resources.getString(R.string.terms_and_conditions_terms)) {
+                    showTermsAndConditions()
+                }
+                spannableString.onClick(resources.getString(R.string.terms_and_conditions_data_policy)) {
+                    showDataPolicy()
+                }
+                spannableString.onClick(resources.getString(R.string.terms_and_conditions_revocation)) {
+                    showRevocation()
+                }
+
+                text = spannableString
+
+                movementMethod = LinkMovementMethod.getInstance()
+            }
+
+            fragmentSubscriptionAccountPassword.doAfterTextChanged { checkPassword() }
+            fragmentSubscriptionAccountEmail.doAfterTextChanged {
+                if (fragmentSubscriptionAccountPassword.text?.isNotEmpty() == true) {
+                    checkPassword()
+                }
             }
         }
     }
@@ -140,53 +142,57 @@ class SubscriptionAccountFragment :
     }
 
     private fun drawLayout() {
-        if (mailInvalid) {
-            setEmailError(R.string.login_email_error_invalid)
-            viewBinding.fragmentSubscriptionAccountPassword.nextFocusForwardId =
-                R.id.fragment_subscription_account_terms_and_conditions
-        }
+        viewBinding?.apply {
 
-        if (subscriptionInvalid) {
-            setEmailError(R.string.login_email_error_recheck)
-        }
-
-        if (viewModel.createNewAccount) {
-            viewBinding.fragmentSubscriptionAccountForgotPasswordText.visibility = View.GONE
-            viewBinding.fragmentSubscriptionAccountPasswordConfirmLayout.visibility = View.VISIBLE
-            viewBinding.fragmentSubscriptionAccountPassword.apply {
-                imeOptions = EditorInfo.IME_ACTION_NEXT
-                nextFocusForwardId = R.id.fragment_subscription_account_password_confirm
+            if (mailInvalid) {
+                setEmailError(R.string.login_email_error_invalid)
+                fragmentSubscriptionAccountPassword.nextFocusForwardId =
+                    R.id.fragment_subscription_account_terms_and_conditions
             }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                viewBinding.fragmentSubscriptionAccountEmail.setAutofillHints(HintConstants.AUTOFILL_HINT_EMAIL_ADDRESS)
-                viewBinding.fragmentSubscriptionAccountPassword.setAutofillHints(HintConstants.AUTOFILL_HINT_NEW_PASSWORD)
-            }
-        } else {
-            viewBinding.fragmentSubscriptionAccountForgotPasswordText.visibility = View.VISIBLE
-            viewBinding.fragmentSubscriptionAccountPasswordConfirmLayout.visibility = View.GONE
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                viewBinding.fragmentSubscriptionAccountEmail.setAutofillHints(HintConstants.AUTOFILL_HINT_EMAIL_ADDRESS)
-                viewBinding.fragmentSubscriptionAccountPassword.setAutofillHints(HintConstants.AUTOFILL_HINT_PASSWORD)
-            }
-        }
 
-        viewBinding.fragmentSubscriptionOrderNote.visibility = View.VISIBLE
-        if (viewBinding.fragmentSubscriptionAccountPasswordConfirmLayout.isVisible) {
-            viewBinding.fragmentSubscriptionAccountPasswordConfirm
-        } else {
-            viewBinding.fragmentSubscriptionAccountPassword
-        }.apply {
-            imeOptions = EditorInfo.IME_ACTION_DONE
-            setOnEditorActionListener(
-                OnEditorActionDoneListener { hideSoftInputKeyboard() }
-            )
-        }
+            if (subscriptionInvalid) {
+                setEmailError(R.string.login_email_error_recheck)
+            }
 
-        if (viewModel.validCredentials) {
-            viewBinding.fragmentSubscriptionAccountEmailLayout.visibility = View.GONE
-            viewBinding.fragmentSubscriptionAccountPasswordLayout.visibility = View.GONE
-            viewBinding.fragmentSubscriptionAccountPasswordConfirmLayout.visibility = View.GONE
-            viewBinding.fragmentSubscriptionAccountForgotPasswordText.visibility = View.GONE
+            if (viewModel.createNewAccount) {
+                fragmentSubscriptionAccountForgotPasswordText.visibility = View.GONE
+                fragmentSubscriptionAccountPasswordConfirmLayout.visibility =
+                    View.VISIBLE
+                fragmentSubscriptionAccountPassword.apply {
+                    imeOptions = EditorInfo.IME_ACTION_NEXT
+                    nextFocusForwardId = R.id.fragment_subscription_account_password_confirm
+                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    fragmentSubscriptionAccountEmail.setAutofillHints(HintConstants.AUTOFILL_HINT_EMAIL_ADDRESS)
+                    fragmentSubscriptionAccountPassword.setAutofillHints(HintConstants.AUTOFILL_HINT_NEW_PASSWORD)
+                }
+            } else {
+                fragmentSubscriptionAccountForgotPasswordText.visibility = View.VISIBLE
+                fragmentSubscriptionAccountPasswordConfirmLayout.visibility = View.GONE
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    fragmentSubscriptionAccountEmail.setAutofillHints(HintConstants.AUTOFILL_HINT_EMAIL_ADDRESS)
+                    fragmentSubscriptionAccountPassword.setAutofillHints(HintConstants.AUTOFILL_HINT_PASSWORD)
+                }
+            }
+
+            fragmentSubscriptionOrderNote.visibility = View.VISIBLE
+            if (fragmentSubscriptionAccountPasswordConfirmLayout.isVisible) {
+                fragmentSubscriptionAccountPasswordConfirm
+            } else {
+                fragmentSubscriptionAccountPassword
+            }.apply {
+                imeOptions = EditorInfo.IME_ACTION_DONE
+                setOnEditorActionListener(
+                    OnEditorActionDoneListener { hideSoftInputKeyboard() }
+                )
+            }
+
+            if (viewModel.validCredentials) {
+                fragmentSubscriptionAccountEmailLayout.visibility = View.GONE
+                fragmentSubscriptionAccountPasswordLayout.visibility = View.GONE
+                fragmentSubscriptionAccountPasswordConfirmLayout.visibility = View.GONE
+                fragmentSubscriptionAccountForgotPasswordText.visibility = View.GONE
+            }
         }
     }
 
@@ -197,71 +203,82 @@ class SubscriptionAccountFragment :
     override fun done(): Boolean {
         var done = true
 
-        if (!viewModel.validCredentials) {
-            val email = viewBinding.fragmentSubscriptionAccountEmail.text?.toString()?.lowercase()?.trim()
-            if (email.isNullOrBlank() || !emailValidator(email)) {
-                done = false
-                setEmailError(R.string.login_email_error_empty)
-            } else {
-                viewModel.username = email
-            }
+        viewBinding?.apply {
 
-            val password = viewBinding.fragmentSubscriptionAccountPassword.text?.toString()
-            if (password.isNullOrBlank()) {
-                done = false
-                setPasswordError(R.string.login_password_error_empty)
-            }
+            if (!viewModel.validCredentials) {
+                val email =
+                    fragmentSubscriptionAccountEmail.text?.toString()?.lowercase()
+                        ?.trim()
+                if (email.isNullOrBlank() || !emailValidator(email)) {
+                    done = false
+                    setEmailError(R.string.login_email_error_empty)
+                } else {
+                    viewModel.username = email
+                }
 
-            // Check password again without validation hint
-            checkPassword(showValidationHint = false)
-            if (!isPasswordValid) {
-                done = false
-            }
+                val password = fragmentSubscriptionAccountPassword.text?.toString()
+                if (password.isNullOrBlank()) {
+                    done = false
+                    setPasswordError(R.string.login_password_error_empty)
+                }
 
-            if (viewBinding.fragmentSubscriptionAccountPasswordConfirmLayout.isVisible) {
-                password?.let { pw ->
-                    val passwordConfirmation =
-                        viewBinding.fragmentSubscriptionAccountPasswordConfirm.text?.toString()
-                    if (pw != passwordConfirmation) {
-                        done = false
-                        viewBinding.fragmentSubscriptionAccountPasswordConfirmLayout.setError(
-                            R.string.login_password_confirmation_error_match
-                        )
-                    }
-                } ?: run {
+                // Check password again without validation hint
+                checkPassword(showValidationHint = false)
+                if (!isPasswordValid) {
                     done = false
                 }
+
+                if (fragmentSubscriptionAccountPasswordConfirmLayout.isVisible) {
+                    password?.let { pw ->
+                        val passwordConfirmation =
+                            fragmentSubscriptionAccountPasswordConfirm.text?.toString()
+                        if (pw != passwordConfirmation) {
+                            done = false
+                            fragmentSubscriptionAccountPasswordConfirmLayout.setError(
+                                R.string.login_password_confirmation_error_match
+                            )
+                        }
+                    } ?: run {
+                        done = false
+                    }
+                }
+            }
+
+
+            if (!fragmentSubscriptionAccountTermsAndConditions.isChecked) {
+                done = false
+                fragmentSubscriptionAccountTermsAndConditions.setTextColor(
+                    ContextCompat.getColor(requireContext(), R.color.error)
+                )
+            }
+
+            if (!done) {
+                tracker.trackSubscriptionInquiryFormValidationErrorEvent()
+                // Scroll to the top:
+                scrollView.scrollY = 0
+            }
+
+            // Persist the username and (confirm-)password to the view model:
+            fragmentSubscriptionAccountEmail.text?.let {
+                viewModel.username = it.toString()
+            }
+            fragmentSubscriptionAccountPassword.text?.let {
+                viewModel.password = it.toString()
+            }
+            fragmentSubscriptionAccountPasswordConfirm.text?.let {
+                viewModel.passwordConfirm = it.toString()
             }
         }
-
-
-        if (!viewBinding.fragmentSubscriptionAccountTermsAndConditions.isChecked) {
-            done = false
-            viewBinding.fragmentSubscriptionAccountTermsAndConditions.setTextColor(
-                ContextCompat.getColor(requireContext(), R.color.error)
-            )
-        }
-
-        if (!done) {
-            tracker.trackSubscriptionInquiryFormValidationErrorEvent()
-            // Scroll to the top:
-            viewBinding.scrollView.scrollY = 0
-        }
-
-        // Persist the username and (confirm-)password to the view model:
-        viewBinding.fragmentSubscriptionAccountEmail.text?.let { viewModel.username = it.toString() }
-        viewBinding.fragmentSubscriptionAccountPassword.text?.let { viewModel.password = it.toString() }
-        viewBinding.fragmentSubscriptionAccountPasswordConfirm.text?.let { viewModel.passwordConfirm = it.toString() }
 
         return done
     }
 
     private fun setEmailError(@StringRes stringRes: Int) {
-        viewBinding.fragmentSubscriptionAccountEmailLayout.error = context?.getString(stringRes)
+        viewBinding?.fragmentSubscriptionAccountEmailLayout?.error = context?.getString(stringRes)
     }
 
     private fun setPasswordError(@StringRes stringRes: Int) {
-        viewBinding.fragmentSubscriptionAccountPasswordLayout.setError(stringRes)
+        viewBinding?.fragmentSubscriptionAccountPasswordLayout?.setError(stringRes)
     }
 
     private fun showTermsAndConditions() {
@@ -287,13 +304,13 @@ class SubscriptionAccountFragment :
 
     private fun checkPassword(showValidationHint: Boolean = true) {
         try {
-            val mail = viewBinding.fragmentSubscriptionAccountEmail.text?.toString() ?: ""
-            val password = viewBinding.fragmentSubscriptionAccountPassword.text?.toString() ?: ""
+            val mail = viewBinding?.fragmentSubscriptionAccountEmail?.text?.toString() ?: ""
+            val password = viewBinding?.fragmentSubscriptionAccountPassword?.text?.toString() ?: ""
             viewLifecycleOwner.lifecycleScope.launch {
                 val passwordHintResponse = passwordCheckHelper.checkPassword(password, mail)
                 isPasswordValid = passwordHintResponse.valid
                 if (showValidationHint) {
-                    viewBinding.fragmentSubscriptionAccountPasswordLayout.setPasswordHintResponse(
+                    viewBinding?.fragmentSubscriptionAccountPasswordLayout?.setPasswordHintResponse(
                         passwordHintResponse
                     )
                 }

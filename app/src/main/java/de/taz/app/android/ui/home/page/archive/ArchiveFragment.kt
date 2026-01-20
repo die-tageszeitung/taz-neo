@@ -61,7 +61,7 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
                         feed,
                         requestManager
                     )
-                    viewBinding.fragmentArchiveGrid.adapter = adapter
+                    viewBinding?.fragmentArchiveGrid?.adapter = adapter
                 }
             }.launchIn(lifecycleScope)
 
@@ -71,7 +71,7 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
             .onEach {
                 withStarted {
                     // redraw all visible views
-                    viewBinding.fragmentArchiveGrid.adapter?.notifyDataSetChanged()
+                    viewBinding?.fragmentArchiveGrid?.adapter?.notifyDataSetChanged()
 
                     // Track a new screen if the PDF mode changes when the Fragment is already resumed.
                     // This is necessary in addition to the tracking in onResume because that is not called
@@ -98,7 +98,7 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
         ) { isPolling, isLoggedIn, isPdf -> (isPolling || isLoggedIn) to isPdf }
             .flowWithLifecycle(lifecycle)
             .onEach {
-                viewBinding.homeLoginButton.visibility = if (it.first) View.GONE else View.VISIBLE
+                viewBinding?.homeLoginButton?.visibility = if (it.first) View.GONE else View.VISIBLE
                 if (!it.first && it.second) (activity as? MainActivity)?.showLoggedOutDialog()
             }.launchIn(lifecycleScope)
     }
@@ -106,9 +106,9 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
         val adapter = adapter ?: return
 
         // Show the app bar layout when skipping to a date:
-        viewBinding.appBarLayout.setExpanded(true)
+        viewBinding?.appBarLayout?.setExpanded(true)
 
-        (viewBinding.fragmentArchiveGrid.layoutManager as? GridLayoutManager)
+        (viewBinding?.fragmentArchiveGrid?.layoutManager as? GridLayoutManager)
             ?.scrollToPositionWithOffset(adapter.getPosition(date), 0)
     }
 
@@ -123,7 +123,7 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewBinding.apply {
+        viewBinding?.apply {
 
             collapsingToolbarLayout.setDefaultTopInset()
 
@@ -156,7 +156,7 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
     }
 
     override fun onDestroyView() {
-        viewBinding.fragmentArchiveGrid.layoutManager = null
+        viewBinding?.fragmentArchiveGrid?.layoutManager = null
         super.onDestroyView()
     }
 

@@ -47,7 +47,7 @@ class TrackingConsentFragment : ViewBindingFragment<FragmentTrackingConsentBindi
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewBinding.apply {
+        viewBinding?.apply {
             acceptTrackingButton.setOnClickListener {
                 onAcceptTracking()
             }

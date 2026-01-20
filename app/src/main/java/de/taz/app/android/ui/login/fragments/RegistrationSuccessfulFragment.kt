@@ -17,13 +17,13 @@ class RegistrationSuccessfulFragment :
 
         runBlocking {
             if (!viewModel.backToArticle || viewModel.isElapsed()) {
-                viewBinding.fragmentLoginConfirmDone.text = getString(
+                viewBinding?.fragmentLoginConfirmDone?.text = getString(
                     R.string.fragment_login_success_login_back_coverflow
                 )
             }
         }
 
-        viewBinding.fragmentLoginConfirmDone.setOnClickListener {
+        viewBinding?.fragmentLoginConfirmDone?.setOnClickListener {
             loginFlowDone()
         }
     }

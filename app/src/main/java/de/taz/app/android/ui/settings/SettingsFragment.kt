@@ -118,7 +118,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         super.onViewCreated(view, savedInstanceState)
         view.findViewById<TextView>(R.id.fragment_header_default_title)
             ?.setText(R.string.settings_header)
-        viewBinding.apply {
+        viewBinding?.apply {
             fragmentSettingsSupportReportBug.setOnClickListener { reportBug() }
             fragmentSettingsAccountManageAccount.setOnClickListener {
                 LoginBottomSheetFragment.newInstance()
@@ -429,7 +429,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
 
                     trackingAccepted
                         .onEach { isTrackingAccepted ->
-                            viewBinding.fragmentSettingsAcceptTrackingSwitch.isChecked =
+                            viewBinding?.fragmentSettingsAcceptTrackingSwitch?.isChecked =
                                 isTrackingAccepted
                         }.launchIn(lifecycleScope)
 
@@ -463,7 +463,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
 
                     helpFabEnabledFlow
                         .onEach { helpFabEnabled ->
-                            viewBinding.fragmentSettingsFabEnabled.isChecked = helpFabEnabled
+                            viewBinding?.fragmentSettingsFabEnabled?.isChecked = helpFabEnabled
                         }
                         .launchIn(viewModelScope)
                 }
@@ -484,7 +484,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                         // Show the views for logged in also when we have a valid email, s
                         // this happens when a user creates a Probeabo with a new account and the email verification is pending
                         if (isLoggedIn || isValidEmail) {
-                            viewBinding.fragmentSettingsAccountLogout.text =
+                            viewBinding?.fragmentSettingsAccountLogout?.text =
                                 getString(R.string.settings_account_logout, email)
                             showActionsWhenLoggedIn(isValidEmail, isAboId, isTazAccount)
                         } else {
@@ -547,12 +547,12 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     }
 
     private fun hideAutoPdfDownloadSwitch() {
-        viewBinding.fragmentSettingsAutoPdfDownloadSwitch.visibility = View.GONE
-        viewBinding.fragmentSettingsAutoDownloadSwitchSeparatorLine.root.visibility = View.GONE
+        viewBinding?.fragmentSettingsAutoPdfDownloadSwitch?.visibility = View.GONE
+        viewBinding?.fragmentSettingsAutoDownloadSwitchSeparatorLine?.root?.visibility = View.GONE
     }
 
     private fun hideAndUnsetMultiColumnSetting() {
-        viewBinding.fragmentSettingsMultiColumnModeWrapper.isVisible = false
+        viewBinding?.fragmentSettingsMultiColumnModeWrapper?.isVisible = false
         setMultiColumnMode(false)
     }
 
@@ -708,9 +708,9 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
 
     private fun showElapsedIndication(elapsed: Boolean) {
         if (elapsed) {
-            viewBinding.fragmentSettingsAccountElapsedWrapper.visibility = View.VISIBLE
+            viewBinding?.fragmentSettingsAccountElapsedWrapper?.visibility = View.VISIBLE
         } else {
-            viewBinding.fragmentSettingsAccountElapsedWrapper.visibility = View.GONE
+            viewBinding?.fragmentSettingsAccountElapsedWrapper?.visibility = View.GONE
         }
     }
 
@@ -721,7 +721,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             } ?: getString(R.string.settings_account_elapsed),
             HtmlCompat.FROM_HTML_MODE_LEGACY
         )
-        viewBinding.fragmentSettingsAccountElapsed.text = elapsedOnText
+        viewBinding?.fragmentSettingsAccountElapsed?.text = elapsedOnText
     }
 
     private fun showTextJustification(justified: Boolean) {
@@ -734,12 +734,12 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     }
 
     private fun showMultiColumnMode(multiColumnModeEnabled: Boolean) {
-        viewBinding.fragmentSettingsMultiColumnMode.isChecked =
+        viewBinding?.fragmentSettingsMultiColumnMode?.isChecked =
             multiColumnModeEnabled
     }
 
     private fun showTapToScroll(enabled: Boolean) {
-        viewBinding.fragmentSettingsTapToScroll.isChecked =
+        viewBinding?.fragmentSettingsTapToScroll?.isChecked =
             enabled
     }
 
@@ -749,23 +749,23 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     }
 
     private fun showAnimatedMomentsSetting(enabled: Boolean) {
-        viewBinding.fragmentSettingsShowAnimatedMoments.isChecked = enabled
+        viewBinding?.fragmentSettingsShowAnimatedMoments?.isChecked = enabled
     }
 
     private fun animatedDrawerLogoSetting(enabled: Boolean) {
-        viewBinding.fragmentSettingsAnimateDrawerLogo.isChecked = enabled
+        viewBinding?.fragmentSettingsAnimateDrawerLogo?.isChecked = enabled
     }
 
     private fun showContinueReadSetting(enabled: Boolean) {
-        viewBinding.fragmentSettingsContinueRead.isChecked = enabled
+        viewBinding?.fragmentSettingsContinueRead?.isChecked = enabled
         // Disable the continue read ask each time setting when ask each time is enabled:
-        viewBinding.fragmentSettingsContinueReadAskEachTime.isEnabled = !enabled
+        viewBinding?.fragmentSettingsContinueReadAskEachTime?.isEnabled = !enabled
     }
 
     private fun showContinueReadAskEachTimeSetting(enabled: Boolean) {
-        viewBinding.fragmentSettingsContinueReadAskEachTime.isChecked = enabled
+        viewBinding?.fragmentSettingsContinueReadAskEachTime?.isChecked = enabled
         // Disable the continue read setting when ask each time is enabled:
-        viewBinding.fragmentSettingsContinueRead.isEnabled = !enabled
+        viewBinding?.fragmentSettingsContinueRead?.isEnabled = !enabled
     }
 
     private fun showOnlyWifi(onlyWifi: Boolean) {
@@ -790,7 +790,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     }
 
     private fun showBookmarksSynchronization(enabled: Boolean) {
-        viewBinding.fragmentSettingsBookmarksSynchronization.isChecked =
+        viewBinding?.fragmentSettingsBookmarksSynchronization?.isChecked =
             enabled
     }
 
@@ -800,7 +800,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         )?.text = getString(R.string.percentage, textSize)
     }
 
-    private fun showLoginButton() = viewBinding.apply {
+    private fun showLoginButton() = viewBinding?.apply {
         fragmentSettingsAccountLogoutWrapper.visibility = View.GONE
         fragmentSettingsAccountResetPasswordWrapper.visibility = View.GONE
         fragmentSettingsManageAccountOnlineWrapper.visibility = View.GONE
@@ -816,7 +816,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         isValidEmail: Boolean = false,
         isAboId: Boolean = false,
         isTazAccount: Boolean = false
-    ) = viewBinding.apply {
+    ) = viewBinding?.apply {
         fragmentSettingsAccountManageAccountWrapper.visibility = View.GONE
         fragmentSettingsManageAccountOnlineWrapper.visibility = View.VISIBLE
         // show account deletion button only when is proper email or ID (abo id which consists of just up to 6 numbers)
@@ -969,14 +969,14 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     }
 
     private fun toggleExtendedContent() {
-        if (viewBinding.fragmentSettingsExtendedContent.isGone) {
+        if (viewBinding?.fragmentSettingsExtendedContent?.isGone == true) {
             log.debug("show extended settings")
-            viewBinding.fragmentSettingsExtendedContent.visibility = View.VISIBLE
-            viewBinding.fragmentSettingsExtendedIndicator.rotation = 180f
+            viewBinding?.fragmentSettingsExtendedContent?.visibility = View.VISIBLE
+            viewBinding?.fragmentSettingsExtendedIndicator?.rotation = 180f
         } else {
             log.debug("hide extended settings")
-            viewBinding.fragmentSettingsExtendedContent.visibility = View.GONE
-            viewBinding.fragmentSettingsExtendedIndicator.rotation = 0f
+            viewBinding?.fragmentSettingsExtendedContent?.visibility = View.GONE
+            viewBinding?.fragmentSettingsExtendedIndicator?.rotation = 0f
         }
     }
 
@@ -984,7 +984,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         notificationsEnabled: Boolean,
         systemNotificationsAllowed: Boolean
     ) {
-        viewBinding.fragmentSettingsNotificationsSwitch.isChecked = notificationsEnabled
+        viewBinding?.fragmentSettingsNotificationsSwitch?.isChecked = notificationsEnabled
         if (!systemNotificationsAllowed) {
             if (notificationsEnabled) {
                 showNotificationsMustBeAllowedLayout(show = true)
@@ -1006,24 +1006,24 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         if (show) {
             showNotificationsShouldBeAllowedLayout(show = false)
             showNotificationsAllowedLayout(show = false)
-            viewBinding.pushNotificationsMustBeAllowedLayout.apply {
+            viewBinding?.pushNotificationsMustBeAllowedLayout?.apply {
                 visibility = View.VISIBLE
                 setOnClickListener {
                     openAndroidNotificationSettings()
                 }
             }
-            viewBinding.fragmentSettingsNotificationsSwitch.trackTintList =
+            viewBinding?.fragmentSettingsNotificationsSwitch?.trackTintList =
                 ContextCompat.getColorStateList(
                     requireContext(),
                     R.color.material_switch_disabled_color_list
                 )
         } else {
-            viewBinding.fragmentSettingsNotificationsSwitch.trackTintList =
+            viewBinding?.fragmentSettingsNotificationsSwitch?.trackTintList =
                 ContextCompat.getColorStateList(
                     requireContext(),
                     R.color.material_switch_color_list
                 )
-            viewBinding.pushNotificationsMustBeAllowedLayout.visibility = View.GONE
+            viewBinding?.pushNotificationsMustBeAllowedLayout?.visibility = View.GONE
         }
     }
 
@@ -1034,14 +1034,14 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         if (show) {
             showNotificationsMustBeAllowedLayout(show = false)
             showNotificationsAllowedLayout(show = false)
-            viewBinding.pushNotificationsShouldBeAllowedLayout.apply {
+            viewBinding?.pushNotificationsShouldBeAllowedLayout?.apply {
                 visibility = View.VISIBLE
                 setOnClickListener {
                     openAndroidNotificationSettings()
                 }
             }
         } else {
-            viewBinding.pushNotificationsShouldBeAllowedLayout.visibility = View.GONE
+            viewBinding?.pushNotificationsShouldBeAllowedLayout?.visibility = View.GONE
         }
     }
 
@@ -1052,9 +1052,9 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         if (show) {
             showNotificationsShouldBeAllowedLayout(show = false)
             showNotificationsMustBeAllowedLayout(show = false)
-            viewBinding.pushNotificationsAllowedLayout.visibility = View.VISIBLE
+            viewBinding?.pushNotificationsAllowedLayout?.visibility = View.VISIBLE
         } else {
-            viewBinding.pushNotificationsAllowedLayout.visibility = View.GONE
+            viewBinding?.pushNotificationsAllowedLayout?.visibility = View.GONE
         }
     }
 
@@ -1083,20 +1083,22 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     private fun showNotificationChannels(show: Boolean) {
         // Notification channels can only be handled since Android Oreo:
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            viewBinding.fragmentSettingsNotificationChannels.isVisible = show
-            if (show) {
-                val newIssueChannelId =
-                    getString(R.string.notification_channel_fcm_new_issue_arrived_id)
-                val specialArticleChannelId =
-                    getString(R.string.notification_channel_fcm_special_article_id)
-                synchronizeChannelSetting(
-                    viewBinding.fragmentSettingsNotificationChannelNewIssue,
-                    newIssueChannelId
-                )
-                synchronizeChannelSetting(
-                    viewBinding.fragmentSettingsNotificationChannelSpecial,
-                    specialArticleChannelId
-                )
+            viewBinding?.apply {
+                fragmentSettingsNotificationChannels?.isVisible = show
+                if (show) {
+                    val newIssueChannelId =
+                        getString(R.string.notification_channel_fcm_new_issue_arrived_id)
+                    val specialArticleChannelId =
+                        getString(R.string.notification_channel_fcm_special_article_id)
+                    synchronizeChannelSetting(
+                        fragmentSettingsNotificationChannelNewIssue,
+                        newIssueChannelId
+                    )
+                    synchronizeChannelSetting(
+                        fragmentSettingsNotificationChannelSpecial,
+                        specialArticleChannelId
+                    )
+                }
             }
         }
     }
@@ -1227,7 +1229,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         lifecycleScope.launch {
             if (areDebugSettingsEnabled || viewModel.areDebugSettingsEnabled()) {
                 areDebugSettingsEnabled = true
-                viewBinding.apply {
+                viewBinding?.apply {
                     fragmentSettingsDebugSettings.isVisible = true
 
                     fragmentSettingsForceNewAppSession.apply {

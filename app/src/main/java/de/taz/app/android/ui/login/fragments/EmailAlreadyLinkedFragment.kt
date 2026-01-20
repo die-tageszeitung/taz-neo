@@ -9,7 +9,7 @@ class EmailAlreadyLinkedFragment : LoginBaseFragment<FragmentLoginEmailAlreadyTa
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewBinding.fragmentLoginEmailAlreadyTakenInsertNew.setOnClickListener {
+        viewBinding?.fragmentLoginEmailAlreadyTakenInsertNew?.setOnClickListener {
             viewModel.apply {
                 username = ""
                 password = ""
@@ -19,7 +19,7 @@ class EmailAlreadyLinkedFragment : LoginBaseFragment<FragmentLoginEmailAlreadyTa
                 viewModel.statusBeforeEmailAlreadyLinked = null
             }
         }
-        viewBinding.fragmentLoginEmailAlreadyTakenContactEmail.setOnClickListener {
+        viewBinding?.fragmentLoginEmailAlreadyTakenContactEmail?.setOnClickListener {
             writeEmail()
         }
     }
