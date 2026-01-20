@@ -80,7 +80,7 @@ class BookmarkListFragment : BaseMainFragment<FragmentBookmarksBinding>() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewBinding.drawerMenuList.apply {
+        viewBinding?.drawerMenuList?.apply {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(this.context)
             adapter = recycleAdapter
@@ -92,15 +92,15 @@ class BookmarkListFragment : BaseMainFragment<FragmentBookmarksBinding>() {
                 hideLoadingScreen()
             }
             if (bookmarks.isEmpty()) {
-                viewBinding.bookmarksDescriptionLayout.visibility = View.VISIBLE
-                viewBinding.deleteLayout.visibility = View.GONE
+                viewBinding?.bookmarksDescriptionLayout?.visibility = View.VISIBLE
+                viewBinding?.deleteLayout?.visibility = View.GONE
             } else {
-                viewBinding.bookmarksDescriptionLayout.visibility = View.GONE
-                viewBinding.deleteLayout.visibility = View.VISIBLE
+                viewBinding?.bookmarksDescriptionLayout?.visibility = View.GONE
+                viewBinding?.deleteLayout?.visibility = View.VISIBLE
             }
         }
 
-        viewBinding.deleteLayout.setOnClickListener {
+        viewBinding?.deleteLayout?.setOnClickListener {
             lifecycleScope.launch {
                 showDeleteConfirmationDialog()
             }
@@ -209,7 +209,7 @@ class BookmarkListFragment : BaseMainFragment<FragmentBookmarksBinding>() {
     }
 
     private fun hideLoadingScreen() {
-        viewBinding.loadingScreen.root.apply {
+        viewBinding?.loadingScreen?.root?.apply {
             animate()
                 .alpha(0f)
                 .withEndAction {

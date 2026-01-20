@@ -9,13 +9,13 @@ class SubscriptionTakenFragment: LoginBaseFragment<FragmentLoginSubscriptionTake
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewBinding.fragmentLoginSubscriptionTakenRetry.setOnClickListener {
+        viewBinding?.fragmentLoginSubscriptionTakenRetry?.setOnClickListener {
             viewModel.apply {
                 backToMissingSubscription()
             }
         }
 
-        viewBinding.fragmentLoginSubscriptionTakenEmail.setOnClickListener {
+        viewBinding?.fragmentLoginSubscriptionTakenEmail?.setOnClickListener {
             writeEmail()
         }
     }

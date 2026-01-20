@@ -52,7 +52,7 @@ class SubscriptionNameFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewBinding.apply {
+        viewBinding?.apply {
             fragmentSubscriptionNameFirstName.setText(viewModel.firstName)
 
             fragmentSubscriptionNameSurname.apply {
@@ -95,7 +95,7 @@ class SubscriptionNameFragment :
 
     override fun done(): Boolean {
         var done = true
-        viewBinding.apply {
+        viewBinding?.apply {
             if (fragmentSubscriptionNameFirstName.text.isNullOrBlank()) {
                 setFirstNameError(R.string.login_first_name_error_empty)
                 done = false
@@ -125,11 +125,11 @@ class SubscriptionNameFragment :
     }
 
     private fun setFirstNameError(@StringRes stringRes: Int) {
-        viewBinding.fragmentSubscriptionNameFirstNameLayout.setError(stringRes)
+        viewBinding?.fragmentSubscriptionNameFirstNameLayout?.setError(stringRes)
     }
 
     private fun setSurnameError(@StringRes stringRes: Int) {
-        viewBinding.fragmentSubscriptionNameSurnameLayout.setError(stringRes)
+        viewBinding?.fragmentSubscriptionNameSurnameLayout?.setError(stringRes)
     }
 
     private fun setNameTooLongError() {

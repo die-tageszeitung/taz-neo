@@ -45,7 +45,7 @@ class TomAtTheEndFragment : BaseMainFragment<FragmentTomAtTheEndBinding>() {
 
         val tomResId = arguments?.getInt(ARG_TOM_RES_ID) ?: 0
         if (tomResId != 0) {
-            viewBinding.tomImage.apply {
+            viewBinding?.tomImage?.apply {
                 setImageResource(tomResId)
                 setOnTouchListener { _, event ->
                     if (tomResId == lastTom) {
@@ -89,7 +89,7 @@ class TomAtTheEndFragment : BaseMainFragment<FragmentTomAtTheEndBinding>() {
             if (handleTapToScroll) {
                 val tapBarWidth =
                     resources.getDimension(R.dimen.tap_bar_width)
-                val onRightBorder = viewBinding.tomImage.right - event.x < tapBarWidth
+                val onRightBorder = (viewBinding?.tomImage?.right ?: 0) - event.x < tapBarWidth
                 val onLeftBorder = event.x < tapBarWidth
 
                 if (onRightBorder) {
@@ -118,7 +118,8 @@ class TomAtTheEndFragment : BaseMainFragment<FragmentTomAtTheEndBinding>() {
     }
 
     fun hideLoadingScreen() {
-        viewBinding.loadingScreen.apply {
+        viewBinding
+            ?.loadingScreen?.apply {
             animate()
                 .alpha(0f)
                 .withEndAction {

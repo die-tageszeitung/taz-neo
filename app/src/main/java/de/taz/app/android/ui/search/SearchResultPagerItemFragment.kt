@@ -54,8 +54,8 @@ class SearchResultPagerItemFragment : ViewBindingFragment<FragmentWebviewArticle
 
     val viewModel by activityViewModels<SearchResultViewModel>()
     private var position: Int = NO_POSITION
-    private val webView: AppWebView
-        get() = viewBinding.webView
+    private val webView: AppWebView?
+        get() = viewBinding?.webView
     private lateinit var searchResult: SearchHit
 
     override fun onAttach(context: Context) {
@@ -93,7 +93,7 @@ class SearchResultPagerItemFragment : ViewBindingFragment<FragmentWebviewArticle
 
     @SuppressLint("SetJavaScriptEnabled")
     private fun setupWebView() {
-        viewBinding.webView.apply {
+        webView?.apply {
             val callBack = object : AppWebViewClientCallBack {
                 override fun onLinkClicked(displayableKey: String) {
                     log.warn("onLinkClicked not implemented yet. Ignored click for $displayableKey")
@@ -132,7 +132,7 @@ class SearchResultPagerItemFragment : ViewBindingFragment<FragmentWebviewArticle
         // That is why we check for not null:
         if (view != null) {
             viewLifecycleOwner.lifecycleScope.launch {
-                viewBinding.loadingScreen.visibility = View.GONE
+                viewBinding?.loadingScreen?.visibility = View.GONE
 
                 delay(DELAY_FOR_VIEW_HEIGHT_CALCULATION)
                 setupBottomScrollLogin()
@@ -145,24 +145,26 @@ class SearchResultPagerItemFragment : ViewBindingFragment<FragmentWebviewArticle
         if (isPublic) {
             ensurePublicArticlesCanBeScrolled()
 
-            viewBinding.webView.scrollListener = object : AppWebView.WebViewScrollListener {
-                override fun onScroll(
-                    scrollX: Int,
-                    scrollY: Int,
-                    oldScrollX: Int,
-                    oldScrollY: Int
-                ) {
-                    if (oldScrollY < scrollY) {
-                        val isScrolledToBottom =
-                            viewBinding.webView.bottom <= (viewBinding.webView.height + scrollY)
-                        if (isScrolledToBottom) {
-                            onScrolledToBottom()
+            webView?.apply {
+                scrollListener = object : AppWebView.WebViewScrollListener {
+                    override fun onScroll(
+                        scrollX: Int,
+                        scrollY: Int,
+                        oldScrollX: Int,
+                        oldScrollY: Int
+                    ) {
+                        if (oldScrollY < scrollY) {
+                            val isScrolledToBottom =
+                                bottom <= (height + scrollY)
+                            if (isScrolledToBottom) {
+                                onScrolledToBottom()
+                            }
                         }
                     }
                 }
             }
 
-            viewBinding.webView.overScrollListener = object : AppWebView.WebViewOverScrollListener {
+            webView?.overScrollListener = object : AppWebView.WebViewOverScrollListener {
                 override fun onOverScroll(
                     scrollX: Int,
                     scrollY: Int,
@@ -180,7 +182,7 @@ class SearchResultPagerItemFragment : ViewBindingFragment<FragmentWebviewArticle
     private fun ensurePublicArticlesCanBeScrolled() {
         // Ensure the scrolling content is at least 1px higher then the scroll view
         val deviceHeight = resources.displayMetrics.heightPixels / resources.displayMetrics.density
-        viewBinding.webView.evaluateJavascript("document.documentElement.style.minHeight=\"${deviceHeight + 1}px\"") {}
+        webView?.evaluateJavascript("document.documentElement.style.minHeight=\"${deviceHeight + 1}px\"") {}
     }
 
     private fun onScrolledToBottom() {
@@ -211,9 +213,9 @@ class SearchResultPagerItemFragment : ViewBindingFragment<FragmentWebviewArticle
     }
 
     private suspend fun reloadAfterCssChange() {
-        webView.injectCss()
+        webView?.injectCss()
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.N) {
-            webView.reload()
+            webView?.reload()
         }
     }
 

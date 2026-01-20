@@ -10,7 +10,7 @@ class PasswordRequestNoMailFragment :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        viewBinding.fragmentLoginForgotPasswordNoMailEmail.setOnClickListener {
+        viewBinding?.fragmentLoginForgotPasswordNoMailEmail?.setOnClickListener {
             it as TextView
             writeEmail(it.text?.toString() ?: "")
         }

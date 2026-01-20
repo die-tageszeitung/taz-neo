@@ -42,14 +42,14 @@ class SectionImprintWebViewFragment : WebViewFragment<
 
     private val issueContentViewModel: IssueViewerViewModel by activityViewModels()
 
-    override val webView: AppWebView
-        get() = viewBinding.webView
+    override val webView: AppWebView?
+        get() = viewBinding?.webView
 
-    override val loadingScreen: View
-        get() = viewBinding.loadingScreen.root
+    override val loadingScreen: View?
+        get() = viewBinding?.loadingScreen?.root
 
-    override val appBarLayout: AppBarLayout
-        get() = viewBinding.appBarLayout
+    override val appBarLayout: AppBarLayout?
+        get() = viewBinding?.appBarLayout
 
     override val bottomNavigationLayout: View? = null
 
@@ -86,7 +86,7 @@ class SectionImprintWebViewFragment : WebViewFragment<
             val isWeekend = issueStub.isWeekend && issueStub.validityDate.isNullOrBlank()
             val isWochentaz = issueStub.isWeekend && !issueStub.validityDate.isNullOrBlank()
 
-            viewBinding.apply {
+            viewBinding?.apply {
                 section.apply {
                     isVisible = true
                     setText(R.string.imprint)
@@ -108,9 +108,9 @@ class SectionImprintWebViewFragment : WebViewFragment<
             return
         }
 
-        webView.injectCss()
+        webView?.injectCss()
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.N)
-            webView.reload()
+            webView?.reload()
     }
 
     /**
@@ -120,7 +120,7 @@ class SectionImprintWebViewFragment : WebViewFragment<
         viewLifecycleOwner.lifecycleScope.launch {
             val extraPadding = generalDataStore.displayCutoutExtraPadding.get()
             if (extraPadding > 0 && resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                viewBinding.collapsingToolbarLayout.setPadding(0, extraPadding, 0, 0)
+                viewBinding?.collapsingToolbarLayout?.setPadding(0, extraPadding, 0, 0)
             }
         }
     }

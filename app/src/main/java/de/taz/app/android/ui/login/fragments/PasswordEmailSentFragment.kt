@@ -11,7 +11,7 @@ class PasswordEmailSentFragment: LoginBaseFragment<FragmentLoginForgotPasswordEm
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewBinding.fragmentLoginForgotPasswordEmailSentBack.apply {
+        viewBinding?.fragmentLoginForgotPasswordEmailSentBack?.apply {
             if (viewModel.backToSettingsAfterEmailSent) {
                 setText(R.string.fragment_login_success_login_back_settings)
             }

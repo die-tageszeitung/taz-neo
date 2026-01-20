@@ -73,7 +73,7 @@ class AllowNotificationsFragment : ViewBindingFragment<FragmentAllowNotification
             generalDataStore.allowNotificationsLastTimeShown.set(currentDate)
         }
 
-        viewBinding.apply {
+        viewBinding?.apply {
             enableNotificationsButton.setOnClickListener {
                 lifecycleScope.launch {
                     tryToSetNotificationsEnabled()

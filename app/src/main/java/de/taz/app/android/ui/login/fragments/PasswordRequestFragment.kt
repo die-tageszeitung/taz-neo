@@ -48,39 +48,40 @@ class PasswordRequestFragment : SubscriptionBaseFragment<FragmentLoginForgotPass
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        if (showSubscriptionId) {
-            viewBinding.fragmentLoginForgotPasswordUsernameLayout.setHint(
-                R.string.login_subscription_hint
-            )
-            viewBinding.fragmentLoginForgotPasswordUsername.apply {
-                setText(viewModel.subscriptionId?.toString())
-                importantForAutofill = View.IMPORTANT_FOR_AUTOFILL_NO
-                setRawInputType(InputType.TYPE_CLASS_NUMBER)
+        viewBinding?.apply {
+
+            if (showSubscriptionId) {
+                fragmentLoginForgotPasswordUsernameLayout.setHint(
+                    R.string.login_subscription_hint
+                )
+                fragmentLoginForgotPasswordUsername.apply {
+                    setText(viewModel.subscriptionId?.toString())
+                    importantForAutofill = View.IMPORTANT_FOR_AUTOFILL_NO
+                    setRawInputType(InputType.TYPE_CLASS_NUMBER)
+                }
+                fragmentLoginForgotPasswordHeader
+                    .setText(R.string.fragment_login_forgot_password_for_subscription_header)
+            } else {
+                fragmentLoginForgotPasswordUsernameLayout.setHint(R.string.login_username_hint)
+                fragmentLoginForgotPasswordUsername.apply {
+                    setText(viewModel.username ?: viewModel.subscriptionId?.toString())
+                }
             }
-            viewBinding.fragmentLoginForgotPasswordHeader
-                .setText(R.string.fragment_login_forgot_password_for_subscription_header)
-        } else {
-            viewBinding.fragmentLoginForgotPasswordUsernameLayout.setHint(R.string.login_username_hint)
-            viewBinding.fragmentLoginForgotPasswordUsername.apply {
-                setText(viewModel.username ?: viewModel.subscriptionId?.toString())
+
+            if (invalidId) {
+                fragmentLoginForgotPasswordUsername.setText(viewModel.subscriptionId?.toString())
+                fragmentLoginForgotPasswordUsernameLayout.setError(
+                    R.string.login_forgot_password_error_invalid_id
+                )
             }
-        }
 
-        if (invalidId) {
-            viewBinding.fragmentLoginForgotPasswordUsername.setText(viewModel.subscriptionId?.toString())
-            viewBinding.fragmentLoginForgotPasswordUsernameLayout.setError(
-                R.string.login_forgot_password_error_invalid_id
-            )
-        }
+            if (invalidMail) {
+                fragmentLoginForgotPasswordUsername.setText(viewModel.username)
+                fragmentLoginForgotPasswordUsernameLayout.setError(
+                    R.string.login_email_error_invalid
+                )
+            }
 
-        if (invalidMail) {
-            viewBinding.fragmentLoginForgotPasswordUsername.setText(viewModel.username)
-            viewBinding.fragmentLoginForgotPasswordUsernameLayout.setError(
-                R.string.login_email_error_invalid
-            )
-        }
-
-        viewBinding.apply {
             fragmentLoginForgotPasswordButton.setOnClickListener {
                 ifDoneNext()
             }
@@ -102,16 +103,16 @@ class PasswordRequestFragment : SubscriptionBaseFragment<FragmentLoginForgotPass
 
     override fun done(): Boolean {
         var done = true
-        val username = viewBinding.fragmentLoginForgotPasswordUsername.text.toString().trim().lowercase()
-        if (username.isEmpty()) {
-            viewBinding.fragmentLoginForgotPasswordUsernameLayout.error =
+        val username = viewBinding?.fragmentLoginForgotPasswordUsername?.text?.toString()?.trim()?.lowercase()
+        if (username.isNullOrEmpty()) {
+            viewBinding?.fragmentLoginForgotPasswordUsernameLayout?.error =
                 getString(R.string.login_username_error_empty)
             done = false
         } else {
             if (username.toIntOrNull() == null) {
                 if (!emailValidator(username)) {
                     done = false
-                    viewBinding.fragmentLoginForgotPasswordUsernameLayout.error =
+                    viewBinding?.fragmentLoginForgotPasswordUsernameLayout?.error =
                         getString(R.string.login_email_error_invalid)
                 } else {
                     viewModel.username = username
@@ -124,11 +125,11 @@ class PasswordRequestFragment : SubscriptionBaseFragment<FragmentLoginForgotPass
     }
 
     override fun next() {
-        val username = viewBinding.fragmentLoginForgotPasswordUsername.text.toString().trim().lowercase()
-        if(username.toIntOrNull() != null) {
+        val username = viewBinding?.fragmentLoginForgotPasswordUsername?.text?.toString()?.trim()?.lowercase()
+        if(username?.toIntOrNull() != null) {
             viewModel.requestSubscriptionPassword(username.toInt())
         } else {
-            viewModel.requestCredentialsPasswordReset(username)
+            viewModel.requestCredentialsPasswordReset(username ?: "")
         }
     }
 }

@@ -17,26 +17,23 @@ import java.lang.reflect.ParameterizedType
  */
 abstract class ViewBindingFragment<VIEW_BINDING : ViewBinding> : Fragment() {
 
-    private var _binding: VIEW_BINDING? = null
-
     // This property is only valid between onCreateView and onDestroyView.
-    protected val viewBinding get() = _binding!!
+    protected var viewBinding: VIEW_BINDING? = null
 
-    protected val rootView: View get() = viewBinding.root
-    protected val rootViewGroup get() = rootView as? ViewGroup
+    protected val rootView: View? get() = viewBinding?.root
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding = createBinding(inflater, container)
+        viewBinding = createBinding(inflater, container)
         return rootView
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null
+        viewBinding = null
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -44,7 +41,7 @@ abstract class ViewBindingFragment<VIEW_BINDING : ViewBinding> : Fragment() {
         val viewBindingClass =
             try {
                 (javaClass.genericSuperclass as ParameterizedType).actualTypeArguments.last()
-            } catch (cce: ClassCastException) {
+            } catch (_: ClassCastException) {
                 ((javaClass.genericSuperclass as Class<VIEW_BINDING>)
                     .genericSuperclass as ParameterizedType).actualTypeArguments.last()
             } as Class<VIEW_BINDING>

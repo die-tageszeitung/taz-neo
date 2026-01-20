@@ -269,7 +269,7 @@ class PdfPagerWrapperFragment: ViewBindingFragment<ActivityPdfDrawerLayoutBindin
         // pdf mode always has burger icon
         drawerAndLogoViewModel.setBurgerIcon()
 
-        viewBinding.apply {
+        viewBinding?.apply {
             drawerViewController = DrawerViewController(
                 requireContext(),
                 pdfDrawerLayout,

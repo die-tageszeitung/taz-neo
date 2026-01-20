@@ -73,8 +73,8 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
 
         pdfPagerViewModel.currentItem.observe(viewLifecycleOwner) { position ->
             // only update currentItem if it has not been swiped
-            if (viewBinding.readerView.displayedViewIndex != position) {
-                viewBinding.readerView.displayedViewIndex = position
+            if (viewBinding?.readerView?.displayedViewIndex != position) {
+                viewBinding?.readerView?.displayedViewIndex = position
             }
         }
         setupDrawerLogoGhost()
@@ -82,10 +82,12 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
 
     override fun onResume() {
         super.onResume()
-        requireActivity().setupBottomNavigation(
-            viewBinding.navigationBottomPdf,
-            BottomNavigationItem.ChildOf(BottomNavigationItem.Home)
-        )
+        viewBinding?.navigationBottomPdf?.let {
+            requireActivity().setupBottomNavigation(
+                it,
+                BottomNavigationItem.ChildOf(BottomNavigationItem.Home)
+            )
+        }
     }
 
     override fun onDestroy() {
@@ -97,7 +99,7 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
     private fun initReaderView(pdfPageList: List<Page>) {
         isReaderViewInitialized = true
         // Setup new Adapters
-        viewBinding.readerView.apply {
+        viewBinding?.readerView?.apply {
             adapter = PageAdapter(requireContext(), pdfPageList)
             setOnCoordinatesClickedListener(onCoordinatesClickedListener)
             setOnPageChangeCallback {
@@ -111,10 +113,10 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
     }
 
     private fun updateReaderView(pdfPageList: List<Page>) {
-        val adapter = viewBinding.readerView.adapter as? PageAdapter
+        val adapter = viewBinding?.readerView?.adapter as? PageAdapter
         if (adapter != null) {
             val updatedPages = adapter.update(pdfPageList)
-            viewBinding.readerView.refresh(updatedPages)
+            viewBinding?.readerView?.refresh(updatedPages)
         }
     }
 
@@ -172,7 +174,7 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
 
         val isPortrait =
             resources.displayMetrics.heightPixels > resources.displayMetrics.widthPixels
-        val isInitialScale = (viewBinding.readerView.displayedView as PageView).scale == 1f
+        val isInitialScale = (viewBinding?.readerView?.displayedView as? PageView)?.scale == 1f
         val isPanoramaPage = page.type == PageType.panorama
 
         val isPanoramaSinglePageFocused = isPanoramaPage && isPortrait && isInitialScale
@@ -197,12 +199,13 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
      * panorama page is shown
      */
     private fun handleLeftTap(isPanoramaSinglePageFocused: Boolean) {
-        val readerView = viewBinding.readerView
-        val isRightPageShown = readerView.displayedView.right == readerView.width
-        if (isPanoramaSinglePageFocused && isRightPageShown) {
-            readerView.scrollToLeftSide()
-        } else {
-            readerView.moveToPrevious()
+        viewBinding?.readerView?.let { readerView ->
+            val isRightPageShown = readerView.displayedView.right == readerView.width
+            if (isPanoramaSinglePageFocused && isRightPageShown) {
+                readerView.scrollToLeftSide()
+            } else {
+                readerView.moveToPrevious()
+            }
         }
     }
 
@@ -213,18 +216,19 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
      * panorama page is shown
      */
     private fun handleRightTap(isPanoramaSinglePageFocused: Boolean) {
-        val readerView = viewBinding.readerView
-        val isLeftPageShown = readerView.displayedView.left == 0
-        if (isPanoramaSinglePageFocused && isLeftPageShown) {
-            readerView.scrollToRightSide()
-        } else {
-            readerView.moveToNext()
+        viewBinding?.readerView?.let { readerView ->
+            val isLeftPageShown = readerView.displayedView.left == 0
+            if (isPanoramaSinglePageFocused && isLeftPageShown) {
+                readerView.scrollToRightSide()
+            } else {
+                readerView.moveToNext()
+            }
         }
     }
 
     private fun hideLoadingScreen() {
-        val pdfLoadingScreenRoot = viewBinding.pdfLoadingScreen.root
-        pdfLoadingScreenRoot.animate().apply {
+        val pdfLoadingScreenRoot = viewBinding?.pdfLoadingScreen?.root
+        pdfLoadingScreenRoot?.animate()?.apply {
             alpha(0f)
             duration = LOADING_SCREEN_FADE_OUT_TIME
             withEndAction {
@@ -247,7 +251,7 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
     }
 
     private fun setupDrawerLogoGhost() {
-        viewBinding.pdfPagerDrawerLogoGhost.setOnClickListener {
+        viewBinding?.pdfPagerDrawerLogoGhost?.setOnClickListener {
             tracker.trackDrawerOpenEvent(dragged = false)
             drawerAndLogoViewModel.openDrawer()
         }
