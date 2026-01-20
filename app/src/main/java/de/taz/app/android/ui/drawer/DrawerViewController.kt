@@ -193,7 +193,6 @@ class DrawerViewController(
         updateTheGhosts(
             resources.getDimensionPixelSize(R.dimen.drawer_burger_menu_width),
             drawerLogoWrapper.height,
-            null,
             extraPadding
         )
 
@@ -290,7 +289,7 @@ class DrawerViewController(
             } else {
                 0
             }
-        updateTheGhosts(widthFromDimens, drawerLogoWrapper.height, burgerDrawable, extraPadding)
+        updateTheGhosts(widthFromDimens, drawerLogoWrapper.height, extraPadding)
     }
 
     private suspend fun setCloseIcon() {
@@ -317,7 +316,7 @@ class DrawerViewController(
             } else {
                 0
             }
-        updateTheGhosts(widthFromDimens, drawerLogoWrapper.height, closeDrawable, extraPadding)
+        updateTheGhosts(widthFromDimens, drawerLogoWrapper.height, extraPadding)
     }
 
     suspend fun setFeedLogo() = withContext(Dispatchers.Default) {
@@ -365,7 +364,6 @@ class DrawerViewController(
         ) * scaleFactor
 
         withContext(Dispatchers.Main) {
-
             drawerLogoWrapper.updateLayoutParams {
                 width = drawerLogoWidth
             }
@@ -386,7 +384,6 @@ class DrawerViewController(
             updateTheGhosts(
                 logicalWidth.toInt(),
                 logicalHeight.toInt(),
-                imageDrawable,
                 extraPadding
             )
         }
@@ -417,7 +414,6 @@ class DrawerViewController(
     private fun updateTheGhosts(
         newWidth: Int,
         newHeight: Int,
-        imageDrawable: Drawable?,
         extraPadding: Int
     ) {
         val ghostViewIds = listOf(
@@ -427,7 +423,6 @@ class DrawerViewController(
         )
         ghostViewIds.forEach {
             rootView.findViewById<ImageView>(it)?.apply {
-                setImageDrawable(imageDrawable)
                 if (newWidth > 0 && newHeight > 0) {
                     updateLayoutParams<LayoutParams> {
                         width = newWidth

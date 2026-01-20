@@ -2,24 +2,21 @@ package de.taz.app.android.base
 
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewbinding.ViewBinding
 import de.taz.app.android.TazApplication
 import de.taz.app.android.monkey.disableActivityAnimations
-import de.taz.app.android.util.Log
 import java.lang.reflect.ParameterizedType
 
 abstract class ViewBindingActivity<ViewBindingClass : ViewBinding> : AppCompatActivity() {
 
-    private val log by Log
-
     lateinit var viewBinding: ViewBindingClass
-    protected val rootView: View by lazy { viewBinding.root }
-    protected val rootViewGroup by lazy { rootView as? ViewGroup }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // enable edge to edge for pre Android 15
+        enableEdgeToEdge()
+
         super.onCreate(savedInstanceState)
         disableActivityAnimations()
 

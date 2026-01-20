@@ -19,6 +19,7 @@ import de.taz.app.android.util.Json
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import androidx.core.content.edit
 
 
 const val TAZ_API_JS = "ANDROIDAPI"
@@ -48,20 +49,14 @@ class TazApiJS(private val webViewFragment: WebViewFragment<*, out WebViewViewMo
         log.debug("setConfiguration $name: $value")
         val sharedPref =
             applicationContext?.getSharedPreferences(PREFERENCES_TAZAPI, Context.MODE_PRIVATE)
-        sharedPref?.apply {
-            with(sharedPref.edit()) {
-                putString(name, value)
-                apply()
-            }
+        sharedPref?.edit {
+            putString(name, value)
         }
     }
 
     @JavascriptInterface
     fun pageReady(percentage: Int, position: Int) {
         log.debug("pageReady $percentage $position")
-        webViewFragment.lifecycleScope.launch {
-            webViewFragment.webView?.evaluateJavascript("window.onresize = {};", {})
-        }
         /* This function is currently not used by the android app, as it does not scroll within the WebView
            Instead [ViewerStateRepository] is used to store the apps scroll position.
         webViewFragment.viewModel.displayable?.let {
@@ -213,13 +208,11 @@ class TazApiJS(private val webViewFragment: WebViewFragment<*, out WebViewViewMo
     fun onMultiColumnLayoutReady(contentWidth: String?) {
         val parsedContentWidth = try {
             contentWidth?.replace("px", "")?.toFloat()
-        } catch (e: NumberFormatException) {
+        } catch (_: NumberFormatException) {
             log.warn("Could not parse $contentWidth to int. Passing null")
             null
         }
-        if (webViewFragment is MultiColumnLayoutReadyCallback) {
-            webViewFragment.onMultiColumnLayoutReady(parsedContentWidth?.toInt())
-        }
+        webViewFragment.onMultiColumnLayoutReady(parsedContentWidth?.toInt())
     }
 
 

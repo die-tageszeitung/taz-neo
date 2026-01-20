@@ -51,6 +51,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -100,6 +102,7 @@ abstract class WebViewFragment<
     private var saveScrollPositionJob: Job? = null
 
     private var currentIssueKey: IssueKey? = null
+    private var currentDisplayableKey: String? = null
 
     var tapLock = false
 
@@ -137,19 +140,23 @@ abstract class WebViewFragment<
         super.onCreate(savedInstanceState)
 
         lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 viewModel.displayableFlow
                     .filterNotNull()
+                    .filter { it.key != currentDisplayableKey }
                     .onEach { displayable ->
+                        currentDisplayableKey = displayable.key
                         log.debug("Received a new displayable ${displayable.key}")
                         setHeader(displayable)
                         currentIssueKey =
                             displayable.getIssueStub(requireContext().applicationContext)?.issueKey
-                        configureWebView()
                         ensureDownloadedAndShow()
                     }.launchIn(lifecycleScope)
 
                 viewModel.nightModeFlow
+                    // drop first event because that's already the current state
+                    // only react to changes
+                    .drop(1)
                     .onEach {
                         reloadAfterCssChange()
                     }.launchIn(lifecycleScope)
@@ -160,6 +167,7 @@ abstract class WebViewFragment<
                     }.launchIn(lifecycleScope)
 
                 viewModel.fontSizeFlow
+                    .drop(1)
                     .onEach {
                         reloadAfterCssChange()
                     }.launchIn(lifecycleScope)
@@ -179,6 +187,8 @@ abstract class WebViewFragment<
         if (savedInstanceState != null) {
             appBarLayout?.setExpanded(true, false)
         }
+
+        configureWebView()
     }
 
     override fun onMultiColumnLayoutReady(contentWidth: Int?) {
@@ -193,7 +203,7 @@ abstract class WebViewFragment<
     }
 
     @SuppressLint("SetJavaScriptEnabled", "AddJavascriptInterface")
-    private suspend fun configureWebView() = withContext(Dispatchers.Main) {
+    private fun configureWebView() {
 
         webView?.apply {
             webViewClient = AppWebViewClient(
@@ -396,7 +406,7 @@ abstract class WebViewFragment<
 
         var current: ViewParent? = webView
         while (current?.parent != null) {
-            current = current?.parent
+            current = current.parent
             if (current is ViewPager2) {
                 viewPagerCache = current
                 return current
@@ -414,12 +424,12 @@ abstract class WebViewFragment<
         // if on bottom and bottom bar is hidden tap on right side go to next article
         if (!webView.canScrollVertically(SCROLL_FORWARD) && direction == SCROLL_FORWARD
             && (bottomNavigationLayout?.getVisibleHeight() == 0 || bottomNavigationLayout?.getBottomNavigationBehavior() == null)) {
-            issueViewerViewModel.goNextArticle.emit(true)
+            issueViewerViewModel.goNextArticle.emit(Unit)
         }
 
         // if on top and tap on left side go to previous article
         else if (!webView.canScrollVertically(SCROLL_BACKWARDS) && direction == SCROLL_BACKWARDS) {
-            issueViewerViewModel.goPreviousArticle.emit(true)
+            issueViewerViewModel.goPreviousArticle.emit(Unit)
         } else {
             val appBarLayout = this.appBarLayout
             val bottomNavigationLayout = this.bottomNavigationLayout
@@ -486,11 +496,7 @@ abstract class WebViewFragment<
     }
 
     fun getNavigationBarHeight(): Int {
-        val rootWindowInsets = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            view?.rootWindowInsets
-        } else {
-            null
-        }
+        val rootWindowInsets = view?.rootWindowInsets
 
         val navigationBarHeight =
             if (rootWindowInsets != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {

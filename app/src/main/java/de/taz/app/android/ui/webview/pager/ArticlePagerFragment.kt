@@ -214,21 +214,13 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
 
                     launch {
                         issueContentViewModel.goNextArticle.collect {
-                            if (it) {
-                                webviewPagerViewpager.currentItem =
-                                    getCurrentPagerPosition() + 1
-                                issueContentViewModel.goNextArticle.value = false
-                            }
+                            webviewPagerViewpager.currentItem += 1
                         }
                     }
 
                     launch {
                         issueContentViewModel.goPreviousArticle.collect {
-                            if (it) {
-                                webviewPagerViewpager.currentItem =
-                                    getCurrentPagerPosition() - 1
-                                issueContentViewModel.goPreviousArticle.value = false
-                            }
+                            webviewPagerViewpager.currentItem -= 1
                         }
                     }
 

@@ -14,8 +14,6 @@ import de.taz.app.android.R
 import de.taz.app.android.singletons.TazApiCssHelper
 import de.taz.app.android.ui.ViewBorder
 import de.taz.app.android.util.Log
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.net.URLDecoder
 import kotlin.math.abs
 import androidx.core.net.toUri
@@ -31,7 +29,6 @@ class AppWebView @JvmOverloads constructor(
     init {
         isHorizontalScrollBarEnabled = false
         settings.allowFileAccess = true
-        setCoordinatorBottomMatchingBehaviourEnabled(true)
     }
 
     private val log by Log
@@ -69,7 +66,8 @@ class AppWebView @JvmOverloads constructor(
      * This method will help to re-inject css into the WebView upon changes
      * to the corresponding shared preferences
      */
-    suspend fun injectCss() = withContext(Dispatchers.Main) {
+    suspend fun injectCss() {
+        log.info("injectCss")
         val cssString = TazApiCssHelper.getInstance(context.applicationContext).generateCssString()
         val encoded = Base64.encodeToString(cssString.toByteArray(), Base64.NO_WRAP)
         callTazApi("injectCss", encoded)
