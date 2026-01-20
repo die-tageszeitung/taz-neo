@@ -27,15 +27,15 @@ class DrawerAndLogoViewModel(
 
     fun setFeedLogo() {
         _drawerState.value = when (val state = _drawerState.value) {
-            is DrawerState.Closed -> state.copy(isBurger = false, isHidden = false, percentMorphedToBurger = 0f)
-            is DrawerState.Open -> state.copy(isBurger = false, isHidden = false, percentMorphedToBurger = 0f)
+            is DrawerState.Closed -> state.copy(isHidden = false, percentMorphedToBurger = 0f)
+            is DrawerState.Open -> state.copy(isHidden = false, percentMorphedToBurger = 0f)
         }
     }
 
     fun setBurgerIcon() {
         _drawerState.value = when (val state = _drawerState.value) {
-            is DrawerState.Closed -> state.copy(isBurger = true, isHidden = false, percentMorphedToBurger = 1f)
-            is DrawerState.Open -> state.copy(isBurger = true, isHidden = false, percentMorphedToBurger = 1f)
+            is DrawerState.Closed -> state.copy(isHidden = false, percentMorphedToBurger = 1f)
+            is DrawerState.Open -> state.copy(isHidden = false, percentMorphedToBurger = 1f)
         }
     }
 
@@ -63,7 +63,7 @@ class DrawerAndLogoViewModel(
 
     fun openDrawer() {
         _drawerState.value = when (val state = _drawerState.value) {
-            is DrawerState.Closed -> DrawerState.Open(state.isBurger, state.isHidden, state.percentMorphedToBurger, state.isListDrawer)
+            is DrawerState.Closed -> DrawerState.Open(state.isHidden, state.percentMorphedToBurger, state.isListDrawer)
             is DrawerState.Open -> state
         }
     }
@@ -71,13 +71,12 @@ class DrawerAndLogoViewModel(
     fun closeDrawer() {
         _drawerState.value = when (val state = _drawerState.value) {
             is DrawerState.Closed -> state
-            is DrawerState.Open -> DrawerState.Closed(state.isBurger, state.isHidden, state.percentMorphedToBurger, state.isListDrawer)
+            is DrawerState.Open -> DrawerState.Closed(state.isHidden, state.percentMorphedToBurger, state.isListDrawer)
         }
     }
 
-    fun isBurgerIcon(): Boolean = when (val state = _drawerState.value) {
-        is DrawerState.Closed -> state.isBurger
-        is DrawerState.Open -> state.isBurger
+    fun isBurgerIcon(): Boolean {
+        return _drawerState.value.percentMorphedToBurger == 1.0f
     }
 
     fun setNewDrawer(isNew: Boolean) {
@@ -89,13 +88,11 @@ class DrawerAndLogoViewModel(
 }
 
 sealed class DrawerState {
-    abstract val isBurger: Boolean
     abstract val isHidden: Boolean
     abstract val percentMorphedToBurger: Float
     abstract val isListDrawer: Boolean
 
     data class Open(
-        override val isBurger: Boolean = false,
         override val isHidden: Boolean = false,
         override val percentMorphedToBurger: Float = 0f,
         override val isListDrawer: Boolean = false,
@@ -103,7 +100,6 @@ sealed class DrawerState {
         DrawerState()
 
     data class Closed(
-        override val isBurger: Boolean = false,
         override val isHidden: Boolean = false,
         override val percentMorphedToBurger: Float = 0f,
         override val isListDrawer: Boolean = false,
