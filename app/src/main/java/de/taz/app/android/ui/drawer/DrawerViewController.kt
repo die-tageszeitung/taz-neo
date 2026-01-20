@@ -77,7 +77,7 @@ class DrawerViewController(
             is DrawerState.Closed -> {
                 when {
                     state.isHidden -> {
-                        if ((isLogoBurger && !state.isBurger) || isLogoClose) {
+                        if ((isLogoBurger) || isLogoClose) {
                             setFeedLogo()
                         }
                         hideDrawerLogoAnimatedWithDelay()
@@ -94,7 +94,7 @@ class DrawerViewController(
 
                     // If logo ends up at an extreme, we set force the main logo state to fit it
                     state.percentMorphedToBurger == 1f -> {
-                        if (!isLogoBurger || state.isBurger || isLogoClose) {
+                        if (!isLogoBurger || isLogoClose) {
                             setBurgerIcon()
                         }
                     }
