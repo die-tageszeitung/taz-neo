@@ -12,6 +12,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.withStarted
 import com.google.android.material.behavior.HideViewOnScrollBehavior
 import com.google.android.material.behavior.HideViewOnScrollBehavior.EDGE_BOTTOM
@@ -46,6 +47,8 @@ import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setupBottomNavigation
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.getBottomNavigationBehavior
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
@@ -91,6 +94,12 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
             .onEach {
                 viewBinding.coverflowRefreshLayout.isEnabled = it
             }.launchIn(lifecycleScope)
+
+        CoroutineScope( Dispatchers.IO).launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                feedService.refreshFeed()
+            }
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
