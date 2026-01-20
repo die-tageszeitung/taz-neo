@@ -1084,7 +1084,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         // Notification channels can only be handled since Android Oreo:
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             viewBinding?.apply {
-                fragmentSettingsNotificationChannels?.isVisible = show
+                fragmentSettingsNotificationChannels.isVisible = show
                 if (show) {
                     val newIssueChannelId =
                         getString(R.string.notification_channel_fcm_new_issue_arrived_id)

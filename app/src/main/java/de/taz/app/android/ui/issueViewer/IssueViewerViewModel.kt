@@ -26,7 +26,9 @@ import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragm
 import de.taz.app.android.util.ArticleName
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -145,8 +147,8 @@ class IssueViewerViewModel(
         }
     }
 
-    var goNextArticle = MutableStateFlow(false)
-    var goPreviousArticle = MutableStateFlow(false)
+    var goNextArticle = MutableSharedFlow<Unit>()
+    var goPreviousArticle = MutableSharedFlow<Unit>()
     var lastSectionKey: String?
         set(value) = savedStateHandle.set(KEY_LAST_SECTION, value)
         get() = savedStateHandle[KEY_LAST_SECTION]
