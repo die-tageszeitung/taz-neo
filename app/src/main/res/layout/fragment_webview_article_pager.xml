@@ -126,15 +126,15 @@
         android:contentDescription="@string/help"
         android:src="@drawable/ic_question_mark"
         app:backgroundTint="@color/fab_button_background"
-        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"
+        app:layout_behavior="com.google.android.material.behavior.HideViewOnScrollBehavior"
         app:tint="@color/lightGrey" />
 
 
-    <com.google.android.material.bottomnavigation.BottomNavigationView
+    <de.taz.app.android.ui.NoPaddingBottomNavigation
         android:id="@+id/navigation_bottom"
         style="@style/Widget.App.BottomNavigation.ToolBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior" />
+        app:layout_behavior="com.google.android.material.behavior.HideViewOnScrollBehavior" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

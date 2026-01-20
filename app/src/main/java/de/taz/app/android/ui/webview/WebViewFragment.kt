@@ -450,7 +450,7 @@ abstract class WebViewFragment<
                 if (bottomNavigationBehavior != null) {
                     // If the bottom navigation is shown, the visible content bottom is higher up
                     visibleBottom -= bottomNavigationLayout.getVisibleHeight()
-                    bottomNavigationBehavior.slideDown(bottomNavigationLayout, true)
+                    bottomNavigationBehavior.slideOut(bottomNavigationLayout, true)
                 } else {
                     // If the bottom navigation does not have a behavior, it is expanded
                     visibleBottom -= bottomNavigationLayout.height
