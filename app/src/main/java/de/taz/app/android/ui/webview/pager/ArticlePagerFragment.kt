@@ -24,6 +24,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS
+import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
+import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_SNAP
+import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.android.material.behavior.HideViewOnScrollBehavior
 import com.google.android.material.behavior.HideViewOnScrollBehavior.EDGE_BOTTOM
 import de.taz.app.android.ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
@@ -213,6 +217,19 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
                     }
 
                     launch {
+                        generalDataStore.hideAppbarOnScroll.asFlow()
+                            .collect {
+                                (collapsingToolbarLayout.layoutParams as? AppBarLayout.LayoutParams)?.apply {
+                                    scrollFlags = if (it) {
+                                        SCROLL_FLAG_SCROLL or SCROLL_FLAG_ENTER_ALWAYS or SCROLL_FLAG_SNAP
+                                    } else {
+                                        0
+                                    }
+                                }
+                            }
+                    }
+
+                    launch {
                         issueContentViewModel.goNextArticle.collect {
                             webviewPagerViewpager.currentItem += 1
                         }
@@ -279,65 +296,66 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
     }
 
     private fun showCoachMarks() {
-            val viewBinding = viewBinding ?: return
+        val viewBinding = viewBinding ?: return
 
-            val tazLogoCoachMark =
-                TazLogoCoachMark.create(requireActivity().findViewById(R.id.drawer_logo))
+        val tazLogoCoachMark =
+            TazLogoCoachMark.create(requireActivity().findViewById(R.id.drawer_logo))
 
-            val bookmarkCoachMark = ArticleBookmarkCoachMark.create(
-                viewBinding.navigationBottom
-                    .findViewById<View?>(R.id.bottom_navigation_action_bookmark)!!
-                    .findViewById(com.google.android.material.R.id.navigation_bar_item_icon_view)
-            )
+        val bookmarkCoachMark = ArticleBookmarkCoachMark.create(
+            viewBinding.navigationBottom
+                .findViewById<View?>(R.id.bottom_navigation_action_bookmark)!!
+                .findViewById(com.google.android.material.R.id.navigation_bar_item_icon_view)
+        )
 
-            val homeCoachMark = ArticleHomeCoachMark.create(
-                viewBinding.navigationBottom
-                    .findViewById<View?>(R.id.bottom_navigation_action_home_article)!!
-                    .findViewById(com.google.android.material.R.id.navigation_bar_item_icon_view)
-            )
+        val homeCoachMark = ArticleHomeCoachMark.create(
+            viewBinding.navigationBottom
+                .findViewById<View?>(R.id.bottom_navigation_action_home_article)!!
+                .findViewById(com.google.android.material.R.id.navigation_bar_item_icon_view)
+        )
 
-            val textSizeCoachMark = ArticleSizeCoachMark.create(
-                viewBinding.navigationBottom
-                    .findViewById<View?>(R.id.bottom_navigation_action_size)!!
-                    .findViewById(com.google.android.material.R.id.navigation_bar_item_icon_view)
-            )
+        val textSizeCoachMark = ArticleSizeCoachMark.create(
+            viewBinding.navigationBottom
+                .findViewById<View?>(R.id.bottom_navigation_action_size)!!
+                .findViewById(com.google.android.material.R.id.navigation_bar_item_icon_view)
+        )
 
-            val shareCoachMark = ArticleShareCoachMark.create(
-                viewBinding.navigationBottom
-                    .findViewById<View?>(R.id.bottom_navigation_action_share)!!
-                    .findViewById(com.google.android.material.R.id.navigation_bar_item_icon_view)
-            )
+        val shareCoachMark = ArticleShareCoachMark.create(
+            viewBinding.navigationBottom
+                .findViewById<View?>(R.id.bottom_navigation_action_share)!!
+                .findViewById(com.google.android.material.R.id.navigation_bar_item_icon_view)
+        )
 
-            val audioCoachMark = ArticleAudioCoachMark.create(
-                viewBinding.navigationBottom
-                    .findViewById<View?>(R.id.bottom_navigation_action_audio)!!
-                    .findViewById(com.google.android.material.R.id.navigation_bar_item_icon_view)
-            )
+        val audioCoachMark = ArticleAudioCoachMark.create(
+            viewBinding.navigationBottom
+                .findViewById<View?>(R.id.bottom_navigation_action_audio)!!
+                .findViewById(com.google.android.material.R.id.navigation_bar_item_icon_view)
+        )
 
-            val articleImageCoachMark = ArticleImageCoachMark()
-            val articleTapToScrollCoachMark = ArticleTapToScrollCoachMark()
-            val articleImagePagerCoachMark = ArticleImagePagerCoachMark()
+        val articleImageCoachMark = ArticleImageCoachMark()
+        val articleTapToScrollCoachMark = ArticleTapToScrollCoachMark()
+        val articleImagePagerCoachMark = ArticleImagePagerCoachMark()
 
-            val articleSectionCoachMark = ArticleSectionCoachMark.create(
-                viewBinding.header.section, viewBinding.header.section.text.toString()
-            )
+        val articleSectionCoachMark = ArticleSectionCoachMark.create(
+            viewBinding.header.section, viewBinding.header.section.text.toString()
+        )
 
-            val coachMarks = mutableListOf(
-                tazLogoCoachMark,
-                homeCoachMark,
-                bookmarkCoachMark,
-                shareCoachMark,
-                audioCoachMark,
-                textSizeCoachMark,
-                articleImageCoachMark,
-                articleImagePagerCoachMark,
-            )
+        val coachMarks = mutableListOf(
+            tazLogoCoachMark,
+            homeCoachMark,
+            bookmarkCoachMark,
+            shareCoachMark,
+            audioCoachMark,
+            textSizeCoachMark,
+            articleImageCoachMark,
+            articleImagePagerCoachMark,
+        )
 
         lifecycleScope.launch {
             if (tazApiCssDataStore.multiColumnMode.get()) {
                 coachMarks.add(0, articleTapToScrollCoachMark)
             }
-            val appBarFullyExpanded = viewBinding.appBarLayout.height - viewBinding.appBarLayout.bottom == 0
+            val appBarFullyExpanded =
+                viewBinding.appBarLayout.height - viewBinding.appBarLayout.bottom == 0
             if (appBarFullyExpanded) {
                 coachMarks.add(articleSectionCoachMark)
             }
@@ -370,7 +388,8 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
             val isMultiColumnMode = tazApiCssDataStore.multiColumnMode.get()
             if (!isMultiColumnMode) {
                 val percentToMorph =
-                    -currentAppBarOffset.toFloat() / (viewBinding?.appBarLayout?.height?.toFloat() ?: 1f)
+                    -currentAppBarOffset.toFloat() / (viewBinding?.appBarLayout?.height?.toFloat()
+                        ?: 1f)
 
                 drawerAndLogoViewModel.morphLogoByPercent(percentToMorph)
             }
@@ -394,6 +413,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
                 TAP_ICON_FADE_OUT_TIME
         }
     }
+
     private suspend fun toggleHelpFab(show: Boolean) {
         if (issueContentViewModel.fabHelpEnabledFlow.first()) {
             val fab = viewBinding?.articlePagerFabHelp
@@ -661,24 +681,25 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
         }
     }
 
-    private fun toggleBookmark(article: ArticleOperations) = viewBinding?.webviewPagerViewpager?.let {
-        lifecycleScope.launch {
-            val isBookmarked = bookmarkRepository.toggleBookmarkAsync(article).await()
-            if (isBookmarked) {
-                SnackBarHelper.showBookmarkSnack(
-                    context = requireContext(),
-                    view = it.rootView,
-                    anchor = getBottomNavigationLayout(),
-                )
-            } else {
-                SnackBarHelper.showDebookmarkSnack(
-                    context = requireContext(),
-                    view = it.rootView,
-                    anchor = getBottomNavigationLayout(),
-                )
+    private fun toggleBookmark(article: ArticleOperations) =
+        viewBinding?.webviewPagerViewpager?.let {
+            lifecycleScope.launch {
+                val isBookmarked = bookmarkRepository.toggleBookmarkAsync(article).await()
+                if (isBookmarked) {
+                    SnackBarHelper.showBookmarkSnack(
+                        context = requireContext(),
+                        view = it.rootView,
+                        anchor = getBottomNavigationLayout(),
+                    )
+                } else {
+                    SnackBarHelper.showDebookmarkSnack(
+                        context = requireContext(),
+                        view = it.rootView,
+                        anchor = getBottomNavigationLayout(),
+                    )
+                }
             }
         }
-    }
 
     private fun share() {
         when (val currentItem = getCurrentArticlePagerItem()) {
