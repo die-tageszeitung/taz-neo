@@ -56,6 +56,9 @@ class TazApiJS(private val webViewFragment: WebViewFragment<*, out WebViewViewMo
 
     @JavascriptInterface
     fun pageReady(percentage: Int, position: Int) {
+        webViewFragment.lifecycleScope.launch {
+            webViewFragment.webView?.evaluateJavascript("window.onresize = {};", null)
+        }
         log.debug("pageReady $percentage $position")
         /* This function is currently not used by the android app, as it does not scroll within the WebView
            Instead [ViewerStateRepository] is used to store the apps scroll position.

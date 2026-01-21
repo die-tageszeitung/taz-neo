@@ -37,6 +37,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
 
     val bookmarksSynchronization = generalDataStore.bookmarksSynchronizationEnabled.asFlow()
     val showAnimatedMomentsFlow = generalDataStore.showAnimatedMoments.asFlow()
+    val hideAppbarOnScroll = generalDataStore.hideAppbarOnScroll.asFlow()
     val animateDrawerLogoFlow = generalDataStore.animateDrawerLogo.asFlow()
     val showContinueReadFlow = generalDataStore.settingsContinueRead.asFlow()
     val showContinueReadAskEachTimeFlow = generalDataStore.settingsContinueReadAskEachTime.asFlow()
@@ -196,6 +197,12 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     fun setShowAnimatedMoments(value: Boolean) {
         viewModelScope.launch {
             generalDataStore.showAnimatedMoments.set(value)
+        }
+    }
+
+    fun setHideAppbarOnScroll(value: Boolean) {
+        viewModelScope.launch {
+            generalDataStore.hideAppbarOnScroll.set(value)
         }
     }
 
