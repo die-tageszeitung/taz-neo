@@ -142,7 +142,7 @@ abstract class WebViewFragment<
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        lifecycleScope.launch {
+        lifecycleScope.launch(Dispatchers.Default) {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 viewModel.displayableFlow
                     .filterNotNull()
@@ -156,11 +156,9 @@ abstract class WebViewFragment<
                         ensureDownloadedAndShow()
                     }.launchIn(lifecycleScope)
 
-                launch {
-                    generalDataStore.hideAppbarOnScroll.asFlow().collect {
-                        webView?.setCoordinatorBottomMatchingBehaviourEnabled(it)
-                    }
-                }
+                generalDataStore.hideAppbarOnScroll.asFlow().onEach {
+                    webView?.setCoordinatorBottomMatchingBehaviourEnabled(it)
+                }.launchIn(lifecycleScope)
 
                 viewModel.nightModeFlow
                     // drop first event because that's already the current state

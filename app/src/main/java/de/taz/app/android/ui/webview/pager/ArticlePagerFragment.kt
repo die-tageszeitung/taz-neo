@@ -24,10 +24,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.appbar.AppBarLayout
-import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS
-import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
-import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_SNAP
-import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.android.material.behavior.HideViewOnScrollBehavior
 import com.google.android.material.behavior.HideViewOnScrollBehavior.EDGE_BOTTOM
 import de.taz.app.android.ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
@@ -219,13 +215,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
                     launch {
                         generalDataStore.hideAppbarOnScroll.asFlow()
                             .collect {
-                                (collapsingToolbarLayout.layoutParams as? AppBarLayout.LayoutParams)?.apply {
-                                    scrollFlags = if (it) {
-                                        SCROLL_FLAG_SCROLL or SCROLL_FLAG_ENTER_ALWAYS or SCROLL_FLAG_SNAP
-                                    } else {
-                                        0
-                                    }
-                                }
+                                collapsingToolbarLayout.pinToolbar(!it)
                             }
                     }
 

@@ -33,15 +33,13 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewModelScope
 import com.google.android.material.appbar.AppBarLayout
-import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS
-import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
-import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_SNAP
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.SectionOperations
 import de.taz.app.android.api.models.SectionType
 import de.taz.app.android.audioPlayer.AudioPlayerService
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentWebviewSectionBinding
+import de.taz.app.android.monkey.pinToolbar
 import de.taz.app.android.persistence.repository.BookmarkRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.SectionRepository
@@ -164,13 +162,7 @@ class SectionWebViewFragment : WebViewFragment<
                 launch {
                     generalDataStore.hideAppbarOnScroll.asFlow()
                         .collect {
-                            (viewBinding?.collapsingToolbarLayout?.layoutParams as? AppBarLayout.LayoutParams)?.apply {
-                                scrollFlags = if (it) {
-                                    SCROLL_FLAG_SCROLL or SCROLL_FLAG_ENTER_ALWAYS or SCROLL_FLAG_SNAP
-                                } else {
-                                    0
-                                }
-                            }
+                            viewBinding?.collapsingToolbarLayout?.pinToolbar(!it)
                         }
                 }
 
