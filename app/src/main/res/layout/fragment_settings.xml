@@ -498,13 +498,6 @@
                 android:layout_height="wrap_content"
                 android:text="@string/settings_hide_appbar_on_scroll" />
 
-            <com.google.android.material.materialswitch.MaterialSwitch
-                android:id="@+id/fragment_settings_hide_appbar_on_scroll"
-                style="@style/Widget.App.Settings.Entry.Switch"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/settings_hide_appbar_on_scroll" />
-
             <include layout="@layout/settings_separator_view" />
 
             <com.google.android.material.materialswitch.MaterialSwitch

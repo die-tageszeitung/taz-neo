@@ -166,7 +166,7 @@ class GeneralDataStore private constructor(applicationContext: Context) {
     )
 
     val hideAppbarOnScroll: DataStoreEntry<Boolean> = SimpleDataStoreEntry(
-        dataStore, booleanPreferencesKey(SETTINGS_HIDE_APPBAR_ON_SCROLL), true
+        dataStore, booleanPreferencesKey(SETTINGS_HIDE_APPBAR_ON_SCROLL), moreThan4GbRam()
     )
 
     val animateDrawerLogo: DataStoreEntry<Boolean> = SimpleDataStoreEntry(
