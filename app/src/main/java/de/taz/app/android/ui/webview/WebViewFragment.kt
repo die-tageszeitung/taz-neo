@@ -156,6 +156,10 @@ abstract class WebViewFragment<
                         ensureDownloadedAndShow()
                     }.launchIn(lifecycleScope)
 
+                generalDataStore.hideAppbarOnScroll.asFlow().onEach {
+                    webView?.setCoordinatorBottomMatchingBehaviourEnabled(it)
+                }.launchIn(lifecycleScope)
+
                 viewModel.nightModeFlow
                     // drop first event because that's already the current state
                     // only react to changes
