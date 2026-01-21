@@ -47,6 +47,7 @@ private const val SETTINGS_BOOKMARKS_SYNCHRONIZATION_CHANGED =
     "settings_bookmark_synchronization_changed"
 private const val SETTINGS_ANIMATE_DRAWER_LOGO = "settings_animate_drawer_logo"
 private const val SETTINGS_SHOW_ANIMATED_MOMENTS = "settings_show_animated_moments"
+private const val SETTINGS_HIDE_APPBAR_ON_SCROLL = "settings_hide_appbar_on_scroll"
 private const val SETTINGS_CONTINUE_READ = "settings_continue_read"
 private const val SETTINGS_CONTINUE_READ_ASK_EACH_TIME = "settings_continue_read_ask_each_time"
 private const val SETTINGS_CONTINUE_READ_DIALOG_SHOWN = "settings_continue_read_dialog_shown"
@@ -162,6 +163,10 @@ class GeneralDataStore private constructor(applicationContext: Context) {
 
     val showAnimatedMoments: DataStoreEntry<Boolean> = SimpleDataStoreEntry(
         dataStore, booleanPreferencesKey(SETTINGS_SHOW_ANIMATED_MOMENTS), true
+    )
+
+    val hideAppbarOnScroll: DataStoreEntry<Boolean> = SimpleDataStoreEntry(
+        dataStore, booleanPreferencesKey(SETTINGS_HIDE_APPBAR_ON_SCROLL), true
     )
 
     val animateDrawerLogo: DataStoreEntry<Boolean> = SimpleDataStoreEntry(

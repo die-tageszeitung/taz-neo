@@ -218,6 +218,10 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                 setShowAnimatedMoments(isChecked)
             }
 
+            fragmentSettingsHideAppbarOnScroll.setOnCheckedChangeListener { _, isChecked ->
+                setHideAppbarOnScroll(isChecked)
+            }
+
             fragmentSettingsAnimateDrawerLogo.setOnCheckedChangeListener { _, isChecked ->
                 setAnimateDrawerLogo(isChecked)
             }
@@ -386,6 +390,11 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                     showAnimatedMomentsFlow
                         .onEach { screenOn ->
                             showAnimatedMomentsSetting(screenOn)
+                        }.launchIn(lifecycleScope)
+
+                    hideAppbarOnScroll
+                        .onEach { screenOn ->
+                            showHideAppbarOnScrollSetting(screenOn)
                         }.launchIn(lifecycleScope)
 
                     animateDrawerLogoFlow.onEach {
@@ -752,6 +761,10 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         viewBinding?.fragmentSettingsShowAnimatedMoments?.isChecked = enabled
     }
 
+    private fun showHideAppbarOnScrollSetting(enabled: Boolean) {
+        viewBinding?.fragmentSettingsHideAppbarOnScroll?.isChecked = enabled
+    }
+
     private fun animatedDrawerLogoSetting(enabled: Boolean) {
         viewBinding?.fragmentSettingsAnimateDrawerLogo?.isChecked = enabled
     }
@@ -873,6 +886,10 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
 
     private fun setShowAnimatedMoments(enabled: Boolean) {
         viewModel.setShowAnimatedMoments(enabled)
+    }
+
+    private fun setHideAppbarOnScroll(enabled: Boolean) {
+        viewModel.setHideAppbarOnScroll(enabled)
     }
 
     private fun setAnimateDrawerLogo(enabled: Boolean) {

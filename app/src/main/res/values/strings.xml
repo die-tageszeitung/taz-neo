@@ -192,6 +192,7 @@
     <string name="settings_text_keep_screen_on">Bildschirm beim Lesen von Artikeln aktiv lassen</string>
     <string name="settings_show_animated_moments">Animierte Titelseiten anzeigen</string>
     <string name="settings_animate_drawer_logo">Logo beim Scrollen animieren</string>
+    <string name="settings_hide_appbar_on_scroll">Header beim Scrollen ausblenden</string>
     <string name="settings_continue_read">Beim Öffnen einer Ausgabe automatisch weiterlesen</string>
     <string name="settings_continue_read_ask_each_time">Beim Öffnen einer Ausgabe Weiterlesenhinweis anzeigen</string>
     <string name="settings_account_manage_account">Anmelden</string>

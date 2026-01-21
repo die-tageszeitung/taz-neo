@@ -28,11 +28,14 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.asFlow
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewModelScope
 import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS
+import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
+import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_SNAP
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.SectionOperations
 import de.taz.app.android.api.models.SectionType
@@ -154,6 +157,24 @@ class SectionWebViewFragment : WebViewFragment<
         lifecycleScope.launch {
             sectionOperation = sectionOperation ?: sectionRepository.getStub(sectionFileName)
             viewModel.displayable = sectionOperation
+        }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    generalDataStore.hideAppbarOnScroll.asFlow()
+                        .collect {
+                            (viewBinding?.collapsingToolbarLayout?.layoutParams as? AppBarLayout.LayoutParams)?.apply {
+                                scrollFlags = if (it) {
+                                    SCROLL_FLAG_SCROLL or SCROLL_FLAG_ENTER_ALWAYS or SCROLL_FLAG_SNAP
+                                } else {
+                                    0
+                                }
+                            }
+                        }
+                }
+
+            }
         }
     }
 
@@ -540,6 +561,7 @@ class SectionWebViewFragment : WebViewFragment<
                     audioPlayerService.playPodcast(issueStub, section, podcast)
                     return true
                 }
+
                 // We have to "consume" (return true) the onSingleTapUp event too, so that the
                 // Android event system is sending the subsequent UP event to this component.
                 override fun onSingleTapUp(e: MotionEvent) = true
