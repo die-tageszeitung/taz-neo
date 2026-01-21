@@ -30,6 +30,7 @@ import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
+import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.download.DownloadPriority
 import de.taz.app.android.monkey.getVisibleHeight
@@ -96,6 +97,7 @@ abstract class WebViewFragment<
     private lateinit var tazApiCssDataStore: TazApiCssDataStore
     private lateinit var tracker: Tracker
     private lateinit var viewerStateRepository: ViewerStateRepository
+    private lateinit var generalDataStore: GeneralDataStore
 
     protected var isRendered = false
 
@@ -134,6 +136,7 @@ abstract class WebViewFragment<
         tazApiCssDataStore = TazApiCssDataStore.getInstance(context.applicationContext)
         viewerStateRepository =
             ViewerStateRepository.getInstance(context.applicationContext)
+        generalDataStore = GeneralDataStore.getInstance(context.applicationContext)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -152,6 +155,12 @@ abstract class WebViewFragment<
                             displayable.getIssueStub(requireContext().applicationContext)?.issueKey
                         ensureDownloadedAndShow()
                     }.launchIn(lifecycleScope)
+
+                launch {
+                    generalDataStore.hideAppbarOnScroll.asFlow().collect {
+                        webView?.setCoordinatorBottomMatchingBehaviourEnabled(it)
+                    }
+                }
 
                 viewModel.nightModeFlow
                     // drop first event because that's already the current state
