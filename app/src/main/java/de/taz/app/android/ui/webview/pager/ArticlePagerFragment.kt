@@ -81,6 +81,7 @@ import de.taz.app.android.ui.webview.TapIconsViewModel
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.getBottomNavigationBehavior
 import de.taz.app.android.util.runIfNotNull
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
@@ -340,7 +341,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
             articleImagePagerCoachMark,
         )
 
-        lifecycleScope.launch {
+        lifecycleScope.launch(Dispatchers.Default) {
             if (tazApiCssDataStore.multiColumnMode.get()) {
                 coachMarks.add(0, articleTapToScrollCoachMark)
             }
