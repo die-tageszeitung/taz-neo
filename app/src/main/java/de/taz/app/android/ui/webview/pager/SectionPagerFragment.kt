@@ -19,8 +19,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_DRAGGING
 import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_IDLE
-import com.google.android.material.behavior.HideViewOnScrollBehavior
-import com.google.android.material.behavior.HideViewOnScrollBehavior.EDGE_BOTTOM
+import com.google.android.material.behavior.HideBottomViewOnScrollBehavior
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.SectionStub
@@ -44,7 +43,6 @@ import de.taz.app.android.ui.webview.HelpFabViewModel
 import de.taz.app.android.ui.webview.SectionImprintWebViewFragment
 import de.taz.app.android.ui.webview.SectionWebViewFragment
 import de.taz.app.android.util.Log
-import de.taz.app.android.util.getBottomNavigationBehavior
 import de.taz.app.android.util.runIfNotNull
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
@@ -142,8 +140,6 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
                 log.verbose("show coach marks in section pager")
                 showCoachMarks()
             }
-
-            floatingActionButton.getBottomNavigationBehavior()?.setViewEdge(EDGE_BOTTOM)
 
             issueContentViewModel.fabHelpEnabledFlow
                 .flowWithLifecycle(lifecycle)
@@ -338,11 +334,11 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
             val layoutParams = fab?.layoutParams
             if (layoutParams is CoordinatorLayout.LayoutParams) {
                 val behavior = layoutParams.behavior
-                if (behavior is HideViewOnScrollBehavior) {
+                if (behavior is HideBottomViewOnScrollBehavior) {
                     if (show) {
-                        behavior.slideIn(fab)
+                        behavior.slideUp(fab)
                     } else {
-                        behavior.slideOut(fab)
+                        behavior.slideDown(fab)
                     }
                 }
             }

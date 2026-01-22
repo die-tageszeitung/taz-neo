@@ -19,7 +19,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
-import com.google.android.material.behavior.HideViewOnScrollBehavior.EDGE_BOTTOM
 import de.taz.app.android.R
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.models.Article
@@ -61,7 +60,6 @@ import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.webview.pager.BookmarkPagerViewModel
 import de.taz.app.android.util.Log
-import de.taz.app.android.util.getBottomNavigationBehavior
 import de.taz.app.android.util.showIssueDownloadFailedDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -476,8 +474,6 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
                 log.verbose("show coach marks in section drawer")
                 showCoachMarks()
             }
-
-            fabHelp.getBottomNavigationBehavior()?.setViewEdge(EDGE_BOTTOM)
 
             issueContentViewModel.fabHelpEnabledFlow
                 .flowWithLifecycle(lifecycle)
