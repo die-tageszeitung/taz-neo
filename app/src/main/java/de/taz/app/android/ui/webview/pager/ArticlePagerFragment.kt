@@ -24,8 +24,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.appbar.AppBarLayout
-import com.google.android.material.behavior.HideViewOnScrollBehavior
-import com.google.android.material.behavior.HideViewOnScrollBehavior.EDGE_BOTTOM
+import com.google.android.material.behavior.HideBottomViewOnScrollBehavior
 import de.taz.app.android.ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
@@ -79,7 +78,6 @@ import de.taz.app.android.ui.webview.ArticleWebViewFragment.CollapsibleLayoutPro
 import de.taz.app.android.ui.webview.HelpFabViewModel
 import de.taz.app.android.ui.webview.TapIconsViewModel
 import de.taz.app.android.util.Log
-import de.taz.app.android.util.getBottomNavigationBehavior
 import de.taz.app.android.util.runIfNotNull
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.combine
@@ -411,11 +409,11 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
             val layoutParams = fab?.layoutParams
             if (layoutParams is CoordinatorLayout.LayoutParams) {
                 val behavior = layoutParams.behavior
-                if (behavior is HideViewOnScrollBehavior) {
+                if (behavior is HideBottomViewOnScrollBehavior) {
                     if (show) {
-                        behavior.slideIn(fab)
+                        behavior.slideUp(fab)
                     } else {
-                        behavior.slideOut(fab)
+                        behavior.slideDown(fab)
                     }
                 }
             }
@@ -458,8 +456,6 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
                 log.verbose("show coach marks in article pager")
                 showCoachMarks()
             }
-
-            floatingActionButton.getBottomNavigationBehavior()?.setViewEdge(EDGE_BOTTOM)
 
             issueContentViewModel.fabHelpEnabledFlow
                 .flowWithLifecycle(lifecycle)

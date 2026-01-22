@@ -2,7 +2,7 @@ package de.taz.app.android.util
 
 import android.view.View
 import androidx.coordinatorlayout.widget.CoordinatorLayout
-import com.google.android.material.behavior.HideViewOnScrollBehavior
+import com.google.android.material.behavior.HideBottomViewOnScrollBehavior
 
 private const val ANIMATION_DURATION_MS = 150L
 
@@ -11,7 +11,7 @@ private const val ANIMATION_DURATION_MS = 150L
 private const val SCROLL_UP_THRESHOLD = 0.01f
 private const val SCROLL_DOWN_THRESHOLD = 0.5f
 
-fun View.setBottomNavigationBehavior(behavior: HideViewOnScrollBehavior<View>?) {
+fun View.setBottomNavigationBehavior(behavior: HideBottomViewOnScrollBehavior<View>?) {
     val coordinatorLayoutParams = layoutParams as? CoordinatorLayout.LayoutParams
     if (coordinatorLayoutParams != null) {
         coordinatorLayoutParams.behavior = behavior
@@ -19,7 +19,7 @@ fun View.setBottomNavigationBehavior(behavior: HideViewOnScrollBehavior<View>?) 
     }
 }
 
-fun View.getBottomNavigationBehavior(): HideViewOnScrollBehavior<View>? {
+fun View.getBottomNavigationBehavior(): HideBottomViewOnScrollBehavior<View>? {
     val coordinatorLayoutParams = layoutParams as? CoordinatorLayout.LayoutParams
-    return coordinatorLayoutParams?.behavior as? HideViewOnScrollBehavior
+    return coordinatorLayoutParams?.behavior as? HideBottomViewOnScrollBehavior
 }

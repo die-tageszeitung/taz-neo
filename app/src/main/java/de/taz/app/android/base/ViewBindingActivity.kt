@@ -14,9 +14,6 @@ abstract class ViewBindingActivity<ViewBindingClass : ViewBinding> : AppCompatAc
     lateinit var viewBinding: ViewBindingClass
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        // enable edge to edge for pre Android 15
-        enableEdgeToEdge()
-
         super.onCreate(savedInstanceState)
         disableActivityAnimations()
 
