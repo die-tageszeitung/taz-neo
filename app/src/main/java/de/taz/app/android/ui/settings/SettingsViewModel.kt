@@ -36,6 +36,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     val textJustificationFlow = tazApiCssDataStore.textJustification.asFlow()
 
     val bookmarksSynchronization = generalDataStore.bookmarksSynchronizationEnabled.asFlow()
+    val openArticlePdfFlow = generalDataStore.openArticlePdfView.asFlow()
     val showAnimatedMomentsFlow = generalDataStore.showAnimatedMoments.asFlow()
     val hideAppbarOnScroll = generalDataStore.hideAppbarOnScroll.asFlow()
     val animateDrawerLogoFlow = generalDataStore.animateDrawerLogo.asFlow()
@@ -199,6 +200,13 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
             generalDataStore.showAnimatedMoments.set(value)
         }
     }
+
+    fun setOpenArticlePdf(value: Boolean) {
+        viewModelScope.launch {
+            generalDataStore.openArticlePdfView.set(value)
+        }
+    }
+
 
     fun setHideAppbarOnScroll(value: Boolean) {
         viewModelScope.launch {

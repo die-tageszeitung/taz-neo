@@ -56,6 +56,7 @@ private const val SETTINGS_CONTINUE_READ_DISMISSED = "settings_continue_read_dis
 private const val SETTINGS_HOME_FRAGMENT_STATUS = "settings_home_fragment_status"
 private const val SETTINGS_HELP_FAB_ENABLED = "settings_help_fab_enabled"
 private const val SETTINGS_PDF_DRAWER_LIST = "settings_pdf_drawer_list"
+private const val SETTINGS_ARTICLE_PDF= "settings_article_pdf"
 
 // Deprecated/Removed setting keys
 private const val ENABLE_EXPERIMENTAL_ARTICLE_READER = "ENABLE_EXPERIMENTAL_ARTICLE_READER"
@@ -213,6 +214,10 @@ class GeneralDataStore private constructor(applicationContext: Context) {
 
     val useListDrawer = SimpleDataStoreEntry(
         dataStore, booleanPreferencesKey(SETTINGS_PDF_DRAWER_LIST), false
+    )
+
+    val openArticlePdfView = SimpleDataStoreEntry(
+        dataStore, booleanPreferencesKey(SETTINGS_ARTICLE_PDF), true
     )
 
     init {
