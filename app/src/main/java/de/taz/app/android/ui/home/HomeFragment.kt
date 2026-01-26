@@ -93,7 +93,11 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
 
         CoroutineScope( Dispatchers.IO).launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                feedService.refreshFeed()
+                try {
+                    feedService.refreshFeed()
+                } catch (_: ConnectivityException.NoInternetException) {
+                    // no internet ignore
+                }
             }
         }
     }
