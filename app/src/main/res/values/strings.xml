@@ -142,7 +142,7 @@
     <string name="fragment_bottom_sheet_home_presentation_display_mode_carousel">Karussellansicht</string>
     <string name="fragment_bottom_sheet_home_presentation_display_mode_carousel_announce_accessibility">Karussellansicht ist gewählt</string>
     <string name="fragment_bottom_sheet_home_presentation_display_mode_archive">Kachelansicht</string>
-    <string name="fragment_bottom_sheet_home_presentation_display_mode_archive_announce_accessibility">Kachelansicht ist geqählt</string>
+    <string name="fragment_bottom_sheet_home_presentation_display_mode_archive_announce_accessibility">Kachelansicht ist gewählt</string>
 
     <string name="fragment_tracking_and_notifications_title">"%1$d/%2$d  Datenschutz &amp; Mitteilungen"</string>
     <string name="fragment_tracking_consent_title_01">Eine noch bessere taz App? Sie haben es in der Hand</string>
