@@ -170,9 +170,6 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
     private fun showFragmentForState(state: State) {
         val oldFragment = childFragmentManager.findFragmentByTag(state.name)
 
-        if (childFragmentManager.fragments.find { it.tag == state.name } != null)
-            return
-
         val transaction = childFragmentManager.beginTransaction()
 
         childFragmentManager.fragments.forEach {
