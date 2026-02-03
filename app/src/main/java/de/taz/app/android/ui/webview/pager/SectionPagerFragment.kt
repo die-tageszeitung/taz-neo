@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -317,7 +318,9 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
     }
 
     private fun showCoachMarks() {
-        val tazLogoCoachMark = viewBinding?.sectionPagerDrawerLogoGhost?.let { TazLogoCoachMark.create(it) } ?: return
+        val tazLogoCoachMark = requireActivity()
+            .findViewById<ImageView>(R.id.drawer_logo)
+            ?.let { TazLogoCoachMark.create(it) } ?: return
         val sectionBookmarkCoachMark = SectionBookmarkCoachMark()
         val sectionPlaylistCoachMark = SectionPlaylistCoachMark()
         val coachMarks = listOf(
