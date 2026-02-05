@@ -12,6 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingHorizontal="@dimen/bottom_sheet_padding_horizontal"
+        android:paddingTop="@dimen/bottom_sheet_forms_margin_top"
         android:paddingBottom="@dimen/bottom_sheet_padding_bottom">
 
         <TextView
@@ -34,7 +35,6 @@
             android:background="@null"
             android:contentDescription="@string/button_close_text"
             android:src="@drawable/ic_close"
-            app:layout_constraintBottom_toBottomOf="@id/pagerTitle"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@id/pagerTitle" />
 

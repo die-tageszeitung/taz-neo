@@ -9,8 +9,8 @@ import com.google.firebase.messaging.RemoteMessage
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.data.DownloadScheduler
-import de.taz.app.android.dataStore.DownloadDataStore
 import de.taz.app.android.dataStore.GeneralDataStore
+import de.taz.app.android.download.ISSUE_DOWNLOAD_WORKER_FIREBASE_TAG
 import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.IssueKey
@@ -29,7 +29,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.random.Random
-
 
 private const val REMOTE_MESSAGE_PERFORM_KEY = "perform"
 private const val REMOTE_MESSAGE_PERFORM_VALUE_SUBSCRIPTION_POLL = "subscriptionPoll"
@@ -101,10 +100,7 @@ class FirebaseMessagingService : FirebaseMessagingService() {
                     when (remoteMessage.data[REMOTE_MESSAGE_REFRESH_KEY]) {
                         REMOTE_MESSAGE_REFRESH_VALUE_ABO_POLL -> {
                             log.info("notification triggered $REMOTE_MESSAGE_REFRESH_VALUE_ABO_POLL")
-                            downloadNewestIssue(
-                                remoteMessage.sentTime,
-                                delay = Random.nextLong(0, DOWNLOAD_DELAY_MAX_MS)
-                            )
+                            downloadNewestIssue()
                         }
                     }
                 }
@@ -165,11 +161,9 @@ class FirebaseMessagingService : FirebaseMessagingService() {
         }
     }
 
-    private fun downloadNewestIssue(sentTime: Long, delay: Long = 0) {
+    private fun downloadNewestIssue(delay: Long = Random.nextLong(0, DOWNLOAD_DELAY_MAX_MS)) {
         CoroutineScope(Dispatchers.Default).launch {
-            if (DownloadDataStore.getInstance(applicationContext).enabled.get()) {
-                downloadScheduler.scheduleNewestIssueDownload(sentTime.toString(), delay = delay)
-            }
+            downloadScheduler.scheduleNewestIssueDownload(ISSUE_DOWNLOAD_WORKER_FIREBASE_TAG, delay = delay)
         }
     }
 

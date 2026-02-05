@@ -18,9 +18,9 @@ import androidx.core.view.marginBottom
 import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.distinctUntilChanged
-import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewbinding.ViewBinding
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.appbar.AppBarLayout
@@ -30,8 +30,10 @@ import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
+import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.download.DownloadPriority
+import de.taz.app.android.monkey.getVisibleHeight
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.ViewerStateRepository
@@ -50,6 +52,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -92,12 +97,14 @@ abstract class WebViewFragment<
     private lateinit var tazApiCssDataStore: TazApiCssDataStore
     private lateinit var tracker: Tracker
     private lateinit var viewerStateRepository: ViewerStateRepository
+    private lateinit var generalDataStore: GeneralDataStore
 
     protected var isRendered = false
 
     private var saveScrollPositionJob: Job? = null
 
     private var currentIssueKey: IssueKey? = null
+    private var currentDisplayableKey: String? = null
 
     var tapLock = false
 
@@ -106,9 +113,8 @@ abstract class WebViewFragment<
 
     abstract suspend fun reloadAfterCssChange()
 
-    abstract val webView: AppWebView
-    // TODO: Make loadingScreen a nullable View?, as it might get destroyed and throw a npe.
-    abstract val loadingScreen: View
+    abstract val webView: AppWebView?
+    abstract val loadingScreen: View?
 
     private var webViewInnerWidth: Int? = null
     private var paddingAdded = false
@@ -130,59 +136,66 @@ abstract class WebViewFragment<
         tazApiCssDataStore = TazApiCssDataStore.getInstance(context.applicationContext)
         viewerStateRepository =
             ViewerStateRepository.getInstance(context.applicationContext)
+        generalDataStore = GeneralDataStore.getInstance(context.applicationContext)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        viewModel.displayableLiveData.distinctUntilChanged().observe(this) { displayable ->
-            if (displayable != null) {
-                setHeader(displayable)
+        lifecycleScope.launch(Dispatchers.Default) {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                viewModel.displayableFlow
+                    .filterNotNull()
+                    .filter { it.key != currentDisplayableKey }
+                    .onEach { displayable ->
+                        currentDisplayableKey = displayable.key
+                        log.debug("Received a new displayable ${displayable.key}")
+                        setHeader(displayable)
+                        currentIssueKey =
+                            displayable.getIssueStub(requireContext().applicationContext)?.issueKey
+                        ensureDownloadedAndShow()
+                    }.launchIn(lifecycleScope)
+
+                generalDataStore.hideAppbarOnScroll.asFlow().onEach {
+                    webView?.setCoordinatorBottomMatchingBehaviourEnabled(it)
+                }.launchIn(lifecycleScope)
+
+                viewModel.nightModeFlow
+                    // drop first event because that's already the current state
+                    // only react to changes
+                    .drop(1)
+                    .onEach {
+                        reloadAfterCssChange()
+                    }.launchIn(lifecycleScope)
+
+                viewModel.tapToScrollFlow
+                    .onEach {
+                        tapToScroll = it
+                    }.launchIn(lifecycleScope)
+
+                viewModel.fontSizeFlow
+                    .drop(1)
+                    .onEach {
+                        reloadAfterCssChange()
+                    }.launchIn(lifecycleScope)
+
+                viewModel.multiColumnModeFlow
+                    .onEach {
+                        multiColumnMode = it
+                        setupScrollPositionListener(it)
+                    }.launchIn(lifecycleScope)
             }
         }
-        viewModel.nightModeFlow
-            .flowWithLifecycle(lifecycle)
-            .onEach {
-                reloadAfterCssChange()
-            }.launchIn(lifecycleScope)
-
-        viewModel.tapToScrollFlow
-            .flowWithLifecycle(lifecycle)
-            .onEach {
-                tapToScroll = it
-            }.launchIn(lifecycleScope)
-
-        viewModel.fontSizeFlow
-            .flowWithLifecycle(lifecycle)
-            .onEach {
-                reloadAfterCssChange()
-            }.launchIn(lifecycleScope)
-
-        viewModel.multiColumnModeFlow
-            .flowWithLifecycle(lifecycle)
-            .onEach {
-                multiColumnMode = it
-                setupScrollPositionListener(it)
-            }.launchIn(lifecycleScope)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.displayableLiveData.distinctUntilChanged().observe(viewLifecycleOwner) {
-            if (it != null) {
-                log.debug("Received a new displayable ${it.key}")
-                lifecycleScope.launch {
-                    currentIssueKey = it.getIssueStub(requireContext().applicationContext)?.issueKey
-                    configureWebView()
-                    ensureDownloadedAndShow()
-                }
-            }
-        }
-
         if (savedInstanceState != null) {
             appBarLayout?.setExpanded(true, false)
         }
+
+        configureWebView()
     }
 
     override fun onMultiColumnLayoutReady(contentWidth: Int?) {
@@ -197,9 +210,9 @@ abstract class WebViewFragment<
     }
 
     @SuppressLint("SetJavaScriptEnabled", "AddJavascriptInterface")
-    private suspend fun configureWebView() = withContext(Dispatchers.Main) {
+    private fun configureWebView() {
 
-        webView.apply {
+        webView?.apply {
             webViewClient = AppWebViewClient(
                 requireContext().applicationContext,
                 this@WebViewFragment
@@ -246,7 +259,7 @@ abstract class WebViewFragment<
 
     private fun setupScrollPositionListener(isMultiColumnMode: Boolean) {
         if (isMultiColumnMode) {
-            webView.scrollListener = object : AppWebView.WebViewScrollListener {
+            webView?.scrollListener = object : AppWebView.WebViewScrollListener {
                 override fun onScroll(
                     scrollX: Int,
                     scrollY: Int,
@@ -258,7 +271,7 @@ abstract class WebViewFragment<
                 }
             }
         } else {
-            webView.scrollListener = object : AppWebView.WebViewScrollListener {
+            webView?.scrollListener = object : AppWebView.WebViewScrollListener {
                 override fun onScroll(
                     scrollX: Int,
                     scrollY: Int,
@@ -269,7 +282,8 @@ abstract class WebViewFragment<
 
                     if (oldScrollY < scrollY) {
                         try {
-                            val isScrolledToBottom = webView.bottom <= (webView.height + scrollY)
+                            val isScrolledToBottom =
+                                (webView?.bottom ?: 0) <= (webView?.height ?: (0 + scrollY))
                             if (isScrolledToBottom) {
                                 onScrolledToBottom()
                             }
@@ -281,7 +295,7 @@ abstract class WebViewFragment<
                 }
             }
 
-            webView.overScrollListener = object : AppWebView.WebViewOverScrollListener {
+            webView?.overScrollListener = object : AppWebView.WebViewOverScrollListener {
                 override fun onOverScroll(
                     scrollX: Int,
                     scrollY: Int,
@@ -333,51 +347,54 @@ abstract class WebViewFragment<
             isUserInputEnabled = false
             requestDisallowInterceptTouchEvent(true)
         }
-        webView.touchDisabled = true
+        webView?.apply {
+            touchDisabled = true
 
-        if (webView.canScrollHorizontally(direction)) {
-            val webViewWidth = webView.width
-            val gap = (DEFAULT_COLUMN_GAP_PX * resources.displayMetrics.density).toInt()
-            val scrollXWithBuffer = webView.scrollX + gap
-            val scrollBy = webViewWidth - gap
+            if (canScrollHorizontally(direction)) {
+                val webViewWidth = width
+                val gap = (DEFAULT_COLUMN_GAP_PX * resources.displayMetrics.density).toInt()
+                val scrollXWithBuffer = scrollX + gap
+                val scrollBy = webViewWidth - gap
 
-            val targetScrollX = if (direction == SCROLL_FORWARD)
-                (scrollXWithBuffer / scrollBy + 1) * scrollBy
-            else
-                max(0, (scrollXWithBuffer / scrollBy - 1) * scrollBy)
+                val targetScrollX = if (direction == SCROLL_FORWARD)
+                    (scrollXWithBuffer / scrollBy + 1) * scrollBy
+                else
+                    max(0, (scrollXWithBuffer / scrollBy - 1) * scrollBy)
 
-            // Check if scrolling would overscroll - if so add padding
-            if (webViewInnerWidth != null && direction == SCROLL_FORWARD) {
-                val articleWidth = webViewInnerWidth!!
+                // Check if scrolling would overscroll - if so add padding
+                if (webViewInnerWidth != null && direction == SCROLL_FORWARD) {
+                    val articleWidth = webViewInnerWidth!!
 
-                val targetWidth = targetScrollX + webViewWidth
-                val isOverscroll = targetWidth > articleWidth
-                if (!paddingAdded && isOverscroll) {
-                    val overScroll = targetWidth - articleWidth
-                    val paddingToAdd = floor(overScroll / resources.displayMetrics.density).toInt()
-                    webView.callTazApi(
-                        "setPaddingRight",
-                        paddingToAdd
-                    )
-                    paddingAdded = true
+                    val targetWidth = targetScrollX + webViewWidth
+                    val isOverscroll = targetWidth > articleWidth
+                    if (!paddingAdded && isOverscroll) {
+                        val overScroll = targetWidth - articleWidth
+                        val paddingToAdd =
+                            floor(overScroll / resources.displayMetrics.density).toInt()
+                        callTazApi(
+                            "setPaddingRight",
+                            paddingToAdd
+                        )
+                        paddingAdded = true
+                    }
                 }
+                val scrollAnimation = ObjectAnimator.ofInt(
+                    this,
+                    "scrollX",
+                    scrollX,
+                    targetScrollX
+                )
+                scrollAnimation.start()
+            } else {
+                scrollToNextItem(direction)
             }
-            val scrollAnimation = ObjectAnimator.ofInt(
-                webView,
-                "scrollX",
-                webView.scrollX,
-                targetScrollX
-            )
-            scrollAnimation.start()
-        } else {
-            scrollToNextItem(direction)
-        }
-        lifecycleScope.launch {
-            delay(TAP_LOCK_DELAY_MS)
-            webView.touchDisabled = false
-            findParentViewPager()?.apply {
-                isUserInputEnabled = true
-                requestDisallowInterceptTouchEvent(false)
+            lifecycleScope.launch {
+                delay(TAP_LOCK_DELAY_MS)
+                touchDisabled = false
+                findParentViewPager()?.apply {
+                    isUserInputEnabled = true
+                    requestDisallowInterceptTouchEvent(false)
+                }
             }
         }
     }
@@ -394,8 +411,8 @@ abstract class WebViewFragment<
     private fun findParentViewPager(): ViewPager2? {
         if (viewPagerCache != null) return viewPagerCache
 
-        var current: ViewParent = webView
-        while (current.parent != null) {
+        var current: ViewParent? = webView
+        while (current?.parent != null) {
             current = current.parent
             if (current is ViewPager2) {
                 viewPagerCache = current
@@ -409,21 +426,25 @@ abstract class WebViewFragment<
      * scroll article into [direction]. If at the top or the end - go to previous or next article
      */
     private suspend fun scrollVertically(@ScrollDirection direction: Int) {
-        // if on bottom and tap on right side go to next article
-        if (!webView.canScrollVertically(SCROLL_FORWARD) && direction == SCROLL_FORWARD) {
-            issueViewerViewModel.goNextArticle.emit(true)
+        val webView = this.webView ?: return
+
+        // if on bottom and bottom bar is hidden tap on right side go to next article
+        if (!webView.canScrollVertically(SCROLL_FORWARD) && direction == SCROLL_FORWARD
+            && (bottomNavigationLayout?.getVisibleHeight() == 0 || bottomNavigationLayout?.getBottomNavigationBehavior() == null)) {
+            issueViewerViewModel.goNextArticle.emit(Unit)
         }
 
         // if on top and tap on left side go to previous article
         else if (!webView.canScrollVertically(SCROLL_BACKWARDS) && direction == SCROLL_BACKWARDS) {
-            issueViewerViewModel.goPreviousArticle.emit(true)
+            issueViewerViewModel.goPreviousArticle.emit(Unit)
         } else {
             val appBarLayout = this.appBarLayout
             val bottomNavigationLayout = this.bottomNavigationLayout
             val bottomNavigationBehavior = bottomNavigationLayout?.getBottomNavigationBehavior()
 
             var visibleBottom = resources.displayMetrics.heightPixels
-            var targetTop = resources.getDimensionPixelSize(R.dimen.fragment_webview_tap_to_scroll_offset)
+            var targetTop =
+                resources.getDimensionPixelSize(R.dimen.fragment_webview_tap_to_scroll_offset)
 
             // Keep a 1 line overlap so that the last/first line is visible after scrolling
             // It is defined by the font size and line height (1.33rem)
@@ -449,10 +470,8 @@ abstract class WebViewFragment<
             if (bottomNavigationLayout != null) {
                 if (bottomNavigationBehavior != null) {
                     // If the bottom navigation is shown, the visible content bottom is higher up
-                    visibleBottom -= bottomNavigationBehavior.getVisibleHeight(
-                        bottomNavigationLayout
-                    )
-                    bottomNavigationBehavior.collapse(bottomNavigationLayout, true)
+                    visibleBottom -= bottomNavigationLayout.getVisibleHeight()
+                    bottomNavigationBehavior.slideDown(bottomNavigationLayout, true)
                 } else {
                     // If the bottom navigation does not have a behavior, it is expanded
                     visibleBottom -= bottomNavigationLayout.height
@@ -549,7 +568,7 @@ abstract class WebViewFragment<
     open fun hideLoadingScreen() {
         activity?.runOnUiThread {
             try {
-                loadingScreen.animate()?.alpha(0f)?.duration = LOADING_SCREEN_FADE_OUT_TIME
+                loadingScreen?.animate()?.alpha(0f)?.duration = LOADING_SCREEN_FADE_OUT_TIME
             } catch (npe: NullPointerException) {
                 log.error("Tried to access loading screen which is already closed.")
                 SentryWrapper.captureException(npe)
@@ -558,11 +577,11 @@ abstract class WebViewFragment<
     }
 
     private suspend fun loadUrl(url: String) = withContext(Dispatchers.Main) {
-        webView.loadUrl(url)
+        webView?.loadUrl(url)
     }
 
     override fun onDestroyView() {
-        webView.destroy()
+        webView?.destroy()
         super.onDestroyView()
     }
 
@@ -576,7 +595,7 @@ abstract class WebViewFragment<
                     storageService.getFileUri(it)
                 }
                 path?.let { loadUrl(it) }
-            } catch (e: CacheOperationFailedException) {
+            } catch (_: CacheOperationFailedException) {
                 issueViewerViewModel.issueLoadingFailedErrorFlow.emit(true)
             } catch (e: CannotDetermineBaseUrlException) {
                 // FIXME (johannes): Workaround to #14367
@@ -610,7 +629,7 @@ abstract class WebViewFragment<
             viewModel.scrollPosition = persistedScrollPosition ?: viewModel.scrollPosition
         }
         viewModel.scrollPosition?.let {
-            webView.scrollY = it
+            webView?.scrollY = it
         } ?: run {
             appBarLayout?.setExpanded(true, false)
         }
@@ -665,9 +684,9 @@ abstract class WebViewFragment<
 
     fun addBottomMarginIfNecessary() {
         val isTablet = resources.getBoolean(R.bool.isTablet)
-        if (isTablet && !multiColumnMode && webView.marginBottom == 0) {
+        if (isTablet && !multiColumnMode && webView?.marginBottom == 0) {
             val heightOfToolBar = bottomNavigationLayout?.height ?: 0
-            webView.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+            webView?.updateLayoutParams<ViewGroup.MarginLayoutParams> {
                 bottomMargin = heightOfToolBar
             }
         }

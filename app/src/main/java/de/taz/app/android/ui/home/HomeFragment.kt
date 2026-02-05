@@ -14,7 +14,6 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.withStarted
-import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.base.BaseMainFragment
@@ -38,13 +37,14 @@ import de.taz.app.android.databinding.FragmentHomeBinding
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.monkey.setRefreshingWithCallback
 import de.taz.app.android.singletons.ToastHelper
-import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.home.page.IssueFeedViewModel
 import de.taz.app.android.ui.home.page.archive.ArchiveFragment
 import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setupBottomNavigation
 import de.taz.app.android.util.Log
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
@@ -69,7 +69,6 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
 
     private lateinit var feedService: FeedService
     private lateinit var toastHelper: ToastHelper
-    private lateinit var tracker: Tracker
     private lateinit var generalDataStore: GeneralDataStore
 
     private val issueFeedViewModel: IssueFeedViewModel by activityViewModels()
@@ -78,7 +77,6 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
         super.onAttach(context)
         feedService = FeedService.getInstance(context.applicationContext)
         toastHelper = ToastHelper.getInstance(context.applicationContext)
-        tracker = Tracker.getInstance(context.applicationContext)
         generalDataStore = GeneralDataStore.getInstance(context.applicationContext)
     }
 
@@ -90,14 +88,24 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
         issueFeedViewModel.refreshViewEnabled
             .flowWithLifecycle(lifecycle, Lifecycle.State.RESUMED)
             .onEach {
-                viewBinding.coverflowRefreshLayout.isEnabled = it
+                viewBinding?.coverflowRefreshLayout?.isEnabled = it
             }.launchIn(lifecycleScope)
+
+        CoroutineScope( Dispatchers.IO).launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                try {
+                    feedService.refreshFeed()
+                } catch (_: ConnectivityException.NoInternetException) {
+                    // no internet ignore
+                }
+            }
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewBinding.apply {
+        viewBinding?.apply {
             coverflowRefreshLayout.apply {
                 setOnRefreshListener {
                     refreshFeedDebounced()
@@ -108,10 +116,9 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
 
         // show Fragment if state changes and lifecycle in STARTED
         generalDataStore.homeFragmentState.asFlow()
+            .flowWithLifecycle(lifecycle)
             .onEach {
-                withStarted {
-                    showFragmentForState(it)
-                }
+                showFragmentForState(it)
             }.launchIn(lifecycleScope)
 
         setupFAB()
@@ -121,44 +128,48 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
      * On edge to edge we need to properly update the margins of the FAB:
      */
     private fun setupFAB() {
-        ViewCompat.setOnApplyWindowInsetsListener(viewBinding.fabHelp) { v, windowInsets ->
-            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-            // Apply the insets as a margin to the view. This solution sets
-            // only the bottom, left, and right dimensions, but you can apply whichever
-            // insets are appropriate to your layout. You can also update the view padding
-            // if that's more appropriate.
-            val marginBottomFromDimens = resources.getDimensionPixelSize(R.dimen.fab_margin_bottom)
-            v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                bottomMargin = insets.bottom + marginBottomFromDimens
-            }
-
-            // Return CONSUMED if you don't want the window insets to keep passing
-            // down to descendant views.
-            WindowInsetsCompat.CONSUMED
-        }
-        viewBinding.fabHelp.setOnClickListener {
-            log.verbose("show coach marks in home")
-            lifecycleScope.launch {
-                showCoachMarks()
-            }
-        }
-
-        combine(
-            generalDataStore.helpFabEnabled.asFlow(),
-            issueFeedViewModel.appBarVisible
-        ) { helpEnabled, appBarVisible -> helpEnabled && appBarVisible }
-            .flowWithLifecycle(lifecycle)
-            .onEach {
-                if (it) {
-                    viewBinding.fabHelp.show()
-                } else {
-                    viewBinding.fabHelp.hide()
+        viewBinding?.fabHelp?.let { fabHelp ->
+            ViewCompat.setOnApplyWindowInsetsListener(fabHelp) { v, windowInsets ->
+                val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+                // Apply the insets as a margin to the view. This solution sets
+                // only the bottom, left, and right dimensions, but you can apply whichever
+                // insets are appropriate to your layout. You can also update the view padding
+                // if that's more appropriate.
+                val marginBottomFromDimens =
+                    resources.getDimensionPixelSize(R.dimen.fab_margin_bottom)
+                v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                    bottomMargin = insets.bottom + marginBottomFromDimens
                 }
-            }.launchIn(lifecycleScope)
+
+                // Return CONSUMED if you don't want the window insets to keep passing
+                // down to descendant views.
+                WindowInsetsCompat.CONSUMED
+            }
+            fabHelp.setOnClickListener {
+                log.verbose("show coach marks in home")
+                lifecycleScope.launch {
+                    showCoachMarks()
+                }
+            }
+
+            combine(
+                generalDataStore.helpFabEnabled.asFlow(),
+                issueFeedViewModel.appBarVisible
+            ) { helpEnabled, appBarVisible -> helpEnabled && appBarVisible }
+                .flowWithLifecycle(lifecycle)
+                .onEach {
+                    if (it) {
+                        fabHelp.show()
+                    } else {
+                        fabHelp.hide()
+                    }
+                }.launchIn(lifecycleScope)
+        }
     }
 
     private fun showFragmentForState(state: State) {
         val oldFragment = childFragmentManager.findFragmentByTag(state.name)
+
         val transaction = childFragmentManager.beginTransaction()
 
         childFragmentManager.fragments.forEach {
@@ -187,12 +198,12 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
     private fun refreshFeedDebounced() {
         refreshJob?.cancel()
         refreshJob = lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                val start = Date().time
-                refreshFeed()
-                val end = Date().time
-                // show animation at least 1000 ms so it looks smoother
-                delay(1000L - (end - start))
+            val start = Date().time
+            refreshFeed()
+            val end = Date().time
+            // show animation at least 1000 ms so it looks smoother
+            delay(1000L - (end - start))
+            withStarted {
                 hideRefreshLoadingIcon()
             }
         }
@@ -200,28 +211,27 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
 
     override fun onResume() {
         super.onResume()
-        requireActivity().setupBottomNavigation(
-            viewBinding.navigationBottom,
-            BottomNavigationItem.Home
-        )
+        viewBinding?.navigationBottom?.let {
+            requireActivity().setupBottomNavigation(
+                it,
+                BottomNavigationItem.Home
+            )
+        }
     }
 
     private suspend fun refreshFeed() {
         try {
-            val feedService = FeedService.getInstance(requireContext().applicationContext)
-            feedService.refreshFeed(BuildConfig.DISPLAYED_FEED)
+            feedService.refreshFeed()
             issueFeedViewModel.forceRefresh()
-        } catch (e: ConnectivityException.NoInternetException) {
-            ToastHelper.getInstance(requireContext().applicationContext)
-                .showNoConnectionToast()
-        } catch (e: ConnectivityException.ImplementationException) {
-            ToastHelper.getInstance(requireContext().applicationContext)
-                .showSomethingWentWrongToast()
+        } catch (_: ConnectivityException.NoInternetException) {
+            toastHelper.showNoConnectionToast()
+        } catch (_: ConnectivityException.ImplementationException) {
+            toastHelper.showSomethingWentWrongToast()
         }
     }
 
     private fun hideRefreshLoadingIcon() {
-        viewBinding.coverflowRefreshLayout.isRefreshing = false
+        viewBinding?.coverflowRefreshLayout?.isRefreshing = false
     }
 
     override fun onDestroyView() {
@@ -234,88 +244,83 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
         issueFeedViewModel.requestNewestDateFocus()
     }
 
-    fun refresh() = viewBinding.coverflowRefreshLayout.setRefreshingWithCallback(true)
+    fun refresh() = viewBinding?.coverflowRefreshLayout?.setRefreshingWithCallback(true)
 
     private suspend fun showCoachMarks() {
-        val homePresentationCoachMark = HomePresentationCoachMark.create(
-            viewBinding.root
-                .findViewById(R.id.representation)!!
-        )
+        viewBinding?.root?.let { root ->
 
-        val coachMarks = mutableListOf<BaseCoachMark>(
-            homePresentationCoachMark
-        )
-        val homeHomeCoachMark = HomeHomeCoachMark.create(
-            viewBinding.root
-                .findViewById<View?>(R.id.bottom_navigation_action_home)!!
-        )
-        val homeBookmarksCoachMark = HomeBookmarksCoachMark.create(
-            viewBinding.root
-                .findViewById<View?>(R.id.bottom_navigation_action_bookmark)!!
-        )
-        val homePlaylistCoachMark = HomePlaylistCoachMark.create(
-            viewBinding.root
-                .findViewById<View?>(R.id.bottom_navigation_action_playlist)!!
-        )
-        val homeSearchCoachMark = HomeSearchCoachMark.create(
-            viewBinding.root
-                .findViewById<View?>(R.id.bottom_navigation_action_search)!!
-        )
-        val homeSettingsCoachMark = HomeSettingsCoachMark.create(
-            viewBinding.root
-                .findViewById<View?>(R.id.bottom_navigation_action_settings)!!
-        )
-        val genericHomeCoachMarks = listOf(
-            homeHomeCoachMark,
-            homeBookmarksCoachMark,
-            homePlaylistCoachMark,
-            homeSearchCoachMark,
-            homeSettingsCoachMark,
-        )
-        when (generalDataStore.homeFragmentState.get()) {
-            State.ARCHIVE -> {
-                val archiveDatePickerCoachMark = ArchiveDatePickerCoachMark.create(
-                    viewBinding.root
-                        .findViewById(R.id.calendar)!!
-                )
-                val archiveDownloadCoachMark = ArchiveDownloadCoachMark()
-                val continueReadCoachMark = ArchiveContinueReadCoachMark()
+            val homePresentationCoachMark = HomePresentationCoachMark.create(
+                root.findViewById(R.id.representation)!!
+            )
+            val coachMarks = mutableListOf<BaseCoachMark>(
+                homePresentationCoachMark
+            )
+            val homeHomeCoachMark = HomeHomeCoachMark.create(
+                root.findViewById<View?>(R.id.bottom_navigation_action_home)!!
+            )
+            val homeBookmarksCoachMark = HomeBookmarksCoachMark.create(
+                root.findViewById<View?>(R.id.bottom_navigation_action_bookmark)!!
+            )
+            val homePlaylistCoachMark = HomePlaylistCoachMark.create(
+                root.findViewById<View?>(R.id.bottom_navigation_action_playlist)!!
+            )
+            val homeSearchCoachMark = HomeSearchCoachMark.create(
+                root.findViewById<View?>(R.id.bottom_navigation_action_search)!!
+            )
+            val homeSettingsCoachMark = HomeSettingsCoachMark.create(
+                root.findViewById<View?>(R.id.bottom_navigation_action_settings)!!
+            )
+            val genericHomeCoachMarks = listOf(
+                homeHomeCoachMark,
+                homeBookmarksCoachMark,
+                homePlaylistCoachMark,
+                homeSearchCoachMark,
+                homeSettingsCoachMark,
+            )
+            when (generalDataStore.homeFragmentState.get()) {
+                State.ARCHIVE -> {
+                    val archiveDatePickerCoachMark = ArchiveDatePickerCoachMark.create(
+                        root.findViewById(R.id.calendar)!!
+                    )
+                    val archiveDownloadCoachMark = ArchiveDownloadCoachMark()
+                    val continueReadCoachMark = ArchiveContinueReadCoachMark()
 
-                val archiveCoachMarks = listOf(
-                    archiveDatePickerCoachMark,
-                    archiveDownloadCoachMark,
-                    continueReadCoachMark
-                )
-                coachMarks.addAll(
-                    archiveCoachMarks
-                )
+                    val archiveCoachMarks = listOf(
+                        archiveDatePickerCoachMark,
+                        archiveDownloadCoachMark,
+                        continueReadCoachMark
+                    )
+                    coachMarks.addAll(
+                        archiveCoachMarks
+                    )
+                }
+
+                State.COVERFLOW -> {
+                    val downloadIconWrapperView =
+                        root.findViewById<ConstraintLayout>(R.id.fragment_coverflow_moment_download_touch_area)!!
+
+                    val coverflowDownloadCoachMark = CoverflowDownloadCoachMark.create(
+                        downloadIconWrapperView
+                    )
+                    val coverflowContinueReadCoachMark = CoverflowContinueReadCoachMark.create(
+                        downloadIconWrapperView
+                    )
+                    val coverflowDatePickerCoachMark = CoverflowDatePickerCoachMark.create(
+                        root.findViewById(R.id.fragment_cover_flow_calendar)
+                    )
+
+                    val coverFlowCoachMarks = listOf(
+                        coverflowDownloadCoachMark,
+                        coverflowContinueReadCoachMark,
+                        coverflowDatePickerCoachMark,
+                    )
+                    coachMarks.addAll(
+                        coverFlowCoachMarks
+                    )
+                }
             }
-
-            State.COVERFLOW -> {
-                val downloadIconWrapperView =
-                    viewBinding.root.findViewById<ConstraintLayout>(R.id.fragment_coverflow_moment_download_touch_area)!!
-
-                val coverflowDownloadCoachMark = CoverflowDownloadCoachMark.create(
-                    downloadIconWrapperView
-                )
-                val coverflowContinueReadCoachMark = CoverflowContinueReadCoachMark.create(
-                    downloadIconWrapperView
-                )
-                val coverflowDatePickerCoachMark = CoverflowDatePickerCoachMark.create(
-                    viewBinding.root.findViewById(R.id.fragment_cover_flow_calendar)
-                )
-
-                val coverFlowCoachMarks = listOf(
-                    coverflowDownloadCoachMark,
-                    coverflowContinueReadCoachMark,
-                    coverflowDatePickerCoachMark,
-                )
-                coachMarks.addAll(
-                    coverFlowCoachMarks
-                )
-            }
+            coachMarks.addAll(genericHomeCoachMarks)
+            CoachMarkDialog.create(coachMarks).show(childFragmentManager, CoachMarkDialog.TAG)
         }
-        coachMarks.addAll(genericHomeCoachMarks)
-        CoachMarkDialog.create(coachMarks).show(childFragmentManager, CoachMarkDialog.TAG)
     }
 }

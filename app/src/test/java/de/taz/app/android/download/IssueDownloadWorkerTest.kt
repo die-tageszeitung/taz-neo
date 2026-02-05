@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.work.ListenableWorker
 import androidx.work.testing.TestListenableWorkerBuilder
-import androidx.work.workDataOf
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.FeedService
 import de.taz.app.android.data.DownloadScheduler
@@ -20,7 +19,6 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.anyString
-import org.mockito.Mockito.eq
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
@@ -34,7 +32,7 @@ import java.util.concurrent.Executors
 
 @RunWith(RobolectricTestRunner::class)
 @Config(application = RobolectricTestApplication::class)
-class IssueDownloadWorkManagerWorkerTest {
+class IssueDownloadWorkerTest {
 
     private lateinit var context: Context
     private lateinit var executor: Executor
@@ -65,12 +63,11 @@ class IssueDownloadWorkManagerWorkerTest {
 
     @Test
     fun scheduleDownloadWithoutPoll() = runBlocking {
-        whenever(mockFeedService.getFeedFlowByName(anyString())).thenReturn(flowOf(null))
+        whenever(mockFeedService.getFeedFlow(anyString())).thenReturn(flowOf(null))
 
-        val worker = TestListenableWorkerBuilder<IssueDownloadWorkManagerWorker>(
-            context = context,
-            inputData = workDataOf(KEY_SCHEDULE_NEXT to false)
-        ).build()
+        val worker = TestListenableWorkerBuilder<IssueDownloadWorker>(context = context)
+            .setTags(listOf(ISSUE_DOWNLOAD_WORKER_FIREBASE_TAG))
+            .build()
 
         val result = runBlocking {
             worker.doWork()
@@ -79,19 +76,17 @@ class IssueDownloadWorkManagerWorkerTest {
         verify(mockDownloadScheduler, times(0)).scheduleNewestIssueDownload(
             anyOrNull(),
             anyOrNull(),
-            anyOrNull()
         )
         MatcherAssert.assertThat(result, `is`(ListenableWorker.Result.success()))
     }
 
     @Test
     fun pollNewIssue() = runBlocking {
-        whenever(mockFeedService.getFeedFlowByName(anyString())).thenReturn(flowOf(null))
+        whenever(mockFeedService.getFeedFlow(anyString())).thenReturn(flowOf(null))
 
-        val worker = TestListenableWorkerBuilder<IssueDownloadWorkManagerWorker>(
-            context = context,
-            inputData = workDataOf(KEY_SCHEDULE_NEXT to true)
-        ).build()
+        val worker = TestListenableWorkerBuilder<IssueDownloadWorker>(context = context)
+            .setTags(listOf(ISSUE_DOWNLOAD_WORKER_POLL_TAG))
+            .build()
 
         val result = runBlocking {
             worker.doWork()
@@ -101,8 +96,7 @@ class IssueDownloadWorkManagerWorkerTest {
 
         assert(nextPollDelay > 0)
         verify(mockDownloadScheduler).scheduleNewestIssueDownload(
-            anyOrNull(),
-            eq(true),
+           anyOrNull(),
             anyOrNull()
         )
         MatcherAssert.assertThat(result, `is`(ListenableWorker.Result.success()))

@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -69,36 +70,38 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewBinding.webviewPagerViewpager.apply {
-            reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
-        }
-        setupViewPager()
-        setupDrawerLogoGhost()
-        setupFAB()
+        viewBinding?.apply {
+            webviewPagerViewpager.apply {
+                reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
+            }
+            setupViewPager()
+            setupDrawerLogoGhost()
+            setupFAB()
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                launch {
-                    combine(
-                        issueContentViewModel.sectionListFlow,
-                        issueContentViewModel.displayableKeyFlow
-                    ) { sectionStubs, displayableKey ->
-                        if (
-                            sectionStubs.map { it.key } !=
-                            (viewBinding.webviewPagerViewpager.adapter as? SectionPagerAdapter)?.sectionStubs?.map { it.key }
-                        ) {
-                            log.debug("New set of sections: ${sectionStubs.map { it.key }}")
-                            viewBinding.webviewPagerViewpager.adapter =
-                                SectionPagerAdapter(sectionStubs)
-                            viewBinding.loadingScreen.root.visibility = View.GONE
+            viewLifecycleOwner.lifecycleScope.launch {
+                repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    launch {
+                        combine(
+                            issueContentViewModel.sectionListFlow,
+                            issueContentViewModel.displayableKeyFlow
+                        ) { sectionStubs, displayableKey ->
+                            if (
+                                sectionStubs.map { it.key } !=
+                                (webviewPagerViewpager.adapter as? SectionPagerAdapter)?.sectionStubs?.map { it.key }
+                            ) {
+                                log.debug("New set of sections: ${sectionStubs.map { it.key }}")
+                                webviewPagerViewpager.adapter =
+                                    SectionPagerAdapter(sectionStubs)
+                                loadingScreen.root.visibility = View.GONE
+                            }
+                            tryScrollToSection(displayableKey)
+                        }.collect {}
+                    }
+
+                    launch {
+                        helpFabViewModel.showHelpFabFlow.collect {
+                            toggleHelpFab(it)
                         }
-                        tryScrollToSection(displayableKey)
-                    }.collect {}
-                }
-
-                launch {
-                    helpFabViewModel.showHelpFabFlow.collect {
-                        toggleHelpFab(it)
                     }
                 }
             }
@@ -106,7 +109,7 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
     }
 
     private fun setupViewPager() {
-        viewBinding.webviewPagerViewpager.apply {
+        viewBinding?.webviewPagerViewpager?.apply {
             orientation = ViewPager2.ORIENTATION_HORIZONTAL
             offscreenPageLimit = 2
         }
@@ -116,39 +119,43 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
      * On edge to edge we need to properly update the margins of the FAB:
      */
     private fun setupFAB() {
-        ViewCompat.setOnApplyWindowInsetsListener(viewBinding.sectionPagerFabHelp) { v, windowInsets ->
-            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-            // Apply the insets as a margin to the view. This solution sets
-            // only the bottom, left, and right dimensions, but you can apply whichever
-            // insets are appropriate to your layout. You can also update the view padding
-            // if that's more appropriate.
-            val marginBottomFromDimens = resources.getDimensionPixelSize(R.dimen.fab_margin_bottom)
-            v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                bottomMargin = insets.bottom + marginBottomFromDimens
+        viewBinding?.sectionPagerFabHelp?.let { floatingActionButton ->
+
+            ViewCompat.setOnApplyWindowInsetsListener(floatingActionButton) { v, windowInsets ->
+                val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+                // Apply the insets as a margin to the view. This solution sets
+                // only the bottom, left, and right dimensions, but you can apply whichever
+                // insets are appropriate to your layout. You can also update the view padding
+                // if that's more appropriate.
+                val marginBottomFromDimens =
+                    resources.getDimensionPixelSize(R.dimen.fab_margin_bottom)
+                v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                    bottomMargin = insets.bottom + marginBottomFromDimens
+                }
+
+                // Return CONSUMED if you don't want the window insets to keep passing
+                // down to descendant views.
+                WindowInsetsCompat.CONSUMED
+            }
+            floatingActionButton.setOnClickListener {
+                log.verbose("show coach marks in section pager")
+                showCoachMarks()
             }
 
-            // Return CONSUMED if you don't want the window insets to keep passing
-            // down to descendant views.
-            WindowInsetsCompat.CONSUMED
+            issueContentViewModel.fabHelpEnabledFlow
+                .flowWithLifecycle(lifecycle)
+                .onEach {
+                    floatingActionButton.isVisible = it
+                    showFab = it
+                }.launchIn(lifecycleScope)
         }
-        viewBinding.sectionPagerFabHelp.setOnClickListener {
-            log.verbose("show coach marks in section pager")
-            showCoachMarks()
-        }
-
-        issueContentViewModel.fabHelpEnabledFlow
-            .flowWithLifecycle(lifecycle)
-            .onEach {
-                viewBinding.sectionPagerFabHelp.isVisible = it
-                showFab = it
-            }.launchIn(lifecycleScope)
     }
 
     private val pageChangeListener = object : ViewPager2.OnPageChangeCallback() {
         private var lastPage: Int? = null
         override fun onPageSelected(position: Int) {
             val sectionStubs =
-                (viewBinding.webviewPagerViewpager.adapter as SectionPagerAdapter).sectionStubs
+                (viewBinding?.webviewPagerViewpager?.adapter as? SectionPagerAdapter)?.sectionStubs ?: emptyList()
             // if we are beyond last position we are the imprint
             val isImprint = position == sectionStubs.size
             if (lastPage != null && lastPage != position && !isImprint) {
@@ -187,26 +194,28 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
     }
 
     override fun onDestroyView() {
-        viewBinding.webviewPagerViewpager.adapter = null
+        viewBinding?.webviewPagerViewpager?.adapter = null
         super.onDestroyView()
     }
 
     override fun onStart() {
-        viewBinding.webviewPagerViewpager.registerOnPageChangeCallback(pageChangeListener)
+        viewBinding?.webviewPagerViewpager?.registerOnPageChangeCallback(pageChangeListener)
         super.onStart()
     }
 
     override fun onStop() {
-        viewBinding.webviewPagerViewpager.unregisterOnPageChangeCallback(pageChangeListener)
+        viewBinding?.webviewPagerViewpager?.unregisterOnPageChangeCallback(pageChangeListener)
         super.onStop()
     }
 
     override fun onResume() {
         super.onResume()
-        requireActivity().setupBottomNavigation(
-            viewBinding.navigationBottomWebviewPager,
-            BottomNavigationItem.ChildOf(BottomNavigationItem.Home)
-        )
+        viewBinding?.navigationBottomWebviewPager?.let {
+            requireActivity().setupBottomNavigation(
+                it,
+                BottomNavigationItem.ChildOf(BottomNavigationItem.Home)
+            )
+        }
     }
 
     private inner class SectionPagerAdapter(val sectionStubs: List<SectionStub>) :
@@ -236,7 +245,7 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
             getSupposedPagerPosition()?.let {
                 try {
                     if (it >= 0 && it != getCurrentPagerPosition()) {
-                        viewBinding.webviewPagerViewpager.setCurrentItem(it, false)
+                        viewBinding?.webviewPagerViewpager?.setCurrentItem(it, false)
                     }
                 } catch (e: IndexOutOfBoundsException) {
                     val message = "Tried to access position outside of adapter. ${e.message}"
@@ -248,11 +257,11 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
     }
 
     private fun getCurrentPagerPosition(): Int {
-        return viewBinding.webviewPagerViewpager.currentItem
+        return viewBinding?.webviewPagerViewpager?.currentItem ?: 0
     }
 
     private suspend fun getSupposedPagerPosition(): Int? {
-        val adapter = (viewBinding.webviewPagerViewpager.adapter as? SectionPagerAdapter)
+        val adapter = (viewBinding?.webviewPagerViewpager?.adapter as? SectionPagerAdapter)
         val sectionStubs = adapter?.sectionStubs
         val position = sectionStubs?.indexOfFirst {
             it.key == issueContentViewModel.displayableKeyFlow.first()
@@ -269,7 +278,7 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
      * On advertisements we hide the drawer logo.
      */
     private fun hideOrShowLogoIfNecessary(lastPage: Int?, position: Int) {
-        val sectionsStubs = (viewBinding.webviewPagerViewpager.adapter as? SectionPagerAdapter)?.sectionStubs ?: return
+        val sectionsStubs = (viewBinding?.webviewPagerViewpager?.adapter as? SectionPagerAdapter)?.sectionStubs ?: return
         if (sectionsStubs.isEmpty()) return
         val currentSection = try {
             sectionsStubs[position]
@@ -281,10 +290,10 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
         val isPodcast = currentSection.type == SectionType.podcast
         if (isAdvertisement || isPodcast) {
             drawerAndLogoViewModel.hideLogo()
-            viewBinding.sectionPagerFabHelp.hide()
+            viewBinding?.sectionPagerFabHelp?.hide()
         } else {
             if (showFab) {
-                viewBinding.sectionPagerFabHelp.show()
+                viewBinding?.sectionPagerFabHelp?.show()
             }
             if (sectionsStubs.isEmpty()) return
             val lastSection = try {
@@ -302,14 +311,16 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
     }
 
     private fun setupDrawerLogoGhost() {
-        viewBinding.sectionPagerDrawerLogoGhost.setOnClickListener {
+        viewBinding?.sectionPagerDrawerLogoGhost?.setOnClickListener {
             tracker.trackDrawerOpenEvent(dragged = false)
             drawerAndLogoViewModel.openDrawer()
         }
     }
 
     private fun showCoachMarks() {
-        val tazLogoCoachMark = TazLogoCoachMark.create(viewBinding.sectionPagerDrawerLogoGhost)
+        val tazLogoCoachMark = requireActivity()
+            .findViewById<ImageView>(R.id.drawer_logo)
+            ?.let { TazLogoCoachMark.create(it) } ?: return
         val sectionBookmarkCoachMark = SectionBookmarkCoachMark()
         val sectionPlaylistCoachMark = SectionPlaylistCoachMark()
         val coachMarks = listOf(
@@ -322,8 +333,8 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
 
     private suspend fun toggleHelpFab(show: Boolean) {
         if (issueContentViewModel.fabHelpEnabledFlow.first()) {
-            val fab = viewBinding.sectionPagerFabHelp
-            val layoutParams = fab.layoutParams
+            val fab = viewBinding?.sectionPagerFabHelp
+            val layoutParams = fab?.layoutParams
             if (layoutParams is CoordinatorLayout.LayoutParams) {
                 val behavior = layoutParams.behavior
                 if (behavior is HideBottomViewOnScrollBehavior) {

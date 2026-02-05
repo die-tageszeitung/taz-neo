@@ -55,7 +55,7 @@ class LoginFragment : LoginBaseFragment<FragmentLoginBinding>() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewBinding.apply {
+        viewBinding?.apply {
             viewModel.password?.let {
                 fragmentLoginPassword.setText(it)
             }
@@ -86,7 +86,10 @@ class LoginFragment : LoginBaseFragment<FragmentLoginBinding>() {
             }
 
             fragmentLoginUsernameHelp.setOnClickListener {
-                LoginHelpBottomSheetDialogFragment().show(parentFragmentManager, LoginHelpBottomSheetDialogFragment.TAG)
+                LoginHelpBottomSheetDialogFragment().show(
+                    parentFragmentManager,
+                    LoginHelpBottomSheetDialogFragment.TAG
+                )
             }
 
             fragmentLoginPassword.setOnEditorActionListener(
@@ -107,16 +110,18 @@ class LoginFragment : LoginBaseFragment<FragmentLoginBinding>() {
                 }
             }
 
-        }
 
-        viewBinding.fragmentLoginSubscriptions.apply {
+            fragmentLoginSubscriptions.apply {
 
-            fragmentLoginTrialSubscriptionBoxButton.setOnClickListener {
-                viewModel.requestSubscription(viewBinding.fragmentLoginUsername.text.toString().trim().lowercase())
-            }
+                fragmentLoginTrialSubscriptionBoxButton.setOnClickListener {
+                    viewModel.requestSubscription(
+                        fragmentLoginUsername.text.toString().trim().lowercase()
+                    )
+                }
 
-            fragmentLoginSwitchPrint2digiBoxButton.setOnClickListener {
-                viewModel.requestSwitchPrint2Digi()
+                fragmentLoginSwitchPrint2digiBoxButton.setOnClickListener {
+                    viewModel.requestSwitchPrint2Digi()
+                }
             }
         }
     }
@@ -136,8 +141,8 @@ class LoginFragment : LoginBaseFragment<FragmentLoginBinding>() {
     }
 
     override fun onDestroyView() {
-        viewBinding.fragmentLoginUsername.text?.let { viewModel.username = it.toString() }
-        viewBinding.fragmentLoginPassword.text?.let { viewModel.password = it.toString() }
+        viewBinding?.fragmentLoginUsername?.text?.let { viewModel.username = it.toString() }
+        viewBinding?.fragmentLoginPassword?.text?.let { viewModel.password = it.toString() }
         super.onDestroyView()
     }
 

@@ -68,14 +68,12 @@ public class NestedScrollWebView extends WebView implements NestedScrollingChild
 
     private void init(Context context, @Nullable AttributeSet attrs, @Nullable Integer defStyleAttr) {
         if (attrs != null) {
-            TypedArray styledAttrs = null;
-            try {
-                styledAttrs = context.getTheme().obtainStyledAttributes(
-                        attrs,
-                        R.styleable.NestedScrollWebView,
-                        defStyleAttr != null ? defStyleAttr : 0,
-                        0
-                );
+            try (TypedArray styledAttrs = context.getTheme().obtainStyledAttributes(
+                    attrs,
+                    R.styleable.NestedScrollWebView,
+                    defStyleAttr != null ? defStyleAttr : 0,
+                    0
+            )) {
                 coordinatorLayoutChildHelper.setBottomMatchingBehaviourEnabled(
                         styledAttrs.getBoolean(
                                 R.styleable.NestedScrollWebView_coordinatorBottomMatchingEnabled,
@@ -88,10 +86,6 @@ public class NestedScrollWebView extends WebView implements NestedScrollingChild
                                 true
                         )
                 );
-            } finally {
-                if (styledAttrs != null) {
-                    styledAttrs.recycle();
-                }
             }
         }
         setOverScrollMode(OVER_SCROLL_NEVER);
@@ -351,7 +345,7 @@ public class NestedScrollWebView extends WebView implements NestedScrollingChild
                             }
                         }
                         if (!mEdgeGlowTop.isFinished() || !mEdgeGlowBottom.isFinished()) {
-                            ViewCompat.postInvalidateOnAnimation(this);
+                            this.postInvalidateOnAnimation();
                             clearVelocityTracker = false;
                         }
                     }
@@ -376,7 +370,7 @@ public class NestedScrollWebView extends WebView implements NestedScrollingChild
                     }
                 } else if (mScroller.springBack(getScrollX(), getScrollY(), 0, getHorizontalScrollRange(), 0,
                         getVerticalScrollRange())) {
-                    ViewCompat.postInvalidateOnAnimation(this);
+                    this.postInvalidateOnAnimation();
                 }
                 mActivePointerId = INVALID_POINTER;
                 endDrag();
@@ -386,7 +380,7 @@ public class NestedScrollWebView extends WebView implements NestedScrollingChild
                 if (mIsBeingDragged /* && getChildCount() > 0*/) {
                     if (mScroller.springBack(getScrollX(), getScrollY(), 0, getHorizontalScrollRange(), 0,
                             getVerticalScrollRange())) {
-                        ViewCompat.postInvalidateOnAnimation(this);
+                        this.postInvalidateOnAnimation();
                     }
                 }
                 mActivePointerId = INVALID_POINTER;
@@ -491,7 +485,7 @@ public class NestedScrollWebView extends WebView implements NestedScrollingChild
         }
 
         if (!mScroller.isFinished()) {
-            ViewCompat.postInvalidateOnAnimation(this);
+            this.postInvalidateOnAnimation();
         } else {
             stopNestedScroll(ViewCompat.TYPE_NON_TOUCH);
         }
@@ -655,7 +649,7 @@ public class NestedScrollWebView extends WebView implements NestedScrollingChild
         }
         mLastScrollerX = getScrollX();
         mLastScrollerY = getScrollY();
-        ViewCompat.postInvalidateOnAnimation(this);
+        this.postInvalidateOnAnimation();
     }
 
     private void endDrag() {

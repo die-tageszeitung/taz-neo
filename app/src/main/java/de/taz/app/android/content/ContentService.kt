@@ -239,6 +239,15 @@ class ContentService(
     }
 
     /**
+     * Get the IssueKey for a date on the [BuildConfig.DISPLAYED_FEED] feed
+     * @return IssueKey for an Issue at the given date
+     * @return null if no Issue for that date exists in the database
+     */
+    suspend fun getIssueKey(date: String) = getIssueKey(
+        IssuePublication(BuildConfig.DISPLAYED_FEED, date)
+    )
+
+    /**
      * Get the IssueKey of the Issue Metadata (IssueStub) that matches the current
      * min status as determined by the authHelper.
      * Returns null if no such Issue exists in the database.

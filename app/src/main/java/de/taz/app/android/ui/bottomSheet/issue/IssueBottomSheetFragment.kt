@@ -168,7 +168,7 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
         }
 
         viewBinding.fragmentBottomSheetIssueDeleteLastDisplayable.setOnClickListener {
-            lifecycleScope.launch {
+            lifecycleScope.launch(Dispatchers.Default) {
                 deleteLastDisplayable()
             }
         }

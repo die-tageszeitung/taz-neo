@@ -28,9 +28,9 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.asFlow
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewModelScope
 import com.google.android.material.appbar.AppBarLayout
 import de.taz.app.android.R
@@ -39,6 +39,7 @@ import de.taz.app.android.api.models.SectionType
 import de.taz.app.android.audioPlayer.AudioPlayerService
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentWebviewSectionBinding
+import de.taz.app.android.monkey.pinToolbar
 import de.taz.app.android.persistence.repository.BookmarkRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.SectionRepository
@@ -68,7 +69,7 @@ import kotlin.math.ceil
 class SectionWebViewViewModel(application: Application, savedStateHandle: SavedStateHandle) :
     WebViewViewModel<SectionOperations>(application, savedStateHandle) {
 
-    val sectionFlow = displayableLiveData.asFlow().filterNotNull()
+    val sectionFlow = displayableFlow.filterNotNull()
     val issueStubFlow = sectionFlow
         .mapNotNull {
             it.getIssueStub(application.applicationContext)
@@ -107,14 +108,14 @@ class SectionWebViewFragment : WebViewFragment<
     private var enqueuedJob: Job? = null
     private var currentAppBarOffset = 0
 
-    override val webView: AppWebView
-        get() = viewBinding.webView
+    override val webView: AppWebView?
+        get() = viewBinding?.webView
 
-    override val loadingScreen: View
-        get() = viewBinding.loadingScreen.root
+    override val loadingScreen: View?
+        get() = viewBinding?.loadingScreen?.root
 
-    override val appBarLayout: AppBarLayout
-        get() = viewBinding.appBarLayout
+    override val appBarLayout: AppBarLayout?
+        get() = viewBinding?.appBarLayout
 
     override val bottomNavigationLayout: View? = null
 
@@ -151,13 +152,20 @@ class SectionWebViewFragment : WebViewFragment<
         sectionFileName = requireArguments().getString(SECTION_FILE_NAME)!!
         log.debug("Creating a SectionWebViewFragment for $sectionFileName")
 
-        if (sectionOperation != null) {
-            viewModel.displayableLiveData.postValue(sectionOperation)
-        } else {
-            lifecycleScope.launch {
-                viewModel.displayableLiveData.postValue(
-                    sectionRepository.getStub(sectionFileName)
-                )
+        lifecycleScope.launch {
+            sectionOperation = sectionOperation ?: sectionRepository.getStub(sectionFileName)
+            viewModel.displayable = sectionOperation
+        }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    generalDataStore.hideAppbarOnScroll.asFlow()
+                        .collect {
+                            viewBinding?.collapsingToolbarLayout?.pinToolbar(!it)
+                        }
+                }
+
             }
         }
     }
@@ -183,7 +191,7 @@ class SectionWebViewFragment : WebViewFragment<
 
             if (isWeekend && isFirst) {
                 // The first page of the weekend taz should not display the title but the date instead
-                viewBinding.apply {
+                viewBinding?.apply {
                     headerToolbarContent.updatePadding(
                         top = resources.getDimensionPixelSize(R.dimen.fragment_header_title_weekend_padding_top),
                         bottom = resources.getDimensionPixelSize(R.dimen.fragment_header_title_weekend_padding_top),
@@ -200,7 +208,7 @@ class SectionWebViewFragment : WebViewFragment<
                 }
 
             } else {
-                viewBinding.apply {
+                viewBinding?.apply {
                     weekendIssueDate.isVisible = false
 
                     section.apply {
@@ -211,7 +219,7 @@ class SectionWebViewFragment : WebViewFragment<
 
                 // Change typeface (to Knile) if it is weekend issue but not on title section:
                 if (isWeekend || (isWochentaz && !isFirst)) {
-                    viewBinding.section.typeface =
+                    viewBinding?.section?.typeface =
                         ResourcesCompat.getFont(context, R.font.appFontKnileSemiBold)
                 }
 
@@ -221,7 +229,7 @@ class SectionWebViewFragment : WebViewFragment<
                         resources.getDimensionPixelSize(R.dimen.fragment_header_title_section_text_size)
                     val textSpSize =
                         resources.getDimension(R.dimen.fragment_header_title_section_text_size)
-                    viewBinding.section.apply {
+                    viewBinding?.section?.apply {
                         setTextSize(COMPLEX_UNIT_SP, textSpSize)
                         TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(
                             this,
@@ -236,7 +244,7 @@ class SectionWebViewFragment : WebViewFragment<
                 }
 
                 DateHelper.stringToDate(displayable.issueDate)?.let { date ->
-                    viewBinding.issueDate.apply {
+                    viewBinding?.issueDate?.apply {
                         isVisible = true
                         text = when {
                             isWeekend ->
@@ -263,7 +271,7 @@ class SectionWebViewFragment : WebViewFragment<
             val isAdvertisement = displayable.type == SectionType.advertisement
             val isPodcast = displayable.type == SectionType.podcast
             if (!isAdvertisement && !isPodcast) {
-                viewBinding.appBarLayout.apply {
+                viewBinding?.appBarLayout?.apply {
                     addOnOffsetChangedListener { _, verticalOffset ->
                         currentAppBarOffset = verticalOffset
                         if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
@@ -329,9 +337,9 @@ class SectionWebViewFragment : WebViewFragment<
             return
         }
 
-        webView.injectCss()
+        webView?.injectCss()
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.N)
-            webView.reload()
+            webView?.reload()
     }
 
     private val resizeDrawerLogoListener =
@@ -366,7 +374,7 @@ class SectionWebViewFragment : WebViewFragment<
         viewLifecycleOwner.lifecycleScope.launch {
             val extraPadding = generalDataStore.displayCutoutExtraPadding.get()
             if (extraPadding > 0 && resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                viewBinding.collapsingToolbarLayout.setPadding(0, extraPadding, 0, 0)
+                viewBinding?.collapsingToolbarLayout?.setPadding(0, extraPadding, 0, 0)
             }
         }
     }
@@ -427,25 +435,28 @@ class SectionWebViewFragment : WebViewFragment<
         isBookmarked: Boolean,
         showNotification: Boolean,
     ) {
-        val articleStub = issueViewerViewModel.findArticleStubByArticleName(articleName)
-        if (articleStub != null) {
-            if (isBookmarked) {
-                bookmarkRepository.addBookmarkAsync(articleStub).await()
-                SnackBarHelper.showBookmarkSnack(
-                    context = requireContext(),
-                    view = viewBinding.root,
-                    anchor = bottomNavigationLayout,
-                )
+        viewBinding?.root?.let {
+
+            val articleStub = issueViewerViewModel.findArticleStubByArticleName(articleName)
+            if (articleStub != null) {
+                if (isBookmarked) {
+                    bookmarkRepository.addBookmarkAsync(articleStub).await()
+                    SnackBarHelper.showBookmarkSnack(
+                        context = requireContext(),
+                        view = it,
+                        anchor = bottomNavigationLayout,
+                    )
+                } else {
+                    bookmarkRepository.removeBookmarkAsync(articleStub).await()
+                    SnackBarHelper.showDebookmarkSnack(
+                        context = requireContext(),
+                        view = it,
+                        anchor = bottomNavigationLayout,
+                    )
+                }
             } else {
-                bookmarkRepository.removeBookmarkAsync(articleStub).await()
-                SnackBarHelper.showDebookmarkSnack(
-                    context = requireContext(),
-                    view = viewBinding.root,
-                    anchor = bottomNavigationLayout,
-                )
+                log.warn("Could not set bookmark for articleName=$articleName as no articleFileName was found.")
             }
-        } else {
-            log.warn("Could not set bookmark for articleName=$articleName as no articleFileName was found.")
         }
     }
 
@@ -453,7 +464,7 @@ class SectionWebViewFragment : WebViewFragment<
     private fun setWebViewBookmarkState(articleFileName: String, isBookmarked: Boolean) {
         val articleName = ArticleName.fromArticleFileName(articleFileName)
         runIfWebViewReady {
-            webView.callTazApi("onBookmarkChange", articleName, isBookmarked)
+            webView?.callTazApi("onBookmarkChange", articleName, isBookmarked)
         }
     }
     // endregion
@@ -526,7 +537,7 @@ class SectionWebViewFragment : WebViewFragment<
     private fun setWebViewEnqueuedState(articleFileName: String, isEnqueued: Boolean) {
         val articleName = ArticleName.fromArticleFileName(articleFileName)
         runIfWebViewReady {
-            webView.callTazApi("onEnqueuedChange", articleName, isEnqueued)
+            webView?.callTazApi("onEnqueuedChange", articleName, isEnqueued)
         }
     }
     // endregion
@@ -542,6 +553,7 @@ class SectionWebViewFragment : WebViewFragment<
                     audioPlayerService.playPodcast(issueStub, section, podcast)
                     return true
                 }
+
                 // We have to "consume" (return true) the onSingleTapUp event too, so that the
                 // Android event system is sending the subsequent UP event to this component.
                 override fun onSingleTapUp(e: MotionEvent) = true
@@ -549,18 +561,18 @@ class SectionWebViewFragment : WebViewFragment<
             val gestureDetectorCompat = GestureDetector(requireContext(), onGestureListener).apply {
                 setIsLongpressEnabled(false)
             }
-            webView.addOnTouchListener { _, event ->
+            webView?.addOnTouchListener { _, event ->
                 gestureDetectorCompat.onTouchEvent(event)
             }
 
         } else {
-            webView.clearOnTouchListener()
+            webView?.clearOnTouchListener()
         }
     }
 
     private fun updateDrawerLogoByCurrentAppBarOffset() {
         val percentToHide =
-            -currentAppBarOffset.toFloat() / viewBinding.appBarLayout.height.toFloat()
-        drawerAndLogoViewModel.morphLogoByPercent(percentToHide.coerceIn(0f, 1f))
+            -currentAppBarOffset.toFloat() / (viewBinding?.appBarLayout?.height?.toFloat() ?: 1f)
+        drawerAndLogoViewModel.morphLogoByPercent(percentToHide)
     }
 }

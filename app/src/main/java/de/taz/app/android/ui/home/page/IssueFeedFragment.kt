@@ -128,7 +128,7 @@ abstract class IssueFeedFragment<VIEW_BINDING : ViewBinding> :
                 }
                 if (getIsDownloaded(issuePublication) || isOnline) {
                     supportFragmentManager.commit {
-                        add(R.id.main_content_fragment_placeholder, fragment)
+                        replace(R.id.main_content_fragment_placeholder, fragment)
                         addToBackStack(null)
                     }
                 } else {

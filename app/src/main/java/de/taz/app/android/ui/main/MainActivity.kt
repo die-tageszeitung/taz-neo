@@ -44,6 +44,7 @@ import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragm
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment.Companion.shouldShowSubscriptionElapsedDialog
 import de.taz.app.android.ui.main.MainActivity.Companion.KEY_DISPLAYABLE
 import de.taz.app.android.ui.pdfViewer.PdfPagerWrapperFragment
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -316,7 +317,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>(), SuccessfulLogin
                     this.doubleBackToExitPressedOnce = true
                     toastHelper.showToast(getString(R.string.toast_click_again_to_exit))
 
-                    lifecycleScope.launch {
+                    lifecycleScope.launch(Dispatchers.Default) {
                         delay(DOUBLE_BACK_TO_EXIT_INTERVAL)
                         doubleBackToExitPressedOnce = false
                     }

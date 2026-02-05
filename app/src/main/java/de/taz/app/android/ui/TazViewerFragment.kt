@@ -75,23 +75,26 @@ abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        drawerViewController = DrawerViewController(
-            requireContext(),
-            viewBinding.drawerLayout,
-            viewBinding.drawerLogoWrapper,
-            viewBinding.navView,
-            view
-        )
-        if (enableDrawer) {
-            setupDrawer()
-        } else {
-            viewBinding.drawerLogo.visibility = View.GONE
-            viewBinding.drawerLayout.setDrawerLockMode(LOCK_MODE_LOCKED_CLOSED)
+
+        viewBinding?.apply {
+            drawerViewController = DrawerViewController(
+                requireContext(),
+                drawerLayout,
+                drawerLogoWrapper,
+                navView,
+                view
+            )
+            if (enableDrawer) {
+                setupDrawer()
+            } else {
+                drawerLogo.visibility = View.GONE
+                drawerLayout.setDrawerLockMode(LOCK_MODE_LOCKED_CLOSED)
+            }
         }
     }
 
     private fun setupDrawer() {
-        viewBinding.apply {
+        viewBinding?.apply {
 
             // Adjust extra padding when we have cutout display
             viewLifecycleOwner.lifecycleScope.launch {

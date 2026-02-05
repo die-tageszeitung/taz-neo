@@ -11,13 +11,13 @@
         android:id="@+id/article_pager_drawer_logo_ghost"
         android:layout_width="90dp"
         android:layout_height="50dp"
+        android:alpha="0"
         android:clickable="true"
         android:contentDescription="@string/navigation_drawer_open"
         android:focusable="true"
         android:importantForAccessibility="yes"
         android:translationX="@dimen/drawer_logo_translation_x"
         android:translationY="@dimen/drawer_logo_translation_y"
-        android:alpha="0"
         android:translationZ="100dp" />
 
     <com.google.android.material.appbar.AppBarLayout
@@ -129,22 +129,12 @@
         app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"
         app:tint="@color/lightGrey" />
 
-    <!-- This layout might always be made visible by the BottomNavigationBehavior when the user scrolls.  -->
-    <LinearLayout
-        android:id="@+id/navigation_bottom_layout"
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/navigation_bottom"
+        style="@style/Widget.App.BottomNavigation.ToolBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:background="@color/navigation_bottom_background"
-        android:orientation="vertical"
-        android:visibility="invisible"
-        app:layout_behavior="de.taz.app.android.util.BottomNavigationBehavior"
-        tools:visibility="visible">
-
-        <com.google.android.material.bottomnavigation.BottomNavigationView
-            android:id="@+id/navigation_bottom"
-            style="@style/Widget.App.BottomNavigation.ToolBar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-    </LinearLayout>
+        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

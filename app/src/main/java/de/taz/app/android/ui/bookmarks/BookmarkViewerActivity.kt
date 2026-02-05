@@ -94,7 +94,7 @@ class BookmarkViewerFragment : TazViewerFragment() {
         super.onCreate(savedInstanceState)
         if (savedInstanceState == null) {
             arguments?.getString(KEY_SHOWN_ARTICLE)?.let {
-                bookmarkPagerViewModel.articleFileNameFlow.value = it
+                bookmarkPagerViewModel.articleFileNameLiveData.postValue(it)
             }
         }
     }

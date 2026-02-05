@@ -45,8 +45,8 @@ class ArticleWebViewFragment :
      * ArticlePagerFragment and BookmarkPagerFragment
      */
     interface CollapsibleLayoutProvider {
-        fun getAppBarLayout(): AppBarLayout
-        fun getBottomNavigationLayout(): View
+        fun getAppBarLayout(): AppBarLayout?
+        fun getBottomNavigationLayout(): View?
     }
 
     override val viewModel by viewModels<ArticleWebViewViewModel>()
@@ -65,11 +65,11 @@ class ArticleWebViewFragment :
     private var oldScrollXOnMultiColumnSaved = false
     private var isInitial = true
 
-    override val webView: AppWebView
-        get() = viewBinding.webView
+    override val webView: AppWebView?
+        get() = viewBinding?.webView
 
-    override val loadingScreen: View
-        get() = viewBinding.loadingScreen
+    override val loadingScreen: View?
+        get() = viewBinding?.loadingScreen
 
     override val appBarLayout: AppBarLayout?
         get() = (parentFragment as? CollapsibleLayoutProvider)?.getAppBarLayout()
@@ -120,16 +120,10 @@ class ArticleWebViewFragment :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         articleFileName = requireArguments().getString(ARTICLE_FILE_NAME)!!
-        if (articleOperations != null) {
-            viewModel.displayableLiveData.postValue(articleOperations)
-        } else {
-            lifecycleScope.launch {
-                articleRepository.getStub(articleFileName)?.let {
-                    viewModel.displayableLiveData.postValue(
-                        it
-                    )
-                }
-            }
+
+        lifecycleScope.launch {
+            articleOperations = articleOperations ?: articleRepository.getStub(articleFileName)
+            viewModel.displayable = articleOperations
         }
     }
 
@@ -144,7 +138,7 @@ class ArticleWebViewFragment :
     }
 
     override fun onDestroyView() {
-        viewBinding.webView.showTapIconsListener = null
+        webView?.showTapIconsListener = null
         super.onDestroyView()
     }
 
@@ -153,30 +147,32 @@ class ArticleWebViewFragment :
             return
         }
 
-        webView.injectCss()
-        val isMultiColumn = tazApiCssDataStore.multiColumnMode.get()
-        if (isMultiColumn) {
-            // Remove the bottom margin (maybe it was set before):
-            if (webView.marginBottom > 0) {
-                webView.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                    bottomMargin = 0
+        webView?.apply {
+            injectCss()
+            val isMultiColumn = tazApiCssDataStore.multiColumnMode.get()
+            if (isMultiColumn) {
+                // Remove the bottom margin (maybe it was set before):
+                if (marginBottom > 0) {
+                    updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                        bottomMargin = 0
+                    }
                 }
+                // Unfortunately this is necessary so the web view gets it s correct scrollWidth and can calculate the proper width
+                callTazApi(
+                    "enableArticleColumnMode",
+                    calculateColumnHeight(),
+                    calculateColumnWidth(),
+                    DEFAULT_COLUMN_GAP_PX,
+                )
+            } else {
+                // For tablets the bottom navigation layout does not collapse, so we need
+                // extra margin here, so the content won' be behind the nav bar
+                addBottomMarginIfNecessary()
             }
-            // Unfortunately this is necessary so the web view gets it s correct scrollWidth and can calculate the proper width
-            webView.callTazApi(
-                "enableArticleColumnMode",
-                calculateColumnHeight(),
-                calculateColumnWidth(),
-                DEFAULT_COLUMN_GAP_PX,
-            )
-        } else {
-            // For tablets the bottom navigation layout does not collapse, so we need
-            // extra margin here, so the content won' be behind the nav bar
-            addBottomMarginIfNecessary()
-        }
 
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.N) {
-            webView.reload()
+            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.N) {
+                reload()
+            }
         }
     }
 
@@ -185,7 +181,7 @@ class ArticleWebViewFragment :
         super.onViewCreated(view, savedInstanceState)
         // This is a hack to get any user interaction and set initial to false then.
         // Could not achieve a better way...
-        webView.setOnTouchListener { _, _ ->
+        webView?.setOnTouchListener { _, _ ->
             isInitial = false
             false
         }
@@ -238,22 +234,24 @@ class ArticleWebViewFragment :
         if (!isRendered) {
             return
         }
+        webView?.apply {
 
-        webView.pagingEnabled = true
+            pagingEnabled = true
 
-        webView.showTapIconsListener = {
-            when (it) {
-                true -> tapIconsViewModel.showTapIcons()
-                false -> tapIconsViewModel.hideTapIcons()
+            showTapIconsListener = {
+                when (it) {
+                    true -> tapIconsViewModel.showTapIcons()
+                    false -> tapIconsViewModel.hideTapIcons()
+                }
             }
-        }
 
-        webView.callTazApi(
-            "enableArticleColumnMode",
-            calculateColumnHeight(),
-            calculateColumnWidth(),
-            DEFAULT_COLUMN_GAP_PX,
-        )
+            callTazApi(
+                "enableArticleColumnMode",
+                calculateColumnHeight(),
+                calculateColumnWidth(),
+                DEFAULT_COLUMN_GAP_PX,
+            )
+        }
     }
 
     override fun onMultiColumnLayoutReady(contentWidth: Int?) {
@@ -275,42 +273,48 @@ class ArticleWebViewFragment :
 
         log.verbose("Change text settings: switch off multi column mode")
 
-        webView.apply {
+        webView?.apply {
             pagingEnabled = false
             showTapIconsListener = null
+
+            tapIconsViewModel.hideTapIcons()
+
+            callTazApi("disableArticleColumnMode")
         }
-
-        tapIconsViewModel.hideTapIcons()
-
-        webView.callTazApi("disableArticleColumnMode")
     }
 
     private fun calculateColumnHeight(): Float {
-        val verticalWebViewMarginPx =
-            resources.getDimensionPixelSize(R.dimen.fragment_webview_article_little_margin_top)
+        return webView?.let {
+            val verticalWebViewMarginPx =
+                resources.getDimensionPixelSize(R.dimen.fragment_webview_article_little_margin_top)
 
-        val navBarHeightPx =
-            resources.getDimensionPixelSize(R.dimen.nav_bottom_height)
+            val navBarHeightPx =
+                resources.getDimensionPixelSize(R.dimen.nav_bottom_height)
 
-        // Since Android 15 (sdk 35), the content draws behind the system bars,
-        // so the navigation needs to be subtracted as well:
-        val androidNavBarPx = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-            getNavigationBarHeight()
-        } else {
-            0
-        }
+            // Since Android 15 (sdk 35), the content draws behind the system bars,
+            // so the navigation needs to be subtracted as well:
+            val androidNavBarPx =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                    getNavigationBarHeight()
+                } else {
+                    0
+                }
 
-        val resultInPixel =
-            viewBinding.webView.height - 2 * verticalWebViewMarginPx - navBarHeightPx - androidNavBarPx
-        val resultInDp = resultInPixel / resources.displayMetrics.density
-        return resultInDp
+            val resultInPixel =
+                it.height - 2 * verticalWebViewMarginPx - navBarHeightPx - androidNavBarPx
+            val resultInDp = resultInPixel / resources.displayMetrics.density
+            return resultInDp
+        } ?: 0f
     }
 
     private fun calculateColumnWidth(): Float {
-        val amountOfColumns = columnAmount()
-        val webViewWidth =
-            viewBinding.webView.width.toFloat() / resources.displayMetrics.density
-        return (webViewWidth - (amountOfColumns + 1) * DEFAULT_COLUMN_GAP_PX) / amountOfColumns
+        return webView?.let {
+
+            val amountOfColumns = columnAmount()
+            val webViewWidth =
+                it.width.toFloat() / resources.displayMetrics.density
+            return (webViewWidth - (amountOfColumns + 1) * DEFAULT_COLUMN_GAP_PX) / amountOfColumns
+        } ?: 0f
     }
 
     private fun columnAmount(): Int {
@@ -332,7 +336,7 @@ class ArticleWebViewFragment :
             // Ensure the scrolling content is at least 1px higher then the scroll view
             val deviceHeight =
                 resources.displayMetrics.heightPixels / resources.displayMetrics.density
-            webView.evaluateJavascript("document.documentElement.style.minHeight=\"${deviceHeight + 1}px\"") {}
+            webView?.evaluateJavascript("document.documentElement.style.minHeight=\"${deviceHeight + 1}px\"") {}
         }
     }
 
@@ -396,7 +400,6 @@ class ArticleWebViewFragment :
                     (scrollX / burgerLogoWidth).coerceIn(0f, 1f)
 
                 if (percentToHide == 0f) {
-                    drawerAndLogoViewModel.setFeedLogo()
                     oldScrollXOnMultiColumnSaved = false
                     oldScrollXOnMultiColumn = 0
                     helpFabViewModel.showHelpFab()

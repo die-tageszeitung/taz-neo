@@ -1,5 +1,6 @@
 package de.taz.app.android.dataStore
 
+import android.app.ActivityManager
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.SharedPreferencesMigration
@@ -44,7 +45,9 @@ private const val BOOKMARKS_SYNCHRONIZATION_BOTTOM_SHEET_DO_NOT_SHOW_AGAIN =
 private const val SETTINGS_BOOKMARKS_SYNCHRONIZATION = "settings_bookmark_synchronization"
 private const val SETTINGS_BOOKMARKS_SYNCHRONIZATION_CHANGED =
     "settings_bookmark_synchronization_changed"
+private const val SETTINGS_ANIMATE_DRAWER_LOGO = "settings_animate_drawer_logo"
 private const val SETTINGS_SHOW_ANIMATED_MOMENTS = "settings_show_animated_moments"
+private const val SETTINGS_HIDE_APPBAR_ON_SCROLL = "settings_hide_appbar_on_scroll"
 private const val SETTINGS_CONTINUE_READ = "settings_continue_read"
 private const val SETTINGS_CONTINUE_READ_ASK_EACH_TIME = "settings_continue_read_ask_each_time"
 private const val SETTINGS_CONTINUE_READ_DIALOG_SHOWN = "settings_continue_read_dialog_shown"
@@ -80,6 +83,9 @@ private val Context.generalDataStore: DataStore<Preferences> by preferencesDataS
 class GeneralDataStore private constructor(applicationContext: Context) {
 
     private val dataStore = applicationContext.generalDataStore
+
+    private val activityManager =
+        applicationContext.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
 
     companion object : SingletonHolder<GeneralDataStore, Context>(::GeneralDataStore)
 
@@ -158,6 +164,21 @@ class GeneralDataStore private constructor(applicationContext: Context) {
     val showAnimatedMoments: DataStoreEntry<Boolean> = SimpleDataStoreEntry(
         dataStore, booleanPreferencesKey(SETTINGS_SHOW_ANIMATED_MOMENTS), true
     )
+
+    val hideAppbarOnScroll: DataStoreEntry<Boolean> = SimpleDataStoreEntry(
+        dataStore, booleanPreferencesKey(SETTINGS_HIDE_APPBAR_ON_SCROLL), moreThan4GbRam()
+    )
+
+    val animateDrawerLogo: DataStoreEntry<Boolean> = SimpleDataStoreEntry(
+        dataStore, booleanPreferencesKey(SETTINGS_ANIMATE_DRAWER_LOGO), moreThan4GbRam()
+    )
+
+    private fun moreThan4GbRam(): Boolean {
+        val memoryInfo = ActivityManager.MemoryInfo()
+        activityManager.getMemoryInfo(memoryInfo)
+
+        return memoryInfo.totalMem.toDouble()/(1024*1024*1024) > 4
+    }
 
     val settingsContinueReadAskEachTime: DataStoreEntry<Boolean> = SimpleDataStoreEntry(
         dataStore, booleanPreferencesKey(SETTINGS_CONTINUE_READ_ASK_EACH_TIME), true

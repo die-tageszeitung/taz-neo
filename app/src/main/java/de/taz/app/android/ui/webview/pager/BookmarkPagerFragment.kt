@@ -13,7 +13,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.asLiveData
-import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.withResumed
@@ -49,11 +49,8 @@ import de.taz.app.android.ui.share.ShareArticleBottomSheet
 import de.taz.app.android.ui.webview.ArticleWebViewFragment
 import de.taz.app.android.ui.webview.ArticleWebViewFragment.CollapsibleLayoutProvider
 import de.taz.app.android.util.Log
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 class BookmarkPagerFragment :
@@ -103,127 +100,118 @@ class BookmarkPagerFragment :
         super.onViewCreated(view, savedInstanceState)
         setupViewPager()
 
-        articleBottomActionBarNavigationHelper
-            .setBottomNavigationFromContainer(viewBinding.navigationBottomLayout)
+        viewBinding?.apply {
+            articleBottomActionBarNavigationHelper.setBottomNavigationFromContainer(navigationBottom)
 
-        if (resources.getBoolean(R.bool.isTablet)) {
-            articleBottomActionBarNavigationHelper.fixToolbarForever()
-        }
+            if (resources.getBoolean(R.bool.isTablet)) {
+                articleBottomActionBarNavigationHelper.fixToolbarForever()
+            }
 
-        viewBinding.webviewPagerViewpager.apply {
-            reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
-        }
+            webviewPagerViewpager.apply {
+                reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
+            }
 
 
-        viewModel.articleFileNameFlow
-            .flowWithLifecycle(lifecycle)
-            .onEach {
+            viewModel.articleFileNameLiveData.distinctUntilChanged().observe(viewLifecycleOwner) {
                 if (it != null) {
                     setHeader(it)
                 }
-            }.launchIn(lifecycleScope)
+            }
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                launch {
-                    viewModel.bookmarkedArticleStubsFlow.collect {
-                        articlePagerAdapter.articleStubs = it
-                        viewBinding.loadingScreen.root.isVisible = false
-                        tryScrollToArticle()
-                    }
-                }
-
-                launch {
-                    issueViewerViewModel.goNextArticle.collect {
-                        if (it) {
-                            viewBinding.webviewPagerViewpager.currentItem =
-                                getCurrentPagerPosition() + 1
-                            issueViewerViewModel.goNextArticle.value = false
+            viewLifecycleOwner.lifecycleScope.launch {
+                repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    launch {
+                        viewModel.bookmarkedArticleStubsFlow.collect {
+                            articlePagerAdapter.articleStubs = it
+                            loadingScreen.root.isVisible = false
+                            tryScrollToArticle()
                         }
                     }
-                }
 
-                launch {
-                    issueViewerViewModel.goPreviousArticle.collect {
-                        if (it) {
-                            viewBinding.webviewPagerViewpager.currentItem =
-                                getCurrentPagerPosition() - 1
-                            issueViewerViewModel.goPreviousArticle.value = false
+                    launch {
+                        issueViewerViewModel.goNextArticle.collect {
+                            webviewPagerViewpager.currentItem += 1
                         }
                     }
-                }
 
-                launch {
-                    audioPlayerViewModel.isActiveAudio.collect {
-                        articleBottomActionBarNavigationHelper.setArticleAudioMenuIcon(it)
-                    }
-                }
-
-                launch {
-                    audioPlayerViewModel.isPlayerVisible.collect { isVisible ->
-                        if (isVisible) {
-                            articleBottomActionBarNavigationHelper.fixToolbar()
-                        } else {
-                            articleBottomActionBarNavigationHelper.releaseToolbar()
+                    launch {
+                        issueViewerViewModel.goPreviousArticle.collect {
+                            webviewPagerViewpager.currentItem -= 1
                         }
                     }
-                }
 
-                launch {
-                    audioPlayerViewModel.errorMessageFlow.filterNotNull()
-                        .collect { message ->
-                            toastHelper.showToast(message, long = true)
-                            audioPlayerViewModel.clearErrorMessage()
+                    launch {
+                        audioPlayerViewModel.isActiveAudio.collect {
+                            articleBottomActionBarNavigationHelper.setArticleAudioMenuIcon(it)
                         }
-                }
+                    }
 
-                launch {
-                    if (resources.getBoolean(R.bool.isTablet) && authHelper.isValid()) {
-                        // Observer multi column mode only when tablet and logged in
-                        tazApiCssDataStore.multiColumnMode.asLiveData()
-                            .observe(viewLifecycleOwner) { isMultiColumn ->
-                                viewBinding.webviewPagerViewpager.isUserInputEnabled =
-                                    !isMultiColumn
-                                viewBinding.collapsingToolbarLayout.pinToolbar(isMultiColumn)
+                    launch {
+                        audioPlayerViewModel.isPlayerVisible.collect { isVisible ->
+                            if (isVisible) {
+                                articleBottomActionBarNavigationHelper.fixToolbar()
+                            } else {
+                                articleBottomActionBarNavigationHelper.releaseToolbar()
+                            }
+                        }
+                    }
+
+                    launch {
+                        audioPlayerViewModel.errorMessageFlow.filterNotNull()
+                            .collect { message ->
+                                toastHelper.showToast(message, long = true)
+                                audioPlayerViewModel.clearErrorMessage()
                             }
                     }
+
+                    launch {
+                        if (resources.getBoolean(R.bool.isTablet) && authHelper.isValid()) {
+                            // Observer multi column mode only when tablet and logged in
+                            tazApiCssDataStore.multiColumnMode.asLiveData()
+                                .observe(viewLifecycleOwner) { isMultiColumn ->
+                                    webviewPagerViewpager.isUserInputEnabled =
+                                        !isMultiColumn
+                                    collapsingToolbarLayout.pinToolbar(isMultiColumn)
+                                }
+                        }
+                    }
                 }
             }
-        }
-        // show header
-        viewBinding.headerCustom.root.isVisible = true
+            // show header
+            headerCustom.root.isVisible = true
 
-        // Adjust padding when we have cutout display
-        lifecycleScope.launch {
-            val extraPadding = generalDataStore.displayCutoutExtraPadding.get()
-            if (extraPadding > 0 && resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                viewBinding.collapsingToolbarLayout.setPadding(0, extraPadding, 0, 0)
+            // Adjust padding when we have cutout display
+            lifecycleScope.launch {
+                val extraPadding = generalDataStore.displayCutoutExtraPadding.get()
+                if (extraPadding > 0 && resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                    collapsingToolbarLayout.setPadding(0, extraPadding, 0, 0)
+                }
             }
-        }
 
-        // Do not show help FAB
-        viewBinding.articlePagerFabHelp.isVisible = false
+            // Do not show help FAB
+            articlePagerFabHelp.isVisible = false
+        }
     }
 
     private fun setupViewPager() {
-        viewBinding.webviewPagerViewpager.apply {
+        viewBinding?.webviewPagerViewpager?.apply {
             orientation = ViewPager2.ORIENTATION_HORIZONTAL
             offscreenPageLimit = 2
             registerOnPageChangeCallback(pageChangeListener)
             articlePagerAdapter = BookmarkPagerAdapter()
             adapter = articlePagerAdapter
-        }
 
-        articlePagerAdapter.registerAdapterDataObserver(object :
-            RecyclerView.AdapterDataObserver() {
-            override fun onChanged() {
-                articlePagerAdapter.getArticleStub(
-                    viewBinding.webviewPagerViewpager.currentItem
-                )?.let {
-                    rebindBottomNavigation(it)
+            articlePagerAdapter.registerAdapterDataObserver(object :
+                RecyclerView.AdapterDataObserver() {
+                override fun onChanged() {
+                    articlePagerAdapter.getArticleStub(
+                        currentItem
+                    )?.let {
+                        rebindBottomNavigation(it)
+                    }
                 }
-            }
-        })
+            })
+        }
     }
 
     private fun rebindBottomNavigation(articleToBindTo: ArticleOperations) {
@@ -246,7 +234,7 @@ class BookmarkPagerFragment :
             }
             val articleStub = articlePagerAdapter.getArticleStub(position)
             articleStub?.let {
-                viewModel.articleFileNameFlow.value = it.articleFileName
+                viewModel.articleFileNameLiveData.value = it.articleFileName
                 rebindBottomNavigation(it)
                 audioPlayerViewModel.setVisible(it)
             }
@@ -297,7 +285,7 @@ class BookmarkPagerFragment :
     }
 
     private suspend fun tryScrollToArticle() {
-        val articleFileName = viewModel.articleFileNameFlow.value
+        val articleFileName = viewModel.articleFileNameLiveData.value
         if (
             articleFileName?.startsWith("art") == true &&
             viewModel.bookmarkedArticleStubsFlow.first().map { it.key }.contains(articleFileName)
@@ -307,7 +295,7 @@ class BookmarkPagerFragment :
             withResumed {
                 getSupposedPagerPosition()?.let {
                     if (it >= 0) {
-                        viewBinding.webviewPagerViewpager.setCurrentItem(it, false)
+                        viewBinding?.webviewPagerViewpager?.setCurrentItem(it, false)
                     }
                 }
             }
@@ -318,12 +306,12 @@ class BookmarkPagerFragment :
         articlePagerAdapter.getArticleStub(getCurrentPagerPosition())
 
     private fun getCurrentPagerPosition(): Int {
-        return viewBinding.webviewPagerViewpager.currentItem
+        return viewBinding?.webviewPagerViewpager?.currentItem ?: 0
     }
 
     private fun getSupposedPagerPosition(): Int? {
         val position = articlePagerAdapter.articleStubs.indexOfFirst {
-            it.key == viewModel.articleFileNameFlow.value
+            it.key == viewModel.articleFileNameLiveData.value
         }
         return if (position >= 0) {
             position
@@ -367,38 +355,40 @@ class BookmarkPagerFragment :
     }
 
     override fun onDestroyView() {
-        viewBinding.webviewPagerViewpager.adapter = null
+        viewBinding?.webviewPagerViewpager?.adapter = null
         articleBottomActionBarNavigationHelper.onDestroyView()
         super.onDestroyView()
     }
 
-    private suspend fun setHeader(displayableKey: String) {
-        val articleStub = articleRepository.getStub(displayableKey)
-        articleStub?.let { stub ->
-            val issueStub = issueRepository.getIssueStubForArticle(stub.key)
+    private fun setHeader(displayableKey: String) {
+        lifecycleScope.launch {
+            val articleStub = articleRepository.getStub(displayableKey)
+            articleStub?.let { stub ->
+                val issueStub = issueRepository.getIssueStubForArticle(stub.key)
 
-            viewBinding.header.root.isVisible = false
+                viewBinding?.header?.root?.isVisible = false
 
-            val position =
-                articlePagerAdapter.articleStubs.indexOf(
-                    getCurrentlyDisplayedArticleStub()
-                ) + 1
-            val total = articlePagerAdapter.itemCount
+                val position =
+                    articlePagerAdapter.articleStubs.indexOf(
+                        getCurrentlyDisplayedArticleStub()
+                    ) + 1
+                val total = articlePagerAdapter.itemCount
 
-            viewBinding.headerCustom.apply {
-                root.isVisible = true
-                indexIndicator.text =
-                    getString(
-                        R.string.fragment_header_custom_index_indicator,
-                        position,
-                        total
+                viewBinding?.headerCustom?.apply {
+                    root.isVisible = true
+                    indexIndicator.text =
+                        getString(
+                            R.string.fragment_header_custom_index_indicator,
+                            position,
+                            total
+                        )
+                    sectionTitle.text =
+                        stub.getSectionStub(requireContext().applicationContext)?.title
+                    publishedDate.text = getString(
+                        R.string.fragment_header_custom_published_date,
+                        determineDateString(stub, issueStub)
                     )
-                sectionTitle.text =
-                    stub.getSectionStub(requireContext().applicationContext)?.title
-                publishedDate.text = getString(
-                    R.string.fragment_header_custom_published_date,
-                    determineDateString(stub, issueStub)
-                )
+                }
             }
         }
     }
@@ -425,17 +415,17 @@ class BookmarkPagerFragment :
     /**
      * Check if appBarLayout is fully expanded and if not then expand it and show the logo.
      */
-    private fun expandAppBarIfCollapsed() {
+    private fun expandAppBarIfCollapsed() = viewBinding?.appBarLayout?.apply {
         val appBarFullyExpanded =
-            viewBinding.appBarLayout.height - viewBinding.appBarLayout.bottom == 0
+            height - bottom == 0
 
         if (!appBarFullyExpanded) {
-            viewBinding.appBarLayout.setExpanded(true, false)
+            setExpanded(true, false)
             drawerAndLogoViewModel.setFeedLogo()
         }
     }
 
     // Helper functions used on from the ArticleWebViewFragment to control the collapsible elements while scrolling programmatically
-    override fun getAppBarLayout(): AppBarLayout = viewBinding.appBarLayout
-    override fun getBottomNavigationLayout(): View = viewBinding.navigationBottomLayout
+    override fun getAppBarLayout(): AppBarLayout? = viewBinding?.appBarLayout
+    override fun getBottomNavigationLayout(): View? = viewBinding?.navigationBottom
 }

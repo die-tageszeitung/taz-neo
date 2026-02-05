@@ -1,6 +1,10 @@
 package de.taz.app.android.util
 import java.util.Calendar
 
+/**
+ * Get the next time we want to schedule an automatic download
+ * Currently 5am, 6pm and 9pm are options
+ */
 object NewIssuePollingScheduler {
     private val checkHours = listOf(5, 18, 21).sorted()
 

@@ -8,18 +8,19 @@ import android.view.View
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.SavedStateViewModelFactory
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
-import androidx.lifecycle.whenCreated
 import com.google.android.material.appbar.AppBarLayout
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentWebviewSectionBinding
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 
@@ -41,14 +42,14 @@ class SectionImprintWebViewFragment : WebViewFragment<
 
     private val issueContentViewModel: IssueViewerViewModel by activityViewModels()
 
-    override val webView: AppWebView
-        get() = viewBinding.webView
+    override val webView: AppWebView?
+        get() = viewBinding?.webView
 
-    override val loadingScreen: View
-        get() = viewBinding.loadingScreen.root
+    override val loadingScreen: View?
+        get() = viewBinding?.loadingScreen?.root
 
-    override val appBarLayout: AppBarLayout
-        get() = viewBinding.appBarLayout
+    override val appBarLayout: AppBarLayout?
+        get() = viewBinding?.appBarLayout
 
     override val bottomNavigationLayout: View? = null
 
@@ -60,15 +61,12 @@ class SectionImprintWebViewFragment : WebViewFragment<
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewLifecycleOwner.lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                issueContentViewModel.imprintArticleFlow.collect {
-                    if (it != null) {
-                        viewModel.displayableLiveData.postValue(it)
-                    }
-                }
+        issueContentViewModel.imprintArticleFlow.filterNotNull()
+            .flowWithLifecycle(lifecycle)
+            .onEach {
+                viewModel.displayable = it
             }
-        }
+            .launchIn(lifecycleScope)
     }
 
     override fun onPageRendered() {
@@ -88,7 +86,7 @@ class SectionImprintWebViewFragment : WebViewFragment<
             val isWeekend = issueStub.isWeekend && issueStub.validityDate.isNullOrBlank()
             val isWochentaz = issueStub.isWeekend && !issueStub.validityDate.isNullOrBlank()
 
-            viewBinding.apply {
+            viewBinding?.apply {
                 section.apply {
                     isVisible = true
                     setText(R.string.imprint)
@@ -110,9 +108,9 @@ class SectionImprintWebViewFragment : WebViewFragment<
             return
         }
 
-        webView.injectCss()
+        webView?.injectCss()
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.N)
-            webView.reload()
+            webView?.reload()
     }
 
     /**
@@ -122,7 +120,7 @@ class SectionImprintWebViewFragment : WebViewFragment<
         viewLifecycleOwner.lifecycleScope.launch {
             val extraPadding = generalDataStore.displayCutoutExtraPadding.get()
             if (extraPadding > 0 && resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                viewBinding.collapsingToolbarLayout.setPadding(0, extraPadding, 0, 0)
+                viewBinding?.collapsingToolbarLayout?.setPadding(0, extraPadding, 0, 0)
             }
         }
     }

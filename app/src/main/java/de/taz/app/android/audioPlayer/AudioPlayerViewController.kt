@@ -971,8 +971,8 @@ class AudioPlayerViewController(
                 null
             } else if (rootView.findViewById<BottomNavigationView>(R.id.navigation_bottom_webview_pager)?.isShown == true) {
                 rootView.findViewById<BottomNavigationView>(R.id.navigation_bottom_webview_pager)
-            } else if (rootView.findViewById<LinearLayout>(R.id.navigation_bottom_layout)?.isShown == true) {
-                rootView.findViewById<LinearLayout>(R.id.navigation_bottom_layout)
+            } else if (rootView.findViewById<LinearLayout>(R.id.navigation_bottom)?.isShown == true) {
+                rootView.findViewById<LinearLayout>(R.id.navigation_bottom)
             } else {
                 null
             }

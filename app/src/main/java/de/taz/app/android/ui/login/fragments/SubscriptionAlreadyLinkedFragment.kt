@@ -11,10 +11,10 @@ class SubscriptionAlreadyLinkedFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewBinding.fragmentLoginSubscriptionAlreadyTakenInsertNew.setOnClickListener {
+        viewBinding?.fragmentLoginSubscriptionAlreadyTakenInsertNew?.setOnClickListener {
             viewModel.status = LoginViewModelState.SUBSCRIPTION_MISSING
         }
-        viewBinding.fragmentLoginSubscriptionAlreadyTakenContactEmail.setOnClickListener {
+        viewBinding?.fragmentLoginSubscriptionAlreadyTakenContactEmail?.setOnClickListener {
             writeEmail()
         }
     }

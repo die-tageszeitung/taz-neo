@@ -1,7 +1,5 @@
 package de.taz.app.android.ui.pdfViewer
 
-import PageWithArticlesAdapter
-import TYPE_PAGE
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
@@ -73,84 +71,82 @@ class DrawerBodyPdfWithSectionsFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewBinding.root.setDefaultTopInset()
+        viewBinding?.apply {
+            root.setDefaultTopInset()
 
-        // Before API 35 edge-to-edge is not properly supported and the contents draw behind
-        // status bar. This fixes it.
-        if (Build.VERSION.SDK_INT < 35) {
-            ViewCompat.setOnApplyWindowInsetsListener(viewBinding.root) { v, windowInsets ->
-                val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-                val margin = resources.getDimensionPixelSize(R.dimen.drawer_margin_top_old_sdk)
-                v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                    topMargin = insets.top + margin
+            // Before API 35 edge-to-edge is not properly supported and the contents draw behind
+            // status bar. This fixes it.
+            if (Build.VERSION.SDK_INT < 35) {
+                ViewCompat.setOnApplyWindowInsetsListener(root) { v, windowInsets ->
+                    val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+                    val margin = resources.getDimensionPixelSize(R.dimen.drawer_margin_top_old_sdk)
+                    v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                        topMargin = insets.top + margin
+                    }
+                    WindowInsetsCompat.CONSUMED
                 }
-                WindowInsetsCompat.CONSUMED
             }
-        }
 
-        if (BuildConfig.IS_LMD) {
-            viewBinding.switchDrawerLayout.visibility = View.GONE
-        }
-
-        // Shrink the logo on collapsing appbar
-        viewBinding.drawerAppBarLayout.apply {
-            addOnOffsetChangedListener { _, verticalOffset ->
-                shrinkLogoByOffset(verticalOffset)
+            if (BuildConfig.IS_LMD) {
+                switchDrawerLayout.visibility = View.GONE
             }
-        }
 
-        adapter =
-            PageWithArticlesAdapter(
-                emptyList(),
-                { pageName -> handlePageClick(pageName) },
-                { pagePosition, article -> handleArticleClick(pagePosition, article) },
-                ::handleArticleBookmarkClick,
-                ::handleAudioEnqueueClick,
-                ::createArticleBookmarkStateFlow
+            // Shrink the logo on collapsing appbar
+            drawerAppBarLayout.apply {
+                addOnOffsetChangedListener { _, verticalOffset ->
+                    shrinkLogoByOffset(verticalOffset)
+                }
+            }
+
+            adapter =
+                PageWithArticlesAdapter(
+                    emptyList(),
+                    { pageName -> handlePageClick(pageName) },
+                    { pagePosition, article -> handleArticleClick(pagePosition, article) },
+                    ::handleArticleBookmarkClick,
+                    ::handleAudioEnqueueClick,
+                    ::createArticleBookmarkStateFlow
+                )
+
+            navigationPageArticleRecyclerView.adapter = adapter
+
+            // The recycler view should keep the sub items recycler views states.
+            // With that we can get rid off a wrapping nestedScrollView.
+            navigationPageArticleRecyclerView.recycledViewPool.setMaxRecycledViews(
+                TYPE_PAGE, 0
             )
 
-        viewBinding.navigationPageArticleRecyclerView.adapter = adapter
+            pdfPagerViewModel.issueStubLiveData.observe(viewLifecycleOwner) { issueStub ->
+                drawerAudioPlayerViewModel.setIssueStub(issueStub)
+                val dateString = setDrawerDate(issueStub)
+                activityPdfDrawerDate.text = dateString
+            }
 
-        // The recycler view should keep the sub items recycler views states.
-        // With that we can get rid off a wrapping nestedScrollView.
-        viewBinding.navigationPageArticleRecyclerView.recycledViewPool.setMaxRecycledViews(
-            TYPE_PAGE, 0
-        )
+            pdfPagerViewModel.itemsToC.observe(
+                viewLifecycleOwner
+            ) { items ->
+                items?.let {
+                    updateToc(items)
+                }
+            }
 
-        pdfPagerViewModel.issueStubLiveData.observe(viewLifecycleOwner) { issueStub ->
-            drawerAudioPlayerViewModel.setIssueStub(issueStub)
-            val dateString = setDrawerDate(issueStub)
-            viewBinding.activityPdfDrawerDate.text = dateString
-        }
+            pdfPagerViewModel.currentItem.observe(viewLifecycleOwner) { position ->
+                adapter.activePosition = position
+            }
 
-        pdfPagerViewModel.itemsToC.observe(
-            viewLifecycleOwner
-        ) { items ->
-            items?.let {
-                updateToc(items)
+            activityPdfDrawerFrontPage.setOnClickListener {
+                tracker.trackDrawerTapMomentEvent()
+                (requireActivity() as? MainActivity)?.showHome()
+            }
+
+            switchDrawerLayout.setOnClickListener {
+                drawerAndLogoViewModel.setNewDrawer(isNew = false)
+            }
+            playIssueLayout.setOnClickListener {
+                drawerAudioPlayerViewModel.handleOnPlayAllClicked()
             }
         }
-
-        pdfPagerViewModel.currentItem.observe(viewLifecycleOwner) { position ->
-            val oldPosition = adapter.activePosition
-            adapter.activePosition = position
-            adapter.notifyItemChanged(oldPosition)
-            adapter.notifyItemChanged(position)
-        }
-
-        viewBinding.activityPdfDrawerFrontPage.setOnClickListener {
-            tracker.trackDrawerTapMomentEvent()
-            (requireActivity() as? MainActivity)?.showHome()
-        }
-
-        viewBinding.switchDrawerLayout.setOnClickListener {
-            drawerAndLogoViewModel.setNewDrawer(isNew = false)
-        }
-        viewBinding.playIssueLayout.setOnClickListener {
-            drawerAudioPlayerViewModel.handleOnPlayAllClicked()
-        }
     }
-
     /**
      * Handle the event when an page with [pageName] is clicked.
      *
@@ -200,18 +196,20 @@ class DrawerBodyPdfWithSectionsFragment :
     }
 
     private fun toggleBookmark(article: ArticleOperations) {
-        lifecycleScope.launch {
-            val isBookmarked = bookmarkRepository.toggleBookmarkAsync(article).await()
-            if (isBookmarked) {
-                SnackBarHelper.showBookmarkSnack(
-                    context = requireContext(),
-                    view = viewBinding.root,
-                )
-            } else {
-                SnackBarHelper.showDebookmarkSnack(
-                    context = requireContext(),
-                    view = viewBinding.root,
-                )
+        viewBinding?.root?.let {
+            lifecycleScope.launch {
+                val isBookmarked = bookmarkRepository.toggleBookmarkAsync(article).await()
+                if (isBookmarked) {
+                    SnackBarHelper.showBookmarkSnack(
+                        context = requireContext(),
+                        view = it,
+                    )
+                } else {
+                    SnackBarHelper.showDebookmarkSnack(
+                        context = requireContext(),
+                        view = it,
+                    )
+                }
             }
         }
     }
@@ -224,27 +222,23 @@ class DrawerBodyPdfWithSectionsFragment :
      * @param items List of pages and articles on each page
      */
     private fun updateToc(items: List<PageWithArticlesListItem>) {
-        adapter = PageWithArticlesAdapter(
-            items,
-            { pageName -> handlePageClick(pageName) },
-            { pagePosition, article -> handleArticleClick(pagePosition, article) },
-            ::handleArticleBookmarkClick,
-            ::handleAudioEnqueueClick,
-            ::createArticleBookmarkStateFlow
-        )
+        adapter.pages = items
 
-        // Setup drawer header front page
-        Glide
-            .with(requireContext())
-            .load(storageService.getAbsolutePath((items.first() as PageWithArticlesListItem.Page).page.pagePdf))
-            .into(viewBinding.activityPdfDrawerFrontPage)
+        viewBinding?.apply {
+            // Setup drawer header front page
+            Glide
+                .with(requireContext())
+                .load(storageService.getAbsolutePath((items.first() as PageWithArticlesListItem.Page).page.pagePdf))
+                .into(activityPdfDrawerFrontPage)
 
-        viewBinding.navigationPageArticleRecyclerView.adapter = adapter
-        hideLoadingScreen()
+            navigationPageArticleRecyclerView.adapter = adapter
+            hideLoadingScreen()
+        }
+
     }
 
     private fun hideLoadingScreen() {
-        viewBinding.pdfDrawerLoadingScreen.apply {
+        viewBinding?.pdfDrawerLoadingScreen?.apply {
             animate()
                 .alpha(0f)
                 .withEndAction {
@@ -276,22 +270,22 @@ class DrawerBodyPdfWithSectionsFragment :
      * we listen for the offset of the [viewBinding.drawerAppBarLayout] and shrink the logo by the
      * amount off scrolled. It is mostly math magic with some twerks.
      */
-    private fun shrinkLogoByOffset(verticalOffset: Int) {
-        if (fullHeight == 0 && verticalOffset == 0 && viewBinding.activityPdfDrawerFrontPageCard.height > 0) {
-            fullHeight = viewBinding.activityPdfDrawerFrontPageCard.height
+    private fun shrinkLogoByOffset(verticalOffset: Int) = viewBinding?.apply {
+        if (fullHeight == 0 && verticalOffset == 0 && activityPdfDrawerFrontPageCard.height > 0) {
+            fullHeight = activityPdfDrawerFrontPageCard.height
             // set the wrapper to have the full height, otherwise the layout won't expand after collapse
             val lp: ViewGroup.LayoutParams =
-                viewBinding.activityPdfDrawerHeader.layoutParams
+                activityPdfDrawerHeader.layoutParams
             lp.height = fullHeight
-            viewBinding.activityPdfDrawerHeader.setLayoutParams(lp)
+            activityPdfDrawerHeader.setLayoutParams(lp)
             isInitial = false
         }
         if (fullWidth == 0 && verticalOffset == 0) {
-            fullWidth = viewBinding.activityPdfDrawerFrontPageCard.width
+            fullWidth = activityPdfDrawerFrontPageCard.width
         }
         if (fullWidth > 0 && fullHeight > 0) {
             val collapsableHeight =
-                viewBinding.drawerAppBarLayout.height.toFloat() - viewBinding.toolbar.height.toFloat()
+                drawerAppBarLayout.height.toFloat() - toolbar.height.toFloat()
             if (collapsableHeight > 0) {
                 val factor = 1 - (abs(verticalOffset) / collapsableHeight)
                 val minWidth =
@@ -302,12 +296,12 @@ class DrawerBodyPdfWithSectionsFragment :
                 val newHeight = (minHeight + factor * (fullHeight - minHeight)).toInt()
                 if (newWidth != justSetWidth) {
                     val lp: ViewGroup.LayoutParams =
-                        viewBinding.activityPdfDrawerFrontPageCard.layoutParams
+                        activityPdfDrawerFrontPageCard.layoutParams
 
                     if (newWidth != lp.width) {
                         lp.width = newWidth
                         lp.height = newHeight
-                        viewBinding.activityPdfDrawerFrontPageCard.setLayoutParams(lp)
+                        activityPdfDrawerFrontPageCard.setLayoutParams(lp)
                     }
                     justSetWidth = newWidth
                 }

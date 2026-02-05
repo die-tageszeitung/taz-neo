@@ -42,20 +42,12 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <LinearLayout
-        android:id="@+id/navigation_bottom_layout"
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/navigation_bottom"
+        style="@style/Widget.App.BottomNavigation.ToolBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:background="@color/navigation_bottom_background"
-        android:orientation="vertical"
-        app:layout_behavior="de.taz.app.android.util.BottomNavigationBehavior">
-
-        <com.google.android.material.bottomnavigation.BottomNavigationView
-            android:id="@+id/navigation_bottom"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            style="@style/Widget.App.BottomNavigation.ToolBar" />
-    </LinearLayout>
+        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -1,6 +1,7 @@
 package de.taz.app.android.content
 
 import android.content.Context
+import de.taz.app.android.BuildConfig
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.Feed
@@ -25,14 +26,14 @@ class FeedService(applicationContext: Context) {
     private val contentService = ContentService.getInstance(applicationContext)
 
 
-    suspend fun refreshFeed(name: String): Feed? =
+    suspend fun refreshFeed(name: String = BuildConfig.DISPLAYED_FEED): Feed? =
         withContext(Dispatchers.IO) {
             apiService.getFeedByName(name)?.apply {
                 feedRepository.save(this)
             }
         }
 
-    fun getFeedFlowByName(name: String): Flow<Feed?> {
+    fun getFeedFlow(name: String = BuildConfig.DISPLAYED_FEED): Flow<Feed?> {
         return feedRepository.getFlow(name)
             .distinctUntilChanged { old, new -> Feed.equalsShallow(old, new) }
             .map {
@@ -45,7 +46,7 @@ class FeedService(applicationContext: Context) {
      * Refresh the the Feed with [name] and return an [IssueKey] if a new issue date was detected.
      * Returns null if the feed was already up to date and did not need a refresh.
      */
-    suspend fun refreshFeedAndGetIssueKeyIfNew(name: String): IssueKey? {
+    suspend fun refreshFeedAndGetIssueKeyIfNew(name: String = BuildConfig.DISPLAYED_FEED): IssueKey? {
         val cachedFeed = feedRepository.get(name)
         val refreshedFeed = refreshFeed(name)
 

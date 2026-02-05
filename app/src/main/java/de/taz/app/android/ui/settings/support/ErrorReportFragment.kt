@@ -52,58 +52,62 @@ class ErrorReportFragment : BaseMainFragment<FragmentErrorReportBinding>() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewBinding.settingsHeader.fragmentHeaderDefaultTitle.setText(R.string.settings_header)
+        viewBinding?.apply {
 
-        lifecycleScope.launch {
-            // read email from settings
-            viewBinding.fragmentErrorReportEmail.setText(
-                AuthHelper.getInstance(requireContext().applicationContext).email.get()
-            )
-        }
-
-        viewBinding.fragmentErrorReportUpload.setOnClickListener {
-            getImageFromGallery.launch("image/*")
-        }
-
-        viewBinding.fragmentErrorReportSendButton.setOnClickListener {
-            viewBinding.loadingScreen.root.visibility = View.VISIBLE
-            val email = viewBinding.fragmentErrorReportEmail.text.toString().trim()
-            val message = viewBinding.fragmentErrorReportMessage.text.toString().trim()
-            val lastAction = viewBinding.fragmentErrorReportLastAction.text.toString().trim()
-            val conditions = viewBinding.fragmentErrorReportConditions.text.toString().trim()
+            settingsHeader.fragmentHeaderDefaultTitle.setText(R.string.settings_header)
 
             lifecycleScope.launch {
-                var inputErrors = false
+                // read email from settings
+                fragmentErrorReportEmail.setText(
+                    AuthHelper.getInstance(requireContext().applicationContext).email.get()
+                )
+            }
 
-                if (message.isBlank()) {
-                    inputErrors = true
-                    viewBinding.fragmentErrorReportMessage.error =
-                        requireContext().getString(R.string.login_email_message_empty)
-                }
+            fragmentErrorReportUpload.setOnClickListener {
+                getImageFromGallery.launch("image/*")
+            }
 
-                var errorReportEmail: String? = null
-                // Ignore provided mail if we are logged in
-                if (!authHelper.isLoggedIn()) {
+            fragmentErrorReportSendButton.setOnClickListener {
+                loadingScreen.root.visibility = View.VISIBLE
+                val email = fragmentErrorReportEmail.text.toString().trim()
+                val message = fragmentErrorReportMessage.text.toString().trim()
+                val lastAction = fragmentErrorReportLastAction.text.toString().trim()
+                val conditions = fragmentErrorReportConditions.text.toString().trim()
+
+                lifecycleScope.launch {
+                    var inputErrors = false
+
+                    if (message.isBlank()) {
+                        inputErrors = true
+                        fragmentErrorReportMessage.error =
+                            requireContext().getString(R.string.login_email_message_empty)
+                    }
+
+                    var errorReportEmail: String? = null
+                    // If email provided, use it
                     if (emailValidator(email)) {
                         errorReportEmail = email
                     } else {
-                        inputErrors = true
-                        viewBinding.fragmentErrorReportEmail.error =
-                            requireContext().getString(R.string.login_email_error_empty)
+                        // if no email provided, use the tazID email if logged in, otherwise error
+                        if (!authHelper.isLoggedIn()) {
+                            inputErrors = true
+                            fragmentErrorReportEmail.error =
+                                requireContext().getString(R.string.login_email_error_empty)
+                        }
                     }
-                }
 
-                if (!inputErrors) {
-                    sendErrorReport(
-                        errorReportEmail,
-                        message,
-                        lastAction,
-                        conditions,
-                        uploadedFileName,
-                        base64String
-                    )
-                } else {
-                    viewBinding.loadingScreen.root.visibility = View.GONE
+                    if (!inputErrors) {
+                        sendErrorReport(
+                            errorReportEmail,
+                            message,
+                            lastAction,
+                            conditions,
+                            uploadedFileName,
+                            base64String
+                        )
+                    } else {
+                        loadingScreen.root.visibility = View.GONE
+                    }
                 }
             }
         }
@@ -127,7 +131,7 @@ class ErrorReportFragment : BaseMainFragment<FragmentErrorReportBinding>() {
 
                     // Check if string is not longer than 2^32-1 bytes:
                     if (base64StringTotal.encodeToByteArray().size < MAX_BYTES) {
-                        viewBinding.fragmentErrorReportScreenshotThumbnail.setImageURI(uri)
+                        viewBinding?.fragmentErrorReportScreenshotThumbnail?.setImageURI(uri)
                         base64String = base64StringTotal
                     } else {
                         toastHelper.showToast(R.string.toast_error_report_upload_file_too_big)

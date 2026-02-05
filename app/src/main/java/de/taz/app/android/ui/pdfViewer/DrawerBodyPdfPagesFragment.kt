@@ -67,62 +67,63 @@ class DrawerBodyPdfPagesFragment : ViewBindingFragment<FragmentDrawerBodyPdfPage
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewBinding.wrapper.setDefaultVerticalInsets()
+        viewBinding?.apply {
+            wrapper.setDefaultVerticalInsets()
 
-        if (Build.VERSION.SDK_INT < 35) {
-            ViewCompat.setOnApplyWindowInsetsListener(viewBinding.wrapper) { v, windowInsets ->
-                val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-                val margin = resources.getDimensionPixelSize(R.dimen.drawer_margin_top_old_sdk)
-                v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                    topMargin = insets.top + margin
-                }
-                WindowInsetsCompat.CONSUMED
-            }
-        }
-
-        // Disable animations on the RV in hope of preventing some internal crashes:
-        // See: https://redmine.hal.taz.de/issues/15694
-        // Note: The RV should actually not recycle anything because it has effectively set its
-        // height to `wrap_content` (it has `match_parent` but the parent itself has `wrap_content`)
-        // and we are not doing any structural changes. As every crash was related to some animations
-        // it seems like a good try to disable the not-needed animations at all.
-        viewBinding.navigationRecyclerView.itemAnimator = null
-
-        pdfPagerViewModel.pdfPageListFlow
-            .flowWithLifecycle(lifecycle)
-            .filterNotNull()
-            .onEach { pages ->
-                // Keep showing the drawer loading screen until all pages are fully downloaded
-                val allPagesDownloaded = pages.all { it.dateDownload != null }
-                if (allPagesDownloaded && pages.isNotEmpty()) {
-                    initDrawAdapter(pages)
-                    hideLoadingScreen()
-                }
-            }.launchIn(lifecycleScope)
-
-        viewBinding.navigationRecyclerView.addOnItemTouchListener(
-            RecyclerTouchListener(
-                requireContext(),
-                fun(_: View, drawerPosition: Int) {
-                    tracker.trackDrawerTapPageEvent()
-                    log.debug("position clicked: $drawerPosition. pdf")
-                    // currentItem.value begins from 0 to n-1th pdf page
-                    // but in the drawer the front page is not part of the drawer list, that's why
-                    // it needs to be incremented by 1:
-                    val realPosition = drawerPosition + 1
-                    if (realPosition != pdfPagerViewModel.currentItem.value) {
-                        pdfPagerViewModel.updateCurrentItem(realPosition)
-                        adapter.activePosition = drawerPosition
+            if (Build.VERSION.SDK_INT < 35) {
+                ViewCompat.setOnApplyWindowInsetsListener(wrapper) { v, windowInsets ->
+                    val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+                    val margin = resources.getDimensionPixelSize(R.dimen.drawer_margin_top_old_sdk)
+                    v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                        topMargin = insets.top + margin
                     }
-                    parentFragmentManager.popBackStack(
-                        ARTICLE_PAGER_FRAGMENT_BACKSTACK_NAME,
-                        POP_BACK_STACK_INCLUSIVE
-                    )
-                    drawerAndLogoViewModel.closeDrawer()
+                    WindowInsetsCompat.CONSUMED
                 }
-            )
-        )
+            }
 
+            // Disable animations on the RV in hope of preventing some internal crashes:
+            // See: https://redmine.hal.taz.de/issues/15694
+            // Note: The RV should actually not recycle anything because it has effectively set its
+            // height to `wrap_content` (it has `match_parent` but the parent itself has `wrap_content`)
+            // and we are not doing any structural changes. As every crash was related to some animations
+            // it seems like a good try to disable the not-needed animations at all.
+            navigationRecyclerView.itemAnimator = null
+
+            pdfPagerViewModel.pdfPageListFlow
+                .flowWithLifecycle(lifecycle)
+                .filterNotNull()
+                .onEach { pages ->
+                    // Keep showing the drawer loading screen until all pages are fully downloaded
+                    val allPagesDownloaded = pages.all { it.dateDownload != null }
+                    if (allPagesDownloaded && pages.isNotEmpty()) {
+                        initDrawAdapter(pages)
+                        hideLoadingScreen()
+                    }
+                }.launchIn(lifecycleScope)
+
+            navigationRecyclerView.addOnItemTouchListener(
+                RecyclerTouchListener(
+                    requireContext(),
+                    fun(_: View, drawerPosition: Int) {
+                        tracker.trackDrawerTapPageEvent()
+                        log.debug("position clicked: $drawerPosition. pdf")
+                        // currentItem.value begins from 0 to n-1th pdf page
+                        // but in the drawer the front page is not part of the drawer list, that's why
+                        // it needs to be incremented by 1:
+                        val realPosition = drawerPosition + 1
+                        if (realPosition != pdfPagerViewModel.currentItem.value) {
+                            pdfPagerViewModel.updateCurrentItem(realPosition)
+                            adapter.activePosition = drawerPosition
+                        }
+                        parentFragmentManager.popBackStack(
+                            ARTICLE_PAGER_FRAGMENT_BACKSTACK_NAME,
+                            POP_BACK_STACK_INCLUSIVE
+                        )
+                        drawerAndLogoViewModel.closeDrawer()
+                    }
+                )
+            )
+        }
         pdfPagerViewModel.issueStubLiveData.observe(viewLifecycleOwner) {
             drawerAudioPlayerViewModel.setIssueStub(it)
         }
@@ -136,7 +137,7 @@ class DrawerBodyPdfPagesFragment : ViewBindingFragment<FragmentDrawerBodyPdfPage
                         } else {
                             R.drawable.ic_audio
                         }
-                        viewBinding.fragmentDrawerPlayIssueIcon.setImageResource(imageResource)
+                        viewBinding?.fragmentDrawerPlayIssueIcon?.setImageResource(imageResource)
                     }
                 }
 
@@ -164,79 +165,77 @@ class DrawerBodyPdfPagesFragment : ViewBindingFragment<FragmentDrawerBodyPdfPage
                 }
             }
 
-            // Setup Recyclerview's Layout
-            viewBinding.navigationRecyclerView.apply {
-                layoutManager = gridLayoutManager
-                setHasFixedSize(false)
-            }
-
-            // Setup drawer header (front page and date)
-            Glide
-                .with(requireContext())
-                .load(storageService.getAbsolutePath(items.first().pagePdf))
-                .into(viewBinding.activityPdfDrawerFrontPage)
-
-            viewBinding.activityPdfDrawerFrontPage.setOnClickListener {
-                tracker.trackDrawerTapPageEvent()
-                val newPosition = 0
-                if (newPosition != pdfPagerViewModel.currentItem.value) {
-                    pdfPagerViewModel.updateCurrentItem(newPosition)
-                    adapter.activePosition = newPosition
+            viewBinding?.apply {
+                // Setup Recyclerview's Layout
+                navigationRecyclerView.apply {
+                    layoutManager = gridLayoutManager
+                    setHasFixedSize(false)
                 }
-                parentFragmentManager.popBackStack(
-                    ARTICLE_PAGER_FRAGMENT_BACKSTACK_NAME,
-                    POP_BACK_STACK_INCLUSIVE
-                )
-                viewBinding.activityPdfDrawerFrontPageTitle.setTextColor(
-                    ContextCompat.getColor(
-                        requireContext(),
-                        R.color.pdf_drawer_sections_item_highlighted
+
+                // Setup drawer header (front page and date)
+                Glide
+                    .with(requireContext())
+                    .load(storageService.getAbsolutePath(items.first().pagePdf))
+                    .into(activityPdfDrawerFrontPage)
+
+                activityPdfDrawerFrontPage.setOnClickListener {
+                    tracker.trackDrawerTapPageEvent()
+                    val newPosition = 0
+                    if (newPosition != pdfPagerViewModel.currentItem.value) {
+                        pdfPagerViewModel.updateCurrentItem(newPosition)
+                        adapter.activePosition = newPosition
+                    }
+                    parentFragmentManager.popBackStack(
+                        ARTICLE_PAGER_FRAGMENT_BACKSTACK_NAME,
+                        POP_BACK_STACK_INCLUSIVE
                     )
-                )
-                drawerAndLogoViewModel.closeDrawer()
-            }
-            viewBinding.activityPdfDrawerFrontPageTitle.apply {
-                text = items.first().title
-                setTextColor(
-                    ContextCompat.getColor(
-                        requireContext(),
-                        R.color.pdf_drawer_sections_item_highlighted
-                    )
-                )
-            }
-
-            viewBinding.activityPdfDrawerDate.text =
-                pdfPagerViewModel.issueStub?.let { setDrawerDate(it) } ?: ""
-
-            viewBinding.apply {
-                playIssueLayout.setOnClickListener {
-                    drawerAudioPlayerViewModel.handleOnPlayAllClicked()
-                }
-            }
-            viewBinding.apply {
-                switchDrawerLayout.setOnClickListener {
-                    drawerAndLogoViewModel.setNewDrawer(isNew = true)
-                }
-            }
-
-            adapter =
-                PdfDrawerRecyclerViewAdapter(
-                    items.subList(1, items.size),
-                    Glide.with(requireContext())
-                )
-            pdfPagerViewModel.currentItem.observe(viewLifecycleOwner) { position ->
-                adapter.activePosition = position - 1
-                if (position > 0) {
-                    log.debug("set front page title color to: ${R.color.pdf_drawer_sections_item}")
-                    viewBinding.activityPdfDrawerFrontPageTitle.setTextColor(
+                    activityPdfDrawerFrontPageTitle.setTextColor(
                         ContextCompat.getColor(
                             requireContext(),
-                            R.color.pdf_drawer_sections_item
+                            R.color.pdf_drawer_sections_item_highlighted
+                        )
+                    )
+                    drawerAndLogoViewModel.closeDrawer()
+                }
+                activityPdfDrawerFrontPageTitle.apply {
+                    text = items.first().title
+                    setTextColor(
+                        ContextCompat.getColor(
+                            requireContext(),
+                            R.color.pdf_drawer_sections_item_highlighted
                         )
                     )
                 }
+
+                activityPdfDrawerDate.text =
+                    pdfPagerViewModel.issueStub?.let { setDrawerDate(it) } ?: ""
+
+                playIssueLayout.setOnClickListener {
+                    drawerAudioPlayerViewModel.handleOnPlayAllClicked()
+                }
+                switchDrawerLayout.setOnClickListener {
+                    drawerAndLogoViewModel.setNewDrawer(isNew = true)
+                }
+
+                adapter =
+                    PdfDrawerRecyclerViewAdapter(
+                        items.subList(1, items.size),
+                        Glide.with(requireContext())
+                    )
+                pdfPagerViewModel.currentItem.observe(viewLifecycleOwner) { position ->
+                    adapter.activePosition = position - 1
+                    if (position > 0) {
+                        log.debug("set front page title color to: ${R.color.pdf_drawer_sections_item}")
+                        activityPdfDrawerFrontPageTitle.setTextColor(
+                            ContextCompat.getColor(
+                                requireContext(),
+                                R.color.pdf_drawer_sections_item
+                            )
+                        )
+                    }
+                }
+                navigationRecyclerView.adapter = adapter
             }
-            viewBinding.navigationRecyclerView.adapter = adapter
         }
 
     }
@@ -254,7 +253,7 @@ class DrawerBodyPdfPagesFragment : ViewBindingFragment<FragmentDrawerBodyPdfPage
 
     private fun hideLoadingScreen() {
         activity?.runOnUiThread {
-            viewBinding.pdfDrawerLoadingScreen.root.apply {
+            viewBinding?.pdfDrawerLoadingScreen?.root?.apply {
                 animate()
                     .alpha(0f)
                     .withEndAction {
