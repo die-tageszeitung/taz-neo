@@ -3,6 +3,7 @@ package de.taz.app.android.audioPlayer
 import android.content.Intent
 import android.os.Build
 import android.view.Gravity
+import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
@@ -969,10 +970,10 @@ class AudioPlayerViewController(
                 || rootView.findViewById<CoordinatorLayout>(R.id.drawer_body_pdf_with_sections_layout)?.isShown == true
             ) {
                 null
-            } else if (rootView.findViewById<BottomNavigationView>(R.id.navigation_bottom_webview_pager)?.isShown == true) {
-                rootView.findViewById<BottomNavigationView>(R.id.navigation_bottom_webview_pager)
-            } else if (rootView.findViewById<LinearLayout>(R.id.navigation_bottom)?.isShown == true) {
-                rootView.findViewById<LinearLayout>(R.id.navigation_bottom)
+            } else if (rootView.findViewById<View>(R.id.navigation_bottom_webview_pager)?.isShown == true) {
+                rootView.findViewById<View>(R.id.navigation_bottom_webview_pager)
+            } else if (rootView.findViewById<View>(R.id.navigation_bottom)?.isShown == true) {
+                rootView.findViewById<View>(R.id.navigation_bottom)
             } else {
                 null
             }
