@@ -734,12 +734,11 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     }
 
     private fun showTextJustification(justified: Boolean) {
-        view?.findViewById<MaterialSwitch>(R.id.fragment_settings_text_justified)?.isChecked =
-            justified
+        viewBinding?.fragmentSettingsTextJustified?.isChecked = justified
     }
 
     private fun showNightMode(nightMode: Boolean) {
-        view?.findViewById<MaterialSwitch>(R.id.fragment_settings_night_mode)?.isChecked = nightMode
+        viewBinding?.fragmentSettingsNightMode?.isChecked = nightMode
     }
 
     private fun showMultiColumnMode(multiColumnModeEnabled: Boolean) {

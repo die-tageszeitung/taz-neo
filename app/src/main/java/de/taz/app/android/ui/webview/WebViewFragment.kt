@@ -160,20 +160,12 @@ abstract class WebViewFragment<
                     webView?.setCoordinatorBottomMatchingBehaviourEnabled(it)
                 }.launchIn(lifecycleScope)
 
-                viewModel.nightModeFlow
-                    // drop first event because that's already the current state
-                    // only react to changes
-                    .drop(1)
-                    .onEach {
-                        reloadAfterCssChange()
-                    }.launchIn(lifecycleScope)
-
                 viewModel.tapToScrollFlow
                     .onEach {
                         tapToScroll = it
                     }.launchIn(lifecycleScope)
 
-                viewModel.fontSizeFlow
+                viewModel.reloadCssFlow
                     .drop(1)
                     .onEach {
                         reloadAfterCssChange()
