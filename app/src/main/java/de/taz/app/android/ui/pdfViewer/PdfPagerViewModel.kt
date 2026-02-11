@@ -312,9 +312,11 @@ class PdfPagerViewModel(
         return pdfPageList?.indexOfFirst { it.pagePdf.name == fileName } ?: 0
     }
 
-    fun onFrameLinkClicked(link: String) {
+    suspend fun onFrameLinkClicked(link: String) {
         if (link.startsWith("art") && link.endsWith(".html")) {
-            showArticle(link)
+            if(generalDataStore.openArticlePdfView.get()) {
+                showArticle(link)
+            }
         } else if (link.startsWith("http") || link.startsWith("mailto:")) {
             _openLinkEventFlow.value = OpenLinkEvent.OpenExternal(link)
         } else if (link.startsWith("s") && link.endsWith(".pdf")) {

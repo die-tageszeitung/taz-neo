@@ -143,7 +143,7 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
      * @param x - the x coordinate of the click
      * @param y - the y coordinate of the click
      */
-    private fun handlePageClick(page: Page, x: Float, y: Float) {
+    private suspend fun handlePageClick(page: Page, x: Float, y: Float) {
         val issueStub = pdfPagerViewModel.issueStub
         if (page.podcast != null && issueStub != null && x in 0f..1f && y in 0f..1f) {
             // This page has a podcast and the click was anywhere on the pdf page. Trigger playing the PDF
@@ -152,10 +152,8 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
 
             val frameList = page.frameList ?: emptyList()
             val frame = frameList.firstOrNull { it.x1 <= x && x < it.x2 && it.y1 <= y && y < it.y2 }
-            if (frame != null) {
-                frame.link?.let {
-                    pdfPagerViewModel.onFrameLinkClicked(it)
-                }
+            frame?.link?.let {
+                pdfPagerViewModel.onFrameLinkClicked(it)
             }
         }
     }
@@ -163,7 +161,7 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
     /**
      * Handle a click on the page, if tap to scroll is enabled.
      */
-    private fun handleClickWithTapToScroll(
+    private suspend fun handleClickWithTapToScroll(
         page: Page,
         xPage: Float,
         yPage: Float,

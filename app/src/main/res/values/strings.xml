@@ -191,6 +191,7 @@
     <string name="settings_text_tap_to_scroll">Tippen am Rand</string>
     <string name="settings_text_keep_screen_on">Bildschirm beim Lesen von Artikeln aktiv lassen</string>
     <string name="settings_show_animated_moments">Animierte Titelseiten anzeigen</string>
+    <string name="settings_open_article_pdf">Artikelansicht beim klicken im PDF öffnen</string>
     <string name="settings_animate_drawer_logo">Logo beim Scrollen animieren</string>
     <string name="settings_hide_appbar_on_scroll">Header beim Scrollen ausblenden</string>
     <string name="settings_continue_read">Beim Öffnen einer Ausgabe automatisch weiterlesen</string>

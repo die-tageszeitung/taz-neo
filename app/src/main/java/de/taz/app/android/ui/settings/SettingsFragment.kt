@@ -222,6 +222,10 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                 setHideAppbarOnScroll(isChecked)
             }
 
+            fragmentSettingsOpenArticlePdf.setOnCheckedChangeListener { _, isChecked ->
+                setOpenArticlePdf(isChecked)
+            }
+
             fragmentSettingsAnimateDrawerLogo.setOnCheckedChangeListener { _, isChecked ->
                 setAnimateDrawerLogo(isChecked)
             }
@@ -390,6 +394,11 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                     showAnimatedMomentsFlow
                         .onEach { screenOn ->
                             showAnimatedMomentsSetting(screenOn)
+                        }.launchIn(lifecycleScope)
+
+                    openArticlePdfFlow
+                        .onEach { screenOn ->
+                            showOpenArticlePdf(screenOn)
                         }.launchIn(lifecycleScope)
 
                     hideAppbarOnScroll
@@ -757,6 +766,11 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             screenOn
     }
 
+    private fun showOpenArticlePdf(enabled: Boolean) {
+        viewBinding?.fragmentSettingsOpenArticlePdf?.isChecked = enabled
+    }
+
+
     private fun showAnimatedMomentsSetting(enabled: Boolean) {
         viewBinding?.fragmentSettingsShowAnimatedMoments?.isChecked = enabled
     }
@@ -890,6 +904,10 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
 
     private fun setHideAppbarOnScroll(enabled: Boolean) {
         viewModel.setHideAppbarOnScroll(enabled)
+    }
+
+    private fun setOpenArticlePdf(enabled: Boolean) {
+        viewModel.setOpenArticlePdf(enabled)
     }
 
     private fun setAnimateDrawerLogo(enabled: Boolean) {
