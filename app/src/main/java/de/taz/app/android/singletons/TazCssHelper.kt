@@ -26,11 +26,7 @@ class TazCssHelper private constructor(private val applicationContext: Context) 
             setNightMode(it)
         }.launchIn(CoroutineScope(Dispatchers.Default))
 
-        merge(
-            tazApiCssDataStore.fontSize.asFlow(),
-            tazApiCssDataStore.nightMode.asFlow(),
-            tazApiCssDataStore.textJustification.asFlow(),
-        ).onEach {
+        tazApiCssDataStore.regenerateCssFlow.onEach {
             generateCssOverride()
         }.launchIn(CoroutineScope(Dispatchers.Default))
     }
@@ -40,6 +36,7 @@ class TazCssHelper private constructor(private val applicationContext: Context) 
     }
 
     private suspend fun generateCssOverride() = withContext(Dispatchers.IO) {
+        log.debug("generating CSS override")
         val cssFileEntry =
             FileEntryRepository.getInstance(applicationContext).get(TAZ_API_CSS_FILENAME)
 
