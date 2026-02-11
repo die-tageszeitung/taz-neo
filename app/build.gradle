@@ -70,7 +70,7 @@ logger.quiet("Lmd versionName: $lmdVersionName versionCode: $lmdVersionCode")
 
 android {
     namespace 'de.taz.app.android'
-    compileSdk 35
+    compileSdk = 36
 
     buildFeatures {
         viewBinding true
@@ -79,8 +79,8 @@ android {
 
     defaultConfig {
         applicationId "de.taz.app.android"
-        minSdkVersion 21
-        targetSdkVersion 35
+        minSdkVersion 23
+        targetSdkVersion 36
 
         testOptions {
             unitTests {
@@ -416,7 +416,7 @@ dependencies {
     testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
     testImplementation 'junit:junit:4.13.2'
 
-    testImplementation 'org.robolectric:robolectric:4.15.1'
+    testImplementation 'org.robolectric:robolectric:4.16'
     testImplementation 'org.conscrypt:conscrypt-openjdk-uber:2.5.2'
 
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutines_version"
@@ -427,7 +427,7 @@ dependencies {
     testImplementation 'org.mockito.kotlin:mockito-kotlin:6.0.0'
 
     // Core library
-    testImplementation 'androidx.test:core-ktx:1.6.1'
+    testImplementation 'androidx.test:core-ktx:1.7.0'
     testImplementation 'androidx.arch.core:core-testing:2.2.0'
 
     // room
