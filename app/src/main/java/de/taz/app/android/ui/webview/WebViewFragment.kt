@@ -3,6 +3,7 @@ package de.taz.app.android.ui.webview
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.Context
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.TypedValue
@@ -59,11 +60,12 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.math.floor
 import kotlin.math.max
 
 private const val SAVE_SCROLL_POS_DEBOUNCE_MS = 100L
-private const val TAP_LOCK_BOOKMARK_DELAY_MS = 50L
+private const val TAP_LOCK_JS_DELAY_MS = 50L
 private const val TAP_LOCK_DELAY_MS = 500L
 
 @Retention(AnnotationRetention.SOURCE)
@@ -106,7 +108,8 @@ abstract class WebViewFragment<
     private var currentIssueKey: IssueKey? = null
     private var currentDisplayableKey: String? = null
 
-    var tapLock = false
+    val preventTap = AtomicBoolean(false)
+    val tryingToTap = AtomicBoolean(false)
 
     val issueViewerViewModel: IssueViewerViewModel by activityViewModels()
     val helpFabViewModel: HelpFabViewModel by activityViewModels()
@@ -423,12 +426,12 @@ abstract class WebViewFragment<
         // if on bottom and bottom bar is hidden tap on right side go to next article
         if (!webView.canScrollVertically(SCROLL_FORWARD) && direction == SCROLL_FORWARD
             && (bottomNavigationLayout?.getVisibleHeight() == 0 || bottomNavigationLayout?.getBottomNavigationBehavior() == null)) {
-            issueViewerViewModel.goNextArticle.emit(Unit)
+            issueViewerViewModel.goNext.emit(Unit)
         }
 
         // if on top and tap on left side go to previous article
         else if (!webView.canScrollVertically(SCROLL_BACKWARDS) && direction == SCROLL_BACKWARDS) {
-            issueViewerViewModel.goPreviousArticle.emit(Unit)
+            issueViewerViewModel.goPrevious.emit(Unit)
         } else {
             val appBarLayout = this.appBarLayout
             val bottomNavigationLayout = this.bottomNavigationLayout
@@ -553,7 +556,8 @@ abstract class WebViewFragment<
     }
 
     override fun onResume() {
-        tapLock = false
+        preventTap.set(false)
+        tryingToTap.set(false)
         super.onResume()
     }
 
@@ -600,7 +604,9 @@ abstract class WebViewFragment<
     }
 
     override fun onLinkClicked(displayableKey: String) {
-        setDisplayable(displayableKey)
+        if (!tryingToTap.get()) {
+            setDisplayable(displayableKey)
+        }
     }
 
     fun setDisplayable(displayableKey: String, linkClicked: Boolean = false) {
@@ -655,19 +661,18 @@ abstract class WebViewFragment<
 
     private fun maybeScroll(@ScrollDirection direction: Int): Boolean {
         if ((tapToScroll || multiColumnMode) && view != null) {
-            if (!tapLock) {
-                lifecycleScope.launch {
-                    // wait some delay to let javascript maybe handle bookmarks
-                    delay(TAP_LOCK_BOOKMARK_DELAY_MS)
-                    // Maybe tapLock was set from setBookmark in tasApiJs, so check again:
-                    if (!tapLock) {
-                        tapLock = true
-                        scrollToDirection(multiColumnMode, direction)
-                        // wait some delay to prevent javascript form opening links
-                        delay(TAP_LOCK_DELAY_MS)
-                    }
-                    tapLock = false
+            tryingToTap.set(true)
+            lifecycleScope.launch {
+                // wait some delay to let javascript maybe handle bookmarks/links
+                delay(TAP_LOCK_JS_DELAY_MS)
+                // Maybe tapLock was set from setBookmark in tasApiJs, so check again:
+                if (preventTap.compareAndSet(false, true)) {
+                    scrollToDirection(multiColumnMode, direction)
+                    // wait some delay to prevent javascript from opening links
+                    delay(TAP_LOCK_DELAY_MS)
                 }
+                preventTap.set(false)
+                tryingToTap.set(false)
             }
             return true
         }
@@ -681,6 +686,12 @@ abstract class WebViewFragment<
             webView?.updateLayoutParams<ViewGroup.MarginLayoutParams> {
                 bottomMargin = heightOfToolBar
             }
+        }
+    }
+
+    override fun onExternalLinkClicked(context: Context, uri: Uri) {
+        if (!tryingToTap.get()) {
+            super.onExternalLinkClicked(context, uri)
         }
     }
 }

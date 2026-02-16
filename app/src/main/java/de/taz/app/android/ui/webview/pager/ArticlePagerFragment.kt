@@ -219,13 +219,13 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
                     }
 
                     launch {
-                        issueContentViewModel.goNextArticle.collect {
+                        issueContentViewModel.goNext.collect {
                             webviewPagerViewpager.currentItem += 1
                         }
                     }
 
                     launch {
-                        issueContentViewModel.goPreviousArticle.collect {
+                        issueContentViewModel.goPrevious.collect {
                             webviewPagerViewpager.currentItem -= 1
                         }
                     }

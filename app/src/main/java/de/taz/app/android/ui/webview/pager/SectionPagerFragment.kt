@@ -103,6 +103,18 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
                             toggleHelpFab(it)
                         }
                     }
+
+                    launch {
+                        issueContentViewModel.goPrevious.collect {
+                            webviewPagerViewpager.currentItem -= 1
+                        }
+                    }
+
+                    launch {
+                        issueContentViewModel.goNext.collect {
+                            webviewPagerViewpager.currentItem += 1
+                        }
+                    }
                 }
             }
         }
