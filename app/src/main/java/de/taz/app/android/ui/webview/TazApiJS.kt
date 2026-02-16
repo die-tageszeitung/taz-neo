@@ -20,6 +20,8 @@ import de.taz.app.android.util.Log
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import androidx.core.content.edit
+import de.taz.app.android.api.interfaces.SectionOperations
+import de.taz.app.android.api.models.SectionStub
 
 
 const val TAZ_API_JS = "ANDROIDAPI"
@@ -100,9 +102,13 @@ class TazApiJS(private val webViewFragment: WebViewFragment<*, out WebViewViewMo
         log.verbose("openUrl $url")
         // relevant for links in the title for instance
 
+        if (webViewFragment.tryingToTap.get() && displayable is SectionOperations) {
+            return
+        }
+
         webViewFragment.apply {
             lifecycleScope.launch {
-                if (!tapLock) {
+                if (preventTap.compareAndSet(false, true)) {
                     if (url.endsWith(".html") && (url.startsWith("art") || url.startsWith("section"))) {
                         setDisplayable(url, linkClicked = true)
                     } else {
@@ -137,7 +143,7 @@ class TazApiJS(private val webViewFragment: WebViewFragment<*, out WebViewViewMo
     fun openImage(name: String) {
         log.verbose("openImage $name")
 
-        if (!webViewFragment.tapLock) {
+        if (webViewFragment.preventTap.compareAndSet(false, true)) {
             val intent = Intent(applicationContext, ImagePagerActivity::class.java)
             intent.putExtra(DISPLAYABLE_NAME, displayable?.key)
             intent.putExtra(IMAGE_NAME, name)
@@ -170,7 +176,7 @@ class TazApiJS(private val webViewFragment: WebViewFragment<*, out WebViewViewMo
     fun setBookmark(articleName: String, isBookmarked: Boolean, showNotification: Boolean) {
         runBlocking {
             // Set the tap lock, so it will not additionally scroll (when tap to scroll is activated)
-            webViewFragment.tapLock = true
+            webViewFragment.preventTap.set(true)
             webViewFragment.onSetBookmark(articleName, isBookmarked, showNotification)
         }
     }
@@ -196,6 +202,7 @@ class TazApiJS(private val webViewFragment: WebViewFragment<*, out WebViewViewMo
 
     @JavascriptInterface
     fun setEnqueued(articleName: String, isEnqueued: Boolean) {
+        webViewFragment.preventTap.set(true)
         val correctArticleName = articleName.replace("PlaylistAdd.","")
         runBlocking {
             webViewFragment.onEnqueued(correctArticleName, isEnqueued)

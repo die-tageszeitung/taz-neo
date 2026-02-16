@@ -129,13 +129,13 @@ class BookmarkPagerFragment :
                     }
 
                     launch {
-                        issueViewerViewModel.goNextArticle.collect {
+                        issueViewerViewModel.goNext.collect {
                             webviewPagerViewpager.currentItem += 1
                         }
                     }
 
                     launch {
-                        issueViewerViewModel.goPreviousArticle.collect {
+                        issueViewerViewModel.goPrevious.collect {
                             webviewPagerViewpager.currentItem -= 1
                         }
                     }

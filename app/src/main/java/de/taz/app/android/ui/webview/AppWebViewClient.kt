@@ -10,6 +10,7 @@ import android.webkit.WebViewClient
 import androidx.annotation.RequiresApi
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import de.taz.app.android.R
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.sentry.SentryWrapper
@@ -22,6 +23,13 @@ import java.net.URLDecoder
 interface AppWebViewClientCallBack {
     fun onLinkClicked(displayableKey: String)
     fun onPageFinishedLoading()
+
+    fun onExternalLinkClicked(context: Context, uri: Uri) {
+        val color = ContextCompat.getColor(context, R.color.colorAccent)
+        CustomTabsIntent.Builder().setToolbarColor(color).build().apply {
+            launchUrl(context, uri)
+        }
+    }
 }
 
 class AppWebViewClient(
@@ -63,7 +71,7 @@ class AppWebViewClient(
             if (handleLinks(decodedUrl)) {
                 createNewFragment(decodedUrl)
             } else {
-                openInBrowser(webView, url)
+                callBack.onExternalLinkClicked(webView.context, url.toUri())
                 true
             }
         }
@@ -121,13 +129,6 @@ class AppWebViewClient(
             } else {
                 null
             }
-        }
-    }
-
-    private fun openInBrowser(webView: WebView, url: String) {
-        val color = ContextCompat.getColor(webView.context, R.color.colorAccent)
-        CustomTabsIntent.Builder().setToolbarColor(color).build().apply {
-            launchUrl(webView.context, Uri.parse(url))
         }
     }
 
