@@ -233,6 +233,9 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>(), SuccessfulLogin
 
     private var loggedOutDialog: AlertDialog? = null
     fun showLoggedOutDialog() {
+        if (isShowingDialog()) {
+            return
+        }
         loggedOutDialog = MaterialAlertDialogBuilder(this@MainActivity)
             .setMessage(R.string.pdf_mode_better_to_be_logged_in_hint)
             .setPositiveButton(android.R.string.ok) { dialog, _ ->
@@ -291,6 +294,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>(), SuccessfulLogin
                 || supportFragmentManager.findFragmentByTag(SubscriptionElapsedBottomSheetFragment.TAG) != null
                 || supportFragmentManager.findFragmentByTag(AllowNotificationsBottomSheetFragment.TAG) != null
                 || supportFragmentManager.findFragmentByTag(TrackingConsentBottomSheet.TAG) != null
+                || supportFragmentManager.findFragmentByTag(LoginBottomSheetFragment.TAG) != null
     }
 
     private var doubleBackToExitPressedOnce = false
