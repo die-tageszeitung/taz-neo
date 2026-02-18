@@ -61,7 +61,8 @@ import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.launch
 
-class PdfPagerWrapperFragment: ViewBindingFragment<ActivityPdfDrawerLayoutBinding>(), SuccessfulLoginAction, BackFragment {
+class PdfPagerWrapperFragment : ViewBindingFragment<ActivityPdfDrawerLayoutBinding>(),
+    SuccessfulLoginAction, BackFragment {
 
     companion object {
         private const val KEY_ISSUE_PUBLICATION = "KEY_ISSUE_PUBLICATION"
@@ -97,9 +98,11 @@ class PdfPagerWrapperFragment: ViewBindingFragment<ActivityPdfDrawerLayoutBindin
     private lateinit var tazApiCssDataStore: TazApiCssDataStore
     private lateinit var toastHelper: ToastHelper
     private lateinit var generalDataStore: GeneralDataStore
-    private lateinit var drawerViewController: DrawerViewController
+    lateinit var drawerViewController: DrawerViewController
+
     private val continueReadDirectly: Boolean
-        get() = arguments?.getBoolean(IssueViewerWrapperFragment.KEY_CONTINUE_READ_DIRECTLY) ?: false
+        get() = arguments?.getBoolean(IssueViewerWrapperFragment.KEY_CONTINUE_READ_DIRECTLY)
+            ?: false
     private var continueReadBottomSheetShown = false
 
     override fun onAttach(context: Context) {
@@ -118,7 +121,10 @@ class PdfPagerWrapperFragment: ViewBindingFragment<ActivityPdfDrawerLayoutBindin
             arguments?.getParcelable(KEY_ISSUE_PUBLICATION)
                 ?: throw IllegalStateException("PdfPagerActivity needs to be started with KEY_ISSUE_KEY in Intent extras of type IssueKey")
         } catch (e: ClassCastException) {
-            log.warn("Somehow we got IssuePublication instead of IssuePublicationWithPages, so we wrap it it", e)
+            log.warn(
+                "Somehow we got IssuePublication instead of IssuePublicationWithPages, so we wrap it",
+                e
+            )
             SentryWrapper.captureException(e)
             IssuePublicationWithPages(
                 arguments?.getParcelable(KEY_ISSUE_PUBLICATION)!!
@@ -127,7 +133,11 @@ class PdfPagerWrapperFragment: ViewBindingFragment<ActivityPdfDrawerLayoutBindin
 
         val displayableKey: String? = arguments?.getString(KEY_DISPLAYABLE)
 
-        pdfPagerViewModel.setIssuePublication(issuePublication, continueReadDirectly, displayableKey)
+        pdfPagerViewModel.setIssuePublication(
+            issuePublication,
+            continueReadDirectly,
+            displayableKey
+        )
         pdfPagerViewModel.issueDownloadFailedErrorFlow
             .flowWithLifecycle(lifecycle)
             .filter { it }
@@ -161,7 +171,7 @@ class PdfPagerWrapperFragment: ViewBindingFragment<ActivityPdfDrawerLayoutBindin
 
 
         pdfPagerViewModel.continueReadDisplayable
-            .takeWhile { savedInstanceState == null && !continueReadBottomSheetShown}
+            .takeWhile { savedInstanceState == null && !continueReadBottomSheetShown }
             .filterNotNull()
             .take(1)
             .flowWithLifecycle(lifecycle)
@@ -188,7 +198,9 @@ class PdfPagerWrapperFragment: ViewBindingFragment<ActivityPdfDrawerLayoutBindin
                         .distinctUntilChanged()
                         .filter { it }
                         .collect {
-                            SubscriptionElapsedBottomSheetFragment.showSingleInstance(childFragmentManager)
+                            SubscriptionElapsedBottomSheetFragment.showSingleInstance(
+                                childFragmentManager
+                            )
                         }
                 }
 
@@ -220,7 +232,6 @@ class PdfPagerWrapperFragment: ViewBindingFragment<ActivityPdfDrawerLayoutBindin
                         drawerAndLogoViewModel.setNewDrawer(it)
                     }
                 }
-
                 launch {
                     drawerAndLogoViewModel.drawerState.collect {
                         drawerViewController.handleDrawerLogoState(it)
@@ -266,6 +277,7 @@ class PdfPagerWrapperFragment: ViewBindingFragment<ActivityPdfDrawerLayoutBindin
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         // pdf mode always has burger icon
         drawerAndLogoViewModel.setBurgerIcon()
 
@@ -282,7 +294,7 @@ class PdfPagerWrapperFragment: ViewBindingFragment<ActivityPdfDrawerLayoutBindin
             lifecycleScope.launch {
                 val extraPadding = generalDataStore.displayCutoutExtraPadding.get()
                 if (extraPadding > 0 && resources.configuration.orientation == ORIENTATION_PORTRAIT) {
-                    navView.setPadding(0, extraPadding, 0 ,0)
+                    navView.setPadding(0, extraPadding, 0, 0)
                 }
             }
 

@@ -386,8 +386,6 @@ class ArticleWebViewFragment :
                         drawerAndLogoViewModel.setBurgerIcon()
                         oldScrollXOnMultiColumnSaved = false
                         oldScrollXOnMultiColumn = 0
-                    } else {
-                        drawerAndLogoViewModel.morphLogoByPercent(percentToHide)
                     }
                 }
                 helpFabViewModel.hideHelpFab()
@@ -403,8 +401,6 @@ class ArticleWebViewFragment :
                     oldScrollXOnMultiColumnSaved = false
                     oldScrollXOnMultiColumn = 0
                     helpFabViewModel.showHelpFab()
-                } else {
-                    drawerAndLogoViewModel.morphLogoByPercent(percentToHide)
                 }
             }
         }

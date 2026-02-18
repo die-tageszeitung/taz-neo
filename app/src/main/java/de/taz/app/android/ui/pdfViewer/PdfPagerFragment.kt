@@ -1,18 +1,21 @@
 package de.taz.app.android.ui.pdfViewer
 
 import android.content.Context
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.behavior.HideViewOnScrollBehavior.EDGE_LEFT
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Page
 import de.taz.app.android.api.models.PageType
 import de.taz.app.android.audioPlayer.AudioPlayerService
 import de.taz.app.android.base.BaseMainFragment
+import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.databinding.FragmentPdfPagerBinding
 import de.taz.app.android.tracking.Tracker
@@ -23,6 +26,7 @@ import de.taz.app.android.ui.pdfViewer.mupdf.OnCoordinatesClickedListener
 import de.taz.app.android.ui.pdfViewer.mupdf.PageAdapter
 import de.taz.app.android.ui.pdfViewer.mupdf.PageView
 import de.taz.app.android.util.Log
+import de.taz.app.android.util.getHideViewOnScrollBehavior
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.filterNotNull
@@ -38,9 +42,10 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
     private val pdfPagerViewModel: PdfPagerViewModel by viewModels({ requireParentFragment() })
     private val drawerAndLogoViewModel: DrawerAndLogoViewModel by activityViewModels()
 
+    private lateinit var audioPlayerService: AudioPlayerService
+    private lateinit var generalDataStore: GeneralDataStore
     private lateinit var tazApiCssDataStore: TazApiCssDataStore
     private lateinit var tracker: Tracker
-    private lateinit var audioPlayerService: AudioPlayerService
 
     private var isReaderViewInitialized = false
 
@@ -48,9 +53,10 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
+        audioPlayerService = AudioPlayerService.getInstance(context.applicationContext)
+        generalDataStore = GeneralDataStore.getInstance(context.applicationContext)
         tazApiCssDataStore = TazApiCssDataStore.getInstance(context.applicationContext)
         tracker = Tracker.getInstance(context.applicationContext)
-        audioPlayerService = AudioPlayerService.getInstance(context.applicationContext)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -77,7 +83,7 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
                 viewBinding?.readerView?.displayedViewIndex = position
             }
         }
-        setupDrawerLogoGhost()
+        initializeDrawerLogos()
     }
 
     override fun onResume() {
@@ -88,12 +94,6 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
                 BottomNavigationItem.ChildOf(BottomNavigationItem.Home)
             )
         }
-    }
-
-    override fun onDestroy() {
-        // And show the logo, so the state is not with a hidden logo
-        drawerAndLogoViewModel.showLogo()
-        super.onDestroy()
     }
 
     private fun initReaderView(pdfPageList: List<Page>) {
@@ -248,10 +248,35 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
         }
     }
 
-    private fun setupDrawerLogoGhost() {
-        viewBinding?.pdfPagerDrawerLogoGhost?.setOnClickListener {
-            tracker.trackDrawerOpenEvent(dragged = false)
-            drawerAndLogoViewModel.openDrawer()
+    private fun initializeDrawerLogos() = viewBinding?.apply {
+        lifecycleScope.launch {
+            (parentFragment as? PdfPagerWrapperFragment)?.drawerViewController?.apply {
+                initialize()
+                ensureFeedLogo(feedLogo)
+                ensureBurgerIcon(burgerWrapper, burgerLogo)
+            }
+
+            // Adjust padding when we have cutout display
+            val extraPadding = generalDataStore.displayCutoutExtraPadding.get()
+            if (extraPadding > 0 && resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                viewBinding?.feedLogo?.translationY += extraPadding
+                viewBinding?.burgerWrapper?.translationY += extraPadding
+            }
+
+            feedLogo.getHideViewOnScrollBehavior()?.apply {
+                setViewEdge(EDGE_LEFT)
+                slideOut(feedLogo)
+            }
+
+            feedLogo.setOnClickListener {
+                tracker.trackDrawerOpenEvent(dragged = false)
+                drawerAndLogoViewModel.openDrawer()
+            }
+            burgerLogo.setOnClickListener {
+                tracker.trackDrawerOpenEvent(dragged = false)
+                drawerAndLogoViewModel.openDrawer()
+            }
+
         }
     }
 }

@@ -106,7 +106,6 @@ class SectionWebViewFragment : WebViewFragment<
 
     private var bookmarkJob: Job? = null
     private var enqueuedJob: Job? = null
-    private var currentAppBarOffset = 0
 
     override val webView: AppWebView?
         get() = viewBinding?.webView
@@ -267,21 +266,7 @@ class SectionWebViewFragment : WebViewFragment<
                 resizeHeaderSectionTitle(it.width)
             }
             applyExtraPaddingOnCutoutDisplay()
-            // do not change logo on advertisement or podcast
-            val isAdvertisement = displayable.type == SectionType.advertisement
-            val isPodcast = displayable.type == SectionType.podcast
-            if (!isAdvertisement && !isPodcast) {
-                viewBinding?.appBarLayout?.apply {
-                    addOnOffsetChangedListener { _, verticalOffset ->
-                        currentAppBarOffset = verticalOffset
-                        if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
-                            updateDrawerLogoByCurrentAppBarOffset()
-                        }
-                    }
-                }
-            }
         }
-
     }
 
     override fun onResume() {
@@ -294,6 +279,20 @@ class SectionWebViewFragment : WebViewFragment<
             val issueStub = viewModel.issueStubFlow.first()
             val section = viewModel.sectionFlow.first()
             tracker.trackSectionScreen(issueStub.issueKey, section)
+
+            val isAdvertisement = section.type == SectionType.advertisement
+            val isPodcast = section.type == SectionType.podcast
+            if (isAdvertisement || isPodcast) {
+                drawerAndLogoViewModel.hideLogo()
+            } else {
+                webView?.scrollY?.let {
+                    if (it > 0) {
+                        drawerAndLogoViewModel.setBurgerIcon()
+                    } else {
+                        drawerAndLogoViewModel.setFeedLogo()
+                    }
+                }
+            }
         }
     }
 
@@ -568,11 +567,5 @@ class SectionWebViewFragment : WebViewFragment<
         } else {
             webView?.clearOnTouchListener()
         }
-    }
-
-    private fun updateDrawerLogoByCurrentAppBarOffset() {
-        val percentToHide =
-            -currentAppBarOffset.toFloat() / (viewBinding?.appBarLayout?.height?.toFloat() ?: 1f)
-        drawerAndLogoViewModel.morphLogoByPercent(percentToHide)
     }
 }

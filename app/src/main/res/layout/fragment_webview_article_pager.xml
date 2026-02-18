@@ -7,18 +7,47 @@
     android:layout_height="match_parent"
     android:background="@color/backgroundColor">
 
+    <androidx.cardview.widget.CardView
+        android:id="@+id/burger_wrapper"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:translationX="@dimen/drawer_logo_translation_x"
+        android:translationY="@dimen/drawer_logo_translation_y"
+        app:cardBackgroundColor="@android:color/transparent"
+        app:cardCornerRadius="@dimen/drawer_logo_corner_radius"
+        app:cardElevation="@dimen/drawer_logo_elevation"
+        app:cardUseCompatPadding="false"
+        app:layout_constraintLeft_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/burger_logo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:background="@color/tazRed"
+            android:clickable="true"
+            android:contentDescription="@string/navigation_drawer_close"
+            android:focusable="true"
+            android:importantForAccessibility="yes"
+            android:scaleType="centerInside" />
+
+    </androidx.cardview.widget.CardView>
+
     <ImageView
-        android:id="@+id/article_pager_drawer_logo_ghost"
-        android:layout_width="90dp"
-        android:layout_height="50dp"
-        android:alpha="0"
+        android:id="@+id/feed_logo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:clickable="true"
         android:contentDescription="@string/navigation_drawer_open"
         android:focusable="true"
         android:importantForAccessibility="yes"
-        android:translationX="@dimen/drawer_logo_translation_x"
+        android:layout_marginStart="@dimen/drawer_logo_translation_x"
         android:translationY="@dimen/drawer_logo_translation_y"
-        android:translationZ="100dp" />
+        app:layout_behavior="com.google.android.material.behavior.HideViewOnScrollBehavior"
+        app:layout_constraintStart_toStartOf="parent"
+        android:translationZ="100dp"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/app_bar_layout"
@@ -126,15 +155,15 @@
         android:contentDescription="@string/help"
         android:src="@drawable/ic_question_mark"
         app:backgroundTint="@color/fab_button_background"
-        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"
+        app:layout_behavior="com.google.android.material.behavior.HideViewOnScrollBehavior"
         app:tint="@color/lightGrey" />
 
 
-    <com.google.android.material.bottomnavigation.BottomNavigationView
+    <de.taz.app.android.ui.NoPaddingBottomNavigation
         android:id="@+id/navigation_bottom"
         style="@style/Widget.App.BottomNavigation.ToolBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior" />
+        app:layout_behavior="com.google.android.material.behavior.HideViewOnScrollBehavior" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

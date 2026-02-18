@@ -1,7 +1,9 @@
 package de.taz.app.android.base
 
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
+import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewbinding.ViewBinding
@@ -14,6 +16,12 @@ abstract class ViewBindingActivity<ViewBindingClass : ViewBinding> : AppCompatAc
     lateinit var viewBinding: ViewBindingClass
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // enable edge to edge for pre Android 15
+        enableEdgeToEdge(
+            SystemBarStyle.dark(Color.TRANSPARENT),
+            SystemBarStyle.dark(Color.TRANSPARENT),
+        )
+
         super.onCreate(savedInstanceState)
         disableActivityAnimations()
 
