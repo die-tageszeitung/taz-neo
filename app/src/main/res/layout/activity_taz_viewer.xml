@@ -45,7 +45,7 @@
                 android:id="@+id/drawer_logo_wrapper"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:translationX="@dimen/drawer_logo_translation_x"
+                android:layout_marginStart="@dimen/drawer_logo_translation_x"
                 android:translationY="@dimen/drawer_logo_translation_y"
                 app:cardBackgroundColor="@android:color/transparent"
                 app:cardCornerRadius="@dimen/drawer_logo_corner_radius"
@@ -65,6 +65,7 @@
                     android:focusable="true"
                     android:importantForAccessibility="yes"
                     android:scaleType="centerInside" />
+
             </androidx.cardview.widget.CardView>
 
         </androidx.constraintlayout.widget.ConstraintLayout>

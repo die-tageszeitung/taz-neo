@@ -48,7 +48,7 @@ import de.taz.app.android.ui.ViewBorder
 import de.taz.app.android.ui.bookmarks.BookmarkViewerActivity
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.util.Log
-import de.taz.app.android.util.getBottomNavigationBehavior
+import de.taz.app.android.util.getHideViewOnScrollBehavior
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
@@ -425,8 +425,8 @@ abstract class WebViewFragment<
 
         // if on bottom and bottom bar is hidden tap on right side go to next article
         if (!webView.canScrollVertically(SCROLL_FORWARD) && direction == SCROLL_FORWARD
-            && (bottomNavigationLayout?.getVisibleHeight() == 0 || bottomNavigationLayout?.getBottomNavigationBehavior() == null)) {
-            issueViewerViewModel.goNext.emit(Unit)
+            && (bottomNavigationLayout?.getVisibleHeight() == 0 || bottomNavigationLayout?.getHideViewOnScrollBehavior() == null)) {
+                issueViewerViewModel.goNext.emit(Unit)
         }
 
         // if on top and tap on left side go to previous article
@@ -435,7 +435,7 @@ abstract class WebViewFragment<
         } else {
             val appBarLayout = this.appBarLayout
             val bottomNavigationLayout = this.bottomNavigationLayout
-            val bottomNavigationBehavior = bottomNavigationLayout?.getBottomNavigationBehavior()
+            val bottomNavigationBehavior = bottomNavigationLayout?.getHideViewOnScrollBehavior()
 
             var visibleBottom = resources.displayMetrics.heightPixels
             var targetTop =
@@ -466,7 +466,7 @@ abstract class WebViewFragment<
                 if (bottomNavigationBehavior != null) {
                     // If the bottom navigation is shown, the visible content bottom is higher up
                     visibleBottom -= bottomNavigationLayout.getVisibleHeight()
-                    bottomNavigationBehavior.slideDown(bottomNavigationLayout, true)
+                    bottomNavigationBehavior.slideOut(bottomNavigationLayout, true)
                 } else {
                     // If the bottom navigation does not have a behavior, it is expanded
                     visibleBottom -= bottomNavigationLayout.height
@@ -498,11 +498,7 @@ abstract class WebViewFragment<
     }
 
     fun getNavigationBarHeight(): Int {
-        val rootWindowInsets = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            view?.rootWindowInsets
-        } else {
-            null
-        }
+        val rootWindowInsets = view?.rootWindowInsets
 
         val navigationBarHeight =
             if (rootWindowInsets != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {

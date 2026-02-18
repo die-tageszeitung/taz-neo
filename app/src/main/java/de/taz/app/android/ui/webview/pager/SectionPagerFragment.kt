@@ -1,10 +1,12 @@
 package de.taz.app.android.ui.webview.pager
 
 import android.content.Context
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.webkit.WebView
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -20,7 +22,10 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_DRAGGING
 import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_IDLE
-import com.google.android.material.behavior.HideBottomViewOnScrollBehavior
+import com.google.android.material.behavior.HideViewOnScrollBehavior
+import com.google.android.material.behavior.HideViewOnScrollBehavior.EDGE_BOTTOM
+import com.google.android.material.behavior.HideViewOnScrollBehavior.EDGE_LEFT
+import com.google.android.material.behavior.HideViewOnScrollBehavior.STATE_SCROLLED_IN
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.SectionStub
@@ -30,11 +35,14 @@ import de.taz.app.android.coachMarks.CoachMarkDialog
 import de.taz.app.android.coachMarks.SectionBookmarkCoachMark
 import de.taz.app.android.coachMarks.SectionPlaylistCoachMark
 import de.taz.app.android.coachMarks.TazLogoCoachMark
+import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentWebviewSectionPagerBinding
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.tracking.Tracker
+import de.taz.app.android.ui.TazViewerFragment
 import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
+import de.taz.app.android.ui.drawer.LogoState
 import de.taz.app.android.ui.issueViewer.IssueContentDisplayMode
 import de.taz.app.android.ui.issueViewer.IssueKeyWithDisplayableKey
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
@@ -44,7 +52,9 @@ import de.taz.app.android.ui.webview.HelpFabViewModel
 import de.taz.app.android.ui.webview.SectionImprintWebViewFragment
 import de.taz.app.android.ui.webview.SectionWebViewFragment
 import de.taz.app.android.util.Log
+import de.taz.app.android.util.getHideViewOnScrollBehavior
 import de.taz.app.android.util.runIfNotNull
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
@@ -59,23 +69,43 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
     private val drawerAndLogoViewModel: DrawerAndLogoViewModel by activityViewModels()
     private val helpFabViewModel: HelpFabViewModel by activityViewModels()
 
+    private lateinit var generalDataStore: GeneralDataStore
+
     private lateinit var tracker: Tracker
     private var showFab = false
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         tracker = Tracker.getInstance(context.applicationContext)
+        generalDataStore = GeneralDataStore.getInstance(context.applicationContext)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         viewBinding?.apply {
-            webviewPagerViewpager.apply {
-                reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
+            feedLogo.getHideViewOnScrollBehavior()?.setViewEdge(EDGE_LEFT)
+            feedLogo.getHideViewOnScrollBehavior()
+                ?.addOnScrollStateChangedListener { _, scrollState ->
+                    if (scrollState == STATE_SCROLLED_IN) {
+                        drawerAndLogoViewModel.setFeedLogo()
+                    } else {
+                        drawerAndLogoViewModel.setBurgerIcon()
+                    }
+                }
+            feedLogo.setOnClickListener {
+                tracker.trackDrawerOpenEvent(dragged = false)
+                drawerAndLogoViewModel.openDrawer()
             }
+            burgerLogo.setOnClickListener {
+                tracker.trackDrawerOpenEvent(dragged = false)
+                drawerAndLogoViewModel.openDrawer()
+            }
+
+            webviewPagerViewpager.reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
+
+            initializeDrawerLogos()
             setupViewPager()
-            setupDrawerLogoGhost()
             setupFAB()
 
             viewLifecycleOwner.lifecycleScope.launch {
@@ -115,7 +145,38 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
                             webviewPagerViewpager.currentItem += 1
                         }
                     }
+
+                    launch {
+                        // in an ideal world this would be handled in DrawerViewController, but we
+                        // would need to iterate all of the views, that wouldn't be performant
+                        drawerAndLogoViewModel.drawerState.collect {
+                            if (it.logoState == LogoState.FEED) {
+                                feedLogo.getHideViewOnScrollBehavior()?.slideIn(feedLogo)
+                                // wait for the logo to be slided in far enough to hide the burger
+                                delay(113) // HideViewOnScrollBehavior.DEFAULT_ENTER_ANIMATION_DURATION_MS / 2)
+                                burgerLogo.visibility = View.GONE
+                            } else {
+                                burgerLogo.visibility = View.VISIBLE
+                                feedLogo.getHideViewOnScrollBehavior()?.slideOut(feedLogo)
+                            }
+                        }
+                    }
                 }
+            }
+        }
+    }
+
+    private fun initializeDrawerLogos() = viewBinding?.apply {
+        lifecycleScope.launch {
+            val dvc = (parentFragment?.parentFragment as? TazViewerFragment)?.drawerViewController
+            dvc?.ensureFeedLogo(feedLogo)
+            dvc?.ensureBurgerIcon(burgerWrapper, burgerLogo)
+
+            // Adjust padding when we have cutout display
+            val extraPadding = generalDataStore.displayCutoutExtraPadding.get()
+            if (extraPadding > 0 && resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                viewBinding?.feedLogo?.translationY += extraPadding
+                viewBinding?.burgerWrapper?.translationY += extraPadding
             }
         }
     }
@@ -154,6 +215,8 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
                 showCoachMarks()
             }
 
+            floatingActionButton.getHideViewOnScrollBehavior()?.setViewEdge(EDGE_BOTTOM)
+
             issueContentViewModel.fabHelpEnabledFlow
                 .flowWithLifecycle(lifecycle)
                 .onEach {
@@ -167,7 +230,8 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
         private var lastPage: Int? = null
         override fun onPageSelected(position: Int) {
             val sectionStubs =
-                (viewBinding?.webviewPagerViewpager?.adapter as? SectionPagerAdapter)?.sectionStubs ?: emptyList()
+                (viewBinding?.webviewPagerViewpager?.adapter as? SectionPagerAdapter)?.sectionStubs
+                    ?: emptyList()
             // if we are beyond last position we are the imprint
             val isImprint = position == sectionStubs.size
             if (lastPage != null && lastPage != position && !isImprint) {
@@ -290,7 +354,9 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
      * On advertisements we hide the drawer logo.
      */
     private fun hideOrShowLogoIfNecessary(lastPage: Int?, position: Int) {
-        val sectionsStubs = (viewBinding?.webviewPagerViewpager?.adapter as? SectionPagerAdapter)?.sectionStubs ?: return
+        val sectionsStubs =
+            (viewBinding?.webviewPagerViewpager?.adapter as? SectionPagerAdapter)?.sectionStubs
+                ?: return
         if (sectionsStubs.isEmpty()) return
         val currentSection = try {
             sectionsStubs[position]
@@ -307,32 +373,13 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
             if (showFab) {
                 viewBinding?.sectionPagerFabHelp?.show()
             }
-            if (sectionsStubs.isEmpty()) return
-            val lastSection = try {
-                lastPage?.let { sectionsStubs[it] }
-            } catch (ioob: IndexOutOfBoundsException) {
-                log.error("could not get section of position $lastPage. ${ioob.message}")
-                return
-            }
-            val lastWasAdvertisement = lastSection?.type == SectionType.advertisement
-            val lastWasPodcast = lastSection?.type == SectionType.podcast
-            if (lastWasAdvertisement || lastWasPodcast) {
-                drawerAndLogoViewModel.showLogo()
-            }
-        }
-    }
-
-    private fun setupDrawerLogoGhost() {
-        viewBinding?.sectionPagerDrawerLogoGhost?.setOnClickListener {
-            tracker.trackDrawerOpenEvent(dragged = false)
-            drawerAndLogoViewModel.openDrawer()
         }
     }
 
     private fun showCoachMarks() {
-        val tazLogoCoachMark = requireActivity()
-            .findViewById<ImageView>(R.id.drawer_logo)
-            ?.let { TazLogoCoachMark.create(it) } ?: return
+        val tazLogoCoachMark =
+            TazLogoCoachMark.create(requireActivity().findViewById(R.id.drawer_logo))
+
         val sectionBookmarkCoachMark = SectionBookmarkCoachMark()
         val sectionPlaylistCoachMark = SectionPlaylistCoachMark()
         val coachMarks = listOf(
@@ -349,11 +396,11 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
             val layoutParams = fab?.layoutParams
             if (layoutParams is CoordinatorLayout.LayoutParams) {
                 val behavior = layoutParams.behavior
-                if (behavior is HideBottomViewOnScrollBehavior) {
+                if (behavior is HideViewOnScrollBehavior) {
                     if (show) {
-                        behavior.slideUp(fab)
+                        behavior.slideIn(fab)
                     } else {
-                        behavior.slideDown(fab)
+                        behavior.slideOut(fab)
                     }
                 }
             }

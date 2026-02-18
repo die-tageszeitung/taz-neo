@@ -24,7 +24,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.appbar.AppBarLayout
-import com.google.android.material.behavior.HideBottomViewOnScrollBehavior
+import com.google.android.material.behavior.HideViewOnScrollBehavior
+import com.google.android.material.behavior.HideViewOnScrollBehavior.EDGE_BOTTOM
+import com.google.android.material.behavior.HideViewOnScrollBehavior.EDGE_LEFT
+import com.google.android.material.behavior.HideViewOnScrollBehavior.STATE_SCROLLED_IN
 import de.taz.app.android.ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
@@ -64,22 +67,27 @@ import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.BackFragment
+import de.taz.app.android.ui.TazViewerFragment
 import de.taz.app.android.ui.bottomSheet.MultiColumnModeBottomSheetFragment
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsBottomSheetFragment
 import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
+import de.taz.app.android.ui.drawer.LogoState
 import de.taz.app.android.ui.issueViewer.IssueContentDisplayMode
 import de.taz.app.android.ui.issueViewer.IssueKeyWithDisplayableKey
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.pdfViewer.PdfPagerViewModel
+import de.taz.app.android.ui.pdfViewer.PdfPagerWrapperFragment
 import de.taz.app.android.ui.pdfViewer.PdfPagerWrapperFragment.Companion.ARTICLE_PAGER_FRAGMENT_BACKSTACK_NAME
 import de.taz.app.android.ui.share.ShareArticleBottomSheet
 import de.taz.app.android.ui.webview.ArticleWebViewFragment.CollapsibleLayoutProvider
 import de.taz.app.android.ui.webview.HelpFabViewModel
 import de.taz.app.android.ui.webview.TapIconsViewModel
 import de.taz.app.android.util.Log
+import de.taz.app.android.util.getHideViewOnScrollBehavior
 import de.taz.app.android.util.runIfNotNull
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
@@ -119,7 +127,6 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
 
     private var hasBeenSwiped = false
     private var isBookmarkedLiveData: LiveData<Boolean>? = null
-    private var currentAppBarOffset = 0
     private var lockOffsetChangedListener = false
 
     private var sectionChangeHandler: SectionChangeHandler? = null
@@ -143,6 +150,8 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
         super.onViewCreated(view, savedInstanceState)
 
         viewBinding?.apply {
+            feedLogo.getHideViewOnScrollBehavior()?.setViewEdge(EDGE_LEFT)
+
             articleBottomActionBarNavigationHelper
                 .setBottomNavigationFromContainer(navigationBottom)
 
@@ -275,13 +284,46 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
                             toggleHelpFab(it)
                         }
                     }
+
+                    launch {
+                        // in an ideal world this would be handled in DrawerViewController, but we
+                        // would need to iterate all of the views, that wouldn't be performant
+                        drawerAndLogoViewModel.drawerState.collect {
+                            if (it.logoState == LogoState.FEED) {
+                                feedLogo.getHideViewOnScrollBehavior()?.slideIn(feedLogo)
+                                // wait for the logo to be slided in far enough to hide the burger
+                                delay(113) // HideViewOnScrollBehavior.DEFAULT_ENTER_ANIMATION_DURATION_MS / 2)
+                                burgerLogo.visibility = View.GONE
+                            } else {
+                                burgerLogo.visibility = View.VISIBLE
+                                feedLogo.getHideViewOnScrollBehavior()?.slideOut(feedLogo)
+                            }
+                        }
+                    }
                 }
             }
-            setupDrawerLogoGhost()
+            initializeDrawerLogos()
             setupHeader()
             setupViewPager()
             setupFAB()
         }
+    }
+
+    private fun initializeDrawerLogos() = viewBinding?.apply {
+        lifecycleScope.launch {
+            val dvc = (parentFragment?.parentFragment as? TazViewerFragment)?.drawerViewController ?: (parentFragment as? PdfPagerWrapperFragment)?.drawerViewController
+            dvc?.ensureFeedLogo(feedLogo)
+            dvc?.ensureBurgerIcon(burgerWrapper, burgerLogo)
+        }
+        feedLogo.setOnClickListener {
+            tracker.trackDrawerOpenEvent(dragged = false)
+            drawerAndLogoViewModel.openDrawer()
+        }
+        burgerLogo.setOnClickListener {
+            tracker.trackDrawerOpenEvent(dragged = false)
+            drawerAndLogoViewModel.openDrawer()
+        }
+
     }
 
     private fun showCoachMarks() {
@@ -367,24 +409,6 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
             }
     }
 
-    override fun onResume() {
-        super.onResume()
-        updateDrawerLogoByCurrentAppBarOffset()
-    }
-
-    private fun updateDrawerLogoByCurrentAppBarOffset() {
-        lifecycleScope.launch {
-            val isMultiColumnMode = tazApiCssDataStore.multiColumnMode.get()
-            if (!isMultiColumnMode) {
-                val percentToMorph =
-                    -currentAppBarOffset.toFloat() / (viewBinding?.appBarLayout?.height?.toFloat()
-                        ?: 1f)
-
-                drawerAndLogoViewModel.morphLogoByPercent(percentToMorph)
-            }
-        }
-    }
-
     private fun showTapIcons() {
         viewBinding?.apply {
             leftTapIcon.animate().alpha(1f).duration =
@@ -409,11 +433,11 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
             val layoutParams = fab?.layoutParams
             if (layoutParams is CoordinatorLayout.LayoutParams) {
                 val behavior = layoutParams.behavior
-                if (behavior is HideBottomViewOnScrollBehavior) {
+                if (behavior is HideViewOnScrollBehavior) {
                     if (show) {
-                        behavior.slideUp(fab)
+                        behavior.slideIn(fab)
                     } else {
-                        behavior.slideDown(fab)
+                        behavior.slideOut(fab)
                     }
                 }
             }
@@ -456,6 +480,8 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
                 log.verbose("show coach marks in article pager")
                 showCoachMarks()
             }
+
+            floatingActionButton.getHideViewOnScrollBehavior()?.setViewEdge(EDGE_BOTTOM)
 
             issueContentViewModel.fabHelpEnabledFlow
                 .flowWithLifecycle(lifecycle)
@@ -501,7 +527,6 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
                         wasUserInputEnabledOnArticles =
                             webviewPagerViewpager.isUserInputEnabled
                         // always show taz logo when on new article:
-                        drawerAndLogoViewModel.setFeedLogo()
                     }
 
                     is ArticlePagerItem.Tom -> {
@@ -519,6 +544,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
                     }
                 }
             }
+            drawerAndLogoViewModel.setFeedLogo()
         }
 
         private fun onArticleSelected(position: Int, nextStub: ArticleStub) {
@@ -611,7 +637,6 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
 
         if (!appBarFullyExpanded) {
             setExpanded(true, false)
-            drawerAndLogoViewModel.setFeedLogo()
         }
     }
 
@@ -767,14 +792,11 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
     private fun setupHeader() {
         viewBinding?.header?.root?.visibility = View.VISIBLE
 
-        viewBinding?.appBarLayout?.apply {
-            addOnOffsetChangedListener { _, verticalOffset ->
-                if (!lockOffsetChangedListener) {
-                    currentAppBarOffset = verticalOffset
-                    if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
-                        updateDrawerLogoByCurrentAppBarOffset()
-                    }
-                }
+        viewBinding?.feedLogo?.getHideViewOnScrollBehavior()?.addOnScrollStateChangedListener { _, scrollState ->
+            if (scrollState == STATE_SCROLLED_IN) {
+                drawerAndLogoViewModel.setFeedLogo()
+            } else {
+                drawerAndLogoViewModel.setBurgerIcon()
             }
         }
 
@@ -783,6 +805,8 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
             val extraPadding = generalDataStore.displayCutoutExtraPadding.get()
             if (extraPadding > 0 && resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
                 viewBinding?.header?.root?.setPadding(0, extraPadding, 0, 0)
+                viewBinding?.feedLogo?.translationY += extraPadding
+                viewBinding?.burgerWrapper?.translationY += extraPadding
             }
         }
     }
@@ -941,13 +965,6 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
         val currentPosition = getCurrentPagerPosition()
         if (currentPosition > 0) {
             viewBinding?.webviewPagerViewpager?.setCurrentItem(currentPosition - 1, false)
-        }
-    }
-
-    private fun setupDrawerLogoGhost() {
-        viewBinding?.articlePagerDrawerLogoGhost?.setOnClickListener {
-            tracker.trackDrawerOpenEvent(dragged = false)
-            drawerAndLogoViewModel.openDrawer()
         }
     }
 

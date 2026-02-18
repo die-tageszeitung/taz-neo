@@ -4,15 +4,15 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.View
 import androidx.coordinatorlayout.widget.CoordinatorLayout
-import com.google.android.material.behavior.HideBottomViewOnScrollBehavior
+import com.google.android.material.behavior.HideViewOnScrollBehavior
 
 /**
  * Use HideBottomViewOnScrollBehaviour but only show the view if the scrollview is scrolled to top
  */
 class HideOnScrollShowOnlyOnTopBehavior<V : View>(
-    context: Context?,
+    context: Context,
     attrs: AttributeSet?,
-) : HideBottomViewOnScrollBehavior<V>(
+) : HideViewOnScrollBehavior<V>(
     context, attrs,
 ) {
     private val log by Log

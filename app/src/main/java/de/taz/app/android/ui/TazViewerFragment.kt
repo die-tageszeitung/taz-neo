@@ -44,7 +44,7 @@ abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>
 
     private lateinit var storageService: StorageService
     private lateinit var generalDataStore: GeneralDataStore
-    private lateinit var drawerViewController: DrawerViewController
+    lateinit var drawerViewController: DrawerViewController
 
     private val drawerAndLogoViewModel: DrawerAndLogoViewModel by activityViewModels()
 
@@ -104,6 +104,7 @@ abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>
                 }
             }
 
+            drawerViewController.initialize()
             drawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener {
                 override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
                     drawerViewController.handleOnDrawerSlider(slideOffset)
@@ -123,20 +124,8 @@ abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>
 
         // assumes setupDrawer is called from onCreate
         lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.CREATED) {
-                try {
-                    drawerViewController.setFeedLogo()
-                } catch (e: ExecutionException) {
-                    val hint = "Glide could not get imageDrawable. Probably a SD-Card issue."
-                    log.error(hint, e)
-                    SentryWrapper.captureException(e)
-                    showSdCardIssueDialog()
-                }
-                launch {
-                    drawerAndLogoViewModel.drawerState.collect {
-                        drawerViewController.handleDrawerLogoState(it)
-                    }
-                }
+            drawerAndLogoViewModel.drawerState.collect {
+                drawerViewController.handleDrawerLogoState(it)
             }
         }
     }

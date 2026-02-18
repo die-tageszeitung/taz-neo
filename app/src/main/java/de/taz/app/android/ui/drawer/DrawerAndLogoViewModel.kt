@@ -2,11 +2,9 @@ package de.taz.app.android.ui.drawer
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.viewModelScope
-import de.taz.app.android.dataStore.GeneralDataStore
+import de.taz.app.android.util.Log
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.stateIn
 
 /**
  * This View Model should handle the sates of the drawer and the logo.
@@ -27,43 +25,28 @@ class DrawerAndLogoViewModel(
 
     fun setFeedLogo() {
         _drawerState.value = when (val state = _drawerState.value) {
-            is DrawerState.Closed -> state.copy(isHidden = false, percentMorphedToBurger = 0f)
-            is DrawerState.Open -> state.copy(isHidden = false, percentMorphedToBurger = 0f)
+            is DrawerState.Closed -> state.copy(logoState = LogoState.FEED)
+            is DrawerState.Open -> state.copy(logoState = LogoState.FEED)
         }
     }
 
     fun setBurgerIcon() {
         _drawerState.value = when (val state = _drawerState.value) {
-            is DrawerState.Closed -> state.copy(isHidden = false, percentMorphedToBurger = 1f)
-            is DrawerState.Open -> state.copy(isHidden = false, percentMorphedToBurger = 1f)
+            is DrawerState.Closed -> state.copy(logoState = LogoState.BURGER)
+            is DrawerState.Open -> state.copy(logoState = LogoState.BURGER)
         }
     }
 
     fun hideLogo() {
         _drawerState.value = when (val state = _drawerState.value) {
-            is DrawerState.Closed -> state.copy(isHidden = true)
-            is DrawerState.Open -> state.copy(isHidden = true)
-        }
-    }
-
-    fun showLogo() {
-        _drawerState.value = when (val state = _drawerState.value) {
-            is DrawerState.Closed -> state.copy(isHidden = false)
-            is DrawerState.Open -> state.copy(isHidden = false)
-        }
-    }
-
-    fun morphLogoByPercent(percent: Float) {
-        val coercedPercent = percent.coerceIn(0f, 1f)
-        _drawerState.value = when (val state = _drawerState.value) {
-            is DrawerState.Closed -> state.copy(percentMorphedToBurger = coercedPercent)
-            is DrawerState.Open -> state.copy(percentMorphedToBurger = coercedPercent)
+            is DrawerState.Closed -> state.copy(logoState = LogoState.HIDDEN)
+            is DrawerState.Open -> state.copy(logoState = LogoState.HIDDEN)
         }
     }
 
     fun openDrawer() {
         _drawerState.value = when (val state = _drawerState.value) {
-            is DrawerState.Closed -> DrawerState.Open(state.isHidden, state.percentMorphedToBurger, state.isListDrawer)
+            is DrawerState.Closed -> DrawerState.Open(state.isListDrawer, state.logoState)
             is DrawerState.Open -> state
         }
     }
@@ -71,12 +54,12 @@ class DrawerAndLogoViewModel(
     fun closeDrawer() {
         _drawerState.value = when (val state = _drawerState.value) {
             is DrawerState.Closed -> state
-            is DrawerState.Open -> DrawerState.Closed(state.isHidden, state.percentMorphedToBurger, state.isListDrawer)
+            is DrawerState.Open -> DrawerState.Closed(state.isListDrawer, state.logoState)
         }
     }
 
     fun isBurgerIcon(): Boolean {
-        return _drawerState.value.percentMorphedToBurger == 1.0f
+        return _drawerState.value.logoState == LogoState.BURGER
     }
 
     fun setNewDrawer(isNew: Boolean) {
@@ -88,21 +71,22 @@ class DrawerAndLogoViewModel(
 }
 
 sealed class DrawerState {
-    abstract val isHidden: Boolean
-    abstract val percentMorphedToBurger: Float
     abstract val isListDrawer: Boolean
+    abstract val logoState: LogoState
 
     data class Open(
-        override val isHidden: Boolean = false,
-        override val percentMorphedToBurger: Float = 0f,
         override val isListDrawer: Boolean = false,
+        override val logoState: LogoState = LogoState.FEED,
     ) :
         DrawerState()
 
     data class Closed(
-        override val isHidden: Boolean = false,
-        override val percentMorphedToBurger: Float = 0f,
         override val isListDrawer: Boolean = false,
+        override val logoState: LogoState = LogoState.FEED
     ) :
         DrawerState()
+}
+
+enum class LogoState {
+    BURGER, CLOSE, FEED, HIDDEN
 }

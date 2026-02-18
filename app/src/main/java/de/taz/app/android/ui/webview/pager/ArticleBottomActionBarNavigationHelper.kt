@@ -4,13 +4,13 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.DrawableRes
-import com.google.android.material.behavior.HideBottomViewOnScrollBehavior
+import com.google.android.material.behavior.HideViewOnScrollBehavior
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.models.SearchHit
 import de.taz.app.android.ui.share.ShareArticleBottomSheet
-import de.taz.app.android.util.getBottomNavigationBehavior
+import de.taz.app.android.util.getHideViewOnScrollBehavior
 import de.taz.app.android.util.setBottomNavigationBehavior
 
 class ArticleBottomActionBarNavigationHelper(
@@ -25,7 +25,7 @@ class ArticleBottomActionBarNavigationHelper(
 
     private var isFixed = false
     private var isFixedForever = false
-    private var defaultBehavior: HideBottomViewOnScrollBehavior<View>? = null
+    private var defaultBehavior: HideViewOnScrollBehavior<View>? = null
 
     // The behavior is set on a container. See fragment_webview_pager.xml
     fun setBottomNavigationFromContainer(containerView: ViewGroup) {
@@ -111,24 +111,24 @@ class ArticleBottomActionBarNavigationHelper(
 
     fun expand(animate: Boolean) {
         val view = behaviorView
-        val behavior = view?.getBottomNavigationBehavior()
+        val behavior = view?.getHideViewOnScrollBehavior()
         if (view != null && behavior != null) {
-            behavior.slideUp(view, animate)
+            behavior.slideIn(view, animate)
         }
     }
 
     fun collapse(animate: Boolean) {
         val view = behaviorView
-        val behavior = view?.getBottomNavigationBehavior()
+        val behavior = view?.getHideViewOnScrollBehavior()
         if (view != null && behavior != null) {
-            behavior.slideDown(view, animate)
+            behavior.slideOut(view, animate)
         }
     }
 
     fun fixToolbar() {
         expand(animate = false)
         if (!isFixed && !isFixedForever) {
-            defaultBehavior = behaviorView?.getBottomNavigationBehavior()
+            defaultBehavior = behaviorView?.getHideViewOnScrollBehavior()
             behaviorView?.setBottomNavigationBehavior(null)
             isFixed = true
         }
