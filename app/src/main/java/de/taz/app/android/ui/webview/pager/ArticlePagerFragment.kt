@@ -292,7 +292,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
                             if (it.logoState == LogoState.FEED) {
                                 feedLogo.getHideViewOnScrollBehavior()?.slideIn(feedLogo)
                                 // wait for the logo to be slided in far enough to hide the burger
-                                delay(113) // HideViewOnScrollBehavior.DEFAULT_ENTER_ANIMATION_DURATION_MS / 2)
+                                delay(226) // = HideViewOnScrollBehavior.DEFAULT_ENTER_ANIMATION_DURATION_MS
                                 burgerLogo.visibility = View.GONE
                             } else {
                                 burgerLogo.visibility = View.VISIBLE
