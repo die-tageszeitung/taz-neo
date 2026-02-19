@@ -300,6 +300,13 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
                             }
                         }
                     }
+
+                    launch {
+                        generalDataStore.animateDrawerLogo.asFlow().collect { animateLogo ->
+                            (feedLogo.layoutParams as? CoordinatorLayout.LayoutParams)?.behavior =
+                                if (animateLogo) HideViewOnScrollBehavior<View>(EDGE_LEFT) else null
+                        }
+                    }
                 }
             }
             initializeDrawerLogos()

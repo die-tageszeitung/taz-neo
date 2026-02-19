@@ -5,8 +5,6 @@ import android.content.res.Configuration
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.webkit.WebView
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -159,6 +157,13 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
                                 burgerLogo.visibility = View.VISIBLE
                                 feedLogo.getHideViewOnScrollBehavior()?.slideOut(feedLogo)
                             }
+                        }
+                    }
+
+                    launch {
+                        generalDataStore.animateDrawerLogo.asFlow().collect { animateLogo ->
+                            (feedLogo.layoutParams as? CoordinatorLayout.LayoutParams)?.behavior =
+                                if (animateLogo) HideViewOnScrollBehavior<View>(EDGE_LEFT) else null
                         }
                     }
                 }
