@@ -11,10 +11,12 @@ import de.taz.app.android.simpleDateFormat
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import java.util.Date
 import java.util.LinkedList
@@ -74,6 +76,7 @@ class IssueFeedViewModel(
         .getFeedFlow()
         .distinctUntilChanged { old, new -> Feed.equalsShallow(old, new) }
         .filterNotNull()
+        .shareIn(viewModelScope, SharingStarted.Lazily, 1)
 
     private val _forceRefreshTimeMs = MutableStateFlow(0L)
     val forceRefreshTimeMs: Flow<Long> = _forceRefreshTimeMs.asStateFlow()
