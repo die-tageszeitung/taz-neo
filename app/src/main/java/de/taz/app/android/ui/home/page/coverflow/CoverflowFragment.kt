@@ -12,7 +12,6 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.lifecycle.withStarted
 import com.bumptech.glide.Glide
 import com.github.rubensousa.gravitysnaphelper.GravitySnapHelper
 import de.taz.app.android.BuildConfig
@@ -98,6 +97,8 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
             .drop(1)
             .onEach {
                 viewBinding?.fragmentCoverFlowGrid?.adapter?.notifyDataSetChanged()
+                // Call updateUI because maybe the download status is different
+                updateUIForCurrentDate()
             }.launchIn(lifecycleScope)
 
         // once when initiated and whenever pdfMode changes track CoverFlow
