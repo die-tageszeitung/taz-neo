@@ -778,7 +778,13 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
     }
 
     private fun getCurrentArticlePagerItem(): ArticlePagerItem? {
-        return (viewBinding?.webviewPagerViewpager?.adapter as? ArticlePagerAdapter)?.articlePagerItems[getCurrentPagerPosition()]
+        val articlePagerItem = try {
+            (viewBinding?.webviewPagerViewpager?.adapter as? ArticlePagerAdapter)?.articlePagerItems[getCurrentPagerPosition()]
+        } catch (e: IndexOutOfBoundsException) {
+            SentryWrapper.captureException(e)
+            null
+        }
+        return articlePagerItem
     }
 
     private fun getCurrentArticleStub(): ArticleStub? {
