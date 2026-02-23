@@ -134,8 +134,6 @@ class LoginViewModelTest {
 
     @Before
     fun setUp() {
-        SingletonTestUtil.resetAll()
-
         // Setup mocks of implicit AuthHelper dependencies
         Tracker.inject(NoOpTracker())
         FirebaseHelper.inject(mock())
