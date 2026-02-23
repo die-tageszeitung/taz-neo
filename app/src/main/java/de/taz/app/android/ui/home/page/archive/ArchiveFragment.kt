@@ -139,7 +139,6 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
                 enableRefreshViewOnScrollListener,
             )
 
-
             fragmentArchiveGrid.layoutManager = GridLayoutManager(requireContext(), calculateNoOfColumns())
             fragmentArchiveGrid.adapter = adapter
 

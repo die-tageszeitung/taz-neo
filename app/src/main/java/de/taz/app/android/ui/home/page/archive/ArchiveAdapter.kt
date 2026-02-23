@@ -25,6 +25,11 @@ class ArchiveAdapter(
     ),
     observeDownloads = true
 ) {
+
+    init {
+        setHasStableIds(true)
+    }
+
     override fun formatDate(publicationDate: PublicationDate): CoverViewDate {
         return when {
             BuildConfig.IS_LMD -> CoverViewDate(
