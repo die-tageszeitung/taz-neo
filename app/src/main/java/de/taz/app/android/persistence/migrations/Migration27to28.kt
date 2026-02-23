@@ -8,8 +8,8 @@ import de.taz.app.android.api.models.AudioSpeaker
 import de.taz.app.android.persistence.typeconverters.AudioSpeakerConverter
 
 class Migration27to28 : Migration(27, 28) {
-    override fun migrate(database: SupportSQLiteDatabase) {
-        database.apply {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.apply {
             execSQL("CREATE TABLE IF NOT EXISTS `Audio` (`fileName` TEXT NOT NULL, `playtime` INTEGER, `duration` REAL, `speaker` TEXT NOT NULL, `breaks` TEXT, PRIMARY KEY(`fileName`), FOREIGN KEY(`fileName`) REFERENCES `FileEntry`(`name`) ON UPDATE NO ACTION ON DELETE NO ACTION )")
 
             // Drop hasAudio field and add audioFileName field
@@ -23,7 +23,7 @@ class Migration27to28 : Migration(27, 28) {
             execSQL("ALTER TABLE ArticleNew RENAME TO Article")
             execSQL("CREATE INDEX IF NOT EXISTS `index_Article_audioFileName` ON `Article` (`audioFileName`)")
 
-            migrateData(database)
+            migrateData(db)
 
             execSQL("DROP TABLE ArticleAudioFileJoin")
         }

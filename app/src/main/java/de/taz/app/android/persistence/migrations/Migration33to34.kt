@@ -4,8 +4,8 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 class Migration33to34 : Migration(33, 34) {
-    override fun migrate(database: SupportSQLiteDatabase) {
-        database.apply {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.apply {
             // Add Image ForeignKey on SectionImageJoin
             execSQL("ALTER TABLE `SectionImageJoin` RENAME TO `OLDSectionImageJoin`")
             execSQL("CREATE TABLE IF NOT EXISTS `SectionImageJoin` (`sectionFileName` TEXT NOT NULL, `imageFileName` TEXT NOT NULL, `index` INTEGER NOT NULL, PRIMARY KEY(`sectionFileName`, `imageFileName`), FOREIGN KEY(`sectionFileName`) REFERENCES `Section`(`sectionFileName`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`imageFileName`) REFERENCES `Image`(`fileEntryName`) ON UPDATE NO ACTION ON DELETE NO ACTION )")

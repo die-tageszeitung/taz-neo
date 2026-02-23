@@ -4,13 +4,13 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 class Migration6to7 : Migration(6, 7) {
-    override fun migrate(database: SupportSQLiteDatabase) {
-        database.execSQL("CREATE TABLE Image (`name` TEXT NOT NULL, `storageType` TEXT NOT NULL, `moTime` INTEGER NOT NULL, `sha256` TEXT NOT NULL, `size` INTEGER NOT NULL, `folder` TEXT NOT NULL, `type` TEXT NOT NULL, `alpha` REAL NOT NULL, `resolution` TEXT NOT NULL, PRIMARY KEY(`name`, `storageType`))")
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("CREATE TABLE Image (`name` TEXT NOT NULL, `storageType` TEXT NOT NULL, `moTime` INTEGER NOT NULL, `sha256` TEXT NOT NULL, `size` INTEGER NOT NULL, `folder` TEXT NOT NULL, `type` TEXT NOT NULL, `alpha` REAL NOT NULL, `resolution` TEXT NOT NULL, PRIMARY KEY(`name`, `storageType`))")
 
-        database.execSQL("CREATE TABLE SectionNavButtonJoin  (`sectionFileName` TEXT NOT NULL, `navButtonFileName` TEXT NOT NULL, `navButtonStorageType` TEXT NOT NULL, PRIMARY KEY(`sectionFileName`, `navButtonFileName`, `navButtonStorageType`), FOREIGN KEY(`sectionFileName`) REFERENCES `Section`(`sectionFileName`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`navButtonFileName`, `navButtonStorageType`) REFERENCES `Image`(`name`, `storageType`) ON UPDATE NO ACTION ON DELETE NO ACTION )")
-        database.execSQL("CREATE INDEX IF NOT EXISTS `index_SectionNavButtonJoin_sectionFileName` ON SectionNavButtonJoin (`sectionFileName`)")
+        db.execSQL("CREATE TABLE SectionNavButtonJoin  (`sectionFileName` TEXT NOT NULL, `navButtonFileName` TEXT NOT NULL, `navButtonStorageType` TEXT NOT NULL, PRIMARY KEY(`sectionFileName`, `navButtonFileName`, `navButtonStorageType`), FOREIGN KEY(`sectionFileName`) REFERENCES `Section`(`sectionFileName`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`navButtonFileName`, `navButtonStorageType`) REFERENCES `Image`(`name`, `storageType`) ON UPDATE NO ACTION ON DELETE NO ACTION )")
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_SectionNavButtonJoin_sectionFileName` ON SectionNavButtonJoin (`sectionFileName`)")
 
-        database.execSQL(
+        db.execSQL(
             """
             INSERT INTO Image (
                 name, storageType, moTime, sha256, size, folder, type, alpha, resolution
@@ -21,7 +21,7 @@ class Migration6to7 : Migration(6, 7) {
             )""".trimMargin()
         )
 
-        database.execSQL(
+        db.execSQL(
             """
             INSERT INTO SectionNavButtonJoin(
                 sectionFileName, navButtonFileName, navButtonStorageType

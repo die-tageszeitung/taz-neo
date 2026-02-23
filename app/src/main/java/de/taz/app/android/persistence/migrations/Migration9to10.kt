@@ -4,8 +4,8 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 class Migration9to10 : Migration(9, 10) {
-    override fun migrate(database: SupportSQLiteDatabase) {
-        database.apply {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.apply {
 
             execSQL("""CREATE TABLE TmpArticle (`articleFileName` TEXT NOT NULL, `issueFeedName` TEXT NOT NULL, `issueDate` TEXT NOT NULL, `title` TEXT, `teaser` TEXT, `onlineLink` TEXT, `pageNameList` TEXT NOT NULL, `bookmarked` INTEGER NOT NULL, `articleType` TEXT NOT NULL, `position` INTEGER NOT NULL, `percentage` INTEGER NOT NULL, `downloadedStatus` TEXT, PRIMARY KEY(`articleFileName`))""")
             execSQL(""" INSERT INTO TmpArticle (articleFileName, issueFeedName, issueDate, title, teaser, onlineLink, pageNameList, bookmarked, articleType, position, percentage) SELECT articleFileName, issueFeedName, issueDate, title, teaser, onlineLink, pageNameList, bookmarked, articleType, position, percentage FROM Article """)

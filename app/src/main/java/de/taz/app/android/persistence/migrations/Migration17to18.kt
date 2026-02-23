@@ -4,8 +4,8 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 class Migration17to18 : Migration(17, 18) {
-    override fun migrate(database: SupportSQLiteDatabase) {
-        database.apply {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.apply {
             // Rename IssueCreditMomentJoin To MomentCreditJoin as it drops FK to Issue and uses a FK to Moment instead
             execSQL("""
                 CREATE TABLE MomentCreditJoin(

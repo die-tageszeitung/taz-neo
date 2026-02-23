@@ -4,8 +4,8 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 class Migration23to24 : Migration(23, 24) {
-    override fun migrate(database: SupportSQLiteDatabase) {
-        database.apply {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.apply {
             execSQL("ALTER TABLE Article ADD COLUMN bookmarkedTime TEXT;")
             execSQL("UPDATE Article SET bookmarkedTime = DATETIME('now','localtime') WHERE bookmarked != 0;")
             execSQL(

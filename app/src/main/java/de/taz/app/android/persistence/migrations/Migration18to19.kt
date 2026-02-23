@@ -5,8 +5,8 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import de.taz.app.android.api.interfaces.StorageLocation
 
 class Migration18to19 : Migration(18, 19) {
-    override fun migrate(database: SupportSQLiteDatabase) {
-        database.apply {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.apply {
             execSQL("""
                 ALTER TABLE FileEntry ADD COLUMN path TEXT NOT NULL DEFAULT '';
             """)
