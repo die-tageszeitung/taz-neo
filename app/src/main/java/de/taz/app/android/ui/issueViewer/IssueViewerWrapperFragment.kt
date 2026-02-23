@@ -1,6 +1,7 @@
 package de.taz.app.android.ui.issueViewer
 
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.core.os.bundleOf
@@ -60,7 +61,14 @@ import kotlin.reflect.KClass
 class IssueViewerWrapperFragment : TazViewerFragment(), SuccessfulLoginAction {
 
     val issuePublication: IssuePublication
-        get() = requireNotNull(arguments?.getParcelable(KEY_ISSUE_PUBLICATION)) {
+        get() = requireNotNull(
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                arguments?.getParcelable(KEY_ISSUE_PUBLICATION, IssuePublication::class.java)
+            } else {
+                @Suppress("deprecation")
+                arguments?.getParcelable(KEY_ISSUE_PUBLICATION)
+            }
+        ) {
             "IssueViewerWrapperFragment needs to be started with KEY_ISSUE_KEY in Intent extras of type IssueKey"
         }
     private val displayableKey: String?
@@ -129,15 +137,19 @@ class IssueViewerWrapperFragment : TazViewerFragment(), SuccessfulLoginAction {
                     } else {
                         issueViewerViewModel.setDisplayable(issueKey, loadIssue = true)
                     }
-                    val askEachTime = generalDataStore.settingsContinueReadAskEachTime.get()
+                    val askEachTime =
+                        generalDataStore.settingsContinueReadAskEachTime.get()
                     if (continueReadDisplayable != null && askEachTime && !continueReadDirectly) {
                         if (childFragmentManager.findFragmentByTag(
                                 ContinueReadBottomSheetFragment.TAG
                             ) == null
                         ) {
-                            ContinueReadBottomSheetFragment.newInstance(continueReadDisplayable)
+                            ContinueReadBottomSheetFragment.newInstance(
+                                continueReadDisplayable
+                            )
                                 .show(
-                                    childFragmentManager, ContinueReadBottomSheetFragment.TAG
+                                    childFragmentManager,
+                                    ContinueReadBottomSheetFragment.TAG
                                 )
                         }
                     }

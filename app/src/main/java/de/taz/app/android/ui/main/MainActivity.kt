@@ -378,6 +378,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>(), SuccessfulLogin
                     AbstractIssuePublication::class.java
                 )
             }  else {
+                @Suppress("deprecation")
                 intent.getParcelableExtra<AbstractIssuePublication>(KEY_ISSUE_PUBLICATION)
             }
         val displayableKey = intent.getStringExtra(KEY_DISPLAYABLE)

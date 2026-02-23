@@ -2,6 +2,7 @@ package de.taz.app.android.ui.bottomSheet
 
 import android.content.Context
 import android.content.DialogInterface
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.core.os.bundleOf
@@ -45,8 +46,12 @@ class ContinueReadBottomSheetFragment :
     private var isPage = false
 
     private val continueReadDisplayable: IssueKeyWithDisplayableKey
-        get() = arguments?.getParcelable(ARGUMENT_DISPLAYABLE_KEY)
-            ?: throw IllegalStateException("ContinueReadBottomSheetFragment needs a valid displayableKey")
+        get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            arguments?.getParcelable(ARGUMENT_DISPLAYABLE_KEY, IssueKeyWithDisplayableKey::class.java)
+        } else {
+            @Suppress("deprecation")
+            arguments?.getParcelable(ARGUMENT_DISPLAYABLE_KEY)
+        } ?: throw IllegalStateException("ContinueReadBottomSheetFragment needs a valid displayableKey")
 
     private var continueReadClicked = false
     private val log by Log

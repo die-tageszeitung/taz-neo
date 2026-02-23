@@ -4,6 +4,7 @@ package de.taz.app.android.ui.home.page.coverflow
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Configuration
+import android.os.Build
 import android.os.Bundle
 import android.view.Gravity
 import android.view.View
@@ -79,8 +80,12 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // If this is mounted on MainActivity with ISSUE_KEY extra skip to that issue on creation
-        initialIssueDisplay =
+        initialIssueDisplay = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requireActivity().intent.getParcelableExtra(MainActivity.KEY_ISSUE_PUBLICATION, AbstractIssuePublication::class.java)
+        } else {
+            @Suppress("deprecation")
             requireActivity().intent.getParcelableExtra(MainActivity.KEY_ISSUE_PUBLICATION)
+        }
 
         observeScrollViewModel()
         observePdfMode()

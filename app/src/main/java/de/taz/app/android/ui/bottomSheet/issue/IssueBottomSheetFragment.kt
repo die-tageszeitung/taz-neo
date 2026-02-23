@@ -1,6 +1,7 @@
 package de.taz.app.android.ui.bottomSheet.issue
 
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.core.app.ShareCompat
@@ -104,7 +105,12 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        issuePublication = requireArguments().getParcelable(KEY_ISSUE_PUBLICATION)!!
+        issuePublication = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requireArguments().getParcelable(KEY_ISSUE_PUBLICATION, IssuePublication::class.java)
+        } else {
+            @Suppress("deprecation")
+            requireArguments().getParcelable(KEY_ISSUE_PUBLICATION)
+        }!!
 
         lifecycleScope.launch {
             issueRepository.getMostValuableIssueKeyForPublication(issuePublication)?.let {
