@@ -2,8 +2,8 @@ image: registry.gitlab.alt.coop/ctrlaltcoop/android-docker:v0.0.8
 
 variables:
   SENTRY_ENVIRONMENT: official
-  GIT_STRATEGY: clone
-  GIT_SUBMODULE_STRATEGY: recursive
+  GIT_STRATEGY: fetch
+  GIT_SUBMODULE_STRATEGY: normal
   GRADLE_USER_HOME: "$CI_PROJECT_DIR/.gradle"
   MAVEN_LOCAL_REPOSITORY: "$CI_PROJECT_DIR/maven-local"
   GRADLE_OPTS: "-Dmaven.repo.local=$MAVEN_LOCAL_REPOSITORY -Dorg.gradle.caching=false"
@@ -60,10 +60,17 @@ buildMupdf:
       policy: pull-push
   script:
     - if ! ./scripts/test-mupdf-in-maven-local.sh; then
-        git submodule sync --recursive &&
-        git submodule update --init --recursive &&
-        ./scripts/publish-mupdf-to-maven-local.sh ;
+        ./scripts/publish-mupdf-to-maven-local-fetch-submodules.sh ;
       fi
+
+dirty:
+  stage: test
+  extends: .prepareEnv
+  interruptible: true
+  script:
+    # Ensure that the git tree is not dirty
+    - git diff --name-status --exit-code || GIT_DIRTY=1
+    - if [ -n "$GIT_DIRTY" ]; then echo "git tree is dirty. abort the pipeline"; exit 1; fi
 
 lint:
   stage: test
