@@ -1,11 +1,14 @@
 package de.taz.app.android.ui.pdfViewer
 
+import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.res.Configuration.ORIENTATION_PORTRAIT
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.view.View
+import androidx.annotation.RequiresApi
 import androidx.browser.customtabs.CustomTabColorSchemeParams
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
@@ -29,6 +32,7 @@ import de.taz.app.android.base.ViewBindingFragment
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.databinding.ActivityPdfDrawerLayoutBinding
+import de.taz.app.android.persistence.repository.AbstractIssuePublication
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssuePublicationWithPages
 import de.taz.app.android.sentry.SentryWrapper
@@ -118,8 +122,14 @@ class PdfPagerWrapperFragment : ViewBindingFragment<ActivityPdfDrawerLayoutBindi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         issuePublication = try {
-            arguments?.getParcelable(KEY_ISSUE_PUBLICATION)
-                ?: throw IllegalStateException("PdfPagerActivity needs to be started with KEY_ISSUE_KEY in Intent extras of type IssueKey")
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+                @Suppress("deprecation")
+                arguments?.getParcelable(KEY_ISSUE_PUBLICATION)
+            }  else {
+                arguments?.getParcelable(KEY_ISSUE_PUBLICATION, IssuePublicationWithPages::class.java)
+            } ?: throw IllegalStateException(
+                "PdfPagerActivity needs to be started with KEY_ISSUE_KEY in Intent extras of type IssueKey"
+            )
         } catch (e: ClassCastException) {
             log.warn(
                 "Somehow we got IssuePublication instead of IssuePublicationWithPages, so we wrap it",
@@ -127,7 +137,12 @@ class PdfPagerWrapperFragment : ViewBindingFragment<ActivityPdfDrawerLayoutBindi
             )
             SentryWrapper.captureException(e)
             IssuePublicationWithPages(
-                arguments?.getParcelable(KEY_ISSUE_PUBLICATION)!!
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+                    @Suppress("deprecation")
+                    arguments?.getParcelable(KEY_ISSUE_PUBLICATION)
+                }  else {
+                    arguments?.getParcelable(KEY_ISSUE_PUBLICATION, IssuePublicationWithPages::class.java)
+                }!!
             )
         }
 

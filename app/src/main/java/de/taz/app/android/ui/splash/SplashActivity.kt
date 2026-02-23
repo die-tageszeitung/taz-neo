@@ -469,8 +469,13 @@ class SplashActivity : StartupActivity() {
         startBackgroundTasks()
 
         // Check if we got an intent from notification.
-        val issuePublication =
-            intent.getParcelableExtra<AbstractIssuePublication>(MainActivity.KEY_ISSUE_PUBLICATION)
+        val issuePublication: AbstractIssuePublication? =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                intent.getParcelableExtra(MainActivity.KEY_ISSUE_PUBLICATION, AbstractIssuePublication::class.java)
+            } else {
+                @Suppress("deprecation")
+                intent.getParcelableExtra(MainActivity.KEY_ISSUE_PUBLICATION)
+            }
         val displayableKey = intent.getStringExtra(MainActivity.KEY_DISPLAYABLE)
         if (issuePublication != null && displayableKey != null) {
             handlePassedIntent(issuePublication, displayableKey)
