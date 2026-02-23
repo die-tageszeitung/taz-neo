@@ -4,10 +4,10 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 class Migration13to14 : Migration(13, 14) {
-    override fun migrate(database: SupportSQLiteDatabase) {
-        database.apply {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.apply {
             // Download table now obsolete
-            database.execSQL("DROP TABLE Download")
+            db.execSQL("DROP TABLE Download")
 
 
             // Delete the downloadStatus column from all relevant tables

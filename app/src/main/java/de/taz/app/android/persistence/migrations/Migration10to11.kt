@@ -4,8 +4,8 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 class Migration10to11 : Migration(10, 11) {
-    override fun migrate(database: SupportSQLiteDatabase) {
-        database.apply {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.apply {
             execSQL("CREATE INDEX IF NOT EXISTS `index_SectionNavButtonJoin_sectionFileName` ON SectionNavButtonJoin (`sectionFileName`)")
             execSQL("CREATE INDEX IF NOT EXISTS `index_SectionNavButtonJoin_navButtonFileName` ON SectionNavButtonJoin (`navButtonFileName`)")
 

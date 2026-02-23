@@ -4,8 +4,8 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 class Migration36to37 : Migration(36, 37) {
-    override fun migrate(database: SupportSQLiteDatabase) {
-        database.apply {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.apply {
             execSQL("""
                 CREATE TABLE IF NOT EXISTS `BookmarkSynchronization`(
                     `mediaSyncId` INTEGER NOT NULL, 

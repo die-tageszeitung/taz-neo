@@ -4,8 +4,8 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 class Migration19to20 : Migration(19, 20) {
-    override fun migrate(database: SupportSQLiteDatabase) {
-        database.apply {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.apply {
             execSQL("ALTER TABLE Page ADD COLUMN baseUrl TEXT NOT NULL DEFAULT '';")
             execSQL(
                 """
