@@ -1,13 +1,9 @@
 package de.taz.app.android.ui.pdfViewer
 
 import android.content.Context
-import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -21,6 +17,7 @@ import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.audioPlayer.DrawerAudioPlayerViewModel
 import de.taz.app.android.base.ViewBindingFragment
 import de.taz.app.android.databinding.FragmentDrawerBodyPdfWithSectionsBinding
+import de.taz.app.android.monkey.setDefaultBottomInset
 import de.taz.app.android.monkey.setDefaultTopInset
 import de.taz.app.android.persistence.repository.BookmarkRepository
 import de.taz.app.android.singletons.DateHelper
@@ -73,19 +70,7 @@ class DrawerBodyPdfWithSectionsFragment :
 
         viewBinding?.apply {
             root.setDefaultTopInset()
-
-            // Before API 35 edge-to-edge is not properly supported and the contents draw behind
-            // status bar. This fixes it.
-            if (Build.VERSION.SDK_INT < 35) {
-                ViewCompat.setOnApplyWindowInsetsListener(root) { v, windowInsets ->
-                    val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-                    val margin = resources.getDimensionPixelSize(R.dimen.drawer_margin_top_old_sdk)
-                    v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                        topMargin = insets.top + margin
-                    }
-                    WindowInsetsCompat.CONSUMED
-                }
-            }
+            navigationPageArticleRecyclerView.setDefaultBottomInset()
 
             if (BuildConfig.IS_LMD) {
                 switchDrawerLayout.visibility = View.GONE

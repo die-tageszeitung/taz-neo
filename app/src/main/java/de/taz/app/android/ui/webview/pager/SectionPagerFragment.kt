@@ -201,14 +201,11 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
 
             ViewCompat.setOnApplyWindowInsetsListener(floatingActionButton) { v, windowInsets ->
                 val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-                // Apply the insets as a margin to the view. This solution sets
-                // only the bottom, left, and right dimensions, but you can apply whichever
-                // insets are appropriate to your layout. You can also update the view padding
-                // if that's more appropriate.
                 val marginBottomFromDimens =
-                    resources.getDimensionPixelSize(R.dimen.fab_margin_bottom)
+                    resources.getDimensionPixelSize(R.dimen.fab_margin)
+                val bottomBarHeight = resources.getDimensionPixelSize(R.dimen.nav_bottom_height)
                 v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                    bottomMargin = insets.bottom + marginBottomFromDimens
+                    bottomMargin = insets.bottom + + bottomBarHeight + marginBottomFromDimens
                 }
 
                 // Return CONSUMED if you don't want the window insets to keep passing
