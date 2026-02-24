@@ -6,8 +6,6 @@ import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.graphics.drawable.toDrawable
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.DialogFragment
@@ -61,13 +59,14 @@ class CoachMarkDialog : DialogFragment() {
         viewBinding.buttonPrev.setOnClickListener { this.goPrev() }
         viewBinding.buttonNext.setOnClickListener { this.goNext() }
 
+        // insets are not working so set the position manually
+        viewBinding.buttonNext.y = requireActivity().findViewById<View>(R.id.fab_help).y
+        viewBinding.buttonPrev.y = requireActivity().findViewById<View>(R.id.fab_help).y
+
         dialog.window?.apply {
             setDimAmount(0.8f)
             setBackgroundDrawable(Color.TRANSPARENT.toDrawable())
         }
-
-        applyExtraMarginForSystemBarInsets(viewBinding.buttonNext)
-        applyExtraMarginForSystemBarInsets(viewBinding.buttonPrev)
 
         return dialog
     }
@@ -89,11 +88,11 @@ class CoachMarkDialog : DialogFragment() {
     }
 
     fun goNext() {
-        viewBinding.coachMarkViewPager.currentItem = viewBinding.coachMarkViewPager.currentItem + 1
+        viewBinding.coachMarkViewPager.currentItem += 1
     }
 
     fun goPrev() {
-        viewBinding.coachMarkViewPager.currentItem = viewBinding.coachMarkViewPager.currentItem - 1
+        viewBinding.coachMarkViewPager.currentItem -= 1
     }
 
     private fun moveCloseButtonDown() {
@@ -103,23 +102,5 @@ class CoachMarkDialog : DialogFragment() {
     private fun setNormalCloseButtonPosition() {
         viewBinding.buttonClose.y =
             resources.getDimensionPixelSize(R.dimen.coach_mark_button_close_margin_top).toFloat()
-    }
-
-    private fun applyExtraMarginForSystemBarInsets(view: View) {
-        ViewCompat.setOnApplyWindowInsetsListener(view) { v, windowInsets ->
-            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-            // Apply the insets as a margin to the view. This solution sets
-            // only the bottom, left, and right dimensions, but you can apply whichever
-            // insets are appropriate to your layout. You can also update the view padding
-            // if that's more appropriate.
-            val marginBottomFromDimens = resources.getDimensionPixelSize(R.dimen.fab_margin_bottom)
-            v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                bottomMargin = insets.bottom + marginBottomFromDimens
-            }
-
-            // Return CONSUMED if you don't want the window insets to keep passing
-            // down to descendant views.
-            WindowInsetsCompat.CONSUMED
-        }
     }
 }

@@ -55,15 +55,14 @@
         android:id="@+id/button_prev"
         android:layout_width="52dp"
         android:layout_height="52dp"
-        android:layout_marginStart="@dimen/fab_margin_horizontally"
-        android:layout_marginBottom="@dimen/fab_margin_bottom"
+        android:layout_margin="@dimen/fab_margin"
         android:clickable="true"
         android:contentDescription="@string/coach_marks_prev"
         android:focusable="true"
         android:rotation="90"
         android:scaleType="centerInside"
         android:src="@drawable/ic_arrow_down"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
 
@@ -71,15 +70,14 @@
         android:id="@+id/button_next"
         android:layout_width="52dp"
         android:layout_height="52dp"
-        android:layout_marginEnd="@dimen/fab_margin_horizontally"
-        android:layout_marginBottom="@dimen/fab_margin_bottom"
+        android:layout_margin="@dimen/fab_margin"
         android:clickable="true"
         android:contentDescription="@string/coach_marks_next"
         android:focusable="true"
         android:rotation="-90"
         android:scaleType="centerInside"
         android:src="@drawable/ic_arrow_down"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

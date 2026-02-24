@@ -12,6 +12,7 @@ import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.databinding.ActivityWelcomeBinding
+import de.taz.app.android.monkey.setDefaultInsets
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.sentry.SentryWrapper
@@ -40,6 +41,7 @@ class WelcomeActivity : ViewBindingActivity<ActivityWelcomeBinding>() {
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        viewBinding.root.setDefaultInsets()
 
         storageService = StorageService.getInstance(applicationContext)
         resourceInfoRepository = ResourceInfoRepository.getInstance(applicationContext)

@@ -5,7 +5,7 @@
     since we now use Material3 the height is now 80dp
     https://m3.material.io/components/navigation-bar/specs#6c2ac1b8-aad4-471b-92cc-e12f235515ac
     -->
-    <dimen name="nav_bottom_height">63dp</dimen>
+    <dimen name="nav_bottom_height">80dp</dimen>
     <dimen name="m3_comp_navigation_bar_container_height" tools:override="true">@dimen/nav_bottom_height</dimen>
     <dimen name="default_max_width">660dp</dimen>
 
@@ -294,9 +294,7 @@
     <dimen name="search_advanced_category_margin_top">15dp</dimen>
     <dimen name="search_advanced_entry_min_height">40dp</dimen>
 
-    <dimen name="fab_margin_bottom">79dp</dimen>
-    <dimen name="fab_margin_bottom_without_tab_bar">10dp</dimen>
-    <dimen name="fab_margin_horizontally">16dp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
     <dimen name="fab_icon_padding">-3dp</dimen>
     <dimen name="bottom_navigation_icon_size">31dp</dimen>
     <dimen name="bottom_navigation_label_text_size">9.4sp</dimen>

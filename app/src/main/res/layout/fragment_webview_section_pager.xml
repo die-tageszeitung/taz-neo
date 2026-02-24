@@ -66,7 +66,7 @@
                 app:layout_constraintBottom_toTopOf="@id/navigation_bottom_webview_pager"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <de.taz.app.android.ui.NoPaddingBottomNavigation
+            <com.google.android.material.bottomnavigation.BottomNavigationView
                 android:id="@+id/navigation_bottom_webview_pager"
                 style="@style/Widget.App.BottomNavigation.TabBar"
                 android:layout_width="match_parent"
@@ -79,7 +79,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
-            android:layout_marginEnd="@dimen/fab_margin_horizontally"
+            android:layout_margin="@dimen/fab_margin"
             android:contentDescription="@string/help"
             android:src="@drawable/ic_question_mark"
             app:backgroundTint="@color/fab_button_background"

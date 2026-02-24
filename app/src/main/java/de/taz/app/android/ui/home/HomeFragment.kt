@@ -91,7 +91,7 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
                 viewBinding?.coverflowRefreshLayout?.isEnabled = it
             }.launchIn(lifecycleScope)
 
-        CoroutineScope( Dispatchers.IO).launch {
+        CoroutineScope(Dispatchers.IO).launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 try {
                     feedService.refreshFeed()
@@ -105,14 +105,7 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewBinding?.apply {
-            coverflowRefreshLayout.apply {
-                setOnRefreshListener {
-                    refreshFeedDebounced()
-                }
-                reduceDragSensitivity(10)
-            }
-        }
+        setUpCoverFlowRefreshLayout()
 
         // show Fragment if state changes and lifecycle in STARTED
         generalDataStore.homeFragmentState.asFlow()
@@ -124,6 +117,29 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
         setupFAB()
     }
 
+    private fun setUpCoverFlowRefreshLayout() {
+        viewBinding?.coverflowRefreshLayout?.apply {
+            setOnRefreshListener {
+                refreshFeedDebounced()
+            }
+            reduceDragSensitivity(10)
+
+            // set different offset if there is a cutout display
+            ViewCompat.setOnApplyWindowInsetsListener(this) { _, windowInsets ->
+                val insets =
+                    windowInsets.getInsets(WindowInsetsCompat.Type.displayCutout())
+
+                setProgressViewOffset(
+                    false,
+                    progressViewStartOffset,
+                    progressViewEndOffset + (insets.top / resources.displayMetrics.density).toInt()
+                )
+
+                windowInsets
+            }
+        }
+    }
+
     /**
      * On edge to edge we need to properly update the margins of the FAB:
      */
@@ -131,14 +147,12 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
         viewBinding?.fabHelp?.let { fabHelp ->
             ViewCompat.setOnApplyWindowInsetsListener(fabHelp) { v, windowInsets ->
                 val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-                // Apply the insets as a margin to the view. This solution sets
-                // only the bottom, left, and right dimensions, but you can apply whichever
-                // insets are appropriate to your layout. You can also update the view padding
-                // if that's more appropriate.
+
+                val bottomBarHeight = resources.getDimensionPixelSize(R.dimen.nav_bottom_height)
                 val marginBottomFromDimens =
-                    resources.getDimensionPixelSize(R.dimen.fab_margin_bottom)
+                    resources.getDimensionPixelSize(R.dimen.fab_margin)
                 v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                    bottomMargin = insets.bottom + marginBottomFromDimens
+                    bottomMargin = insets.bottom + bottomBarHeight + marginBottomFromDimens
                 }
 
                 // Return CONSUMED if you don't want the window insets to keep passing

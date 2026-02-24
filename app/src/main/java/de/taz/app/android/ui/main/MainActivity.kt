@@ -24,6 +24,7 @@ import de.taz.app.android.dataStore.CoachMarkDataStore
 import de.taz.app.android.dataStore.DownloadDataStore
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.ActivityMainBinding
+import de.taz.app.android.monkey.setDefaultHorizontalInsets
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
 import de.taz.app.android.persistence.repository.BookmarkRepository
 import de.taz.app.android.persistence.repository.IssuePublication
@@ -124,6 +125,9 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>(), SuccessfulLogin
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        viewBinding.root.setDefaultHorizontalInsets()
+
         authHelper = AuthHelper.getInstance(applicationContext)
         bookmarkRepository = BookmarkRepository.getInstance(applicationContext)
         coachMarkDataStore = CoachMarkDataStore.getInstance(applicationContext)

@@ -14,18 +14,16 @@ fun View.setDefaultInsets(
     bottom: Boolean = true,
     left: Boolean = true,
     right: Boolean = true,
+    @WindowInsetsCompat.Type.InsetsType insetsType: Int = WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout()
 ) {
     // Set Listener
     ViewCompat.setOnApplyWindowInsetsListener(this) { v, insets ->
-        val bars = insets.getInsets(
-            WindowInsetsCompat.Type.systemBars()
-                    or WindowInsetsCompat.Type.displayCutout()
-        )
+        val bars = insets.getInsets(insetsType)
         v.updatePadding(
             left = if (left) bars.left else v.paddingLeft,
             top = if (top) bars.top else v.paddingTop,
             right = if (right) bars.right else paddingRight,
-            bottom = if(bottom) bars.bottom else paddingBottom,
+            bottom = if (bottom) bars.bottom else paddingBottom,
         )
         insets
     }
@@ -39,8 +37,10 @@ fun View.setDefaultBottomInset() {
     setDefaultInsets(top = false, left = false, right = false)
 }
 
-fun View.setDefaultHorizontalInsets() {
-    setDefaultInsets(top = false, bottom = false)
+fun View.setDefaultHorizontalInsets(
+    @WindowInsetsCompat.Type.InsetsType insetsType: Int = WindowInsetsCompat.Type.systemBars()
+) {
+    setDefaultInsets(top = false, bottom = false, insetsType = insetsType)
 }
 
 fun View.setDefaultVerticalInsets() {

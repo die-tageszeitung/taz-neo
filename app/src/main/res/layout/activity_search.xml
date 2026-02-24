@@ -300,7 +300,7 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 
-    <de.taz.app.android.ui.NoPaddingBottomNavigation
+    <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/navigation_bottom"
         style="@style/Widget.App.BottomNavigation.TabBar"
         android:layout_width="match_parent"
