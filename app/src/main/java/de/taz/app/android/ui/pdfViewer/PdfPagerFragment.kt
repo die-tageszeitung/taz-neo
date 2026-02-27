@@ -4,6 +4,10 @@ import android.content.Context
 import android.content.res.Configuration
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.flowWithLifecycle
@@ -61,6 +65,19 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        viewBinding?.readerView?.apply {
+            ViewCompat.setOnApplyWindowInsetsListener(this) { v, windowInsets ->
+                val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+                val bottomBarHeight = resources.getDimensionPixelSize(R.dimen.nav_bottom_height)
+                v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                    bottomMargin = insets.bottom + bottomBarHeight
+                    topMargin = insets.top
+                }
+                windowInsets
+            }
+        }
+
         pdfPagerViewModel.pdfPageListFlow
             .flowWithLifecycle(lifecycle)
             .filterNotNull()
