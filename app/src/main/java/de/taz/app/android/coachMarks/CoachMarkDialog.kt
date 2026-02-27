@@ -4,10 +4,8 @@ import android.app.Dialog
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
-import android.view.ViewGroup
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.view.isVisible
-import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.DialogFragment
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -26,7 +24,6 @@ class CoachMarkDialog : DialogFragment() {
     }
 
     var coachMarks: List<BaseCoachMark> = emptyList()
-
     private lateinit var viewBinding: FragmentCoachMarkDialogBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -60,8 +57,13 @@ class CoachMarkDialog : DialogFragment() {
         viewBinding.buttonNext.setOnClickListener { this.goNext() }
 
         // insets are not working so set the position manually
-        viewBinding.buttonNext.y = requireActivity().findViewById<View>(R.id.fab_help).y
-        viewBinding.buttonPrev.y = requireActivity().findViewById<View>(R.id.fab_help).y
+        val fabView = requireActivity().findViewById<View>(R.id.section_pager_fab_help)
+            ?: requireActivity().findViewById<View>(R.id.fab_help)
+        val buttonSize = resources.getDimensionPixelSize(R.dimen.icon_size)
+        val newY = fabView.y - (fabView.height / 2) + (buttonSize / 2)
+
+        viewBinding.buttonNext.y = newY
+        viewBinding.buttonPrev.y = newY
 
         dialog.window?.apply {
             setDimAmount(0.8f)
