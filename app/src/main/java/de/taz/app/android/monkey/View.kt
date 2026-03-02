@@ -50,3 +50,20 @@ fun View.setDefaultVerticalInsets() {
 fun View.getVisibleHeight(): Int {
     return (this.height - this.translationY).toInt()
 }
+
+/**
+ * Set a delayed [View.OnClickListener] to ensure multiple clicks don't trigger every time.
+ * The execution of [listenerFun] will be prevented for [delay] after a click, then it can be
+ * triggered again.
+ */
+fun View.setOnTapListener(delay: Long = 300L, listenerFun: (View) -> Unit) {
+    setOnClickListener {
+        if (!isClickable) {
+            return@setOnClickListener
+        }
+
+        isClickable = false
+        listenerFun(this)
+        postDelayed({ isClickable = true }, delay)
+    }
+}

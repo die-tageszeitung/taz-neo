@@ -14,6 +14,7 @@ import de.taz.app.android.R
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentArchiveBinding
 import de.taz.app.android.monkey.setDefaultTopInset
+import de.taz.app.android.monkey.setOnTapListener
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.DatePickerHelper
@@ -150,7 +151,7 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
             calendar.setOnClickListener {
                 openDatePicker()
             }
-            homeLoginButton.setOnClickListener { showLoginBottomSheet() }
+            homeLoginButton.setOnTapListener { showLoginBottomSheet() }
         }
     }
 
