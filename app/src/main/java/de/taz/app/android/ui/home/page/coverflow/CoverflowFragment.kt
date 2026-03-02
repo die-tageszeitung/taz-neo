@@ -21,6 +21,7 @@ import de.taz.app.android.R
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentCoverflowBinding
 import de.taz.app.android.monkey.setDefaultInsets
+import de.taz.app.android.monkey.setOnTapListener
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.persistence.repository.IssuePublicationWithPages
@@ -202,7 +203,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
             fragmentCoverFlowCalendar.setOnClickListener { openDatePicker() }
             fragmentCoverFlowIconGoPrevious.setOnClickListener { goToPreviousIssue() }
             fragmentCoverFlowIconGoNext.setOnClickListener { goToNextIssue() }
-            homeLoginButton.setOnClickListener { showLoginBottomSheet() }
+            homeLoginButton.setOnTapListener { showLoginBottomSheet() }
         }
 
         viewModel.feed
