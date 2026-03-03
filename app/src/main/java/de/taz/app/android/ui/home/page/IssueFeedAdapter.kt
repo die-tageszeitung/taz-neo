@@ -53,6 +53,10 @@ abstract class IssueFeedAdapter(
 
     private val log by Log
 
+    init {
+        setHasStableIds(true)
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(
             LayoutInflater.from(fragment.context).inflate(
@@ -90,6 +94,10 @@ abstract class IssueFeedAdapter(
 
     fun getItem(position: Int): PublicationDate? {
         return feed.publicationDates.getOrNull(position)
+    }
+
+    override fun getItemId(position: Int): Long {
+        return getItem(position)?.date?.time ?: RecyclerView.NO_ID
     }
 
     fun getPosition(date: Date): Int {
