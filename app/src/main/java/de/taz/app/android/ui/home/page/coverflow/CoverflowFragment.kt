@@ -151,12 +151,10 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
             combine(
                 authHelper.isPollingForConfirmationEmail.asFlow(),
                 authHelper.isLoggedInFlow,
-                generalDataStore.pdfMode.asFlow()
-            ) { isPolling, isLoggedIn, isPdf -> (isPolling || isLoggedIn) to isPdf }
+            ) { isPolling, isLoggedIn -> (isPolling || isLoggedIn) }
                 .collect {
                     viewBinding?.homeLoginButton?.visibility =
-                        if (it.first) View.GONE else View.VISIBLE
-                    if (!it.first && it.second) (activity as? MainActivity)?.showLoggedOutDialog()
+                        if (it) View.GONE else View.VISIBLE
                 }
         }
     }

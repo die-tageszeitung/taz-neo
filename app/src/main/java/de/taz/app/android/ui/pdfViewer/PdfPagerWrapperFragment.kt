@@ -1,6 +1,5 @@
 package de.taz.app.android.ui.pdfViewer
 
-import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.res.Configuration.ORIENTATION_PORTRAIT
@@ -8,7 +7,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.View
-import androidx.annotation.RequiresApi
 import androidx.browser.customtabs.CustomTabColorSchemeParams
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
@@ -21,18 +19,20 @@ import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Observer
+import androidx.lifecycle.asFlow
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.taz.app.android.ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.ArticleOperations
+import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.ViewBindingFragment
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.databinding.ActivityPdfDrawerLayoutBinding
-import de.taz.app.android.persistence.repository.AbstractIssuePublication
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssuePublicationWithPages
 import de.taz.app.android.sentry.SentryWrapper
@@ -40,6 +40,7 @@ import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.KeepScreenOnHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.SuccessfulLoginAction
 import de.taz.app.android.ui.bottomSheet.ContinueReadBottomSheetFragment
@@ -49,6 +50,7 @@ import de.taz.app.android.ui.drawer.DrawerViewController
 import de.taz.app.android.ui.issueViewer.IssueKeyWithDisplayableKey
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.issueViewer.IssueViewerWrapperFragment
+import de.taz.app.android.ui.login.LoginBottomSheetFragment
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.showAlwaysTitleSectionSettingDialog
@@ -56,6 +58,7 @@ import de.taz.app.android.ui.showContinueReadSettingDialog
 import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.showIssueDownloadFailedDialog
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
@@ -101,6 +104,7 @@ class PdfPagerWrapperFragment : ViewBindingFragment<ActivityPdfDrawerLayoutBindi
     private lateinit var storageService: StorageService
     private lateinit var tazApiCssDataStore: TazApiCssDataStore
     private lateinit var toastHelper: ToastHelper
+    private lateinit var tracker: Tracker
     private lateinit var generalDataStore: GeneralDataStore
     lateinit var drawerViewController: DrawerViewController
 
@@ -116,6 +120,7 @@ class PdfPagerWrapperFragment : ViewBindingFragment<ActivityPdfDrawerLayoutBindi
         storageService = StorageService.getInstance(context.applicationContext)
         tazApiCssDataStore = TazApiCssDataStore.getInstance(context.applicationContext)
         toastHelper = ToastHelper.getInstance(context.applicationContext)
+        tracker = Tracker.getInstance(context.applicationContext)
         generalDataStore = GeneralDataStore.getInstance(context.applicationContext)
     }
 
@@ -276,6 +281,20 @@ class PdfPagerWrapperFragment : ViewBindingFragment<ActivityPdfDrawerLayoutBindi
                                 }
                             }
                     }
+                    launch {
+                        // create new flow that indicates if waiting for mail or logged in
+                        combine(
+                            authHelper.isPollingForConfirmationEmail.asFlow(),
+                            authHelper.isLoggedInFlow,
+                            pdfPagerViewModel.issueStubLiveData.asFlow(),
+                        ) { isPolling, isLoggedIn, issue -> (isPolling || isLoggedIn) to issue }
+                            .collect { (isLoggedInOrPolling, issue) ->
+                                val isPublic = issue.status == IssueStatus.public
+                                if (!isLoggedInOrPolling && isPublic) {
+                                    showLoggedOutDialog()
+                                }
+                            }
+                    }
 
                 }
             }
@@ -333,16 +352,29 @@ class PdfPagerWrapperFragment : ViewBindingFragment<ActivityPdfDrawerLayoutBindi
 
     override fun onLogInSuccessful(articleName: String?) {
         // Launch the Activity restarting logic from the application scope to prevent it from being
-        // accidentally canceled due the the activity being finished
+        // accidentally canceled due the activity being finished
         viewLifecycleOwner.lifecycleScope.launch {
             // Restart the activity if this is *not* a Week/Wochentaz abo
             if (!authHelper.isLoginWeek.get()) {
-                articleName
-                    ?.takeIf { authHelper.isValid() }
-                    ?.replace("public.", "")
-                    ?.let { articleNameRegular ->
-                        MainActivity.start(requireContext(), issuePublication, articleNameRegular)
-                    }
+                if (articleName == null) {
+                    MainActivity.start(
+                        requireContext(),
+                        issuePublication,
+                        displayableKey = null
+                    )
+                } else {
+                    articleName
+                        // only load regular article when auth is valid
+                        .takeIf { authHelper.isValid() }
+                        ?.replace("public.", "")
+                        ?.let { articleNameRegular ->
+                            MainActivity.start(
+                                requireContext(),
+                                issuePublication,
+                                articleNameRegular
+                            )
+                        }
+                }
             } else {
                 toastHelper.showToast(R.string.toast_login_week, long = true)
             }
@@ -422,6 +454,23 @@ class PdfPagerWrapperFragment : ViewBindingFragment<ActivityPdfDrawerLayoutBindi
         } else {
             pdfPagerViewModel.goToPdfPage(displayable.displayableKey)
         }
+    }
+
+    private fun showLoggedOutDialog() {
+        val dialog = MaterialAlertDialogBuilder(requireActivity())
+            .setMessage(R.string.pdf_mode_better_to_be_logged_in_hint)
+            .setPositiveButton(android.R.string.ok) { dialog, _ ->
+                dialog.dismiss()
+            }
+            .setNegativeButton(R.string.login_button) { dialog, _ ->
+                LoginBottomSheetFragment.newInstance()
+                    .show(childFragmentManager, LoginBottomSheetFragment.TAG)
+                dialog.dismiss()
+            }
+            .create()
+
+        dialog.show()
+        tracker.trackPdfModeLoginHintDialog()
     }
 
     override fun onBackPressed(): Boolean {

@@ -6,14 +6,12 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.webkit.WebView
-import androidx.appcompat.app.AlertDialog
 import androidx.core.app.NotificationManagerCompat
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.commit
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.taz.app.android.APP_SESSION_TIMEOUT_MS
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
@@ -72,7 +70,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>(), SuccessfulLogin
         fun start(
             context: Context,
             issuePublication: IssuePublicationWithPages,
-            displayableKey: String,
+            displayableKey: String?,
         ) {
             context.startActivity(
                 newIntent(context, issuePublication, displayableKey),
@@ -92,7 +90,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>(), SuccessfulLogin
         fun newIntent(
             packageContext: Context,
             issuePublication: IssuePublicationWithPages,
-            displayableKey: String,
+            displayableKey: String?,
             continueReadDirectly: Boolean = false,
         ) = Intent(packageContext, MainActivity::class.java).apply {
             putExtra(KEY_ISSUE_PUBLICATION, issuePublication)
@@ -168,12 +166,6 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>(), SuccessfulLogin
         WidgetHelper.updateWidget(applicationContext)
     }
 
-    override fun onStop() {
-        loggedOutDialog?.dismiss()
-        loggedOutDialog = null
-        super.onStop()
-    }
-
     /**
      * This function will try to show any pending information dialogs to the user.
      * It must be called during the [MainActivity]s STARTED lifecycle.
@@ -235,26 +227,6 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>(), SuccessfulLogin
         return null
     }
 
-    private var loggedOutDialog: AlertDialog? = null
-    fun showLoggedOutDialog() {
-        if (isShowingDialog()) {
-            return
-        }
-        loggedOutDialog = MaterialAlertDialogBuilder(this@MainActivity)
-            .setMessage(R.string.pdf_mode_better_to_be_logged_in_hint)
-            .setPositiveButton(android.R.string.ok) { dialog, _ ->
-                dialog.dismiss()
-            }
-            .setNegativeButton(R.string.login_button) { dialog, _ ->
-                LoginBottomSheetFragment.newInstance().show(supportFragmentManager, LoginBottomSheetFragment.TAG)
-                dialog.dismiss()
-            }
-            .create()
-
-        loggedOutDialog?.show()
-        tracker.trackPdfModeLoginHintDialog()
-    }
-
     fun showHome() {
         runOnUiThread {
             val homeFragment =
@@ -294,8 +266,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>(), SuccessfulLogin
     }
 
     private fun isShowingDialog(): Boolean {
-        return loggedOutDialog?.isShowing == true
-                || supportFragmentManager.findFragmentByTag(SubscriptionElapsedBottomSheetFragment.TAG) != null
+        return supportFragmentManager.findFragmentByTag(SubscriptionElapsedBottomSheetFragment.TAG) != null
                 || supportFragmentManager.findFragmentByTag(AllowNotificationsBottomSheetFragment.TAG) != null
                 || supportFragmentManager.findFragmentByTag(TrackingConsentBottomSheet.TAG) != null
                 || supportFragmentManager.findFragmentByTag(LoginBottomSheetFragment.TAG) != null
