@@ -19,7 +19,7 @@ abstract class ViewBindingActivity<ViewBindingClass : ViewBinding> : AppCompatAc
     override fun onCreate(savedInstanceState: Bundle?) {
         // enable edge to edge for pre Android 15
         enableEdgeToEdge(
-            SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT),
+            SystemBarStyle.dark(Color.TRANSPARENT),
             SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT),
         )
 
