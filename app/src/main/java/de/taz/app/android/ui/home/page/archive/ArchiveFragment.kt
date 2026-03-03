@@ -99,7 +99,6 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
             .flowWithLifecycle(lifecycle)
             .onEach {
                 viewBinding?.homeLoginButton?.visibility = if (it.first) View.GONE else View.VISIBLE
-                if (!it.first && it.second) (activity as? MainActivity)?.showLoggedOutDialog()
             }.launchIn(lifecycleScope)
     }
     private fun scrollToDate(date: Date) {
