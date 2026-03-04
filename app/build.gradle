@@ -1,6 +1,5 @@
 plugins {
     id 'com.android.application'
-    id 'org.jetbrains.kotlin.android'
     id 'com.google.devtools.ksp'
 
     id 'org.jetbrains.kotlin.plugin.parcelize'
@@ -8,14 +7,14 @@ plugins {
     id 'org.jetbrains.kotlin.plugin.allopen'
 
     // Must be in sync with the "def room_version" below
-    id 'androidx.room' version '2.7.2'
-    id 'com.github.triplet.play' version '3.12.1'
+    id 'androidx.room' version '2.8.4'
+    id 'com.github.triplet.play' version '4.0.0'
 
     // Only define the google-services globally, and apply them only for nonfree variants
-    id 'com.google.gms.google-services' version "4.4.3" apply false
+    id 'com.google.gms.google-services' version "4.4.4" apply false
 
     // Only define the sentry version globally, and apply it only for nonfree variants
-    id 'io.sentry.android.gradle' version '4.11.0' apply false
+    id 'io.sentry.android.gradle' version '6.1.0' apply false
 }
 
 
@@ -272,18 +271,6 @@ android {
         }
     }
 
-    // Ignore unused variants to make the Build Variant selector in the IDE a little bit cleaner
-    variantFilter { variant ->
-        def flavorNames = variant.flavors*.name
-        def buildType = variant.buildType.name.toString()
-        if (buildType == "manualUpdateRelease" && flavorNames.contains("free")
-                || buildType == "manualUpdateRelease" && flavorNames.contains("staging")
-                || buildType == "unminifiedRelease" && flavorNames.contains("nonfree")
-                || buildType == "unminifiedRelease" && flavorNames.contains("staging")
-                || buildType == "leakCanary") {
-            variant.setIgnore(true)
-        }
-    }
 
     // Publish the app to the Google Play store using https://github.com/Triple-T/gradle-play-publisher
     // The configuration is part of the secret bundle downloaded by the gitlab ci pipeline.
@@ -319,15 +306,34 @@ android {
     }
 }
 
+androidComponents {
+    // Ignore unused variants to make the Build Variant selector in the IDE a little bit cleaner
+    beforeVariants(
+        selector().withBuildType('manualUpdateRelease').withFlavor('free', 'staging')
+    ){ variantBuilder ->
+        variantBuilder.enable = false
+    }
+    beforeVariants(
+        selector().withBuildType('unminifiedRelease').withFlavor('nonfree', 'staging')
+    ){ variantBuilder ->
+        variantBuilder.enable = false
+    }
+    beforeVariants(
+        selector().withBuildType('leakCanary')
+    ){ variantBuilder ->
+        variantBuilder.enable = false
+    }
+}
+
 dependencies {
     def coroutines_version = '1.10.2'
-    def serialization_version = '1.9.0'
+    def serialization_version = '1.10.0'
     def glide_version = '5.0.5'
-    def ktor_version = '3.2.3'
+    def ktor_version = '3.4.1'
     def lifecycle_version = '2.10.0'
-    def room_version = '2.7.2'
-    def work_version = '2.11.0'
-    def media3_version = '1.9.0'
+    def room_version = '2.8.4'
+    def work_version = '2.11.1'
+    def media3_version = '1.9.2'
     def sentry_version = '8.13.2'
 
     // implementation fileTree(dir: 'libs', include: ['*.jar'])
@@ -342,7 +348,7 @@ dependencies {
 
 
     implementation 'androidx.appcompat:appcompat:1.7.1'
-    implementation 'androidx.core:core-ktx:1.16.0'
+    implementation 'androidx.core:core-ktx:1.17.0'
 
     implementation 'androidx.collection:collection-ktx:1.5.0'
     implementation 'androidx.datastore:datastore-preferences:1.2.0'
@@ -365,7 +371,7 @@ dependencies {
 
     implementation 'androidx.viewpager2:viewpager2:1.1.0'
 
-    implementation 'androidx.browser:browser:1.8.0'
+    implementation 'androidx.browser:browser:1.9.0'
 
     implementation "androidx.room:room-runtime:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
@@ -395,7 +401,7 @@ dependencies {
     implementation 'com.artifex.mupdf:fitz:1.27.1'
 
     // nestedscrollwebview
-    implementation 'com.telefonica:nestedscrollwebview:0.1.6'
+    implementation 'com.telefonica:nestedscrollwebview:0.2.0'
 
     // error reports
     nonfreeImplementation "io.sentry:sentry-android:$sentry_version"
@@ -416,15 +422,15 @@ dependencies {
     testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
     testImplementation 'junit:junit:4.13.2'
 
-    testImplementation 'org.robolectric:robolectric:4.16'
+    testImplementation 'org.robolectric:robolectric:4.16.1'
     testImplementation 'org.conscrypt:conscrypt-openjdk-uber:2.5.2'
 
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutines_version"
     testImplementation "androidx.work:work-testing:$work_version"
 
     // mocking
-    testImplementation 'org.mockito:mockito-core:5.18.0'
-    testImplementation 'org.mockito.kotlin:mockito-kotlin:6.0.0'
+    testImplementation 'org.mockito:mockito-core:5.22.0'
+    testImplementation 'org.mockito.kotlin:mockito-kotlin:6.2.3'
 
     // Core library
     testImplementation 'androidx.test:core-ktx:1.7.0'
@@ -438,7 +444,8 @@ dependencies {
 
     // google Flavor
     nonfreeImplementation 'com.google.firebase:firebase-messaging:25.0.1'
-    // atm ktx: won't let the gitlab CI pipeline build successfully
+
+    // atm version 2.0.2 won't let the gitlab CI pipeline build successfully
     nonfreeImplementation 'com.google.android.play:review-ktx:2.0.1'
 
     // add Java 8+ API desugaring support
@@ -449,7 +456,7 @@ allOpen {
     annotation('de.taz.app.android.annotation.Mockable')
 }
 
-task generateStaticVersionInBuildGradle {
+tasks.register('generateStaticVersionInBuildGradle') {
     doLast {
         println "Injecting build static build version to enable manifest parsing (for f-droid)"
         def scriptPath = buildscript.sourceFile.parentFile
