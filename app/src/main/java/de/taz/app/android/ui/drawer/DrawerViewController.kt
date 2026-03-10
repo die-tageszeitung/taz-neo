@@ -79,7 +79,7 @@ class DrawerViewController(
     }
 
     suspend fun handleDrawerLogoState(state: DrawerState) {
-        log.info("handling DrawerState: ${state}")
+        log.info("handling DrawerState: $state")
 
         if (state is DrawerState.Open) {
             if (isListDrawer != state.isListDrawer) {
@@ -89,7 +89,7 @@ class DrawerViewController(
             return
         }
 
-        if (wasHidden) {
+        if (wasHidden && state.logoState != LogoState.HIDDEN) {
             showDrawerLogoAnimated(state)
         }
 
@@ -178,7 +178,7 @@ class DrawerViewController(
                     .setDuration(LOGO_ANIMATION_DURATION_MS)
                     .setStartDelay(HIDE_LOGO_DELAY_MS)
                     .translationX(transX)
-                    .setInterpolator(AccelerateDecelerateInterpolator())
+                    .interpolator = AccelerateDecelerateInterpolator()
             }
         }
         wasHidden = true
