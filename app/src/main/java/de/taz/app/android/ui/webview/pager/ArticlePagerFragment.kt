@@ -27,7 +27,6 @@ import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.behavior.HideViewOnScrollBehavior
 import com.google.android.material.behavior.HideViewOnScrollBehavior.EDGE_BOTTOM
 import com.google.android.material.behavior.HideViewOnScrollBehavior.EDGE_LEFT
-import com.google.android.material.behavior.HideViewOnScrollBehavior.STATE_SCROLLED_IN
 import de.taz.app.android.ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
@@ -86,6 +85,7 @@ import de.taz.app.android.ui.webview.TapIconsViewModel
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.getHideViewOnScrollBehavior
 import de.taz.app.android.util.runIfNotNull
+import de.taz.app.android.util.setupLogoScrollBehavior
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
@@ -287,14 +287,14 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
 
                     launch {
                         // in an ideal world this would be handled in DrawerViewController, but we
-                        // would need to iterate all of the views, that wouldn't be performant
+                        // would need to iterate all the views, that wouldn't be performant
                         drawerAndLogoViewModel.drawerState.collect {
                             if (it.logoState == LogoState.FEED) {
                                 feedLogo.getHideViewOnScrollBehavior()?.slideIn(feedLogo)
                                 // wait for the logo to be slided in far enough to hide the burger
                                 delay(226) // = HideViewOnScrollBehavior.DEFAULT_ENTER_ANIMATION_DURATION_MS
                                 burgerLogo.visibility = View.GONE
-                            } else {
+                            } else if (it.logoState == LogoState.BURGER) {
                                 burgerLogo.visibility = View.VISIBLE
                                 feedLogo.getHideViewOnScrollBehavior()?.slideOut(feedLogo)
                             }
@@ -303,8 +303,11 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
 
                     launch {
                         generalDataStore.animateDrawerLogo.asFlow().collect { animateLogo ->
-                            (feedLogo.layoutParams as? CoordinatorLayout.LayoutParams)?.behavior =
-                                if (animateLogo) HideViewOnScrollBehavior<View>(EDGE_LEFT) else null
+                            viewBinding?.feedLogo?.setupLogoScrollBehavior(
+                                enabled = animateLogo,
+                                onScrolledIn = { drawerAndLogoViewModel.setFeedLogo() },
+                                onScrolledOut = { drawerAndLogoViewModel.setBurgerIcon() }
+                            )
                         }
                     }
                 }
@@ -803,15 +806,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
     private fun setupHeader() {
         viewBinding?.header?.root?.visibility = View.VISIBLE
 
-        viewBinding?.feedLogo?.getHideViewOnScrollBehavior()?.addOnScrollStateChangedListener { _, scrollState ->
-            if (scrollState == STATE_SCROLLED_IN) {
-                drawerAndLogoViewModel.setFeedLogo()
-            } else {
-                drawerAndLogoViewModel.setBurgerIcon()
-            }
-        }
-
-        // Adjust padding when we have cutout display
+        // Adjust padding when we have cut out display
         lifecycleScope.launch {
             val extraPadding = generalDataStore.displayCutoutExtraPadding.get()
             if (extraPadding > 0 && resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {

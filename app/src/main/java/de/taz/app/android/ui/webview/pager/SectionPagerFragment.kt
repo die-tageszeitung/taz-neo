@@ -22,8 +22,6 @@ import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_DRAGGING
 import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_IDLE
 import com.google.android.material.behavior.HideViewOnScrollBehavior
 import com.google.android.material.behavior.HideViewOnScrollBehavior.EDGE_BOTTOM
-import com.google.android.material.behavior.HideViewOnScrollBehavior.EDGE_LEFT
-import com.google.android.material.behavior.HideViewOnScrollBehavior.STATE_SCROLLED_IN
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.SectionStub
@@ -52,7 +50,9 @@ import de.taz.app.android.ui.webview.SectionWebViewFragment
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.getHideViewOnScrollBehavior
 import de.taz.app.android.util.runIfNotNull
+import de.taz.app.android.util.setupLogoScrollBehavior
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
@@ -68,6 +68,7 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
     private val helpFabViewModel: HelpFabViewModel by activityViewModels()
 
     private lateinit var generalDataStore: GeneralDataStore
+    private val currentSectionTypeFlow = MutableStateFlow<SectionType?>(null)
 
     private lateinit var tracker: Tracker
     private var showFab = false
@@ -82,15 +83,6 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
         super.onViewCreated(view, savedInstanceState)
 
         viewBinding?.apply {
-            feedLogo.getHideViewOnScrollBehavior()?.setViewEdge(EDGE_LEFT)
-            feedLogo.getHideViewOnScrollBehavior()
-                ?.addOnScrollStateChangedListener { _, scrollState ->
-                    if (scrollState == STATE_SCROLLED_IN) {
-                        drawerAndLogoViewModel.setFeedLogo()
-                    } else {
-                        drawerAndLogoViewModel.setBurgerIcon()
-                    }
-                }
             feedLogo.setOnClickListener {
                 tracker.trackDrawerOpenEvent(dragged = false)
                 drawerAndLogoViewModel.openDrawer()
@@ -146,14 +138,14 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
 
                     launch {
                         // in an ideal world this would be handled in DrawerViewController, but we
-                        // would need to iterate all of the views, that wouldn't be performant
+                        // would need to iterate all the views, that wouldn't be performant
                         drawerAndLogoViewModel.drawerState.collect {
                             if (it.logoState == LogoState.FEED) {
                                 feedLogo.getHideViewOnScrollBehavior()?.slideIn(feedLogo)
                                 // wait for the logo to be slided in far enough to hide the burger
                                 delay(226) // = HideViewOnScrollBehavior.DEFAULT_ENTER_ANIMATION_DURATION_MS
                                 burgerLogo.visibility = View.GONE
-                            } else {
+                            } else if (it.logoState == LogoState.BURGER) {
                                 burgerLogo.visibility = View.VISIBLE
                                 feedLogo.getHideViewOnScrollBehavior()?.slideOut(feedLogo)
                             }
@@ -161,9 +153,19 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
                     }
 
                     launch {
-                        generalDataStore.animateDrawerLogo.asFlow().collect { animateLogo ->
-                            (feedLogo.layoutParams as? CoordinatorLayout.LayoutParams)?.behavior =
-                                if (animateLogo) HideViewOnScrollBehavior<View>(EDGE_LEFT) else null
+                        combine(
+                            generalDataStore.animateDrawerLogo.asFlow(),
+                            currentSectionTypeFlow
+                        )  { animateSetting, sectionType ->
+                            val isAdOrPodcast = sectionType == SectionType.advertisement || sectionType == SectionType.podcast
+                            // Only enable animation if setting is ON AND it's not a special section
+                            !isAdOrPodcast && animateSetting
+                        }.collect { shouldAnimate ->
+                            viewBinding?.feedLogo?.setupLogoScrollBehavior(
+                                enabled = shouldAnimate,
+                                onScrolledIn = { drawerAndLogoViewModel.setFeedLogo() },
+                                onScrolledOut = { drawerAndLogoViewModel.setBurgerIcon() }
+                            )
                         }
                     }
                 }
@@ -177,7 +179,7 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
             dvc?.ensureFeedLogo(feedLogo)
             dvc?.ensureBurgerIcon(burgerWrapper, burgerLogo)
 
-            // Adjust padding when we have cutout display
+            // Adjust padding when we have cut out display
             val extraPadding = generalDataStore.displayCutoutExtraPadding.get()
             if (extraPadding > 0 && resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
                 viewBinding?.feedLogo?.translationY += extraPadding
@@ -205,7 +207,7 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
                     resources.getDimensionPixelSize(R.dimen.fab_margin)
                 val bottomBarHeight = resources.getDimensionPixelSize(R.dimen.nav_bottom_height)
                 v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                    bottomMargin = insets.bottom + + bottomBarHeight + marginBottomFromDimens
+                    bottomMargin = insets.bottom + bottomBarHeight + marginBottomFromDimens
                 }
 
                 // Return CONSUMED if you don't want the window insets to keep passing
@@ -252,13 +254,13 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
                 }
             }
             // Always show the logo on section page change (except for advertisement or podcast):
-            hideOrShowLogoIfNecessary(lastPage, position)
+            hideOrShowFABIfNecessary(position)
             lastPage = position
         }
 
         // To detect whether we have swiped through the section pager manually, it is not enough to
         // listen on the `onPageSelected` as that is triggered too by clicking a section in the drawer.
-        // So we need to really listen to `onPageSCrolled` to detect real horizontal swipes:
+        // So we need to really listen to `onPageScrolled` to detect real horizontal swipes:
         var scrolled = false
         override fun onPageScrollStateChanged(state: Int) {
             super.onPageScrollStateChanged(state)
@@ -353,28 +355,24 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
     }
 
     /**
-     * On advertisements we hide the drawer logo.
+     * On advertisements, we hide the FAB.
      */
-    private fun hideOrShowLogoIfNecessary(lastPage: Int?, position: Int) {
+    private fun hideOrShowFABIfNecessary(position: Int) {
         val sectionsStubs =
             (viewBinding?.webviewPagerViewpager?.adapter as? SectionPagerAdapter)?.sectionStubs
                 ?: return
-        if (sectionsStubs.isEmpty()) return
-        val currentSection = try {
-            sectionsStubs[position]
-        } catch (ioob: IndexOutOfBoundsException) {
-            log.error("could not get section of position $position. ${ioob.message}")
-            return
-        }
-        val isAdvertisement = currentSection.type == SectionType.advertisement
-        val isPodcast = currentSection.type == SectionType.podcast
-        if (isAdvertisement || isPodcast) {
-            drawerAndLogoViewModel.hideLogo()
+        val currentSection = sectionsStubs.getOrNull(position) ?: return
+
+        // Update the flow which automatically updates the Logo behavior via the collector above
+        currentSectionTypeFlow.value = currentSection.type
+
+        val isAdOrPodcast = currentSection.type == SectionType.advertisement ||
+                currentSection.type == SectionType.podcast
+
+        if (isAdOrPodcast) {
             viewBinding?.sectionPagerFabHelp?.hide()
-        } else {
-            if (showFab) {
-                viewBinding?.sectionPagerFabHelp?.show()
-            }
+        } else if (showFab) {
+            viewBinding?.sectionPagerFabHelp?.show()
         }
     }
 
