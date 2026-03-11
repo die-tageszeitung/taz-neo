@@ -88,7 +88,7 @@ class CoverFlowOnScrollListener(
             val item = adapter.getItem(position)
             updateCurrentDateJob = viewModel.viewModelScope.launch {
                 if (debounced) delay(10)
-                item?.let { viewModel.currentDate.emit(it.date) }
+                item?.let { viewModel.currentDate.value = it.date }
             }
         }
     }

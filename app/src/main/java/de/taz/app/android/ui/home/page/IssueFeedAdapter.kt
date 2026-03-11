@@ -43,7 +43,7 @@ class CoverViewDate(
 abstract class IssueFeedAdapter(
     private val fragment: IssueFeedFragment<*>,
     @LayoutRes private val itemLayoutRes: Int,
-    private val feed: Feed,
+    val feed: Feed,
     private val glideRequestManager: RequestManager,
     private val onMomentViewActionListener: CoverViewActionListener,
     private val observeDownloads: Boolean

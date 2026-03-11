@@ -8,6 +8,7 @@ import android.os.Build
 import android.os.Bundle
 import android.view.Gravity
 import android.view.View
+import androidx.core.view.doOnLayout
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -18,6 +19,7 @@ import com.github.rubensousa.gravitysnaphelper.GravitySnapHelper
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.COVERFLOW_MAX_SMOOTH_SCROLL_DISTANCE
 import de.taz.app.android.R
+import de.taz.app.android.api.models.Feed
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentCoverflowBinding
 import de.taz.app.android.monkey.setDefaultInsets
@@ -37,6 +39,7 @@ import de.taz.app.android.ui.home.page.IssueFeedFragment
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filterNotNull
@@ -82,15 +85,26 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
         super.onCreate(savedInstanceState)
         // If this is mounted on MainActivity with ISSUE_KEY extra skip to that issue on creation
         initialIssueDisplay = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            requireActivity().intent.getParcelableExtra(MainActivity.KEY_ISSUE_PUBLICATION, AbstractIssuePublication::class.java)
+            requireActivity().intent.getParcelableExtra(
+                MainActivity.KEY_ISSUE_PUBLICATION,
+                AbstractIssuePublication::class.java
+            )
         } else {
             @Suppress("deprecation")
             requireActivity().intent.getParcelableExtra(MainActivity.KEY_ISSUE_PUBLICATION)
         }
 
-        observeScrollViewModel()
-        observePdfMode()
-        maybeShowLoginButton()
+        createObserver(savedInstanceState)
+    }
+
+    private fun createObserver(savedInstanceState: Bundle?) = lifecycleScope.launch {
+        repeatOnLifecycle(Lifecycle.State.STARTED) {
+            observeFeed(savedInstanceState)
+            observeScrollViewModel()
+            observePdfMode()
+            observeDate()
+            maybeShowLoginButton()
+        }
     }
 
     /**
@@ -119,13 +133,12 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
     /**
      * react to scrolling
      */
-    private fun observeScrollViewModel() = lifecycleScope.launch {
-        repeatOnLifecycle(Lifecycle.State.STARTED) {
-            // adjust date alpha when scrolling
-            coverFlowOnScrollListenerViewModel.dateAlpha
-                .onEach {
-                    viewBinding?.fragmentCoverFlowDateDownloadWrapper?.alpha = it
-                }.launchIn(lifecycleScope)
+    private fun observeScrollViewModel() {
+        // adjust date alpha when scrolling
+        coverFlowOnScrollListenerViewModel.dateAlpha
+            .onEach {
+                viewBinding?.fragmentCoverFlowDateDownloadWrapper?.alpha = it
+            }.launchIn(lifecycleScope)
 
         // adjust date when scrolling
         coverFlowOnScrollListenerViewModel.currentDate
@@ -134,33 +147,119 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
                 updateUIForCurrentDate()
             }.launchIn(lifecycleScope)
 
-            // trigger refresh when scrolling into the left void
-            coverFlowOnScrollListenerViewModel.refresh
-                .onEach {
-                    getHomeFragment().refresh()
-                }.launchIn(lifecycleScope)
-        }
+        // trigger refresh when scrolling into the left void
+        coverFlowOnScrollListenerViewModel.refresh
+            .onEach {
+                getHomeFragment().refresh()
+            }.launchIn(lifecycleScope)
+    }
+
+    private fun observeDate() {
+        // scroll to date if focus is requested
+        viewModel.requestDateFocus.onEach { date ->
+            adapter?.getPosition(date)?.let { position ->
+                skipToPositionIfNecessary(position)
+            }
+        }.launchIn(lifecycleScope)
     }
 
     /**
      * hide or show login button depending on auth status
      */
-    private fun maybeShowLoginButton() = lifecycleScope.launch {
-        repeatOnLifecycle(Lifecycle.State.STARTED) {
-            // create new flow that indicates if waiting for mail or logged in
-            combine(
-                authHelper.isPollingForConfirmationEmail.asFlow(),
-                authHelper.isLoggedInFlow,
-            ) { isPolling, isLoggedIn -> (isPolling || isLoggedIn) }
-                .collect {
-                    viewBinding?.homeLoginButton?.visibility =
-                        if (it) View.GONE else View.VISIBLE
-                }
+    private fun maybeShowLoginButton() {
+        // create new flow that indicates if waiting for mail or logged in
+        combine(
+            authHelper.isPollingForConfirmationEmail.asFlow(),
+            authHelper.isLoggedInFlow,
+        ) { isPolling, isLoggedIn -> (isPolling || isLoggedIn) }
+            .onEach {
+                viewBinding?.homeLoginButton?.visibility =
+                    if (it) View.GONE else View.VISIBLE
+            }.launchIn(lifecycleScope)
+    }
+
+    private fun observeFeed(savedInstanceState: Bundle?) {
+        viewModel.feed.onEach { feed ->
+            // Store current adapter state before setting some new one
+            val initialAdapter = adapter == null
+
+            createdAdapterIfNeeded(feed)
+
+            viewBinding?.fragmentCoverFlowGrid?.apply {
+                layoutManager = CoverFlowLinearLayoutManager(
+                    requireContext(),
+                    this,
+                    (this.height / feed.momentRatio).toInt(),
+                )
+                adapter = this@CoverflowFragment.adapter
+            }
+
+            val position = getPositionToRestoreTo(
+                savedInstanceState,
+                initialAdapter,
+                feed,
+            )
+
+            log.debug("Trying to restore position $position")
+            if (position >= 0) {
+                viewBinding?.fragmentCoverFlowGrid?.scrollToPosition(position)
+            }
+        }.launchIn(lifecycleScope)
+    }
+
+    private fun createdAdapterIfNeeded(feed: Feed): Boolean {
+        // adapter is already initialized with the correct feed - do not recreate
+        if (adapter?.feed == feed) {
+            return false
+        }
+
+        val requestManager = Glide.with(requireParentFragment())
+        val adapter = CoverflowAdapter(
+            this,
+            R.layout.fragment_cover_flow_item,
+            feed,
+            requestManager,
+            CoverflowCoverViewActionListener(this@CoverflowFragment)
+        )
+        this.adapter = adapter
+        return true
+    }
+
+    private fun getPositionToRestoreTo(
+        savedInstanceState: Bundle?,
+        initialAdapter: Boolean,
+        feed: Feed,
+    ): Int {
+        return if (initialAdapter && savedInstanceState != null) {
+            savedInstanceState.getInt(KEY_POSITION, 0)
+        } else {
+            getDateToRestore(feed)?.let {
+                adapter?.getPosition(it)
+            }
+        } ?: 0
+    }
+
+    private fun getDateToRestore(
+        feed: Feed,
+    ): Date? {
+        val prevMomentDate = coverFlowOnScrollListenerViewModel.currentDate.value
+        val prevHomeMomentDate = adapter?.getItem(0)?.date
+
+        val wasHomeSelected =
+            prevHomeMomentDate != null && prevHomeMomentDate == prevMomentDate
+
+        return if (!wasHomeSelected && prevMomentDate != null) {
+            prevMomentDate
+        } else {
+            feed.publicationDates.firstOrNull()?.date
         }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        isLandscape =
+            resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
         // initialize the views
         viewBinding?.apply {
@@ -170,9 +269,6 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
             fragmentCoverFlowGrid.apply {
                 // make it bouncy
                 edgeEffectFactory = BouncyEdgeEffect.Factory
-
-                // ensure the CoverFlow is drawn
-                layoutManager = CoverFlowLinearLayoutManager(requireContext(), this)
 
                 // make accessible
                 setAccessibilityDelegateCompat(
@@ -203,73 +299,6 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
             fragmentCoverFlowIconGoNext.setOnClickListener { goToNextIssue() }
             homeLoginButton.setOnTapListener { showLoginBottomSheet() }
         }
-
-        viewModel.feed
-            .onEach { feed ->
-                // Store current adapter state before setting some new one
-                val prevMomentDate = coverFlowOnScrollListenerViewModel.currentDate.value
-                val prevHomeMomentDate = adapter?.getItem(0)?.date
-                val initialAdapter = adapter == null
-
-                val requestManager = Glide.with(requireParentFragment())
-                val adapter = CoverflowAdapter(
-                    this,
-                    R.layout.fragment_cover_flow_item,
-                    feed,
-                    requestManager,
-                    CoverflowCoverViewActionListener(this@CoverflowFragment)
-                )
-                this.adapter = adapter
-                viewBinding?.fragmentCoverFlowGrid?.adapter = adapter
-
-                // If this is the first adapter to be assigned, but the Fragment is just restored from the persisted store,
-                // we let Android restore the scroll position. This might work as long as the feed did not change.
-                val restoreFromPersistedState = initialAdapter && savedInstanceState != null
-
-                if (!restoreFromPersistedState) {
-                    if (initialAdapter) {
-                        // The adapter has not been set yet. This is the first time this observer is
-                        // called and there is no previous adapter/visible coverflow yet
-                        val initialIssueDisplayDate = initialIssueDisplay?.date
-                        if (initialIssueDisplayDate != null) {
-                            viewModel.requestDateFocus(initialIssueDisplayDate)
-                        } else {
-                            viewModel.requestNewestDateFocus()
-                        }
-                    } else {
-                        // The adapter is already initialized. This is an update which might break our scroll position.
-                        val wasHomeSelected =
-                            prevHomeMomentDate != null && prevHomeMomentDate == prevMomentDate
-
-                        if (!wasHomeSelected && prevMomentDate != null) {
-                            viewModel.requestDateFocus(prevMomentDate)
-                        } else {
-                            viewModel.requestNewestDateFocus()
-                        }
-                    }
-                } else {
-                    val oldPosition = savedInstanceState.getInt(KEY_POSITION, -1)
-                    if (oldPosition > 0) {
-                        viewBinding?.fragmentCoverFlowGrid?.scrollToPosition(oldPosition)
-
-                        snapHelper.updateSnap(true, true)
-                    }
-                }
-
-                isLandscape =
-                    resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-
-                if (lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
-                    updateUIForCurrentDate()
-                }
-            }.launchIn(lifecycleScope)
-
-        // scroll to date if focus is requested
-        viewModel.requestDateFocus.onEach { date ->
-            adapter?.getPosition(date)?.let { position ->
-                skipToPositionIfNecessary(position)
-            }
-        }.launchIn(lifecycleScope)
     }
 
     override fun onDestroyView() {
@@ -371,7 +400,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
             }
         }
         // set accessibility for date picker:
-        viewBinding?.fragmentCoverFlowDate?.apply{
+        viewBinding?.fragmentCoverFlowDate?.apply {
             contentDescription = resources.getString(
                 R.string.fragment_cover_flow_date_content_description,
                 text

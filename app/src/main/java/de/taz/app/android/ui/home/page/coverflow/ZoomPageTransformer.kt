@@ -15,9 +15,20 @@ import kotlin.math.pow
  */
 object ZoomPageTransformer {
 
+    private fun getCachedMoment(view: View): View {
+        val cached = view.getTag(R.id.moment_container) as? View
+        return if (cached != null) {
+            cached
+        } else {
+            val child = view.findViewById<View>(R.id.moment_container)
+            view.setTag(R.id.moment_container, child)
+            child
+        }
+    }
+
     private fun translationXAtScale(view: View, position: Float): Float =
         view.run {
-            val child = view.findViewById<View>(R.id.moment_container)
+            val child = getCachedMoment(view)
             val border = (width - child.width).toFloat()
             val result = border * position
             // this factor is found by experimentation :)
@@ -49,7 +60,8 @@ object ZoomPageTransformer {
             children.forEach { child ->
                 val childPosition = (child.left + child.right) / 2f
                 val center = width / 2
-                transformPage(child, (center - childPosition) / width)
+                val position = (center - childPosition) / width
+                post { transformPage(child, position) }
             }
         }
     }

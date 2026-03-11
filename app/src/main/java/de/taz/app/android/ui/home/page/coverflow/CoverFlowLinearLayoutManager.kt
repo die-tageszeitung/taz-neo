@@ -7,7 +7,8 @@ import androidx.recyclerview.widget.RecyclerView
 
 class CoverFlowLinearLayoutManager(
     context: Context,
-    private val recyclerView: RecyclerView
+    private val recyclerView: RecyclerView,
+    private val estimatedWidth: Int,
 ) : LinearLayoutManager(context, HORIZONTAL, false) {
 
 
@@ -15,12 +16,12 @@ class CoverFlowLinearLayoutManager(
 
     override fun getPaddingRight(): Int = getPadding()
 
-    @Suppress("KotlinConstantConditions")
-    private fun getPadding() = recyclerView.children.firstOrNull()?.let {
-        if (it.measuredWidth > 0) {
-            return recyclerView.width / 2 - it.measuredWidth / 2
+    private fun getPadding(): Int {
+        val width = recyclerView.children.firstOrNull()?.measuredWidth ?: estimatedWidth
+        return if (width > 0) {
+            recyclerView.width / 2 - width / 2
         } else 0
-    } ?: 0
+    }
 
     override fun onLayoutCompleted(state: RecyclerView.State?) {
         super.onLayoutCompleted(state)

@@ -48,7 +48,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -186,6 +185,11 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
         val oldFragment = childFragmentManager.findFragmentByTag(state.name)
 
         val transaction = childFragmentManager.beginTransaction()
+
+        if (oldFragment?.isHidden == false) {
+            // if fragment is already showing return and do nothing
+            return
+        }
 
         childFragmentManager.fragments.forEach {
             transaction.hide(it)
