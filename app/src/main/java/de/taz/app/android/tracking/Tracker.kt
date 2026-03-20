@@ -113,15 +113,16 @@ interface Tracker {
     fun trackAddBookmarkEvent(articleFileName: String, mediaSyncId: Int?)
     fun trackRemoveBookmarkEvent(articleFileName: String, mediaSyncId: Int?)
 
+    fun trackSectionAdShown(adId: String, date: String, sectionTitle: String)
+    fun trackPageAdShown(adId: String, date: String, pageTitle: String)
+    fun trackAdTapped(adId: String)
     fun trackShareArticleEvent(article: ArticleOperations)
     fun trackShareArticleEvent(articleFileName: String, mediaSyncId: Int?)
     fun trackShareArticlePdfEvent(articleFileName: String, mediaSyncId: Int?)
     fun trackShareArticleLinkEvent(articleFileName: String, mediaSyncId: Int?)
     fun trackShareArticleTextEvent(articleFileName: String, mediaSyncId: Int?)
     fun trackShareMomentEvent(issueKey: AbstractIssuePublication)
-
     fun trackDrawerOpenEvent(dragged: Boolean)
-
     fun trackDrawerTapPageEvent()
     fun trackDrawerTapSectionEvent()
     fun trackDrawerTapArticleEvent()

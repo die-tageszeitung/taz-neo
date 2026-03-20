@@ -28,6 +28,7 @@ data class PageStub(
     val dateDownload: Date?,
     val baseUrl: String,
     val podcastFileName: String?,
+    val adIdList: List<String>?,
 ) {
     constructor(page: Page) : this(
         page.pagePdf.name,
@@ -38,5 +39,6 @@ data class PageStub(
         page.dateDownload,
         page.baseUrl,
         page.podcast?.file?.name,
+        page.adIdList,
     )
 }

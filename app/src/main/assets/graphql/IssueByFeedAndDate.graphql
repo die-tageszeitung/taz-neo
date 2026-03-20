@@ -227,6 +227,7 @@ query IssueByFeedAndDateQuery($feedName: String, $issueDate: String!, $limit: In
                         speaker
                         breaks
                     }
+                    adIdList
                 }
             }
         }

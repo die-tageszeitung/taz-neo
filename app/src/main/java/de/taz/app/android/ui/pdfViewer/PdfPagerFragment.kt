@@ -259,7 +259,11 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
         if (issueStub != null && page != null) {
             val pagina = page.pagina ?: (position + 1).toString()
             tracker.trackPdfPageScreen(issueStub.issueKey, pagina)
-
+            // Track when ads are on the page
+            page.adIdList?.forEach {
+                log.debug("Track ad on page $it, ${issueStub.date}, Seite ${page.pagina}")
+                tracker.trackPageAdShown(it, issueStub.date, "Seite ${page.pagina}")
+            }
         } else {
             log.warn("Could not get page for position=$position")
         }

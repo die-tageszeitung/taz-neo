@@ -15,6 +15,7 @@ object PageMapper {
             null,
             baseUrl,
             pageDto.podcast?.let { AudioMapper.from(issueKey, it) },
+            pageDto.adIdList,
         )
     }
 }

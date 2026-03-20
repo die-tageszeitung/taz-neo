@@ -1,11 +1,13 @@
 package de.taz.app.android.ui.pdfViewer
 
 import android.app.Application
+import androidx.core.net.toUri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
+import de.taz.app.android.ADVERTISEMENT_URL_STRING
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.models.FileEntry
@@ -26,6 +28,7 @@ import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.PageRepository
 import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.singletons.AuthHelper
+import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.issueViewer.IssueKeyWithDisplayableKey
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment.Companion.getShouldShowSubscriptionElapsedDialogFlow
 import de.taz.app.android.util.Log
@@ -72,6 +75,7 @@ class PdfPagerViewModel(
     private val issueRepository = IssueRepository.getInstance(application.applicationContext)
     private val generalDataStore = GeneralDataStore.getInstance(application.applicationContext)
     private val pageRepository = PageRepository.getInstance(application.applicationContext)
+    private val tracker = Tracker.getInstance(application.applicationContext)
 
     private var issuePublication: IssuePublicationWithPages? = null
 
@@ -318,6 +322,7 @@ class PdfPagerViewModel(
                 showArticle(link)
             }
         } else if (link.startsWith("http") || link.startsWith("mailto:")) {
+            handleIfAd(link)
             _openLinkEventFlow.value = OpenLinkEvent.OpenExternal(link)
         } else if (link.startsWith("s") && link.endsWith(".pdf")) {
             goToPdfPage(link)
@@ -343,7 +348,7 @@ class PdfPagerViewModel(
                 log.warn("Could not show article because there is no issue selected")
                 return@launch
             }
-            val article = getCorrectArticle(link, issueKeyWithPages!!)
+            val article = getCorrectArticle(link, issueKeyWithPages)
 
             val issueKey = IssueKey(issueKeyWithPages)
 
@@ -506,6 +511,18 @@ class PdfPagerViewModel(
         return null
     }
 
+    /**
+     * if the link contains "dl.taz.de/anzstat" it an advertisement url, eg:
+     * "https://dl.taz.de/anzstat?url=https://www.byte.fm/sendungen/tazmixtape/&eTag=2025-11-28&pub=taz&Typ=tApp&id=byteFM_bln_320066"
+     * The `adId` is the substring behind "&id=", eg: "byteFM_bln_320066"
+     */
+    private fun handleIfAd(url: String) {
+        if (ADVERTISEMENT_URL_STRING !in url) return
+        val uri = url.toUri()
+        val adId = uri.getQueryParameter("id")
+        log.debug("Track ad tapped $adId")
+        tracker.trackAdTapped(adId ?: url)
+    }
 
     val itemsToC = itemsToCFlow.filterNotNull().asLiveData()
 

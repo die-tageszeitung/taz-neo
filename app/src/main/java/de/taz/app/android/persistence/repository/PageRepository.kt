@@ -109,7 +109,8 @@ class PageRepository private constructor(applicationContext: Context) :
             pageStub.frameList,
             pageStub.dateDownload,
             pageStub.baseUrl,
-            audio
+            audio,
+            pageStub.adIdList,
         )
     }
 

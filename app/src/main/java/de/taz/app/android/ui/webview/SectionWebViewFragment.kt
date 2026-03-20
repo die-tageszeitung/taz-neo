@@ -49,6 +49,7 @@ import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
+import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.util.ArticleName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -98,6 +99,7 @@ class SectionWebViewFragment : WebViewFragment<
 
     override val viewModel by viewModels<SectionWebViewViewModel>()
     private val drawerAndLogoViewModel: DrawerAndLogoViewModel by activityViewModels()
+    private val issueContentViewModel: IssueViewerViewModel by activityViewModels()
 
     private var sectionOperation: SectionOperations? = null
     private lateinit var sectionFileName: String
@@ -106,6 +108,8 @@ class SectionWebViewFragment : WebViewFragment<
 
     private var bookmarkJob: Job? = null
     private var enqueuedJob: Job? = null
+
+    override var isCurrentlyVisible = false
 
     override val webView: AppWebView?
         get() = viewBinding?.webView
@@ -173,6 +177,17 @@ class SectionWebViewFragment : WebViewFragment<
         super.onViewCreated(view, savedInstanceState)
         viewLifecycleOwner.lifecycleScope.launch {
             maybeHandlePodcast()
+        }
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                issueContentViewModel.displayableKeyFlow.collect { currentKey ->
+                    if (currentKey == sectionFileName) {
+                        notifyVisible()
+                } else {
+                    isCurrentlyVisible = false
+                    }
+                }
+            }
         }
     }
 
@@ -300,6 +315,7 @@ class SectionWebViewFragment : WebViewFragment<
         activity?.findViewById<ImageView>(R.id.drawer_logo)?.removeOnLayoutChangeListener(
             resizeDrawerLogoListener
         )
+        isCurrentlyVisible = false
         super.onPause()
     }
 
@@ -341,6 +357,15 @@ class SectionWebViewFragment : WebViewFragment<
             webView?.reload()
     }
 
+    fun notifyVisible() {
+        runWhenWebViewReady {
+            if (!isCurrentlyVisible && issueContentViewModel.currentDisplayable == sectionFileName) {
+                webView?.callTazApi("setWebViewNowVisible")
+                isCurrentlyVisible = true
+            }
+        }
+    }
+
     private val resizeDrawerLogoListener =
         View.OnLayoutChangeListener { v, _, _, _, _, _, _, _, _ ->
             resizeHeaderSectionTitle(v.width)
@@ -379,18 +404,12 @@ class SectionWebViewFragment : WebViewFragment<
     }
 
     @UiThread
-    private fun runIfWebViewReady(function: () -> Unit) {
-        if (!isRendered) {
-            return
-        }
-
-        try {
-            function()
-        } catch (npe: NullPointerException) {
-            // It is possible that given function() is called from a coroutine when the
-            // fragments view is already destroyed or not ready yet. In this case the `webView`
-            // property will be `null`. Unfortunately it is defined as non-null in kotlin,
-            // thus we catch and ignore this exception.
+    private fun runWhenWebViewReady(function: () -> Unit) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                isRenderedFlow.first { it }
+                webView?.let { function() }
+            }
         }
     }
 
@@ -462,7 +481,7 @@ class SectionWebViewFragment : WebViewFragment<
     @UiThread
     private fun setWebViewBookmarkState(articleFileName: String, isBookmarked: Boolean) {
         val articleName = ArticleName.fromArticleFileName(articleFileName)
-        runIfWebViewReady {
+        runWhenWebViewReady {
             webView?.callTazApi("onBookmarkChange", articleName, isBookmarked)
         }
     }
@@ -535,7 +554,7 @@ class SectionWebViewFragment : WebViewFragment<
     @UiThread
     private fun setWebViewEnqueuedState(articleFileName: String, isEnqueued: Boolean) {
         val articleName = ArticleName.fromArticleFileName(articleFileName)
-        runIfWebViewReady {
+        runWhenWebViewReady {
             webView?.callTazApi("onEnqueuedChange", articleName, isEnqueued)
         }
     }

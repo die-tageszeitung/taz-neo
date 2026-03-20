@@ -220,6 +220,7 @@ query LastIssuesQuery($feedName: String, $limit: Int!) {
                         speaker
                         breaks
                     }
+                    adIdList
                 }
             }
         }

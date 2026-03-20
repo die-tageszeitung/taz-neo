@@ -6,7 +6,7 @@ import java.util.Locale
 const val TAZ_AUTH_HEADER = "X-tazAppAuthKey"
 
 const val DEBUG_VERSION_DOWNLOAD_ENDPOINT = "https://dl.taz.de/down/taz.neo.debug.apk"
-
+const val ADVERTISEMENT_URL_STRING = "dl.taz.de/anzstat"
 // UI
 const val DEFAULT_MOMENT_FILE = "noInternetMoment.png"
 const val SUBSCRIPTION_EMAIL_ADDRESS = "app@taz.de"

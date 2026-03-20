@@ -11,4 +11,5 @@ data class PageDto(
     val frameList: List<FrameDto>? = null,
     val baseUrl: String? = null,
     val podcast: AudioDto?,
+    val adIdList: List<String>?,
 )

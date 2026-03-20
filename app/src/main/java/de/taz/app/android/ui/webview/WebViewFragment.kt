@@ -53,6 +53,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
@@ -101,12 +104,18 @@ abstract class WebViewFragment<
     private lateinit var viewerStateRepository: ViewerStateRepository
     private lateinit var generalDataStore: GeneralDataStore
 
-    protected var isRendered = false
+    private val _isRendered = MutableStateFlow(false)
+    protected var isRendered: Boolean
+        get() = _isRendered.value
+        set(value) { _isRendered.value = value }
+    protected val isRenderedFlow: StateFlow<Boolean> = _isRendered.asStateFlow()
 
     private var saveScrollPositionJob: Job? = null
 
     private var currentIssueKey: IssueKey? = null
     private var currentDisplayableKey: String? = null
+
+    open var isCurrentlyVisible: Boolean = false
 
     val preventTap = AtomicBoolean(false)
     val tryingToTap = AtomicBoolean(false)
