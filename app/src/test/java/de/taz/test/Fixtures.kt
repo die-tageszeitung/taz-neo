@@ -139,7 +139,8 @@ object Fixtures {
         listOf(Frame(0f, 0f, 1f, 1f, "https://example.com")),
         dateDownload = null,
         "baseUrl",
-        podcast = null
+        podcast = null,
+        adIdList = null,
     )
 
     /**

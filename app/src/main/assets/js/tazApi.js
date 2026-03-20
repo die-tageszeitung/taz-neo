@@ -161,6 +161,19 @@ var tazApi = (function() {
         ANDROIDAPI.setEnqueued(articleName, isEnqueued)
     }
 
+    function trackAdIfNeeded(adId, htmlFileName) {
+        let fullPath = document.location.pathname;
+        // = '/data/user/0/de.taz.android.app/files/taz/2025-12-13/regular/section.332399.html'
+        let substring1 = fullPath.substr(0,fullPath.lastIndexOf('/'));
+        // = '/data/user/0/de.taz.android.app/files/taz/2025-12-13/regular'
+        let substring2 = fullPath.substr(0,substring1.lastIndexOf('/'));
+        // = '/data/user/0/de.taz.android.app/files/taz/2025-12-13'
+        let dateString = substring2.substr( substring2.lastIndexOf('/')+1 );
+        // = '2025-11-28'
+        let sectionTitle = document.title;
+        ANDROIDAPI.trackAdIfNeeded(adId, dateString, htmlFileName, sectionTitle);
+    }
+
     function enableArticleColumnMode(heightPx, columnWidthPx, columnGapPx) {
         // If there is already a observer running, we disconnect/stop it
         disconnectContentResizeObserver();
@@ -290,6 +303,12 @@ var tazApi = (function() {
         content.style.paddingRight = parseFloat(getComputedStyle(content).paddingRight) + padding + "px";
     }
 
+    function setWebViewNowVisible() {
+        window.dispatchEvent(
+            new Event("native:webview:didBecomeVisible")
+        );
+    }
+
     return {
         getConfiguration : getConfiguration,
         setConfiguration : setConfiguration,
@@ -303,8 +322,10 @@ var tazApi = (function() {
         setBookmark: setBookmark,
         getEnqueuedArticles: getEnqueuedArticles,
         setEnqueued: setEnqueued,
+        trackAdIfNeeded: trackAdIfNeeded,
         enableArticleColumnMode: enableArticleColumnMode,
         disableArticleColumnMode: disableArticleColumnMode,
         setPaddingRight: setPaddingRight,
+        setWebViewNowVisible: setWebViewNowVisible,
     };
 }());

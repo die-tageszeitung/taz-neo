@@ -15,6 +15,7 @@ data class Page(
     override val dateDownload: Date?,
     val baseUrl: String,
     val podcast: Audio?,
+    val adIdList: List<String>?,
 ) : DownloadableCollection {
 
     override suspend fun getDownloadDate(applicationContext: Context): Date? {

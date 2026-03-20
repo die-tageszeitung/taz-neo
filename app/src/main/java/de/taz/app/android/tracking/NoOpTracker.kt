@@ -57,6 +57,9 @@ class NoOpTracker : Tracker {
     override fun trackSwitchToMobileModeEvent() {}
     override fun trackAddBookmarkEvent(articleFileName: String, mediaSyncId: Int?) {}
     override fun trackRemoveBookmarkEvent(articleFileName: String, mediaSyncId: Int?) {}
+    override fun trackSectionAdShown(adId: String, date: String, sectionTitle: String) {}
+    override fun trackPageAdShown(adId: String, date: String, pageTitle: String) {}
+    override fun trackAdTapped(adId: String) {}
     override fun trackShareArticleEvent(article: ArticleOperations) {}
     override fun trackShareArticleEvent(articleFileName: String, mediaSyncId: Int?) {}
     override fun trackShareArticlePdfEvent(articleFileName: String, mediaSyncId: Int?) {}

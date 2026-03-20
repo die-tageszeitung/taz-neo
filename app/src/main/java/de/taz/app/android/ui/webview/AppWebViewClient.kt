@@ -11,10 +11,12 @@ import androidx.annotation.RequiresApi
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
+import de.taz.app.android.ADVERTISEMENT_URL_STRING
 import de.taz.app.android.R
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.singletons.StorageService
+import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.runBlocking
 import java.io.File
@@ -40,6 +42,7 @@ class AppWebViewClient(
     private val log by Log
     private val storageService = StorageService.getInstance(applicationContext)
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
+    private val tracker = Tracker.getInstance(applicationContext)
 
     @Deprecated("Deprecated in Java - But needed for Android versions pre 7.0.0")
     @Suppress("DEPRECATION")
@@ -71,13 +74,27 @@ class AppWebViewClient(
             if (handleLinks(decodedUrl)) {
                 createNewFragment(decodedUrl)
             } else {
+                handleIfAd(decodedUrl)
                 callBack.onExternalLinkClicked(webView.context, url.toUri())
                 true
             }
         }
     }
 
-    /** internal links should be handled by the app, external ones - by a web browser
+    /*
+     * if the link contains "dl.taz.de/anzstat" it an advertisement url, eg:
+     * "https://dl.taz.de/anzstat?url=https://www.byte.fm/sendungen/tazmixtape/&eTag=2025-11-28&pub=taz&Typ=tApp&id=byteFM_bln_320066"
+     * The `adId` is the substring behind "&id=", eg: "byteFM_bln_320066"
+     */
+    private fun handleIfAd(url: String) {
+        if (ADVERTISEMENT_URL_STRING !in url) return
+        val uri = url.toUri()
+        val adId = uri.getQueryParameter("id")
+        log.debug("Track ad tapped $adId")
+        tracker.trackAdTapped(adId ?: url)
+    }
+
+    /* internal links should be handled by the app, external ones - by a web browser
     this function checks whether a link is internal
      */
     private suspend fun handleLinks(url: String): Boolean {

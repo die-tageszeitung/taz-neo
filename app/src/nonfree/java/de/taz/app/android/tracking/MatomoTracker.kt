@@ -30,6 +30,7 @@ private const val CATEGORY_AUTH_STATUS = "Authentication Status"
 private const val CATEGORY_SUBSCRIPTION_STATUS = "Subscription Status"
 private const val CATEGORY_DIALOG = "Dialog"
 private const val CATEGORY_SUBSCRIPTION = "Subscription"
+private const val CATEGORY_ADVERTISEMENT = "Advertisement"
 private const val CATEGORY_APPMODE = "AppMode"
 private const val CATEGORY_BOOKMARKS = "Bookmarks"
 private const val CATEGORY_SHARE = "Share"
@@ -440,6 +441,35 @@ class MatomoTracker(applicationContext: Context) : Tracker {
         TrackHelper.track()
             .event(CATEGORY_BOOKMARKS, "Remove Article")
             .name(articlePath(articleFileName, mediaSyncId))
+            .with(matomoTracker)
+    }
+
+    override fun trackSectionAdShown(
+        adId: String,
+        date: String,
+        sectionTitle: String
+    ) {
+        TrackHelper.track()
+            .event(CATEGORY_ADVERTISEMENT, "Section ad shown")
+            .name("$date/$sectionTitle/$adId")
+            .with(matomoTracker)
+    }
+
+    override fun trackPageAdShown(
+        adId: String,
+        date: String,
+        pageTitle: String
+    ) {
+        TrackHelper.track()
+            .event(CATEGORY_ADVERTISEMENT, "Page ad shown")
+            .name("$date/$pageTitle/$adId")
+            .with(matomoTracker)
+    }
+
+    override fun trackAdTapped(adId: String) {
+        TrackHelper.track()
+            .event(CATEGORY_ADVERTISEMENT, "ad tapped")
+            .name(adId)
             .with(matomoTracker)
     }
 

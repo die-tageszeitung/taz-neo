@@ -8,25 +8,27 @@ import android.webkit.JavascriptInterface
 import androidx.browser.customtabs.CustomTabColorSchemeParams
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
+import androidx.core.content.edit
 import androidx.lifecycle.lifecycleScope
 import androidx.viewbinding.ViewBinding
 import de.taz.app.android.DISPLAYABLE_NAME
 import de.taz.app.android.R
+import de.taz.app.android.api.interfaces.SectionOperations
 import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.ImagePagerActivity
 import de.taz.app.android.util.Json
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import androidx.core.content.edit
-import de.taz.app.android.api.interfaces.SectionOperations
-import de.taz.app.android.api.models.SectionStub
+import java.util.concurrent.ConcurrentHashMap
 
 
 const val TAZ_API_JS = "ANDROIDAPI"
 const val PREFERENCES_TAZAPI = "preferences_tazapi"
 const val IMAGE_NAME = "image_name"
+const val TRACKING_INTERVAL_MS = 1000L
 
 class TazApiJS(private val webViewFragment: WebViewFragment<*, out WebViewViewModel<*>, out ViewBinding>) {
 
@@ -37,6 +39,8 @@ class TazApiJS(private val webViewFragment: WebViewFragment<*, out WebViewViewMo
 
     private val displayable
         get() = webViewFragment.viewModel.displayable
+
+    private val tracker = Tracker.getInstance(applicationContext)
 
     @JavascriptInterface
     fun getConfiguration(name: String): String {
@@ -231,5 +235,27 @@ class TazApiJS(private val webViewFragment: WebViewFragment<*, out WebViewViewMo
         val message = "Missing JavaScript feature: $name"
         log.warn(message)
         SentryWrapper.captureMessage(message)
+    }
+
+    // Use a ConcurrentHashMap to save `lastTracked` per ad
+    private val lastTrackedAds = ConcurrentHashMap<String, Long>()
+
+    @JavascriptInterface
+    fun trackAdIfNeeded(adId: String, dateString: String, htmlFileName: String, sectionTitle: String) {
+        val now = android.os.SystemClock.elapsedRealtime()
+
+        // Check if the fragment is actually the one intended for this HTML file
+        if (displayable?.key != htmlFileName) return
+
+        // If ad is not on visible web view, break
+        if (!webViewFragment.isCurrentlyVisible) return
+
+        // Throttle per adId to ensure we don't miss different ads shown simultaneously
+        val lastTracked = lastTrackedAds[adId] ?: 0L
+        if (now - lastTracked > TRACKING_INTERVAL_MS) {
+            log.debug("Tracking ad: $adId on section: $sectionTitle ($dateString)")
+            tracker.trackSectionAdShown(adId, dateString, sectionTitle)
+            lastTrackedAds[adId] = now
+        }
     }
 }

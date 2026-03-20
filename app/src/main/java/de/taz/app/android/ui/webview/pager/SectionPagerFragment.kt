@@ -114,7 +114,9 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
                                     SectionPagerAdapter(sectionStubs)
                                 loadingScreen.root.visibility = View.GONE
                             }
-                            tryScrollToSection(displayableKey)
+                            if (sectionStubs.isNotEmpty()) {
+                                tryScrollToSection(displayableKey)
+                            }
                         }.collect {}
                     }
 
