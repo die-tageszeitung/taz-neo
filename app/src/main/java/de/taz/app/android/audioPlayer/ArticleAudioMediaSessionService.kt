@@ -2,6 +2,7 @@ package de.taz.app.android.audioPlayer
 
 import android.app.PendingIntent
 import android.content.Intent
+import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.util.UnstableApi
@@ -35,7 +36,16 @@ class ArticleAudioMediaSessionService : MediaSessionService() {
 
     override fun onCreate() {
         super.onCreate()
-        val player = ExoPlayer.Builder(this).build()
+        val audioAttributes = AudioAttributes.Builder()
+            .setUsage(C.USAGE_MEDIA)
+            .setContentType(C.AUDIO_CONTENT_TYPE_SPEECH)
+            .build()
+
+        val player = ExoPlayer.Builder(this)
+            .setAudioAttributes(audioAttributes, true)
+            .setHandleAudioBecomingNoisy(true)         // Pause when headphones are unplugged
+            .setWakeMode(C.WAKE_MODE_NETWORK)          // Keep CPU/Wi-Fi alive during background play
+            .build()
 
         val pendingIntent = PendingIntent.getActivity(
             applicationContext,
