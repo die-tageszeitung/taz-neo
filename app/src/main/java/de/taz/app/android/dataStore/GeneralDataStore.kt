@@ -167,19 +167,12 @@ class GeneralDataStore private constructor(applicationContext: Context) {
     )
 
     val hideAppbarOnScroll: DataStoreEntry<Boolean> = SimpleDataStoreEntry(
-        dataStore, booleanPreferencesKey(SETTINGS_HIDE_APPBAR_ON_SCROLL), false
+        dataStore, booleanPreferencesKey(SETTINGS_HIDE_APPBAR_ON_SCROLL), true
     )
 
     val animateDrawerLogo: DataStoreEntry<Boolean> = SimpleDataStoreEntry(
-        dataStore, booleanPreferencesKey(SETTINGS_ANIMATE_DRAWER_LOGO), moreThan4GbRam()
+        dataStore, booleanPreferencesKey(SETTINGS_ANIMATE_DRAWER_LOGO),true
     )
-
-    private fun moreThan4GbRam(): Boolean {
-        val memoryInfo = ActivityManager.MemoryInfo()
-        activityManager.getMemoryInfo(memoryInfo)
-
-        return memoryInfo.totalMem.toDouble()/(1024*1024*1024) > 4
-    }
 
     val settingsContinueReadAskEachTime: DataStoreEntry<Boolean> = SimpleDataStoreEntry(
         dataStore, booleanPreferencesKey(SETTINGS_CONTINUE_READ_ASK_EACH_TIME), true

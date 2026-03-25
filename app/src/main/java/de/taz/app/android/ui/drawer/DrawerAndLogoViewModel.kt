@@ -2,9 +2,9 @@ package de.taz.app.android.ui.drawer
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import de.taz.app.android.util.Log
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 
 /**
  * This View Model should handle the sates of the drawer and the logo.
@@ -22,6 +22,7 @@ class DrawerAndLogoViewModel(
 
     private val _drawerState = MutableStateFlow<DrawerState>(DrawerState.Closed())
     val drawerState = _drawerState.asStateFlow()
+    val logoStateFlow = drawerState.map { it.logoState }
 
     fun setFeedLogo() {
         _drawerState.value = when (val state = _drawerState.value) {

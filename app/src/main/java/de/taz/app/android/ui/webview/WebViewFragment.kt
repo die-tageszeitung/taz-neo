@@ -48,7 +48,7 @@ import de.taz.app.android.ui.ViewBorder
 import de.taz.app.android.ui.bookmarks.BookmarkViewerActivity
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.util.Log
-import de.taz.app.android.util.getHideViewOnScrollBehavior
+import de.taz.app.android.monkey.getHideViewOnScrollBehavior
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin

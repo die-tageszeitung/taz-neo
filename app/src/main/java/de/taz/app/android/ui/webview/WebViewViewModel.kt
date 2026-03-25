@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 
 const val KEY_SCROLL_POSITION = "KEY_SCROLL_POSITION"
 const val KEY_SCROLL_POSITION_HORIZONTAL = "KEY_SCROLL_POSITION_HORIZONTAL"
+const val KEY_APP_BAR_EXPANDED = "KEY_APP_BAR_EXPANDED"
 
 open class WebViewViewModel<DISPLAYABLE : WebViewDisplayable>(
     application: Application,
@@ -34,6 +35,12 @@ open class WebViewViewModel<DISPLAYABLE : WebViewDisplayable>(
         get() = savedStateHandle[KEY_SCROLL_POSITION_HORIZONTAL]
         set(value) {
             savedStateHandle[KEY_SCROLL_POSITION_HORIZONTAL] = value
+        }
+
+    var isAppBarExpanded: Boolean
+        get() = savedStateHandle[KEY_APP_BAR_EXPANDED] ?: true
+        set(value) {
+            savedStateHandle[KEY_APP_BAR_EXPANDED] = value
         }
 
     private val tazApiCssDataStore = TazApiCssDataStore.getInstance(application)

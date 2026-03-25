@@ -52,6 +52,10 @@ import de.taz.app.android.coachMarks.TazLogoCoachMark
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.databinding.FragmentWebviewArticlePagerBinding
+import de.taz.app.android.monkey.AppBarLayoutState
+import de.taz.app.android.monkey.addOnStateChangeListener
+import de.taz.app.android.monkey.isCollapsed
+import de.taz.app.android.monkey.isExpanded
 import de.taz.app.android.monkey.pinToolbar
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.persistence.repository.ArticleRepository
@@ -83,9 +87,9 @@ import de.taz.app.android.ui.webview.ArticleWebViewFragment.CollapsibleLayoutPro
 import de.taz.app.android.ui.webview.HelpFabViewModel
 import de.taz.app.android.ui.webview.TapIconsViewModel
 import de.taz.app.android.util.Log
-import de.taz.app.android.util.getHideViewOnScrollBehavior
+import de.taz.app.android.monkey.getHideViewOnScrollBehavior
 import de.taz.app.android.util.runIfNotNull
-import de.taz.app.android.util.setupLogoScrollBehavior
+import de.taz.app.android.monkey.setupLogoScrollBehavior
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
@@ -150,7 +154,10 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
         super.onViewCreated(view, savedInstanceState)
 
         viewBinding?.apply {
-            feedLogo.getHideViewOnScrollBehavior()?.setViewEdge(EDGE_LEFT)
+            feedLogo.getHideViewOnScrollBehavior()?.apply {
+                setViewEdge(EDGE_LEFT)
+            }
+
 
             articleBottomActionBarNavigationHelper
                 .setBottomNavigationFromContainer(navigationBottom)
@@ -306,7 +313,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
                             viewBinding?.feedLogo?.setupLogoScrollBehavior(
                                 enabled = animateLogo,
                                 onScrolledIn = { drawerAndLogoViewModel.setFeedLogo() },
-                                onScrolledOut = { drawerAndLogoViewModel.setBurgerIcon() }
+                                onScrolledOut = { drawerAndLogoViewModel.setBurgerIcon() },
                             )
                         }
                     }
@@ -316,6 +323,18 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
             setupHeader()
             setupViewPager()
             setupFAB()
+            appBarLayout.addOnStateChangeListener {
+                if (isHidden || !isResumed) {
+                    return@addOnStateChangeListener
+                }
+                when(it) {
+                    AppBarLayoutState.EXPANDED ->
+                        drawerAndLogoViewModel.setFeedLogo()
+                    AppBarLayoutState.CLOSED ->
+                        drawerAndLogoViewModel.setBurgerIcon()
+                    else -> Unit
+                }
+            }
         }
     }
 
@@ -552,7 +571,6 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
                     }
                 }
             }
-            drawerAndLogoViewModel.setFeedLogo()
         }
 
         private fun onArticleSelected(position: Int, nextStub: ArticleStub) {
@@ -641,9 +659,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
      * Check if appBarLayout is fully expanded and if not then expand it and show the logo.
      */
     private fun expandAppBarIfCollapsed() = viewBinding?.appBarLayout?.apply {
-        val appBarFullyExpanded = height - bottom == 0
-
-        if (!appBarFullyExpanded) {
+        if (!isExpanded()) {
             setExpanded(true, false)
         }
     }
@@ -981,6 +997,22 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
         viewBinding?.webviewPagerViewpager?.setCurrentItem(0, true)
     }
 
+    private fun setLogoDependingOnAppBarState() {
+        viewBinding?.appBarLayout?.apply {
+            if (isExpanded()) {
+                drawerAndLogoViewModel.setFeedLogo()
+            } else if (isCollapsed()) {
+                drawerAndLogoViewModel.setBurgerIcon()
+            }
+        }
+    }
+
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        if (!hidden && isResumed) {
+            setLogoDependingOnAppBarState()
+        }
+    }
     override fun getAppBarLayout(): AppBarLayout? = viewBinding?.appBarLayout
     override fun getBottomNavigationLayout(): View? = viewBinding?.navigationBottom
 }

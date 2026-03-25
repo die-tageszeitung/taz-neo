@@ -185,11 +185,7 @@ class DrawerViewController(
     }
 
     private fun showDrawerLogoAnimated(state: DrawerState) {
-        val hideList = if(state.logoState == LogoState.FEED) {
-            listOf(R.id.feed_logo, R.id.burger_wrapper)
-        } else {
-            listOf(R.id.burger_wrapper)
-        }
+        val hideList = listOf(R.id.burger_wrapper, R.id.feed_logo)
 
         hideList.forEach { idToHide ->
             val viewToHide = rootView.findViewById<View>(idToHide)
@@ -199,6 +195,7 @@ class DrawerViewController(
                 .translationX(NO_TRANSLATION)
                 .setInterpolator(AccelerateDecelerateInterpolator())
         }
+
         wasHidden = false
     }
 
