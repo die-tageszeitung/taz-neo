@@ -328,7 +328,6 @@ class DownloadObserver(
 
 
         continueReadBindView.apply {
-            importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_YES
             setOnClickListener {
                 boundFragment?.continueRead(issuePublication)
                 stopObserving()
@@ -342,25 +341,11 @@ class DownloadObserver(
 
     @MainThread
     private fun hideDownloadIcon() {
-
-        val touchAreaOnCoverflow =
-            downloadIconView.rootView.findViewById<View>(R.id.fragment_coverflow_moment_download_touch_area)
-
-        val touchAreaOnArchiveView =
-            (downloadIconView.parent.parent as? ViewGroup)?.findViewById<View>(R.id.view_moment_download_icon_wrapper)
-
+        removeAccessibilityAndClickHandling()
         val wasDownloading = downloadProgressView.isVisible
         downloadProgressView.visibility = View.GONE
         continueReadIconView.visibility = View.GONE
         downloadIconView.visibility = View.GONE
-        touchAreaOnCoverflow?.apply {
-            importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_NO
-            setOnClickListener(null)
-        }
-        touchAreaOnArchiveView?.apply {
-            importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_NO
-            setOnClickListener(null)
-        }
         if (wasDownloading) {
             checkmarkIconView.apply {
                 alpha = 1f
@@ -373,11 +358,28 @@ class DownloadObserver(
 
     @MainThread
     private fun showLoadingIcon() {
+        removeAccessibilityAndClickHandling()
         if (downloadProgressView.visibility != View.VISIBLE) {
             downloadIconView.visibility = View.GONE
             checkmarkIconView.visibility = View.GONE
             continueReadIconView.visibility = View.GONE
             downloadProgressView.visibility = View.VISIBLE
+        }
+    }
+
+    private fun removeAccessibilityAndClickHandling() {
+        val touchAreaOnCoverflow =
+            downloadIconView.rootView.findViewById<View>(R.id.fragment_coverflow_moment_download_touch_area)
+        val touchAreaOnArchiveView =
+            (downloadIconView.parent.parent as? ViewGroup)?.findViewById<View>(R.id.view_moment_download_icon_wrapper)
+
+        touchAreaOnCoverflow?.apply {
+            importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_NO
+            setOnClickListener(null)
+        }
+        touchAreaOnArchiveView?.apply {
+            importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_NO
+            setOnClickListener(null)
         }
     }
 

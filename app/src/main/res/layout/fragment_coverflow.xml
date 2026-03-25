@@ -222,7 +222,6 @@
                 android:layout_width="@dimen/icon_size"
                 android:layout_height="@dimen/icon_size"
                 android:contentDescription="@string/fragment_cover_flow_continue_read"
-                android:importantForAccessibility="no"
                 android:scaleType="centerInside"
                 android:src="@drawable/ic_continue_read"
                 android:visibility="gone"
