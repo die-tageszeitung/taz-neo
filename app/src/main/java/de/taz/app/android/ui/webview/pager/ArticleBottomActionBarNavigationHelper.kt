@@ -10,8 +10,8 @@ import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.models.SearchHit
 import de.taz.app.android.ui.share.ShareArticleBottomSheet
-import de.taz.app.android.util.getHideViewOnScrollBehavior
-import de.taz.app.android.util.setBottomNavigationBehavior
+import de.taz.app.android.monkey.getHideViewOnScrollBehavior
+import de.taz.app.android.monkey.setBottomNavigationBehavior
 
 class ArticleBottomActionBarNavigationHelper(
     private val onClickHandler: (MenuItem) -> Unit

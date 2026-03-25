@@ -30,7 +30,7 @@ import de.taz.app.android.ui.pdfViewer.mupdf.OnCoordinatesClickedListener
 import de.taz.app.android.ui.pdfViewer.mupdf.PageAdapter
 import de.taz.app.android.ui.pdfViewer.mupdf.PageView
 import de.taz.app.android.util.Log
-import de.taz.app.android.util.getHideViewOnScrollBehavior
+import de.taz.app.android.monkey.getHideViewOnScrollBehavior
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.filterNotNull

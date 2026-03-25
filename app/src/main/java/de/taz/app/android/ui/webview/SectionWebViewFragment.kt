@@ -39,6 +39,10 @@ import de.taz.app.android.api.models.SectionType
 import de.taz.app.android.audioPlayer.AudioPlayerService
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentWebviewSectionBinding
+import de.taz.app.android.monkey.AppBarLayoutState
+import de.taz.app.android.monkey.addOnStateChangeListener
+import de.taz.app.android.monkey.isCollapsed
+import de.taz.app.android.monkey.isExpanded
 import de.taz.app.android.monkey.pinToolbar
 import de.taz.app.android.persistence.repository.BookmarkRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
@@ -50,6 +54,7 @@ import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
+import de.taz.app.android.ui.webview.pager.SectionPagerFragment
 import de.taz.app.android.util.ArticleName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -162,13 +167,10 @@ class SectionWebViewFragment : WebViewFragment<
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                launch {
-                    generalDataStore.hideAppbarOnScroll.asFlow()
-                        .collect {
-                            viewBinding?.collapsingToolbarLayout?.pinToolbar(!it)
-                        }
-                }
-
+                generalDataStore.hideAppbarOnScroll.asFlow()
+                    .onEach {
+                        viewBinding?.collapsingToolbarLayout?.pinToolbar(!it)
+                    }.launchIn(lifecycleScope)
             }
         }
     }
@@ -189,6 +191,7 @@ class SectionWebViewFragment : WebViewFragment<
                 }
             }
         }
+        setupAppBarLayoutStateChangeListener()
     }
 
     override fun setHeader(displayable: SectionOperations) {
@@ -300,15 +303,10 @@ class SectionWebViewFragment : WebViewFragment<
             if (isAdvertisement || isPodcast) {
                 drawerAndLogoViewModel.hideLogo()
             } else {
-                webView?.scrollY?.let {
-                    if (it > 0) {
-                        drawerAndLogoViewModel.setBurgerIcon()
-                    } else {
-                        drawerAndLogoViewModel.setFeedLogo()
-                    }
-                }
+                setLogoDependingOnAppBarState()
             }
         }
+        setFABDependingOnAppBarState()
     }
 
     override fun onPause() {
@@ -398,7 +396,7 @@ class SectionWebViewFragment : WebViewFragment<
         viewLifecycleOwner.lifecycleScope.launch {
             val extraPadding = generalDataStore.displayCutoutExtraPadding.get()
             if (extraPadding > 0 && resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                viewBinding?.collapsingToolbarLayout?.setPadding(0, extraPadding, 0, 0)
+                viewBinding?.headerToolbar?.setPadding(0, extraPadding, 0, 0)
             }
         }
     }
@@ -585,6 +583,70 @@ class SectionWebViewFragment : WebViewFragment<
 
         } else {
             webView?.clearOnTouchListener()
+        }
+    }
+
+    private fun setupAppBarLayoutStateChangeListener() {
+        viewBinding?.appBarLayout?.addOnStateChangeListener {
+            // do nothing for ads or podcasts
+            val sectionType = viewModel.displayable?.type ?: return@addOnStateChangeListener
+            val isAdOrPodcast =
+                sectionType == SectionType.advertisement || sectionType == SectionType.podcast
+            if (isAdOrPodcast) {
+                return@addOnStateChangeListener
+            }
+
+            // Only enable animation if setting is ON AND it's not a special section
+            lifecycleScope.launch {
+                if (isHidden || !isResumed) {
+                    return@launch
+                }
+
+                // if animation is disabled from settings do nothing
+                if (!generalDataStore.animateDrawerLogo.get()) {
+                    return@launch
+                }
+
+                when (it) {
+                    AppBarLayoutState.EXPANDED -> {
+                        viewModel.isAppBarExpanded = true
+                    }
+                    AppBarLayoutState.CLOSED -> {
+                        viewModel.isAppBarExpanded = false
+                    }
+                    else -> Unit
+                }
+                setLogoDependingOnAppBarState()
+            }
+        }
+    }
+
+    private fun setLogoDependingOnAppBarState() {
+        viewBinding?.appBarLayout?.apply {
+            setExpanded(viewModel.isAppBarExpanded, false)
+            if (viewModel.isAppBarExpanded) {
+                drawerAndLogoViewModel.setFeedLogo()
+            } else {
+                drawerAndLogoViewModel.setBurgerIcon()
+            }
+        }
+    }
+
+    private fun setFABDependingOnAppBarState() {
+        // if the webview can't scroll we should show the FAB as it won't reappear on scrolling
+        val canWebViewScroll = webView?.canScrollVertically(1) ?: false ||
+                webView?.canScrollVertically(-1) ?: false
+
+        (parentFragment as? SectionPagerFragment)?.slideFABInOrOut(
+            viewModel.isAppBarExpanded || !canWebViewScroll
+        )
+    }
+
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        if (!hidden && isResumed) {
+            setLogoDependingOnAppBarState()
+            setFABDependingOnAppBarState()
         }
     }
 }

@@ -32,6 +32,7 @@ import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.databinding.FragmentWebviewArticlePagerBinding
+import de.taz.app.android.monkey.isExpanded
 import de.taz.app.android.monkey.pinToolbar
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.persistence.repository.ArticleRepository
@@ -184,7 +185,7 @@ class BookmarkPagerFragment :
             lifecycleScope.launch {
                 val extraPadding = generalDataStore.displayCutoutExtraPadding.get()
                 if (extraPadding > 0 && resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                    collapsingToolbarLayout.setPadding(0, extraPadding, 0, 0)
+                    appBarLayout.setPadding(0, extraPadding, 0, 0)
                 }
             }
 
@@ -416,10 +417,7 @@ class BookmarkPagerFragment :
      * Check if appBarLayout is fully expanded and if not then expand it and show the logo.
      */
     private fun expandAppBarIfCollapsed() = viewBinding?.appBarLayout?.apply {
-        val appBarFullyExpanded =
-            height - bottom == 0
-
-        if (!appBarFullyExpanded) {
+        if (!isExpanded()) {
             setExpanded(true, false)
             drawerAndLogoViewModel.setFeedLogo()
         }

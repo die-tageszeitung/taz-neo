@@ -120,7 +120,7 @@ class SectionImprintWebViewFragment : WebViewFragment<
         viewLifecycleOwner.lifecycleScope.launch {
             val extraPadding = generalDataStore.displayCutoutExtraPadding.get()
             if (extraPadding > 0 && resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                viewBinding?.collapsingToolbarLayout?.setPadding(0, extraPadding, 0, 0)
+                viewBinding?.headerToolbar?.setPadding(0, extraPadding, 0, 0)
             }
         }
     }

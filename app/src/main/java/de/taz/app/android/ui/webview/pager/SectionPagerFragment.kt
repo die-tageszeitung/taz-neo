@@ -34,6 +34,7 @@ import de.taz.app.android.coachMarks.TazLogoCoachMark
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentWebviewSectionPagerBinding
 import de.taz.app.android.monkey.reduceDragSensitivity
+import de.taz.app.android.monkey.withPreviousValue
 import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.TazViewerFragment
@@ -48,12 +49,13 @@ import de.taz.app.android.ui.webview.HelpFabViewModel
 import de.taz.app.android.ui.webview.SectionImprintWebViewFragment
 import de.taz.app.android.ui.webview.SectionWebViewFragment
 import de.taz.app.android.util.Log
-import de.taz.app.android.util.getHideViewOnScrollBehavior
+import de.taz.app.android.monkey.getHideViewOnScrollBehavior
 import de.taz.app.android.util.runIfNotNull
-import de.taz.app.android.util.setupLogoScrollBehavior
+import de.taz.app.android.monkey.setupLogoScrollBehavior
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -87,6 +89,7 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
                 tracker.trackDrawerOpenEvent(dragged = false)
                 drawerAndLogoViewModel.openDrawer()
             }
+
             burgerLogo.setOnClickListener {
                 tracker.trackDrawerOpenEvent(dragged = false)
                 drawerAndLogoViewModel.openDrawer()
@@ -138,28 +141,21 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
                         }
                     }
 
-                    launch {
-                        // in an ideal world this would be handled in DrawerViewController, but we
-                        // would need to iterate all the views, that wouldn't be performant
-                        drawerAndLogoViewModel.drawerState.collect {
-                            if (it.logoState == LogoState.FEED) {
-                                feedLogo.getHideViewOnScrollBehavior()?.slideIn(feedLogo)
-                                // wait for the logo to be slided in far enough to hide the burger
-                                delay(226) // = HideViewOnScrollBehavior.DEFAULT_ENTER_ANIMATION_DURATION_MS
-                                burgerLogo.visibility = View.GONE
-                            } else if (it.logoState == LogoState.BURGER) {
-                                burgerLogo.visibility = View.VISIBLE
-                                feedLogo.getHideViewOnScrollBehavior()?.slideOut(feedLogo)
-                            }
-                        }
-                    }
+                    handleLogoStateFlow()
+
+                    currentSectionTypeFlow
+                        .filterNotNull()
+                        .onEach {
+                            hideOrShowFAB(it)
+                        }.launchIn(lifecycleScope)
 
                     launch {
                         combine(
                             generalDataStore.animateDrawerLogo.asFlow(),
                             currentSectionTypeFlow
-                        )  { animateSetting, sectionType ->
-                            val isAdOrPodcast = sectionType == SectionType.advertisement || sectionType == SectionType.podcast
+                        ) { animateSetting, sectionType ->
+                            val isAdOrPodcast =
+                                sectionType == SectionType.advertisement || sectionType == SectionType.podcast
                             // Only enable animation if setting is ON AND it's not a special section
                             !isAdOrPodcast && animateSetting
                         }.collect { shouldAnimate ->
@@ -255,8 +251,7 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
                     }
                 }
             }
-            // Always show the logo on section page change (except for advertisement or podcast):
-            hideOrShowFABIfNecessary(position)
+            setCurrentSectionType(position)
             lastPage = position
         }
 
@@ -359,23 +354,40 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
     /**
      * On advertisements, we hide the FAB.
      */
-    private fun hideOrShowFABIfNecessary(position: Int) {
-        val sectionsStubs =
-            (viewBinding?.webviewPagerViewpager?.adapter as? SectionPagerAdapter)?.sectionStubs
-                ?: return
-        val currentSection = sectionsStubs.getOrNull(position) ?: return
-
-        // Update the flow which automatically updates the Logo behavior via the collector above
-        currentSectionTypeFlow.value = currentSection.type
-
-        val isAdOrPodcast = currentSection.type == SectionType.advertisement ||
-                currentSection.type == SectionType.podcast
+    private fun hideOrShowFAB(currentSectionType: SectionType) {
+        val isAdOrPodcast = currentSectionType in listOf(
+            SectionType.advertisement,
+            SectionType.podcast,
+        )
 
         if (isAdOrPodcast) {
             viewBinding?.sectionPagerFabHelp?.hide()
         } else if (showFab) {
             viewBinding?.sectionPagerFabHelp?.show()
         }
+    }
+
+    fun slideFABInOrOut(slideIn: Boolean) {
+        if (slideIn) {
+            viewBinding?.sectionPagerFabHelp?.apply {
+                getHideViewOnScrollBehavior()?.slideIn(this)
+            }
+        } else {
+            viewBinding?.sectionPagerFabHelp?.apply {
+                getHideViewOnScrollBehavior()?.slideOut(this)
+            }
+        }
+    }
+
+
+    private fun setCurrentSectionType(position: Int) {
+        val sectionsStubs =
+            (viewBinding?.webviewPagerViewpager?.adapter as? SectionPagerAdapter)?.sectionStubs
+                ?: return
+        val currentSection = sectionsStubs.getOrNull(position)
+
+        // Update the flow which automatically updates the Logo behavior via the collector above
+        currentSectionTypeFlow.value = currentSection?.type
     }
 
     private fun showCoachMarks() {
@@ -407,5 +419,30 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
                 }
             }
         }
+    }
+
+    private fun handleLogoStateFlow() = lifecycleScope.launch {
+        val feedLogo = viewBinding?.feedLogo ?: return@launch
+        val burgerLogo = viewBinding?.burgerLogo ?: return@launch
+
+        // in an ideal world this would be handled in DrawerViewController, but we
+        // would need to iterate all the views, that wouldn't be performant
+        drawerAndLogoViewModel.logoStateFlow
+            .withPreviousValue()
+            .collect { (current, previous) ->
+                if (current == LogoState.FEED) {
+                    feedLogo.getHideViewOnScrollBehavior()?.slideIn(feedLogo)
+
+                    if (previous == LogoState.BURGER) {
+                        // burger currently shown - wait for feedLogo to be visible
+                        delay(225) // HideViewOnScrollBehavior.DEFAULT_ENTER_ANIMATION_DURATION_MS
+                    }
+                    // then hide burger for a11y
+                    burgerLogo.visibility = View.GONE
+                } else if (current == LogoState.BURGER) {
+                    burgerLogo.visibility = View.VISIBLE
+                    feedLogo.getHideViewOnScrollBehavior()?.slideOut(feedLogo)
+                }
+            }
     }
 }

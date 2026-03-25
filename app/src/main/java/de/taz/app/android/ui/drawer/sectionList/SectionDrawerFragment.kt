@@ -61,7 +61,7 @@ import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.webview.pager.BookmarkPagerViewModel
 import de.taz.app.android.util.Log
-import de.taz.app.android.util.getHideViewOnScrollBehavior
+import de.taz.app.android.monkey.getHideViewOnScrollBehavior
 import de.taz.app.android.util.showIssueDownloadFailedDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.distinctUntilChanged
