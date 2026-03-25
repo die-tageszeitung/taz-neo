@@ -148,6 +148,7 @@
             android:id="@+id/fragment_cover_flow_calendar"
             android:layout_width="@dimen/default_touch_area_size"
             android:layout_height="@dimen/default_touch_area_size"
+            android:importantForAccessibility="no"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/fragment_cover_flow_date"
             app:layout_constraintTop_toTopOf="parent">
