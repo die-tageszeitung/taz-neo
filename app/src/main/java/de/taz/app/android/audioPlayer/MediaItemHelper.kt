@@ -5,6 +5,8 @@ import androidx.core.net.toUri
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import de.taz.app.android.singletons.StorageService
+import de.taz.app.android.util.Log
+import java.io.File
 
 private const val DISCLAIMER_MEDIA_ID = "disclaimer"
 private const val DISCLAIMER_NOTE_FEMALE_ASSET_PATH = "/femaleNote.mp3"
@@ -33,20 +35,22 @@ class MediaItemHelper(private val uiStateHelper: UiStateHelper) {
             mediaId == audioPlayerItem.id
     }
     private val storageService = StorageService.getInstance(uiStateHelper.applicationContext)
+    private val log by Log
 
     fun getMediaItem(audioPlayerItem: AudioPlayerItem): MediaItem {
         val localUriString = storageService.getFileUri(audioPlayerItem.audio.file)
         val audioUri = "${audioPlayerItem.baseUrl}/${audioPlayerItem.audio.file.name}".toUri()
+        val artworkData = getArtworkData(audioPlayerItem.uiItem)
+
         val mediaMetadata = MediaMetadata.Builder()
             .setTitle(audioPlayerItem.uiItem.title)
+            .setDisplayTitle(audioPlayerItem.uiItem.title)
             .setArtist(audioPlayerItem.uiItem.author)
-            // FIXME (johannes): passing a local file:// url for the artwork is not working 100%
-            //     due to Androids App filesystem restrictions: Image file are stored in the private app
-            //     storage and won't be accessible by other app. We could circumvent this by
-            //     generating and passing a bitmap.
-            //     Somehow we do get some errors on the logs, but the image is sometimes still shown.
-            //     Thus we keep the Uri logic for now.
-            .setArtworkUri(audioPlayerItem.uiItem.coverImageUri)
+            .setSubtitle(audioPlayerItem.uiItem.author)
+            .setArtworkData(artworkData, MediaMetadata.PICTURE_TYPE_FRONT_COVER)
+            .setIsPlayable(true)
+            .setIsBrowsable(false)
+            .setMediaType(MediaMetadata.MEDIA_TYPE_AUDIO_BOOK_CHAPTER)
             .build()
 
         return MediaItem.Builder()
@@ -54,6 +58,28 @@ class MediaItemHelper(private val uiStateHelper: UiStateHelper) {
             .setArticleAudioRequestMetadata(localUriString?.toUri() ?: audioUri)
             .setMediaMetadata(mediaMetadata)
             .build()
+    }
+
+    private fun getArtworkData(uiItem: AudioPlayerItem.UiItem): ByteArray? {
+        val path = if (uiItem.coverImageUri?.scheme == "file") {
+            uiItem.coverImageUri.path
+        } else {
+            uiItem.coverImageGlidePath
+        }
+
+        return path?.let {
+            try {
+                val file = File(it)
+                if (file.exists()) {
+                    file.readBytes()
+                } else {
+                    null
+                }
+            } catch (e: Exception) {
+                log.error("Failed to read artwork data from $it", e)
+                null
+            }
+        }
     }
 
     /**
@@ -72,7 +98,12 @@ class MediaItemHelper(private val uiStateHelper: UiStateHelper) {
 
         val mediaMetadata = MediaMetadata.Builder()
             .setTitle(uiStateItem.title)
+            .setDisplayTitle(uiStateItem.title)
             .setArtist(uiStateItem.author)
+            .setSubtitle(uiStateItem.author)
+            .setIsPlayable(true)
+            .setIsBrowsable(false)
+            .setMediaType(MediaMetadata.MEDIA_TYPE_MUSIC)
             .build()
 
         val disclaimerUri = if (useMaleSpeaker) {
