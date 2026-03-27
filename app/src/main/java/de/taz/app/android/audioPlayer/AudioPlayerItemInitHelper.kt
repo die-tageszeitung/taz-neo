@@ -10,6 +10,7 @@ import de.taz.app.android.api.models.Page
 import de.taz.app.android.api.models.SearchHit
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.persistence.repository.ArticleRepository
+import de.taz.app.android.persistence.repository.BookmarkRepository
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.StoragePathService
@@ -20,6 +21,7 @@ class AudioPlayerItemInitHelper(
 ) {
     private val contentService = ContentService.getInstance(applicationContext)
     private val articleRepository = ArticleRepository.getInstance(applicationContext)
+    private val bookmarkRepository = BookmarkRepository.getInstance(applicationContext)
     private val issueRepository = IssueRepository.getInstance(applicationContext)
     private val storagePathService = StoragePathService.getInstance(applicationContext)
 
@@ -139,6 +141,25 @@ class AudioPlayerItemInitHelper(
             )
         } else {
             throw AudioPlayerException.Generic("SearchHit has no audio! SearchHit(articleFileName=${searchHit.articleFileName})")
+        }
+    }
+    suspend fun initBookmarkedArticlesAudio(): List<AudioPlayerItem>{
+        val bookmarkedArticles = bookmarkRepository.getBookmarkedArticleStubs()
+        val articles = bookmarkedArticles.mapNotNull { articleRepository.get(it.key) }
+        val articlesWithAudio = articles.filter { it.audio != null }
+
+        return articlesWithAudio.map {
+            val audio = requireNotNull(it.audio)
+            val issueStub = requireNotNull(issueRepository.getIssueStubForArticle(it.key))
+            AudioPlayerItem(
+                generateId(audio),
+                audio,
+                storagePathService.determineBaseUrl(it.audio.file, issueStub),
+                uiStateHelper.articleAsAUiItem(it, issueStub.issueKey),
+                issueStub.issueKey,
+                it.key,
+                type = AudioPlayerItem.Type.ARTICLE,
+            )
         }
     }
 

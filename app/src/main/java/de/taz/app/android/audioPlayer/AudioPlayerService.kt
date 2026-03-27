@@ -233,6 +233,13 @@ class AudioPlayerService private constructor(private val applicationContext: Con
         }
     }
 
+    fun playBookmarkedArticle(articleKey: String) {
+        isIssuePlayer = false
+        initItems(articleKey = articleKey) {
+            audioPlayerItemInitHelper.initBookmarkedArticlesAudio()
+        }
+    }
+
     fun toggleAudioPlaying() {
         when (val state = state.value) {
             // Let the audio controller decide how to pause/play the current audio

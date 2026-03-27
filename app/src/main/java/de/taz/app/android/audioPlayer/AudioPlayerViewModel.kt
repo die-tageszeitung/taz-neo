@@ -103,4 +103,12 @@ class ArticleAudioPlayerViewModel(androidApplication: Application) :
     override fun play(playable: ArticleOperations) {
         audioPlayerService.playArticle(playable.key)
     }
+
+    class BookmarksAudioPlayerViewModel(androidApplication: Application) :
+        AudioPlayerViewModel<ArticleOperations>(androidApplication) {
+
+        override fun play(playable: ArticleOperations) {
+            audioPlayerService.playBookmarkedArticle(playable.key)
+        }
+    }
 }

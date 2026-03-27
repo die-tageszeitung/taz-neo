@@ -27,7 +27,7 @@ import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.IssueStub
-import de.taz.app.android.audioPlayer.ArticleAudioPlayerViewModel
+import de.taz.app.android.audioPlayer.ArticleAudioPlayerViewModel.BookmarksAudioPlayerViewModel
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.dataStore.TazApiCssDataStore
@@ -81,7 +81,7 @@ class BookmarkPagerFragment :
 
     override val viewModel: BookmarkPagerViewModel by activityViewModels()
     private val issueViewerViewModel: IssueViewerViewModel by activityViewModels()
-    private val audioPlayerViewModel: ArticleAudioPlayerViewModel by viewModels()
+    private val audioPlayerViewModel: BookmarksAudioPlayerViewModel by viewModels()
     private val drawerAndLogoViewModel: DrawerAndLogoViewModel by activityViewModels()
 
     override fun onAttach(context: Context) {
