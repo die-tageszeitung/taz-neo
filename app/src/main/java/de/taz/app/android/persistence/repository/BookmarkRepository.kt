@@ -193,6 +193,9 @@ class BookmarkRepository(
         return coroutineScope.async { removeBookmark(articleFileName, mediaSyncId, fromRemote) }
     }
 
+    suspend fun removeBookmark(article: ArticleOperations, fromRemote: Boolean = false) {
+        removeBookmark(article.key, article.mediaSyncId, fromRemote)
+    }
     private suspend fun removeBookmark(
         articleFileName: String,
         mediaSyncId: Int?,

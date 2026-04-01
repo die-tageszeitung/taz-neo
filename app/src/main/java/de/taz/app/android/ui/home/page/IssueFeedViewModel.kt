@@ -8,6 +8,7 @@ import de.taz.app.android.api.models.Feed
 import de.taz.app.android.content.FeedService
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.simpleDateFormat
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -34,7 +35,10 @@ class IssueFeedViewModel(
     private val generalDataStore = GeneralDataStore.getInstance(application)
     private val feedService = FeedService.getInstance(application)
 
-    private val _mutableRequestDateFocus = MutableSharedFlow<Date>()
+    private val _mutableRequestDateFocus = MutableSharedFlow<Date>(
+        replay = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
     val requestDateFocus: Flow<Date> = _mutableRequestDateFocus
 
     /**

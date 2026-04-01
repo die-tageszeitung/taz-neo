@@ -8,7 +8,6 @@ import android.os.Build
 import android.os.Bundle
 import android.view.Gravity
 import android.view.View
-import androidx.core.view.doOnLayout
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -39,8 +38,8 @@ import de.taz.app.android.ui.home.page.IssueFeedFragment
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
@@ -156,7 +155,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
 
     private fun observeDate() {
         // scroll to date if focus is requested
-        viewModel.requestDateFocus.onEach { date ->
+        viewModel.requestDateFocus.distinctUntilChanged().onEach { date ->
             adapter?.getPosition(date)?.let { position ->
                 skipToPositionIfNecessary(position)
             }
@@ -423,8 +422,8 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
                 // Either from a previous scrollTo call or a user fling.
                 stopScroll()
 
-                val shouldSmoothScroll =
-                    abs(position - snapHelper.currentSnappedPosition) <= COVERFLOW_MAX_SMOOTH_SCROLL_DISTANCE
+                val shouldSmoothScroll = snapHelper.currentSnappedPosition != -1 &&
+                        abs(position - snapHelper.currentSnappedPosition) <= COVERFLOW_MAX_SMOOTH_SCROLL_DISTANCE
 
                 // We are using the RecycleViews default scrolling mechanism and rely on the
                 // snapHelpers observing to do the final snapping.

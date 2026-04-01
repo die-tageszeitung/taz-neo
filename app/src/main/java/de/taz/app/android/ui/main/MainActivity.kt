@@ -6,6 +6,7 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.webkit.WebView
+import androidx.activity.viewModels
 import androidx.core.app.NotificationManagerCompat
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.commit
@@ -36,6 +37,7 @@ import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.SuccessfulLoginAction
 import de.taz.app.android.ui.home.HomeFragment
+import de.taz.app.android.ui.home.page.IssueFeedViewModel
 import de.taz.app.android.ui.issueViewer.IssueViewerWrapperFragment
 import de.taz.app.android.ui.issueViewer.IssueViewerWrapperFragment.Companion.KEY_CONTINUE_READ_DIRECTLY
 import de.taz.app.android.ui.login.LoginBottomSheetFragment
@@ -55,15 +57,16 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>(), SuccessfulLogin
     companion object {
         const val KEY_ISSUE_PUBLICATION = "KEY_ISSUE_PUBLICATION"
         const val KEY_DISPLAYABLE = "KEY_DISPLAYABLE"
+        const val KEY_DATE_STRING = "KEY_DATE_STRING"
 
         fun start(
             context: Context,
             flags: Int = 0,
-            issuePublication: IssuePublication? = null,
+            dateString: String? = null,
         ) {
             val intent = Intent(context, MainActivity::class.java)
             intent.flags = flags or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
-            issuePublication?.let { intent.putExtra(KEY_ISSUE_PUBLICATION, issuePublication) }
+            dateString?.let { intent.putExtra(KEY_DATE_STRING, dateString) }
             context.startActivity(intent)
         }
 
@@ -120,6 +123,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>(), SuccessfulLogin
     private lateinit var tracker: Tracker
 
     private val audioPlayerViewController = AudioPlayerViewController(this)
+    private val issueFeedViewModel: IssueFeedViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -164,6 +168,12 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>(), SuccessfulLogin
         super.onResume()
         // Ensure the widget is updated on app start – so it will always show the latest issue:
         WidgetHelper.updateWidget(applicationContext)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        checkForIntentAndHandle()
     }
 
     /**
@@ -240,6 +250,22 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>(), SuccessfulLogin
                     FragmentManager.POP_BACK_STACK_INCLUSIVE
                 )
             }
+        }
+    }
+
+    private fun skipToDate(date: String) {
+        runOnUiThread {
+            // Ensure we are at the Home level if we were deep in the backstack
+            if (supportFragmentManager.fragments.isNotEmpty() &&
+                supportFragmentManager.fragments.lastOrNull { it.isVisible } !is HomeFragment) {
+                supportFragmentManager.popBackStackImmediate(
+                    null,
+                    FragmentManager.POP_BACK_STACK_INCLUSIVE
+                )
+            }
+
+            // Request the date focus via the ViewModel.
+            issueFeedViewModel.requestDateFocus(date)
         }
     }
 
@@ -354,9 +380,13 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>(), SuccessfulLogin
                 )
             }  else {
                 @Suppress("deprecation")
-                intent.getParcelableExtra<AbstractIssuePublication>(KEY_ISSUE_PUBLICATION)
+                intent.getParcelableExtra(KEY_ISSUE_PUBLICATION)
             }
+        val dateString = intent.getStringExtra(KEY_DATE_STRING)
         val displayableKey = intent.getStringExtra(KEY_DISPLAYABLE)
+        if (dateString != null) {
+            skipToDate(dateString)
+        }
         if (issuePublication != null && displayableKey != null) {
             when (issuePublication) {
                 is IssuePublication -> {
