@@ -20,7 +20,6 @@ import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentBookmarksBinding
 import de.taz.app.android.persistence.repository.BookmarkRepository
 import de.taz.app.android.persistence.repository.FeedRepository
-import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.persistence.repository.MomentRepository
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.DateHelper
@@ -73,7 +72,7 @@ class BookmarkListFragment : BaseMainFragment<FragmentBookmarksBinding>() {
                 ::shareArticle,
                 bookmarkPagerViewModel::bookmarkArticle,
                 bookmarkPagerViewModel::debookmarkArticle,
-                ::goToIssueInCoverFlow,
+                ::skipToDateOnHome,
             )
     }
 
@@ -130,12 +129,9 @@ class BookmarkListFragment : BaseMainFragment<FragmentBookmarksBinding>() {
             .show(parentFragmentManager, ShareArticleBottomSheet.TAG)
     }
 
-    private fun goToIssueInCoverFlow(dateString: String) {
-        lifecycleScope.launch {
-            val feed = feedFlow.filterNotNull().first()
-            val issuePublication = IssuePublication(feed.name, dateString)
-            MainActivity.start(requireContext(), issuePublication=issuePublication)
-        }
+    private fun skipToDateOnHome(dateString: String) {
+        val context = context ?: return
+        MainActivity.start(context, dateString = dateString)
     }
 
     /**

@@ -451,27 +451,30 @@ class SectionWebViewFragment : WebViewFragment<
         isBookmarked: Boolean,
         showNotification: Boolean,
     ) {
-        viewBinding?.root?.let {
+        // 1. Capture context early and check view binding
+        val context = context ?: return
+        val root = viewBinding?.root ?: return
 
-            val articleStub = issueViewerViewModel.findArticleStubByArticleName(articleName)
-            if (articleStub != null) {
-                if (isBookmarked) {
-                    bookmarkRepository.addBookmarkAsync(articleStub).await()
-                    SnackBarHelper.showBookmarkSnack(
-                        context = requireContext(),
-                        view = it,
-                        anchor = bottomNavigationLayout,
-                    )
-                } else {
-                    bookmarkRepository.removeBookmarkAsync(articleStub).await()
-                    SnackBarHelper.showDebookmarkSnack(
-                        context = requireContext(),
-                        view = it,
-                        anchor = bottomNavigationLayout,
-                    )
-                }
+        // 2. Find the article
+        val articleStub = issueViewerViewModel.findArticleStubByArticleName(articleName)
+        if (articleStub == null) {
+            log.warn("Could not set bookmark for articleName=$articleName as no articleStub was found.")
+            return
+        }
+
+        // 3. Perform the repository operation
+        if (isBookmarked) {
+            bookmarkRepository.addBookmark(articleStub)
+        } else {
+            bookmarkRepository.removeBookmark(articleStub)
+        }
+
+        // 4. Handle UI feedback
+        if (showNotification) {
+            if (isBookmarked) {
+                SnackBarHelper.showBookmarkSnack(context, root, bottomNavigationLayout)
             } else {
-                log.warn("Could not set bookmark for articleName=$articleName as no articleFileName was found.")
+                SnackBarHelper.showDebookmarkSnack(context, root, bottomNavigationLayout)
             }
         }
     }
