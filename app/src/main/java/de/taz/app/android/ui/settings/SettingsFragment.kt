@@ -844,7 +844,6 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         isTazAccount: Boolean = false
     ) = viewBinding?.apply {
         fragmentSettingsAccountManageAccountWrapper.visibility = View.GONE
-        fragmentSettingsManageAccountOnlineWrapper.visibility = View.VISIBLE
         // show account deletion button only when is proper email or ID (abo id which consists of just up to 6 numbers)
         fragmentSettingsAccountDeleteWrapper.visibility =
             if ((isValidEmail || isAboId) && !isTazAccount) {
@@ -854,6 +853,13 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             }
         // show reset password option only for when we have a valid mail:
         fragmentSettingsAccountResetPasswordWrapper.visibility =
+            if (isValidEmail && !isTazAccount) {
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
+        // Show manage account setting only for those with mail and no taz accounts:
+        fragmentSettingsManageAccountOnlineWrapper.visibility =
             if (isValidEmail && !isTazAccount) {
                 View.VISIBLE
             } else {
