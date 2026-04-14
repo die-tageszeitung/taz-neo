@@ -15,6 +15,7 @@ import android.view.WindowInsets
 import android.webkit.WebSettings
 import androidx.annotation.IntDef
 import androidx.core.content.ContextCompat
+import androidx.core.view.doOnLayout
 import androidx.core.view.marginBottom
 import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.activityViewModels
@@ -686,10 +687,20 @@ abstract class WebViewFragment<
 
     fun addBottomMarginIfNecessary() {
         val isTablet = resources.getBoolean(R.bool.isTablet)
-        if (isTablet && !multiColumnMode && webView?.marginBottom == 0) {
-            val heightOfToolBar = bottomNavigationLayout?.height ?: 0
-            webView?.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                bottomMargin = heightOfToolBar
+        val needsMargin = isTablet && !multiColumnMode
+
+        if (!needsMargin) return
+
+        val navBar = bottomNavigationLayout ?: return
+        val targetWebView = webView ?: return
+
+        // doOnLayout ensures the height is available, so it is not set to 0 accidentally
+        navBar.doOnLayout {
+            val height = it.height
+            if (targetWebView.marginBottom != height) {
+                targetWebView.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                    bottomMargin = height
+                }
             }
         }
     }
