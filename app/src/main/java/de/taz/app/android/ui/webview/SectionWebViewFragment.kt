@@ -41,8 +41,6 @@ import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentWebviewSectionBinding
 import de.taz.app.android.monkey.AppBarLayoutState
 import de.taz.app.android.monkey.addOnStateChangeListener
-import de.taz.app.android.monkey.isCollapsed
-import de.taz.app.android.monkey.isExpanded
 import de.taz.app.android.monkey.pinToolbar
 import de.taz.app.android.persistence.repository.BookmarkRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
@@ -453,7 +451,8 @@ class SectionWebViewFragment : WebViewFragment<
     ) {
         // 1. Capture context early and check view binding
         val context = context ?: return
-        val root = viewBinding?.root ?: return
+        val rootView = activity?.window?.decorView?.rootView ?: return
+        val anchorView = rootView.findViewById<View>(R.id.navigation_bottom_webview_pager)
 
         // 2. Find the article
         val articleStub = issueViewerViewModel.findArticleStubByArticleName(articleName)
@@ -472,9 +471,9 @@ class SectionWebViewFragment : WebViewFragment<
         // 4. Handle UI feedback
         if (showNotification) {
             if (isBookmarked) {
-                SnackBarHelper.showBookmarkSnack(context, root, bottomNavigationLayout)
+                SnackBarHelper.showBookmarkSnack(context, rootView, anchorView)
             } else {
-                SnackBarHelper.showDebookmarkSnack(context, root, bottomNavigationLayout)
+                SnackBarHelper.showDebookmarkSnack(context, rootView, anchorView)
             }
         }
     }

@@ -14,6 +14,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.annotation.OptIn
 import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.view.GravityCompat
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
@@ -52,6 +53,7 @@ import de.taz.app.android.singletons.SnackBarHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
+import de.taz.app.android.ui.drawer.DrawerLayout
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.playlist.PlaylistActivity
 import de.taz.app.android.util.Log
@@ -644,8 +646,7 @@ class AudioPlayerViewController(
                 val rootView = activity.window.decorView.rootView
                 // on open drawers we need to handle edge-to-edge properly
                 val isDrawerOpen =
-                    rootView.findViewById<LinearLayout>(R.id.wrapper)?.isShown == true
-                            || rootView.findViewById<CoordinatorLayout>(R.id.drawer_body_pdf_with_sections_layout)?.isShown == true
+                    rootView.findViewById<DrawerLayout>(R.id.drawer_layout)?.isDrawerOpen(GravityCompat.START) == true
                 var navBarHeight = 0
                 if (isDrawerOpen && Build.VERSION.SDK_INT >= 35) {
                     navBarHeight =
@@ -966,9 +967,7 @@ class AudioPlayerViewController(
         val rootView = activity.window.decorView.rootView
         val anchorView =
             // On drawer do not anchor the snack bar:
-            if (rootView.findViewById<LinearLayout>(R.id.wrapper)?.isShown == true
-                || rootView.findViewById<CoordinatorLayout>(R.id.drawer_body_pdf_with_sections_layout)?.isShown == true
-            ) {
+            if (rootView.findViewById<DrawerLayout>(R.id.drawer_layout)?.isDrawerOpen(GravityCompat.START) == true) {
                 null
             } else if (rootView.findViewById<View>(R.id.navigation_bottom_webview_pager)?.isShown == true) {
                 rootView.findViewById<View>(R.id.navigation_bottom_webview_pager)

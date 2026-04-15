@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import de.taz.app.android.R
 import de.taz.app.android.audioPlayer.AudioPlayerService
 import de.taz.app.android.audioPlayer.AudioPlayerViewController
@@ -41,10 +42,7 @@ class PlaylistActivity:
         playlistAdapter = PlaylistAdapter(audioPlayerService)
         playlistRepository = PlaylistRepository.getInstance(applicationContext)
         tracker = Tracker.getInstance(applicationContext)
-    }
 
-    override fun onResume() {
-        super.onResume()
         // init playlist state:
         lifecycleScope.launch {
             audioPlayerService.persistedPlaylistState.collect { playlist ->
@@ -66,11 +64,7 @@ class PlaylistActivity:
                 }
             }
         }
-
         viewBinding.playlistRv.adapter = playlistAdapter
-
-        // If player is running ensure it is the small one at start:
-        audioPlayerService.minimizePlayer()
 
         setupBottomNavigation(
             viewBinding.navigationBottom,
@@ -79,6 +73,12 @@ class PlaylistActivity:
 
         viewBinding.root.findViewById<TextView>(R.id.fragment_header_default_title)
             ?.setText(R.string.audioplayer_playlist)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // If player is running ensure it is the small one at start:
+        audioPlayerService.minimizePlayer()
     }
 
     @SuppressLint("MissingSuperCall")

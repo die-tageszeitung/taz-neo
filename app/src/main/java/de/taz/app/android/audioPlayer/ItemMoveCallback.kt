@@ -37,28 +37,36 @@ class ItemMoveCallback(private val audioPlayerService: AudioPlayerService) :
         when (actionState) {
             ItemTouchHelper.ACTION_STATE_DRAG -> {
                 draggedViewHolder = viewHolder as? PlaylistViewHolder
+                // Ensure indices are reset at the START of a new drag
                 initialFromPos = -1
                 finalToPos = -1
+                // Ensures the element is dragged visually over the others
+                viewHolder?.itemView?.elevation = 5f
             }
 
             ItemTouchHelper.ACTION_STATE_IDLE -> {
-                val currentDraggedItem = draggedViewHolder?.boundItem
-                if (currentDraggedItem != null && initialFromPos >= 0 && finalToPos >= 0) {
-                    // Once the drag settled, we can update the audioPlayerService
+                // If we have a valid move, notify the service
+                if (initialFromPos != -1 && finalToPos != -1 && initialFromPos != finalToPos) {
                     audioPlayerService.moveItemInPlaylist(initialFromPos, finalToPos)
                 }
-                draggedViewHolder = null
+
+                // Reset state immediately
+                initialFromPos = -1
+                finalToPos = -1
 
                 // hide background indication deletion if not swiping
                 swipedViewHolder?.itemView?.findViewById<View>(R.id.audioplayer_playlist_item_background)?.animate()?.alpha(0f)?.duration =
                     600L
+
+                swipedViewHolder = null
+                draggedViewHolder = null
             }
 
             ItemTouchHelper.ACTION_STATE_SWIPE -> {
                 swipedViewHolder = viewHolder as? PlaylistViewHolder
-                swipedViewHolder?.itemView?.findViewById<View>(R.id.audioplayer_playlist_item_background)?.animate()?.alpha(1f)?.duration =
-                    0L
+                swipedViewHolder?.itemView?.findViewById<View>(R.id.audioplayer_playlist_item_background)?.alpha = 1f
             }
+
         }
     }
 
@@ -73,7 +81,7 @@ class ItemMoveCallback(private val audioPlayerService: AudioPlayerService) :
     ) {
         super.onMoved(recyclerView, viewHolder, fromPos, target, toPos, x, y)
         // Store the initial fromPos to update the AudioPlayerService when the drag is dropped
-        if (initialFromPos < 0) {
+        if (initialFromPos == -1) {
             initialFromPos = fromPos
         }
         finalToPos = toPos
@@ -99,7 +107,7 @@ class ItemMoveCallback(private val audioPlayerService: AudioPlayerService) :
         actionState: Int,
         isCurrentlyActive: Boolean
     ) {
-        if (viewHolder is PlaylistViewHolder) {
+        if (viewHolder is PlaylistViewHolder && actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
             val foregroundView =
                 viewHolder.itemView.findViewById<ConstraintLayout>(R.id.audioplayer_playlist_item_foreground)
             getDefaultUIUtil().onDrawOver(
@@ -115,11 +123,14 @@ class ItemMoveCallback(private val audioPlayerService: AudioPlayerService) :
     }
 
     override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
+        // Reset the elevation and the UI utility translation
+        viewHolder.itemView.elevation = 0f
+
         if (viewHolder is PlaylistViewHolder) {
-            val foregroundView =
-                viewHolder.itemView.findViewById<ConstraintLayout>(R.id.audioplayer_playlist_item_foreground)
+            val foregroundView = viewHolder.itemView.findViewById<View>(R.id.audioplayer_playlist_item_foreground)
             getDefaultUIUtil().clearView(foregroundView)
         }
+        super.clearView(recyclerView, viewHolder)
     }
 
     override fun onChildDraw(

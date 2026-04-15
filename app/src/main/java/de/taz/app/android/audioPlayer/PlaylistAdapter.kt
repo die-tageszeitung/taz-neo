@@ -1,5 +1,6 @@
 package de.taz.app.android.audioPlayer
 
+import android.annotation.SuppressLint
 import android.graphics.drawable.AnimationDrawable
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -13,9 +14,11 @@ import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import de.taz.app.android.databinding.AudioplayerPlaylistItemBinding
 import java.util.LinkedList
 
+@SuppressLint("ClickableViewAccessibility")
 class PlaylistViewHolder(
     private val audioPlayerService: AudioPlayerService,
-    private val binding: AudioplayerPlaylistItemBinding
+    private val binding: AudioplayerPlaylistItemBinding,
+    private val dragStartListener: OnStartDragListener,
 ) : ViewHolder(binding.root) {
 
     var boundItem: AudioPlayerItem? = null
@@ -34,6 +37,13 @@ class PlaylistViewHolder(
                     audioPlayerService.playPlaylist(boundPosition)
                 }
             }
+        }
+        // Use the icon wrapper as drag handle on touch:
+        binding.iconWrapper.setOnTouchListener { _, event ->
+            if (event.actionMasked == android.view.MotionEvent.ACTION_DOWN) {
+                dragStartListener.onStartDrag(this)
+            }
+            false
         }
     }
 
@@ -67,9 +77,10 @@ class PlaylistViewHolder(
 }
 
 class PlaylistAdapter(private val audioPlayerService: AudioPlayerService) :
-    ListAdapter<AudioPlayerItem, PlaylistViewHolder>(AudioPlayerItemDiffCallBack()) {
+    ListAdapter<AudioPlayerItem, PlaylistViewHolder>(AudioPlayerItemDiffCallBack()), OnStartDragListener {
 
     private var currentItem: Int? = null
+    private var itemTouchHelper: ItemTouchHelper? = null
 
     class AudioPlayerItemDiffCallBack : DiffUtil.ItemCallback<AudioPlayerItem>() {
         override fun areItemsTheSame(oldItem: AudioPlayerItem, newItem: AudioPlayerItem): Boolean {
@@ -88,7 +99,7 @@ class PlaylistAdapter(private val audioPlayerService: AudioPlayerService) :
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlaylistViewHolder {
         val binding = AudioplayerPlaylistItemBinding.inflate(LayoutInflater.from(parent.context))
-        return PlaylistViewHolder(audioPlayerService, binding)
+        return PlaylistViewHolder(audioPlayerService, binding, this)
     }
 
     override fun onBindViewHolder(holder: PlaylistViewHolder, position: Int) {
@@ -126,7 +137,14 @@ class PlaylistAdapter(private val audioPlayerService: AudioPlayerService) :
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
         super.onAttachedToRecyclerView(recyclerView)
         val itemMoveCallback = ItemMoveCallback(audioPlayerService)
-        val itemTouchHelper = ItemTouchHelper(itemMoveCallback)
-        itemTouchHelper.attachToRecyclerView(recyclerView)
+        itemTouchHelper = ItemTouchHelper(itemMoveCallback)
+        itemTouchHelper?.attachToRecyclerView(recyclerView)
     }
+
+    override fun onStartDrag(viewHolder: ViewHolder) {
+        itemTouchHelper?.startDrag(viewHolder)
+    }
+}
+interface OnStartDragListener {
+    fun onStartDrag(viewHolder: ViewHolder)
 }
