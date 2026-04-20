@@ -229,7 +229,7 @@ class SplashActivity : StartupActivity() {
                 downloadResourceFiles()
             },
             lifecycleScope.async {
-                initFeed()
+                initFeeds()
             }
         )
 
@@ -273,18 +273,19 @@ class SplashActivity : StartupActivity() {
         }
     }
 
-    private suspend fun initFeed() {
+    private suspend fun initFeeds() {
         try {
-            log.verbose("Start initializing feed")
+            log.verbose("Start initializing feeds")
+            feedService.refreshAllFeeds()
             // First try to get the latest feed. This will refresh the feed automatically if it has
             // not been fetched yet.
             val feed = feedService.getFeedFlow().first()
 
             // If for any reason we don't have a feed with publication dates, we will try once more
-            // to refresh the feed from the API - in case that for unknown reasons only the the
+            // to refresh the feed from the API - in case that for unknown reasons only the
             // locally cached feed is missing the publication dates.
-            // Note: we assume that any feed that is refreshed from the API will contain non null,
-            // non empty publication dates.
+            // Note: we assume that any feed that is refreshed from the API will contain non-null,
+            // non-empty publication dates.
             val hasPublicationDate = feed?.publicationDates?.isNotEmpty() == true
             if (!hasPublicationDate) {
                 feedService.refreshFeed()

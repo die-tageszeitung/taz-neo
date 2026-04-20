@@ -43,7 +43,7 @@ class FeedService(applicationContext: Context) {
             }
     }
     /**
-     * Refresh the the Feed with [name] and return an [IssueKey] if a new issue date was detected.
+     * Refresh the Feed with [name] and return an [IssueKey] if a new issue date was detected.
      * Returns null if the feed was already up to date and did not need a refresh.
      */
     suspend fun refreshFeedAndGetIssueKeyIfNew(name: String = BuildConfig.DISPLAYED_FEED): IssueKey? {
@@ -62,4 +62,14 @@ class FeedService(applicationContext: Context) {
             null
         }
     }
+
+    suspend fun refreshAllFeeds() {
+        withContext(Dispatchers.IO) {
+            apiService.getAllFeeds()?.forEach {
+                feedRepository.save(it)
+            }
+        }
+    }
+
+    fun getAllFeeds(): Flow<List<Feed>> = feedRepository.getAllFlow()
 }

@@ -13,6 +13,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.ui.home.HomeFragment
+import de.taz.app.android.ui.home.page.IssueFeedFragment
 import de.taz.app.android.util.SingletonHolder
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
@@ -64,6 +65,7 @@ private const val DATA_POLICY_ACCEPTED = "data_policy_accepted"
 private const val TRY_PDF_DIALOG_COUNT = "try_pdf_shown"
 private const val DRAWER_SHOWN_COUNT = "DRAWER_SHOWN_NUMBER"
 private const val FIRST_APP_START = "first_time_app_starts"
+private const val LAST_FEED_SET = "LAST_FEED_SET"
 // endregion
 
 private val Context.generalDataStore: DataStore<Preferences> by preferencesDataStore(
@@ -199,6 +201,10 @@ class GeneralDataStore private constructor(applicationContext: Context) {
         HomeFragment.State.COVERFLOW,
         { it.name },
         { HomeFragment.State.valueOf(it) },
+    )
+
+    val lastFeedSet: DataStoreEntry<String> = SimpleDataStoreEntry(
+        dataStore, stringPreferencesKey(LAST_FEED_SET), BuildConfig.DISPLAYED_FEED
     )
 
     val helpFabEnabled = SimpleDataStoreEntry(

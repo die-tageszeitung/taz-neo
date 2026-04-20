@@ -668,6 +668,12 @@
         <item name="android:textSize">@dimen/fragment_header_article_text_size</item>
     </style>
 
+    <style name="nameWidget.App.FeedsMenu.Text" parent="Widget.App.TextView">
+        <item name="android:fontFamily">@font/appFontKnileRegular</item>
+        <item name="android:textColor">@color/lightGrey</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
     <style name="Widget.App.Header.Custom.SectionTitle" parent="Widget.App.Header.Article.SectionTitle" />
     <style name="Widget.App.Header.Custom.Num" parent="Widget.App.Header.Article.Num" />
     <style name="Widget.App.Header.Custom.Date" parent="Widget.App.TextView.Date.SectionHead">

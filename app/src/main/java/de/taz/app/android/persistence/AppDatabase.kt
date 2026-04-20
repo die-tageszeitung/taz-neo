@@ -86,6 +86,7 @@ import de.taz.app.android.persistence.migrations.Migration34to35
 import de.taz.app.android.persistence.migrations.Migration35to36
 import de.taz.app.android.persistence.migrations.Migration36to37
 import de.taz.app.android.persistence.migrations.Migration37to38
+import de.taz.app.android.persistence.migrations.Migration38to39
 import de.taz.app.android.persistence.migrations.Migration3to4
 import de.taz.app.android.persistence.migrations.Migration4to5
 import de.taz.app.android.persistence.migrations.Migration5to6
@@ -113,7 +114,7 @@ import de.taz.app.android.persistence.typeconverters.StorageTypeConverter
 import de.taz.app.android.persistence.typeconverters.StringListTypeConverter
 import de.taz.app.android.util.SingletonHolder
 
-const val DATABASE_VERSION = 38
+const val DATABASE_VERSION = 39
 const val DATABASE_NAME = "db"
 
 fun allMigrations() = arrayOf(
@@ -154,6 +155,7 @@ fun allMigrations() = arrayOf(
     Migration35to36(),
     Migration36to37(),
     Migration37to38(),
+    Migration38to39(),
 )
 
 @Database(

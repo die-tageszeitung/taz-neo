@@ -6,6 +6,7 @@ query FeedQuery($name: String) {
         }
         feedList(name: $name) {
             name
+            displayName
             cycle
             momentRatio
             publicationDates

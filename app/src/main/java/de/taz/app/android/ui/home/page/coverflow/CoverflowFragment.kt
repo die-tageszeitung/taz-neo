@@ -66,6 +66,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
     private val onScrollListener by lazy {
         CoverFlowOnScrollListener(coverFlowOnScrollListenerViewModel, snapHelper)
     }
+    private var feedButtons: FeedButtons? = null
 
     private var downloadObserver: DownloadObserver? = null
     private var initialIssueDisplay: AbstractIssuePublication? = null
@@ -103,6 +104,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
             observePdfMode()
             observeDate()
             maybeShowLoginButton()
+            maybeShowFeedMenu()
         }
     }
 
@@ -177,8 +179,18 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
             }.launchIn(lifecycleScope)
     }
 
+    /**
+     * hide or show feed menu depending on auth status
+     */
+    private fun maybeShowFeedMenu() {
+        authHelper.isLoginWeek.asFlow().onEach { isLoginWeek ->
+            viewBinding?.feedMenu?.isVisible = !isLoginWeek
+        }.launchIn(lifecycleScope)
+    }
+
     private fun observeFeed(savedInstanceState: Bundle?) {
         viewModel.feed.onEach { feed ->
+            feedButtons?.let { highlightFeed(feed, it) }
             // Store current adapter state before setting some new one
             val initialAdapter = adapter == null
 
@@ -262,6 +274,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
 
         // initialize the views
         viewBinding?.apply {
+            feedButtons = FeedButtons(tazFeed, wochentazFeed, lmdFeed)
             // ensure padding is correct
             root.setDefaultInsets()
 
@@ -297,6 +310,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
             fragmentCoverFlowIconGoPrevious.setOnClickListener { goToPreviousIssue() }
             fragmentCoverFlowIconGoNext.setOnClickListener { goToNextIssue() }
             homeLoginButton.setOnTapListener { showLoginBottomSheet() }
+            feedButtons?.let { setupFeedButtons(it) }
         }
     }
 

@@ -255,10 +255,22 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
     suspend fun getFeedByName(name: String): Feed? = transformToConnectivityException {
         graphQlClient.query(
             QueryType.Feed,
-            FeedVariables(feedName = name)
+            FeedVariables(feedName = name) // TODO Check why variables are here not working
         ).data?.product?.feedList?.map {
             FeedMapper.from(it)
-        }?.firstOrNull()
+        }?.firstOrNull { it.name == name} // TODO: when variables are working we can return here firstOrNull()
+    }
+    /**
+     * function to get available feeds
+     * @return List of [Feed]s
+     */
+    @Throws(ConnectivityException::class)
+    suspend fun getAllFeeds(): List<Feed>? = transformToConnectivityException {
+        graphQlClient.query(
+            QueryType.Feed,
+        ).data?.product?.feedList?.map {
+            FeedMapper.from(it)
+        }
     }
 
     /**

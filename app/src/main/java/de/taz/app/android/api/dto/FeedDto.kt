@@ -5,6 +5,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class FeedDto(
     val name: String? = null,
+    val displayName: String? = null,
     val cycle: CycleDto? = null,
     val momentRatio: Float? = null,
     val publicationDates: List<String> = emptyList(),
