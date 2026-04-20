@@ -430,18 +430,22 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
         drawerAndLogoViewModel.logoStateFlow
             .withPreviousValue()
             .collect { (current, previous) ->
-                if (current == LogoState.FEED) {
-                    feedLogo.getHideViewOnScrollBehavior()?.slideIn(feedLogo)
+                try {
+                    if (current == LogoState.FEED) {
+                        feedLogo.getHideViewOnScrollBehavior()?.slideIn(feedLogo)
 
-                    if (previous == LogoState.BURGER) {
-                        // burger currently shown - wait for feedLogo to be visible
-                        delay(225) // HideViewOnScrollBehavior.DEFAULT_ENTER_ANIMATION_DURATION_MS
+                        if (previous == LogoState.BURGER) {
+                            // burger currently shown - wait for feedLogo to be visible
+                            delay(225) // HideViewOnScrollBehavior.DEFAULT_ENTER_ANIMATION_DURATION_MS
+                        }
+                        // then hide burger for a11y
+                        burgerLogo.visibility = View.GONE
+                    } else if (current == LogoState.BURGER) {
+                        burgerLogo.visibility = View.VISIBLE
+                        feedLogo.getHideViewOnScrollBehavior()?.slideOut(feedLogo)
                     }
-                    // then hide burger for a11y
-                    burgerLogo.visibility = View.GONE
-                } else if (current == LogoState.BURGER) {
-                    burgerLogo.visibility = View.VISIBLE
-                    feedLogo.getHideViewOnScrollBehavior()?.slideOut(feedLogo)
+                } catch (npe: NullPointerException) {
+                    // Do nothing if we loose feedLogo or its ScrollBehaviour
                 }
             }
     }
