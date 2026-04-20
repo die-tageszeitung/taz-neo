@@ -166,7 +166,7 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
                         }
                 }
 
-                // or the bookmarkpager
+                // or the bookmark pager
                 launch {
                     bookmarkPagerViewModel.currentIssueAndArticleLiveData.asFlow()
                         .distinctUntilChanged().filterNotNull().collect { (issueStub, _) ->
@@ -259,7 +259,7 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
     private suspend fun showIssue(issueKey: IssueKey) = withContext(Dispatchers.Main) {
         try {
             viewBinding?.fabHelp?.isVisible = false
-            // Wait for the first issueStub that matches the required key. This must succeed at some point as the the IssueStub must be present to show the Issue
+            // Wait for the first issueStub that matches the required key. This must succeed at some point as the IssueStub must be present to show the Issue
             currentIssueStub =
                 issueRepository.getStubFlow(issueKey.feedName, issueKey.date, issueKey.status)
                     .filterNotNull().first()

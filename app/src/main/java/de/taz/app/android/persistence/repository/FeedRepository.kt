@@ -23,6 +23,8 @@ class FeedRepository private constructor(applicationContext: Context) :
         return getFlow(feedName).first()
     }
 
+    fun getAllFlow() : Flow<List<Feed>> = appDatabase.feedDao().getAllFlow()
+
     fun getFlow(feedName: String): Flow<Feed?> {
         return appDatabase.feedDao().get(feedName)
     }

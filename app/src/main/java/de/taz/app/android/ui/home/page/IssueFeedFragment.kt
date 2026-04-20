@@ -2,17 +2,24 @@ package de.taz.app.android.ui.home.page
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.View
+import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.commit
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 import de.taz.app.android.R
+import de.taz.app.android.api.models.Feed
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
+import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.persistence.repository.IssuePublicationWithPages
@@ -50,6 +57,7 @@ abstract class IssueFeedFragment<VIEW_BINDING : ViewBinding> :
     private lateinit var authHelper: AuthHelper
     private lateinit var toastHelper: ToastHelper
     private lateinit var contentService: ContentService
+    private lateinit var feedRepository: FeedRepository
     private lateinit var issueRepository: IssueRepository
 
     private var momentChangedListener: MomentChangedListener? = null
@@ -65,6 +73,22 @@ abstract class IssueFeedFragment<VIEW_BINDING : ViewBinding> :
             field = value
         }
 
+    /**
+     * Holds references to the feed switcher buttons to manage them centrally.
+     */
+    protected data class FeedButtons(
+        val taz: TextView?,
+        val tazWeekly: TextView?,
+        val lmd: TextView?
+    ) {
+        // TODO Use the distinct displayNames of  3 feeds and map them to given TextViews
+        fun asMap() = mapOf(
+            "taz" to taz,
+            "taz-weekly" to tazWeekly,
+            "taz-LMd" to lmd
+        )
+    }
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
@@ -72,6 +96,7 @@ abstract class IssueFeedFragment<VIEW_BINDING : ViewBinding> :
         toastHelper = ToastHelper.getInstance(context.applicationContext)
         authHelper = AuthHelper.getInstance(context.applicationContext)
         contentService = ContentService.getInstance(context.applicationContext)
+        feedRepository = FeedRepository.getInstance(context.applicationContext)
         issueRepository = IssueRepository.getInstance(context.applicationContext)
     }
 
@@ -203,5 +228,35 @@ abstract class IssueFeedFragment<VIEW_BINDING : ViewBinding> :
         LoginBottomSheetFragment
             .newInstance()
             .show(parentFragmentManager, LoginBottomSheetFragment.TAG)
+    }
+
+    protected fun setupFeedButtons(buttons: FeedButtons) {
+        val buttonMap = buttons.asMap()
+
+        buttonMap.forEach { (name, view) ->
+            view?.setOnClickListener {
+                viewModel.switchFeed(name)
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                // Set the proper display names (can be changed via backend)
+                val feeds = viewModel.getAllFeeds()
+                feeds.forEach { feed ->
+                    buttonMap[feed.name]?.text = feed.displayName
+                }
+            }
+        }
+    }
+
+    protected fun highlightFeed(feed: Feed, buttons: FeedButtons) {
+        val context = context ?: return
+        val highlightColor = ContextCompat.getColor(context, R.color.white)
+        val defaultColor = ContextCompat.getColor(context, R.color.lightGrey)
+
+        buttons.asMap().forEach { (name, view) ->
+            view?.setTextColor(if (feed.name == name) highlightColor else defaultColor)
+        }
     }
 }

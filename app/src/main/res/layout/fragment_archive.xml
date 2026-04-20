@@ -31,9 +31,45 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/fragment_cover_flow_login_button_margin_horizontal"
-                    android:layout_marginTop="@dimen/fragment_cover_flow_login_button_margin_vertical"
                     android:layout_marginEnd="@dimen/fragment_cover_flow_login_button_margin_horizontal"
                     android:layout_marginBottom="@dimen/fragment_cover_flow_login_button_margin_vertical">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/feed_menu"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintTop_toTopOf="parent">
+
+                        <TextView
+                            android:id="@+id/taz_feed"
+                            style="@style/nameWidget.App.FeedsMenu.Text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:padding="@dimen/fragment_cover_flow_feed_menu_inner_padding"
+                            android:text="@string/feed_name_taz"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <TextView
+                            android:id="@+id/wochentaz_feed"
+                            style="@style/nameWidget.App.FeedsMenu.Text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:padding="@dimen/fragment_cover_flow_feed_menu_inner_padding"
+                            android:text="@string/feed_name_wochentaz"
+                            app:layout_constraintStart_toEndOf="@id/taz_feed"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <TextView
+                            android:id="@+id/lmd_feed"
+                            style="@style/nameWidget.App.FeedsMenu.Text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:padding="@dimen/fragment_cover_flow_feed_menu_inner_padding"
+                            android:text="@string/feed_name_lmd"
+                            app:layout_constraintStart_toEndOf="@id/wochentaz_feed"
+                            app:layout_constraintTop_toTopOf="parent" />
+                    </androidx.constraintlayout.widget.ConstraintLayout>
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:id="@+id/representation"
@@ -41,6 +77,7 @@
                         android:layout_height="@dimen/default_touch_area_size"
                         android:clickable="true"
                         android:contentDescription="@string/fragment_home_representation"
+                        android:layout_marginTop="@dimen/fragment_cover_flow_login_button_margin_vertical"
                         android:focusable="true"
                         android:minWidth="@dimen/default_touch_area_size"
                         app:layout_constraintLeft_toLeftOf="parent"
@@ -78,6 +115,7 @@
                         android:layout_height="@dimen/default_touch_area_size"
                         android:clickable="true"
                         android:contentDescription="@string/fragment_archive_calendar"
+                        android:layout_marginTop="@dimen/fragment_cover_flow_login_button_margin_vertical"
                         android:focusable="true"
                         android:minWidth="@dimen/default_touch_area_size"
                         app:layout_constraintEnd_toEndOf="parent"
@@ -114,6 +152,7 @@
                         android:layout_height="@dimen/default_touch_area_size"
                         android:clickable="true"
                         android:contentDescription="@string/fragment_home_login"
+                        android:layout_marginTop="@dimen/fragment_cover_flow_login_button_margin_vertical"
                         android:focusable="true"
                         android:minWidth="@dimen/default_touch_area_size"
                         app:layout_constraintEnd_toEndOf="parent"

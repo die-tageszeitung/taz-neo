@@ -9,6 +9,7 @@ object FeedMapper {
     fun from(feedDto: FeedDto): Feed {
         return Feed(
             requireNotNull(feedDto.name),
+            requireNotNull(feedDto.displayName),
             CycleMapper.from(requireNotNull(feedDto.cycle)),
             requireNotNull(feedDto.momentRatio),
             feedDto.publicationDates.let { publicationDates ->

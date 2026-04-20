@@ -3,9 +3,11 @@ package de.taz.app.android.ui.home.page.archive
 import android.content.Context
 import android.os.Bundle
 import android.view.View
+import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.withStarted
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -21,7 +23,6 @@ import de.taz.app.android.singletons.DatePickerHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.bottomSheet.HomePresentationBottomSheet
 import de.taz.app.android.ui.home.page.IssueFeedFragment
-import de.taz.app.android.ui.main.MainActivity
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.first
@@ -41,6 +42,8 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
     private lateinit var tracker: Tracker
     private lateinit var generalDataStore: GeneralDataStore
 
+    private var feedButtons: FeedButtons? = null
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         authHelper = AuthHelper.getInstance(context.applicationContext)
@@ -50,43 +53,35 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                observePdfMode()
+                observeRequestDate()
+                maybeShowLoginButton()
+                maybeShowFeedMenu()
+            }
+        }
+    }
 
-        // update the grid if the feed changes
-        viewModel.feed
-            .onEach { feed ->
-                withStarted {
-                    val requestManager = Glide.with(requireParentFragment())
-                    adapter = ArchiveAdapter(
-                        this,
-                        R.layout.fragment_archive_item,
-                        feed,
-                        requestManager
-                    )
-                    viewBinding?.fragmentArchiveGrid?.adapter = adapter
-                }
-            }.launchIn(lifecycleScope)
-
+    fun observePdfMode() {
         viewModel.pdfModeFlow
             // we only need to redraw if the value changes - therefore drop first value
             .drop(1)
             .onEach {
-                withStarted {
-                    // redraw all visible views
-                    viewBinding?.fragmentArchiveGrid?.adapter?.notifyDataSetChanged()
+                // redraw all visible views
+                viewBinding?.fragmentArchiveGrid?.adapter?.notifyDataSetChanged()
 
-                    // Track a new screen if the PDF mode changes when the Fragment is already resumed.
-                    // This is necessary in addition to the tracking in onResume because that is not called
-                    // when we only update the UI.
-                    if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
-                        tracker.trackArchiveScreen(it)
-                    }
-                }
-            }
-            .launchIn(lifecycleScope)
-
-        viewModel.requestDateFocus.onEach { scrollToDate(it) }.launchIn(lifecycleScope)
-        maybeShowLoginButton()
+                // Track a new screen if the PDF mode changes when the Fragment is already resumed.
+                // This is necessary in addition to the tracking in onResume because that is not called
+                // when we only update the UI.
+                tracker.trackArchiveScreen(it)
+            }.launchIn(lifecycleScope)
     }
+
+    fun observeRequestDate() {
+        viewModel.requestDateFocus.onEach { scrollToDate(it) }.launchIn(lifecycleScope)
+    }
+
     /**
      * hide or show login button depending on auth status
      */
@@ -102,6 +97,15 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
                 viewBinding?.homeLoginButton?.visibility = if (it.first) View.GONE else View.VISIBLE
             }.launchIn(lifecycleScope)
     }
+    /**
+     * hide or show feed menu depending on auth status
+     */
+    private fun maybeShowFeedMenu() {
+        authHelper.isLoginWeek.asFlow().onEach { isLoginWeek ->
+            viewBinding?.feedMenu?.isVisible = !isLoginWeek
+        }.launchIn(lifecycleScope)
+    }
+
     private fun scrollToDate(date: Date) {
         val adapter = adapter ?: return
 
@@ -112,7 +116,7 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
             ?.scrollToPositionWithOffset(adapter.getPosition(date), 0)
     }
 
-    private val enableRefreshViewOnScrollListener = object: RecyclerView.OnScrollListener() {
+    private val enableRefreshViewOnScrollListener = object : RecyclerView.OnScrollListener() {
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
             viewModel.refreshViewEnabled.value = !recyclerView.canScrollVertically(-1)
 
@@ -123,13 +127,32 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewBinding?.apply {
+        val requestManager = Glide.with(requireParentFragment())
+        // update the grid if the feed changes
+        viewModel.feed
+            .onEach { feed ->
+                withStarted {
+                    feedButtons?.let {
+                        highlightFeed(feed, it)
+                    }
+                    adapter = ArchiveAdapter(
+                        this,
+                        R.layout.fragment_archive_item,
+                        feed,
+                        requestManager
+                    )
+                    viewBinding?.fragmentArchiveGrid?.adapter = adapter
+                }
+            }.launchIn(lifecycleScope)
 
+        viewBinding?.apply {
+            feedButtons = FeedButtons(tazFeed, wochentazFeed, lmdFeed)
             collapsingToolbarLayout.setDefaultTopInset()
 
             appBarLayout.addOnOffsetChangedListener { _, verticalOffset ->
                 // hide appbar content if it's collapsed
-                collapsingToolbarLayout.alpha = 1f- abs(verticalOffset) / collapsingToolbarLayout.height.toFloat()
+                collapsingToolbarLayout.alpha =
+                    1f - abs(verticalOffset) / collapsingToolbarLayout.height.toFloat()
                 // Even on a little offset set to false:
                 viewModel.appBarVisible.value = verticalOffset == 0
             }
@@ -139,7 +162,8 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
                 enableRefreshViewOnScrollListener,
             )
 
-            fragmentArchiveGrid.layoutManager = GridLayoutManager(requireContext(), calculateNoOfColumns())
+            fragmentArchiveGrid.layoutManager =
+                GridLayoutManager(requireContext(), calculateNoOfColumns())
             fragmentArchiveGrid.adapter = adapter
 
             fragmentArchiveGrid.setHasFixedSize(true)
@@ -151,6 +175,7 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
                 openDatePicker()
             }
             homeLoginButton.setOnTapListener { showLoginBottomSheet() }
+            feedButtons?.let { setupFeedButtons(it) }
         }
     }
 

@@ -10,4 +10,7 @@ interface FeedDao: BaseDao<Feed> {
 
     @Query("SELECT * FROM Feed WHERE Feed.name == :feedName")
     fun get(feedName: String): Flow<Feed?>
+
+    @Query("SELECT * FROM Feed;")
+    fun getAllFlow(): Flow<List<Feed>>
 }

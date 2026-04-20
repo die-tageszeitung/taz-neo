@@ -6,6 +6,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "Feed")
 data class Feed(
     @PrimaryKey val name: String,
+    val displayName: String,
     val cycle: Cycle,
     val momentRatio: Float,
     val publicationDates: List<PublicationDate>,
@@ -24,12 +25,13 @@ data class Feed(
             if (first.javaClass != second.javaClass) return false
 
             if (first.name != second.name) return false
+            if (first.displayName != second.displayName) return false
             if (first.cycle != second.cycle) return false
             if (first.momentRatio != second.momentRatio) return false
             if (first.issueMinDate != second.issueMinDate) return false
             if (first.issueMaxDate != second.issueMaxDate) return false
 
-            // Only compare the size and the the latest publication date
+            // Only compare the size and the latest publication date
             if (first.publicationDates.size != second.publicationDates.size) return false
             if (first.publicationDates.firstOrNull() != second.publicationDates.firstOrNull()) return false
 
@@ -39,7 +41,7 @@ data class Feed(
 
     override fun toString(): String {
         val publicationDatesString = "#${publicationDates.size} (${publicationDates.firstOrNull()?.date}, ...)"
-        return "Feed(name='$name', cycle=$cycle, momentRatio=$momentRatio, publicationDates=$publicationDatesString, issueMinDate='$issueMinDate', issueMaxDate='$issueMaxDate')"
+        return "Feed(name='$name', displayName='$displayName', cycle=$cycle, momentRatio=$momentRatio, publicationDates=$publicationDatesString, issueMinDate='$issueMinDate', issueMaxDate='$issueMaxDate')"
     }
 }
 
