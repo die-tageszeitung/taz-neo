@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+xmlns:tools="http://schemas.android.com/tools"
+android:layout_width="match_parent"
+android:layout_height="match_parent">
+
+<androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -31,7 +35,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:accessibilityHeading="true"
-            android:text="@string/coach_mark_player_article_title"
+            android:text="@string/coach_mark_pdf_drawer_play_all_title"
             tools:ignore="UnusedAttribute" />
 
         <TextView
@@ -40,7 +44,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/coach_mark_header"
-            android:text="@string/coach_mark_player_article_text" />
+            android:text="@string/coach_mark_pdf_drawer_play_all_text" />
     </RelativeLayout>
 
     <RelativeLayout
@@ -50,32 +54,35 @@
         tools:ignore="MissingConstraints">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/coach_mark_text_wrapper"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/fragment_drawer_body_pdf_with_sections_negative_margin"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <ImageView
+                android:id="@+id/fragment_drawer_play_issue_icon"
+                android:layout_width="@dimen/drawer_play_issue_big_icon_size"
+                android:layout_height="@dimen/drawer_play_issue_big_icon_size"
+                android:contentDescription="@string/drawer_play_issue"
+                android:src="@drawable/ic_audio"
+                app:layout_constraintBottom_toTopOf="@id/fragment_drawer_play_issue_icon_text"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:tint="@color/white" />
 
             <TextView
-                android:id="@+id/coach_mark_text_view"
-                style="@style/Widget.App.AudioPlayer.Expanded.Title"
-                android:layout_width="0dp"
+                android:id="@+id/fragment_drawer_play_issue_icon_text"
+                style="@style/Widget.App.Drawer.Pdf.Header.IconTexts"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/audioplayer_expanded_title_author_margin_end"
-                android:paddingTop="0dp"
+                android:text="@string/drawer_play_issue"
                 android:textColor="@color/white"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/coach_mark_text_view_2"
-                style="@style/Widget.App.AudioPlayer.Expanded.Author"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/audioplayer_expanded_title_author_margin_end"
-                android:paddingTop="0dp"
-                android:textColor="@color/white"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/coach_mark_text_view" />
+                app:layout_constraintBottom_toBottomOf="parent"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
     </RelativeLayout>
-
 </androidx.constraintlayout.widget.ConstraintLayout>
+</RelativeLayout>

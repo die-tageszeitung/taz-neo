@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+xmlns:tools="http://schemas.android.com/tools"
+android:layout_width="match_parent"
+android:layout_height="match_parent">
+
+<androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -31,7 +35,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:accessibilityHeading="true"
-            android:text="@string/coach_mark_player_article_title"
+            android:text="@string/coach_mark_pdf_drawer_list_section_title"
             tools:ignore="UnusedAttribute" />
 
         <TextView
@@ -40,7 +44,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/coach_mark_header"
-            android:text="@string/coach_mark_player_article_text" />
+            android:text="@string/coach_mark_pdf_drawer_list_section_text" />
     </RelativeLayout>
 
     <RelativeLayout
@@ -49,33 +53,17 @@
         android:layout_height="wrap_content"
         tools:ignore="MissingConstraints">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/coach_mark_text_wrapper"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <TextView
-                android:id="@+id/coach_mark_text_view"
-                style="@style/Widget.App.AudioPlayer.Expanded.Title"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/audioplayer_expanded_title_author_margin_end"
-                android:paddingTop="0dp"
-                android:textColor="@color/white"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/coach_mark_text_view_2"
-                style="@style/Widget.App.AudioPlayer.Expanded.Author"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/audioplayer_expanded_title_author_margin_end"
-                android:paddingTop="0dp"
-                android:textColor="@color/white"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/coach_mark_text_view" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
+        <TextView
+            android:id="@+id/coach_mark_text_view"
+            style="@style/Widget.App.Drawer.Sections.Title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:accessibilityTraversalAfter="@id/coach_mark_text"
+            android:textColor="@color/white"
+            tools:ignore="UnusedAttribute"
+            tools:text="title" />
     </RelativeLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+
+</RelativeLayout>

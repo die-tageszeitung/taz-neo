@@ -51,25 +51,46 @@
         android:visibility="gone"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <de.taz.app.android.ui.pdfViewer.mupdf.ReaderView
-        android:id="@+id/reader_view"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_constraintBottom_toTopOf="@id/navigation_bottom_pdf"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_height="match_parent">
 
-    <include
-        android:id="@+id/pdf_loading_screen"
-        layout="@layout/include_loading_screen" />
+        <de.taz.app.android.ui.pdfViewer.mupdf.ReaderView
+            android:id="@+id/reader_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_constraintBottom_toTopOf="@id/navigation_bottom_pdf"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/navigation_bottom_pdf"
-        style="@style/Widget.App.BottomNavigation.TabBar"
-        android:layout_gravity="bottom"
-        android:layout_width="match_parent"
+        <include
+            android:id="@+id/pdf_loading_screen"
+            layout="@layout/include_loading_screen" />
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/navigation_bottom_pdf"
+            style="@style/Widget.App.BottomNavigation.TabBar"
+            android:layout_gravity="bottom"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/pdf_pager_fab_help"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="@dimen/fab_margin"
+        android:layout_marginBottom="140dp"
+        android:contentDescription="@string/help"
+        app:layout_anchor="@id/reader_view"
+        android:src="@drawable/ic_question_mark"
+        app:backgroundTint="@color/fab_button_background"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_anchorGravity="bottom|right|end"
+        app:tint="@color/lightGrey" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

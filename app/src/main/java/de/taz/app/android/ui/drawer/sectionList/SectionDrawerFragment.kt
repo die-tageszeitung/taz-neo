@@ -30,8 +30,8 @@ import de.taz.app.android.audioPlayer.DrawerAudioPlayerViewModel
 import de.taz.app.android.base.ViewBindingFragment
 import de.taz.app.android.coachMarks.BaseCoachMark
 import de.taz.app.android.coachMarks.CoachMarkDialog
-import de.taz.app.android.coachMarks.SectionDrawerBookmarkCoachMark
-import de.taz.app.android.coachMarks.SectionDrawerEnqueueCoachMark
+import de.taz.app.android.coachMarks.DrawerBookmarkCoachMark
+import de.taz.app.android.coachMarks.DrawerEnqueueCoachMark
 import de.taz.app.android.coachMarks.SectionDrawerMomentCoachMark
 import de.taz.app.android.coachMarks.SectionDrawerPlayAllCoachMark
 import de.taz.app.android.coachMarks.SectionDrawerSectionCoachMark
@@ -230,8 +230,8 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
                     SectionDrawerPlayAllCoachMark.create(fragmentDrawerPlayIssueLayout),
                     SectionDrawerSectionCoachMark.create(firstSection),
                     SectionDrawerToggleOneCoachMark(),
-                    SectionDrawerEnqueueCoachMark(),
-                    SectionDrawerBookmarkCoachMark(),
+                    DrawerEnqueueCoachMark(),
+                    DrawerBookmarkCoachMark(),
                 )
             )
         }

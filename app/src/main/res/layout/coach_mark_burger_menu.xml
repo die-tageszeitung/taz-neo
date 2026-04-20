@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+xmlns:tools="http://schemas.android.com/tools"
+android:layout_width="match_parent"
+android:layout_height="match_parent">
+
+<androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -31,7 +35,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:accessibilityHeading="true"
-            android:text="@string/coach_mark_player_rewind_title"
+            android:text="@string/coach_mark_taz_logo_title"
             tools:ignore="UnusedAttribute" />
 
         <TextView
@@ -40,21 +44,31 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/coach_mark_header"
-            android:text="@string/coach_mark_player_rewind_text" />
+            android:text="@string/coach_mark_burger_menu_text" />
     </RelativeLayout>
 
-    <RelativeLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/coach_mark_icon_wrapper"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:background="@color/tazRed"
         tools:ignore="MissingConstraints">
 
         <ImageView
-            android:layout_width="@dimen/audioplayer_expanded_seek_action_size"
-            android:layout_height="@dimen/audioplayer_expanded_seek_action_size"
-            android:contentDescription="@string/media3_controls_seek_to_previous_description"
-            android:src="@drawable/ic_previous"
-            app:tint="@color/white" />
-    </RelativeLayout>
+            android:id="@+id/drawer_logo"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:accessibilityTraversalAfter="@id/coach_mark_text"
+            android:adjustViewBounds="true"
+            android:contentDescription="@string/coach_mark_taz_logo_content_description"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_burger_menu"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="UnusedAttribute" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+</RelativeLayout>

@@ -32,3 +32,19 @@ class LmdLogoCoachMark : BaseCoachMark(R.layout.coach_mark_lmd_logo) {
     }
 }
 // endregion
+
+class BurgerMenuCoachMark : BaseCoachMark(R.layout.coach_mark_burger_menu) {
+    companion object {
+        fun create(menuItem: ImageView) = BurgerMenuCoachMark().apply {
+            this.menuItem = menuItem
+            this.resizeIcon = true
+        }
+    }
+
+    override fun onCoachMarkCreated() {
+        view?.findViewById<ImageView>(R.id.burger_logo)?.setImageBitmap(
+            (this.menuItem as ImageView).drawable.toBitmap()
+        )
+        super.onCoachMarkCreated()
+    }
+}
