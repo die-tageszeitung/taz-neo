@@ -4,11 +4,20 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.isVisible
+import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
+import com.google.android.material.behavior.HideViewOnScrollBehavior.EDGE_BOTTOM
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
@@ -16,7 +25,18 @@ import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.audioPlayer.DrawerAudioPlayerViewModel
 import de.taz.app.android.base.ViewBindingFragment
+import de.taz.app.android.coachMarks.BaseCoachMark
+import de.taz.app.android.coachMarks.CoachMarkDialog
+import de.taz.app.android.coachMarks.DrawerBookmarkCoachMark
+import de.taz.app.android.coachMarks.DrawerEnqueueCoachMark
+import de.taz.app.android.coachMarks.PdfDrawerGoToArticleCoachMark
+import de.taz.app.android.coachMarks.PdfDrawerGoToPageCoachMark
+import de.taz.app.android.coachMarks.PdfDrawerGoToSectionCoachMark
+import de.taz.app.android.coachMarks.PdfDrawerListMomentCoachMark
+import de.taz.app.android.coachMarks.PdfDrawerPlayAllCoachMark
+import de.taz.app.android.coachMarks.PdfDrawerSwitchViewToPagesCoachMark
 import de.taz.app.android.databinding.FragmentDrawerBodyPdfWithSectionsBinding
+import de.taz.app.android.monkey.getHideViewOnScrollBehavior
 import de.taz.app.android.monkey.setDefaultBottomInset
 import de.taz.app.android.monkey.setDefaultTopInset
 import de.taz.app.android.persistence.repository.BookmarkRepository
@@ -26,9 +46,13 @@ import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
+import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.pdfViewer.PdfPagerWrapperFragment.Companion.ARTICLE_PAGER_FRAGMENT_BACKSTACK_NAME
+import de.taz.app.android.util.Log
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 
@@ -40,12 +64,14 @@ import kotlin.math.abs
 class DrawerBodyPdfWithSectionsFragment :
     ViewBindingFragment<FragmentDrawerBodyPdfWithSectionsBinding>() {
 
-    private lateinit var storageService: StorageService
+    private val log by Log
 
+    private val issueContentViewModel: IssueViewerViewModel by activityViewModels()
     private val pdfPagerViewModel: PdfPagerViewModel by viewModels({ requireParentFragment() })
     private val drawerAndLogoViewModel: DrawerAndLogoViewModel by activityViewModels()
     private val drawerAudioPlayerViewModel: DrawerAudioPlayerViewModel by viewModels()
 
+    private lateinit var storageService: StorageService
     private lateinit var adapter: PageWithArticlesAdapter
     private lateinit var toastHelper: ToastHelper
     private lateinit var bookmarkRepository: BookmarkRepository
@@ -130,6 +156,8 @@ class DrawerBodyPdfWithSectionsFragment :
             playIssueLayout.setOnClickListener {
                 drawerAudioPlayerViewModel.handleOnPlayAllClicked()
             }
+
+            setupFAB()
         }
     }
     /**
@@ -291,6 +319,79 @@ class DrawerBodyPdfWithSectionsFragment :
                     justSetWidth = newWidth
                 }
             }
+        }
+    }
+
+    private fun setupFAB() {
+        viewBinding?.fabHelp?.let { fabHelp ->
+            ViewCompat.setOnApplyWindowInsetsListener(fabHelp) { v, windowInsets ->
+                val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+                val marginBottomFromDimens =
+                    resources.getDimensionPixelSize(R.dimen.fab_margin)
+                val bottomBarHeight = resources.getDimensionPixelSize(R.dimen.nav_bottom_height)
+                v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                    bottomMargin = insets.bottom + bottomBarHeight + marginBottomFromDimens
+                }
+
+                // Return CONSUMED if you don't want the window insets to keep passing
+                // down to descendant views.
+                WindowInsetsCompat.CONSUMED
+            }
+            fabHelp.setOnClickListener {
+                log.verbose("show coach marks in pdf drawer")
+                showCoachMarks()
+            }
+
+            fabHelp.getHideViewOnScrollBehavior()?.setViewEdge(EDGE_BOTTOM)
+
+            issueContentViewModel.fabHelpEnabledFlow
+                .flowWithLifecycle(lifecycle)
+                .onEach {
+                    fabHelp.isVisible = it
+                }.launchIn(lifecycleScope)
+        }
+    }
+
+    private fun showCoachMarks() {
+        val coachMarks = mutableListOf<BaseCoachMark>()
+
+        viewBinding?.apply {
+            val firstSection = requireView().findViewById<TextView>(R.id.preview_page_title)
+            val firstPage = requireView().findViewById<ImageView>(R.id.preview_page_image)
+            val tocItem = requireView().findViewById<ConstraintLayout>(R.id.toc_item)
+            val firstArticle = requireView().findViewById<TextView>(R.id.article_title)
+            val firstArticleTeaser = requireView().findViewById<TextView>(R.id.article_teaser)
+            val firstArticleAuthorMinsString = requireView().findViewById<TextView>(R.id.article_author_and_read_minutes)?.text?.toString() ?: ""
+            // Take everything until the first digit from eg "von Anna Arthur 3min"
+            val firstArticleAuthor = firstArticleAuthorMinsString.takeWhile { !it.isDigit() }
+            // Get the remainder (the "3 min" part)
+            val firstArticleMin = firstArticleAuthorMinsString.substringAfter(firstArticleAuthor)
+
+            coachMarks.addAll(
+                listOf(
+                    PdfDrawerListMomentCoachMark.create(activityPdfDrawerFrontPage),
+                    PdfDrawerSwitchViewToPagesCoachMark.create(switchDrawerLayout),
+                    PdfDrawerPlayAllCoachMark.create(playIssueLayout),
+                    PdfDrawerGoToPageCoachMark.create(firstPage),
+                    PdfDrawerGoToArticleCoachMark.create(
+                        tocItem,
+                        firstArticle.text.toString(),
+                        firstArticleTeaser.text.toString(),
+                        firstArticleAuthor,
+                        firstArticleMin,
+                        firstArticle.width
+                    ),
+                    PdfDrawerGoToSectionCoachMark.create(firstSection),
+                    DrawerEnqueueCoachMark(),
+                    DrawerBookmarkCoachMark(),
+                )
+            )
+        }
+
+        if (coachMarks.isNotEmpty()) {
+            CoachMarkDialog.create(coachMarks).show(childFragmentManager, CoachMarkDialog.TAG)
+        } else {
+            log.debug("coachmarks list is empty")
         }
     }
 }

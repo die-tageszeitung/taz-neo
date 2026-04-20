@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+xmlns:tools="http://schemas.android.com/tools"
+android:layout_width="match_parent"
+android:layout_height="match_parent">
+
+<androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -19,6 +23,7 @@
         android:paddingStart="@dimen/coach_mark_text_layout_padding_start"
         android:paddingEnd="@dimen/coach_mark_text_layout_padding_end"
         android:rotation="-7"
+        app:layout_constraintVertical_bias="0.7"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -31,7 +36,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:accessibilityHeading="true"
-            android:text="@string/coach_mark_player_article_title"
+            android:text="@string/coach_mark_pdf_drawer_list_article_title"
             tools:ignore="UnusedAttribute" />
 
         <TextView
@@ -40,7 +45,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/coach_mark_header"
-            android:text="@string/coach_mark_player_article_text" />
+            android:text="@string/coach_mark_pdf_drawer_list_article_text" />
     </RelativeLayout>
 
     <RelativeLayout
@@ -56,26 +61,52 @@
 
             <TextView
                 android:id="@+id/coach_mark_text_view"
-                style="@style/Widget.App.AudioPlayer.Expanded.Title"
-                android:layout_width="0dp"
+                style="@style/Widget.App.Drawer.Lmd.Title"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/audioplayer_expanded_title_author_margin_end"
-                android:paddingTop="0dp"
+                android:accessibilityTraversalAfter="@id/coach_mark_text"
                 android:textColor="@color/white"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                tools:text="title" />
 
             <TextView
                 android:id="@+id/coach_mark_text_view_2"
-                style="@style/Widget.App.AudioPlayer.Expanded.Author"
+                style="@style/Widget.App.Drawer.Sections.Article.Teaser"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/audioplayer_expanded_title_author_margin_end"
-                android:paddingTop="0dp"
                 android:textColor="@color/white"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/coach_mark_text_view" />
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/coach_mark_text_view"
+                tools:text="Teaser text very very very very very very very very very very very very very very very very long"/>
+
+            <TextView
+                android:id="@+id/coach_mark_text_view_3"
+                style="@style/TextAppearance.App.Drawer.Sections.Article.Meta.Author"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/fragment_drawer_author_read_min_margin_top"
+                app:layout_constraintHeight_min="16sp"
+                android:textColor="@color/white"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/coach_mark_text_view_2"
+                tools:text="von Anna"/>
+
+            <TextView
+                android:id="@+id/coach_mark_text_view_4"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                style="@style/TextAppearance.App.Drawer.Sections.Article.Meta.ReadMinutes"
+                android:layout_marginTop="@dimen/fragment_drawer_author_read_min_margin_top"
+                app:layout_constraintHeight_min="16sp"
+                android:layout_marginStart="3dp"
+                android:textColor="@color/white"
+                app:layout_constraintStart_toEndOf="@id/coach_mark_text_view_3"
+                app:layout_constraintBaseline_toBaselineOf="@id/coach_mark_text_view_3"
+                tools:text="3 min"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
     </RelativeLayout>
 
+
 </androidx.constraintlayout.widget.ConstraintLayout>
+
+</RelativeLayout>

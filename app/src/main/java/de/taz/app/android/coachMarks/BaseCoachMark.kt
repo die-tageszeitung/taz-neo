@@ -26,8 +26,9 @@ abstract class BaseCoachMark(@LayoutRes private val layoutResId: Int) : Fragment
     protected var textString: String? = null
     protected var resizeIcon: Boolean = false
     protected var useShortArrow: Boolean = false
+    protected var verticalBias: Float = 0.5f
 
-    // Some menuItems are at the position where the close icon ist
+    // Some menuItems are at the position where the close icon is
     // In that case the coachmark should be the last and we move the close button
     // down to where the next icon is
     var moveCloseButtonToWhereNextIs = false
@@ -149,11 +150,11 @@ abstract class BaseCoachMark(@LayoutRes private val layoutResId: Int) : Fragment
 
         // Get the middle of icon
         val midOfIconX = icon.x + width * 0.5
-        val midOfIconY = icon.y + height * 0.5
+        val midOfIconY = icon.y + height * verticalBias
 
         // get the center
         val centerX = resources.displayMetrics.widthPixels * 0.5
-        val centerY = resources.displayMetrics.heightPixels * 0.5
+        val centerY = resources.displayMetrics.heightPixels * verticalBias
 
         val slope = abs(centerY - midOfIconY) / abs(centerX - midOfIconX)
 

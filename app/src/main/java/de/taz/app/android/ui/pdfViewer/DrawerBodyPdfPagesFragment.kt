@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import androidx.fragment.app.activityViewModels
@@ -18,6 +19,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
 import com.bumptech.glide.Glide
+import com.google.android.material.behavior.HideViewOnScrollBehavior.EDGE_BOTTOM
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
 import de.taz.app.android.api.models.IssueStub
@@ -25,13 +27,20 @@ import de.taz.app.android.api.models.Page
 import de.taz.app.android.api.models.PageType
 import de.taz.app.android.audioPlayer.DrawerAudioPlayerViewModel
 import de.taz.app.android.base.ViewBindingFragment
+import de.taz.app.android.coachMarks.BaseCoachMark
+import de.taz.app.android.coachMarks.CoachMarkDialog
+import de.taz.app.android.coachMarks.PdfDrawerSwitchViewToListCoachMark
+import de.taz.app.android.coachMarks.PdfDrawerPageCoachMark
+import de.taz.app.android.coachMarks.PdfDrawerPlayAllCoachMark
 import de.taz.app.android.databinding.FragmentDrawerBodyPdfPagesBinding
+import de.taz.app.android.monkey.getHideViewOnScrollBehavior
 import de.taz.app.android.monkey.setDefaultVerticalInsets
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
+import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.pdfViewer.PdfPagerWrapperFragment.Companion.ARTICLE_PAGER_FRAGMENT_BACKSTACK_NAME
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.flow.filterNotNull
@@ -46,8 +55,7 @@ class DrawerBodyPdfPagesFragment : ViewBindingFragment<FragmentDrawerBodyPdfPage
 
     private val log by Log
 
-    private lateinit var adapter: PdfDrawerRecyclerViewAdapter
-
+    private val issueContentViewModel: IssueViewerViewModel by activityViewModels()
     private val pdfPagerViewModel: PdfPagerViewModel by viewModels({ requireParentFragment() })
     private val drawerAndLogoViewModel: DrawerAndLogoViewModel by activityViewModels()
     private val drawerAudioPlayerViewModel: DrawerAudioPlayerViewModel by viewModels()
@@ -55,6 +63,7 @@ class DrawerBodyPdfPagesFragment : ViewBindingFragment<FragmentDrawerBodyPdfPage
     private lateinit var storageService: StorageService
     private lateinit var tracker: Tracker
     private lateinit var toastHelper: ToastHelper
+    private lateinit var adapter: PdfDrawerRecyclerViewAdapter
 
 
     override fun onAttach(context: Context) {
@@ -127,6 +136,8 @@ class DrawerBodyPdfPagesFragment : ViewBindingFragment<FragmentDrawerBodyPdfPage
         pdfPagerViewModel.issueStubLiveData.observe(viewLifecycleOwner) {
             drawerAudioPlayerViewModel.setIssueStub(it)
         }
+
+        setupFAB()
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -261,6 +272,56 @@ class DrawerBodyPdfPagesFragment : ViewBindingFragment<FragmentDrawerBodyPdfPage
                     }
                     .duration = LOADING_SCREEN_FADE_OUT_TIME
             }
+        }
+    }
+
+    private fun setupFAB() {
+        viewBinding?.fabHelp?.let { fabHelp ->
+            ViewCompat.setOnApplyWindowInsetsListener(fabHelp) { v, windowInsets ->
+                val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+                val marginBottomFromDimens =
+                    resources.getDimensionPixelSize(R.dimen.fab_margin)
+                val bottomBarHeight = resources.getDimensionPixelSize(R.dimen.nav_bottom_height)
+                v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                    bottomMargin = insets.bottom + bottomBarHeight + marginBottomFromDimens
+                }
+
+                // Return CONSUMED if you don't want the window insets to keep passing
+                // down to descendant views.
+                WindowInsetsCompat.CONSUMED
+            }
+            fabHelp.setOnClickListener {
+                log.verbose("show coach marks in pdf drawer")
+                showCoachMarks()
+            }
+
+            fabHelp.getHideViewOnScrollBehavior()?.setViewEdge(EDGE_BOTTOM)
+
+            issueContentViewModel.fabHelpEnabledFlow
+                .flowWithLifecycle(lifecycle)
+                .onEach {
+                    fabHelp.isVisible = it
+                }.launchIn(lifecycleScope)
+        }
+    }
+
+    private fun showCoachMarks() {
+        val coachMarks = mutableListOf<BaseCoachMark>()
+
+        viewBinding?.apply {
+            coachMarks.addAll(
+                listOf(
+                    PdfDrawerPageCoachMark.create(activityPdfDrawerFrontPage),
+                    PdfDrawerSwitchViewToListCoachMark.create(switchDrawerLayout),
+                    PdfDrawerPlayAllCoachMark.create(playIssueLayout),
+                )
+            )
+        }
+
+        if (coachMarks.isNotEmpty()) {
+            CoachMarkDialog.create(coachMarks).show(childFragmentManager, CoachMarkDialog.TAG)
+        } else {
+            log.debug("coachmarks list is empty")
         }
     }
 

@@ -537,6 +537,7 @@
     <!-- Inhaltsverzeichnisse -->
     <string name="coach_mark_taz_logo_title">Inhaltsverzeichnis öffnen</string>
     <string name="coach_mark_taz_logo_text">Tippen Sie auf das taz-Logo, um das vollständige Inhaltsverzeichnis der Ausgabe zu sehen.</string>
+    <string name="coach_mark_burger_menu_text">Tippen Sie hier, um das vollständige Inhaltsverzeichnis der Ausgabe zu sehen.</string>
     <string name="coach_mark_taz_logo_content_description">Logo der taz</string>
 
     <string name="coach_mark_lmd_logo_title">Inhaltsverzeichnis öffnen</string>
@@ -684,6 +685,44 @@
     <string name="coach_marks_close_button_content_description">Hilfe schließen</string>
     <string name="coach_marks_next">Nächste Information anzeigen</string>
     <string name="coach_marks_prev">Vorherige Information anzeigen</string>
+
+    <!-- PDF -->
+    <string name="coach_mark_pdf_page_title">Blättern</string>
+    <string name="coach_mark_pdf_page_text">Streiche mit dem Finger nach links oder rechts, um die vorherige oder nächste Seite anzuzeigen.</string>
+    <string name="coach_mark_pdf_page_content_description">Icon zeigt Geste: nach links und rechts wischen</string>
+
+    <string name="coach_mark_pdf_select_title">Artikel auswählen</string>
+    <string name="coach_mark_pdf_select_text">Tippe mit einem Finger auf einen Artikel, um in die Leseansicht zu gelangen</string>
+    <string name="coach_mark_pdf_select_content_description">Icon zeigt Geste: Bildschirm antippen</string>
+
+    <string name="coach_mark_pdf_zoom_title">Seite vergrößern</string>
+    <string name="coach_mark_pdf_zoom_text">Ziehen Sie zwei Finger auseinander oder zusammen, um die Seitenansicht zu vergrößern oder zu verkleinern.</string>
+    <string name="coach_mark_pdf_zoom_content_description">Icon zeigt Geste: Bild mit zwei Fingern auseinander oder zusammen ziehen</string>
+
+    <!-- PDF Drawer -->
+    <string name="coach_mark_pdf_drawer_moment_title">Navigation</string>
+    <string name="coach_mark_pdf_drawer_moment_text">Tippen Sie auf die Miniatur, um zur Seite zu gelangen</string>
+    <string name="coach_mark_pdf_drawer_moment_content_description">Titelseite der momentan ausgewählten Ausgabe</string>
+
+    <string name="coach_mark_pdf_drawer_play_all_title">Alle Artikel anhören</string>
+    <string name="coach_mark_pdf_drawer_play_all_text">Tippen Sie hier, um sich die gesamte Ausgabe von Anfang bis Ende vorlesen zu lassen.</string>
+
+    <string name="coach_mark_pdf_drawer_change_view_title">Ansichtswechsel</string>
+    <string name="coach_mark_pdf_drawer_change_view_text">Hier können Sie zwischen Listenansicht und Kachelansicht des Inhalts wechseln.</string>
+
+    <string name="coach_mark_pdf_drawer_moment_list_title">Zurück zur Übersicht</string>
+    <string name="coach_mark_pdf_drawer_moment_list_text">Tippen Sie auf das Titelbild, um zur Ausgabenübersicht zurückzukehren.</string>
+    <string name="coach_mark_pdf_drawer_moment_list_content_description">Titelseite der momentan ausgewählten Ausgabe</string>
+
+    <string name="coach_mark_pdf_drawer_list_section_title">Zum Ressort</string>
+    <string name="coach_mark_pdf_drawer_list_section_text">Tippen Sie auf den Ressortnamen, um zur ersten Seite des Ressorts zu gelangen</string>
+
+    <string name="coach_mark_pdf_drawer_list_page_title">Zur Seite</string>
+    <string name="coach_mark_pdf_drawer_list_page_text">Tippen Sie auf die Miniatur, um zur Seite zu gelangen</string>
+    <string name="coach_mark_pdf_drawer_list_page_content_description">Titelseite der momentan ausgewählten Ausgabe</string>
+
+    <string name="coach_mark_pdf_drawer_list_article_title">Zum Artikel</string>
+    <string name="coach_mark_pdf_drawer_list_article_text">Tippen Sie auf den Text, um zum Artikel zu gelangen</string>
     <!-- endregion -->
 
     <string name="fragment_webview_article_tap_left">Hier tippen um nach links zu kommen</string>

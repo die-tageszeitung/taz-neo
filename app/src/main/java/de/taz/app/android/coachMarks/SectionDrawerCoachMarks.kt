@@ -64,9 +64,3 @@ class SectionDrawerPlayAllCoachMark : BaseCoachMark(
 class SectionDrawerToggleOneCoachMark : BaseCoachMark(
     R.layout.coach_mark_section_drawer_toggle_one
 )
-class SectionDrawerEnqueueCoachMark : BaseCoachMark(
-    R.layout.coach_mark_section_drawer_enqueue
-)
-class SectionDrawerBookmarkCoachMark : BaseCoachMark(
-    R.layout.coach_mark_section_drawer_bookmark
-)

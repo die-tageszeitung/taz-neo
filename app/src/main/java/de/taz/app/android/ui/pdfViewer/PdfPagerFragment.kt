@@ -7,11 +7,15 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import com.google.android.material.behavior.HideViewOnScrollBehavior.EDGE_BOTTOM
 import com.google.android.material.behavior.HideViewOnScrollBehavior.EDGE_LEFT
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
@@ -19,20 +23,27 @@ import de.taz.app.android.api.models.Page
 import de.taz.app.android.api.models.PageType
 import de.taz.app.android.audioPlayer.AudioPlayerService
 import de.taz.app.android.base.BaseMainFragment
+import de.taz.app.android.coachMarks.BurgerMenuCoachMark
+import de.taz.app.android.coachMarks.CoachMarkDialog
+import de.taz.app.android.coachMarks.PdfPageCoachMark
+import de.taz.app.android.coachMarks.PdfSelectCoachMark
+import de.taz.app.android.coachMarks.PdfZoomCoachMark
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.databinding.FragmentPdfPagerBinding
+import de.taz.app.android.monkey.getHideViewOnScrollBehavior
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
+import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setupBottomNavigation
 import de.taz.app.android.ui.pdfViewer.mupdf.OnCoordinatesClickedListener
 import de.taz.app.android.ui.pdfViewer.mupdf.PageAdapter
 import de.taz.app.android.ui.pdfViewer.mupdf.PageView
 import de.taz.app.android.util.Log
-import de.taz.app.android.monkey.getHideViewOnScrollBehavior
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
@@ -50,9 +61,11 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
     private lateinit var generalDataStore: GeneralDataStore
     private lateinit var tazApiCssDataStore: TazApiCssDataStore
     private lateinit var tracker: Tracker
+    val showHelpFabFlow = MutableStateFlow(true)
 
     private var isReaderViewInitialized = false
 
+    private val issueContentViewModel: IssueViewerViewModel by activityViewModels()
     private val log by Log
 
     override fun onAttach(context: Context) {
@@ -76,6 +89,14 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
                 }
                 windowInsets
             }
+            addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
+                val currentView = viewBinding?.readerView?.displayedView as? PageView
+                // Show the FAB if we are not zoomed in
+                val showFab = currentView?.scale == 1f
+                lifecycleScope.launch {
+                    showHelpFabFlow.emit(showFab)
+                }
+            }
         }
 
         pdfPagerViewModel.pdfPageListFlow
@@ -94,6 +115,16 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
                 }
             }.launchIn(lifecycleScope)
 
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    showHelpFabFlow.collect {
+                        toggleHelpFab(it)
+                    }
+                }
+            }
+        }
+
         pdfPagerViewModel.currentItem.observe(viewLifecycleOwner) { position ->
             // only update currentItem if it has not been swiped
             if (viewBinding?.readerView?.displayedViewIndex != position) {
@@ -101,6 +132,7 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
             }
         }
         initializeDrawerLogos()
+        setupFAB()
     }
 
     override fun onResume() {
@@ -298,6 +330,63 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
                 drawerAndLogoViewModel.openDrawer()
             }
 
+        }
+    }
+
+    private fun setupFAB() {
+        viewBinding?.pdfPagerFabHelp?.let { floatingActionButton ->
+
+            ViewCompat.setOnApplyWindowInsetsListener(floatingActionButton) { v, windowInsets ->
+                val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+                val marginBottomFromDimens =
+                    resources.getDimensionPixelSize(R.dimen.fab_margin)
+                val bottomBarHeight = resources.getDimensionPixelSize(R.dimen.nav_bottom_height)
+                v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                    bottomMargin = insets.bottom + bottomBarHeight + marginBottomFromDimens
+                }
+
+                // Return CONSUMED if you don't want the window insets to keep passing
+                // down to descendant views.
+                WindowInsetsCompat.CONSUMED
+            }
+            floatingActionButton.setOnClickListener {
+                log.verbose("show coach marks in section pager")
+                showCoachMarks()
+            }
+
+            floatingActionButton.getHideViewOnScrollBehavior()?.setViewEdge(EDGE_BOTTOM)
+
+            issueContentViewModel.fabHelpEnabledFlow
+                .flowWithLifecycle(lifecycle)
+                .onEach {
+                    floatingActionButton.isVisible = it
+                }.launchIn(lifecycleScope)
+        }
+    }
+
+    private fun showCoachMarks() {
+        val burgerMenuCoachMark =
+            BurgerMenuCoachMark.create(requireActivity().findViewById(R.id.drawer_logo))
+
+        val pdfPageCoachMark = PdfPageCoachMark()
+        val pdfSelectCoachMark = PdfSelectCoachMark()
+        val pdfZoomCoachMark = PdfZoomCoachMark()
+
+        val coachMarks = listOf(
+            burgerMenuCoachMark,
+            pdfPageCoachMark,
+            pdfSelectCoachMark,
+            pdfZoomCoachMark,
+        )
+        CoachMarkDialog.create(coachMarks).show(childFragmentManager, CoachMarkDialog.TAG)
+    }
+    private suspend fun toggleHelpFab(show: Boolean) {
+        if (issueContentViewModel.fabHelpEnabledFlow.first()) {
+            if (show) {
+                viewBinding?.pdfPagerFabHelp?.show()
+            } else {
+                viewBinding?.pdfPagerFabHelp?.hide()
+            }
         }
     }
 }

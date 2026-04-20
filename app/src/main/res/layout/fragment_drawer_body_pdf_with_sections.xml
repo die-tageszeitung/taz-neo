@@ -192,4 +192,16 @@
             tools:listitem="@layout/list_item_pdf_page_with_content" />
 
     </LinearLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_help"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/fab_margin"
+        android:contentDescription="@string/help"
+        android:src="@drawable/ic_question_mark"
+        app:backgroundTint="@color/fab_button_background"
+        app:layout_behavior="de.taz.app.android.util.HideOnScrollShowOnlyOnTopBehavior"
+        app:tint="@color/lightGrey" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
