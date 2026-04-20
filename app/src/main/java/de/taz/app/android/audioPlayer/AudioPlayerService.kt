@@ -47,6 +47,7 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.guava.await
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -56,6 +57,7 @@ private const val SEEK_FORWARD_MS = 15000L
 private const val SEEK_BACKWARD_MS = 15000L
 // Time in ms after the last break, during which a backwards seek will go to the break before the last break.
 private const val SEEK_BACKWARDS_BREAK_MARGIN_MS = 1000L
+private const val PLAY_DISCLAIMER_MAX_AMOUNT = 3
 
 /**
  * [AudioPlayerService] will be shared between all activities.
@@ -125,7 +127,6 @@ class AudioPlayerService private constructor(private val applicationContext: Con
 
     private val articleRepository = ArticleRepository.getInstance(applicationContext)
     private val playlistRepository = PlaylistRepository.getInstance(applicationContext)
-    private val storageService = StorageService.getInstance(applicationContext)
 
     // Play the disclaimer only once per app session:
     private var disclaimerPlayed = false
@@ -136,6 +137,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
     // (Then it should start the Maxi-Player)
     private val isFirstAudioPlayFlow = dataStore.isFirstAudioPlayEver.asFlow().distinctUntilChanged()
     private var isFirstAudioPlay = true
+    private var doNotPlayDisclaimerAnymore = false
 
     // Central internal state of the Service
     private val state: MutableStateFlow<PlayerState> = MutableStateFlow(PlayerState.Idle)
@@ -633,6 +635,12 @@ class AudioPlayerService private constructor(private val applicationContext: Con
                 isFirstAudioPlay = it
             }
         }
+        launch {
+            dataStore.disclaimerPlayedAmount.asFlow()
+                .collect {
+                    doNotPlayDisclaimerAnymore = dataStore.disclaimerPlayedAmount.get() >= PLAY_DISCLAIMER_MAX_AMOUNT
+                }
+        }
     }
 
     private fun initItems(
@@ -761,6 +769,11 @@ class AudioPlayerService private constructor(private val applicationContext: Con
             prepare()
         }
         disclaimerPlayed = true
+        CoroutineScope(Dispatchers.IO).launch {
+            dataStore.disclaimerPlayedAmount.set(
+                dataStore.disclaimerPlayedAmount.get() + 1
+            )
+        }
     }
 
     private fun connectController(playWhenReady: Boolean) {
@@ -1010,7 +1023,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
             AudioSpeaker.HUMAN, AudioSpeaker.PODCAST, AudioSpeaker.UNKNOWN, null -> false
         }
 
-        if (currentState is PlayerState.AudioReady && currentItem != null && currentItemSpeakerIsMachine && !disclaimerPlayed) {
+        if (currentState is PlayerState.AudioReady && currentItem != null && currentItemSpeakerIsMachine && !disclaimerPlayed && !doNotPlayDisclaimerAnymore) {
             playDisclaimerAfterCurrent(currentState.controller, currentItem)
         } else {
             // Once the Audio has stopped, dismiss the player
