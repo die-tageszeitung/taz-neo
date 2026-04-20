@@ -459,7 +459,7 @@ class PdfPagerWrapperFragment : ViewBindingFragment<ActivityPdfDrawerLayoutBindi
     private fun showLoggedOutDialog() {
         val dialog = MaterialAlertDialogBuilder(requireActivity())
             .setMessage(R.string.pdf_mode_better_to_be_logged_in_hint)
-            .setPositiveButton(android.R.string.ok) { dialog, _ ->
+            .setPositiveButton(R.string.cancel_button) { dialog, _ ->
                 dialog.dismiss()
             }
             .setNegativeButton(R.string.login_button) { dialog, _ ->
