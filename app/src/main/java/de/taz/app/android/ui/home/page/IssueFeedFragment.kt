@@ -1,8 +1,8 @@
 package de.taz.app.android.ui.home.page
 
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.TextView
 import androidx.core.content.ContextCompat
@@ -47,7 +47,7 @@ import kotlinx.coroutines.launch
  * This class takes care of getting the feed, setting it on the ViewModel and notifying the
  * [adapter] if an item has changed or the user has logged in.
  *
- * Additionally it offers a function to open an issue in the correct reader application
+ * Additionally, it offers a function to open an issue in the correct reader application
  * see [onItemSelected]
  *
  */
@@ -236,6 +236,10 @@ abstract class IssueFeedFragment<VIEW_BINDING : ViewBinding> :
         buttonMap.forEach { (name, view) ->
             view?.setOnClickListener {
                 viewModel.switchFeed(name)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    viewBinding?.root?.accessibilityPaneTitle =
+                        getString(R.string.feed_menu_accessibility_title, view.text)
+                }
             }
         }
 
