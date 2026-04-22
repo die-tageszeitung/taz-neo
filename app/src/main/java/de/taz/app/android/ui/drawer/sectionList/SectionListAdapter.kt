@@ -45,8 +45,12 @@ class SectionListAdapter(
 
     fun initWithList(list: List<SectionDrawerItem>) {
         completeList = list
-        // init the adapter with only the unexpanded sections
-        collapseAllSections(currentKey)
+        // init the adapter with collapsed sections if we got more than 1 section
+        if (list.count { it is SectionDrawerItem.Header } > 1) {
+            collapseAllSections()
+        } else {
+            expandAllSections()
+        }
     }
 
     /**
@@ -199,23 +203,15 @@ class SectionListAdapter(
             expandAllSections()
         }
     }
-    private fun collapseAllSections(exceptKey: String? = null) {
 
-        val sectionToExpandKey = findSectionKey(exceptKey)
-
-        var shouldSectionBeExpanded = false
-        sectionDrawerItemList = completeList.mapNotNull { item ->
-            when (item) {
-                is SectionDrawerItem.Header -> {
-                    shouldSectionBeExpanded = item.section.key == sectionToExpandKey
-                    item.copy(isExpanded = shouldSectionBeExpanded)
+    private fun collapseAllSections() {
+        sectionDrawerItemList = completeList
+            .mapNotNull {
+                when (it) {
+                    is SectionDrawerItem.Header -> it.copy(isExpanded = false)
+                    is SectionDrawerItem.Item -> null
                 }
-                is SectionDrawerItem.Item -> {
-                    // Show items only if their parent section is expanded
-                    if (shouldSectionBeExpanded) item else null
-                }
-            }
-        }.toMutableList()
+            }.toMutableList()
     }
 
     private fun expandAllSections() {
@@ -241,28 +237,5 @@ class SectionListAdapter(
                 notifyItemChanged(position)
             }
         }
-    }
-
-
-    /**
-     * Finds the section key for a given key, which can be a section key or an article key.
-     * Assumes that in [completeList], items follow their respective headers.
-     */
-    private fun findSectionKey(key: String?): String? {
-        if (key == null) return null
-
-        var lastHeaderKey: String? = null
-        for (item in completeList) {
-            when (item) {
-                is SectionDrawerItem.Header -> {
-                    lastHeaderKey = item.section.key
-                    if (lastHeaderKey == key) return lastHeaderKey
-                }
-                is SectionDrawerItem.Item -> {
-                    if (item.article.key == key) return lastHeaderKey
-                }
-            }
-        }
-        return null
     }
 }

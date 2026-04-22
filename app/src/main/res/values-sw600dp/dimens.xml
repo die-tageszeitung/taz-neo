@@ -2,7 +2,6 @@
 <resources>
     <dimen name="fragment_header_default_padding_top">61dp</dimen>
     <dimen name="fragment_header_default_height">86dp</dimen>
-    <dimen name="fragment_cover_flow_guideline_top">120dp</dimen>
 
     <dimen name="fragment_header_default_text_size">32sp</dimen>
     <dimen name="fragment_header_section_text_size">32sp</dimen>

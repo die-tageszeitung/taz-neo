@@ -59,16 +59,14 @@ class CoverflowAdapter(
         val isLandscape =
             fragment.resources.displayMetrics.heightPixels < fragment.resources.displayMetrics.widthPixels
 
-        val aspectRatio = fragment.resources.displayMetrics.heightPixels.toFloat() / fragment.resources.displayMetrics.widthPixels
+        val aspectRatio =
+            fragment.resources.displayMetrics.heightPixels.toFloat() / fragment.resources.displayMetrics.widthPixels
         // For almost square devices (eg open foldables), we cannot put that factor to a resources...
         val isAlmostSquare =
             aspectRatio > 0.9f && aspectRatio < 1.1f
 
-        val factor = if (isAlmostSquare) {
-            0.35f
-        } else {
-            fragment.resources.getFraction(R.fraction.cover_width_screen_factor, 1, 1)
-        }
+        val factor =
+            fragment.resources.getFraction(R.fraction.cover_width_screen_factor, 1, 1) * aspectRatio
 
         return if (isLandscape || isAlmostSquare) {
             // in landscape mode it's height bound

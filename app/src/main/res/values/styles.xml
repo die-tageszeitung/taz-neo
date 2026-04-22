@@ -669,9 +669,9 @@
     </style>
 
     <style name="nameWidget.App.FeedsMenu.Text" parent="Widget.App.TextView">
-        <item name="android:fontFamily">@font/appFontKnileRegular</item>
+        <item name="android:fontFamily">@font/appFontBold</item>
         <item name="android:textColor">@color/lightGrey</item>
-        <item name="android:textSize">14sp</item>
+        <item name="android:textSize">16sp</item>
     </style>
 
     <style name="Widget.App.Header.Custom.SectionTitle" parent="Widget.App.Header.Article.SectionTitle" />

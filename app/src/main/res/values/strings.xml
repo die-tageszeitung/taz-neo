@@ -740,6 +740,7 @@
     <string name="app_widget_description">Die aktuelle Titelseite auf Ihrem Homescreen.</string>
     <string name="fragment_home_representation">Darstellung</string>
     <string name="fragment_archive_calendar">Datumsauswahl</string>
+    <string name="feed_menu_accessibility_title">Ausgewählter Feed: %s</string>
     <string name="feed_name_taz">taz</string>
     <string name="feed_name_wochentaz">wochentaz</string>
     <string name="feed_name_lmd">le monde diplomatique</string>

@@ -157,7 +157,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
 
     private fun observeDate() {
         // scroll to date if focus is requested
-        viewModel.requestDateFocus.distinctUntilChanged().onEach { date ->
+        viewModel.requestDateFocus.onEach { date ->
             adapter?.getPosition(date)?.let { position ->
                 skipToPositionIfNecessary(position)
             }

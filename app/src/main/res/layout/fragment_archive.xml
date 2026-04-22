@@ -38,14 +38,18 @@
                         android:id="@+id/feed_menu"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        app:layout_constraintTop_toTopOf="parent">
+                        app:layout_constraintTop_toBottomOf="@id/representation">
 
                         <TextView
                             android:id="@+id/taz_feed"
                             style="@style/nameWidget.App.FeedsMenu.Text"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:padding="@dimen/fragment_cover_flow_feed_menu_inner_padding"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:paddingStart="0dp"
+                            android:paddingTop="@dimen/fragment_cover_flow_feed_menu_top_padding"
+                            android:paddingEnd="@dimen/fragment_cover_flow_feed_menu_inner_padding"
                             android:text="@string/feed_name_taz"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent" />
@@ -55,7 +59,11 @@
                             style="@style/nameWidget.App.FeedsMenu.Text"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:padding="@dimen/fragment_cover_flow_feed_menu_inner_padding"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:paddingTop="@dimen/fragment_cover_flow_feed_menu_top_padding"
+                            android:paddingEnd="@dimen/fragment_cover_flow_feed_menu_inner_padding"
+                            android:paddingStart="0dp"
                             android:text="@string/feed_name_wochentaz"
                             app:layout_constraintStart_toEndOf="@id/taz_feed"
                             app:layout_constraintTop_toTopOf="parent" />
@@ -65,7 +73,9 @@
                             style="@style/nameWidget.App.FeedsMenu.Text"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:padding="@dimen/fragment_cover_flow_feed_menu_inner_padding"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:paddingTop="@dimen/fragment_cover_flow_feed_menu_top_padding"
                             android:text="@string/feed_name_lmd"
                             app:layout_constraintStart_toEndOf="@id/wochentaz_feed"
                             app:layout_constraintTop_toTopOf="parent" />
