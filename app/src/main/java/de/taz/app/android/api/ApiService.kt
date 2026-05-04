@@ -295,6 +295,27 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
     }
 
     /**
+     * function to get the version of the issue by feedName and date
+     * @param feedName - the name of the feed
+     * @param issueDate - the date as string of the issue
+     * @return [Int] the version of the issue
+     */
+    @Throws(ConnectivityException::class)
+    suspend fun getIssueVersionByFeedAndDate(
+        feedName: String,
+        issueDate: String,
+    ): Int? {
+        val tag = "getIssueVersionByFeedAndDate"
+        log.debug("$tag feedName: $feedName issueDate: $issueDate")
+
+        return transformToConnectivityException {
+            graphQlClient.query(
+                QueryType.IssueVersionByFeedAndDate, IssueVariables(feedName, issueDate)
+            ).data?.product?.feedList?.firstOrNull()?.issueList?.firstOrNull()?.version
+        }
+    }
+
+    /**
      * function to get the last [Issue]s
      * @param limit - number of issues to get
      * @return [List]<[Issue]>

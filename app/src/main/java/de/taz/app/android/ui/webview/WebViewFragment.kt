@@ -184,6 +184,11 @@ abstract class WebViewFragment<
                         reloadAfterCssChange()
                     }.launchIn(lifecycleScope)
 
+                issueViewerViewModel.reloadWebviewsFlow
+                    .onEach {
+                        webView?.reload()
+                    }.launchIn(lifecycleScope)
+
                 viewModel.multiColumnModeFlow
                     .onEach {
                         multiColumnMode = it

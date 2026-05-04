@@ -380,6 +380,7 @@ class IssueRepository private constructor(applicationContext: Context) :
         return Issue(
             issueStub.feedName,
             issueStub.date,
+            issueStub.version,
             issueStub.validityDate,
             moment,
             issueStub.key,

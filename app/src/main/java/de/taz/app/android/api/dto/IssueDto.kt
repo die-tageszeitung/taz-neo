@@ -5,6 +5,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 class IssueDto(
     val date: String,
+    val version: Int,
     val validityDate: String? = null,
     val moment: MomentDto,
     val key: String? = null,

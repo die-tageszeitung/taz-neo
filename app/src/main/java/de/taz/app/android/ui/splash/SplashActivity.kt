@@ -230,7 +230,7 @@ class SplashActivity : StartupActivity() {
             },
             lifecycleScope.async {
                 initFeeds()
-            }
+            },
         )
 
         // First we'll try to await the download tasks with a timeout, if we hit the timeout we will
@@ -277,6 +277,11 @@ class SplashActivity : StartupActivity() {
         try {
             log.verbose("Start initializing feeds")
             feedService.refreshAllFeeds()
+        } catch (_: ConnectivityException) {
+            // Ignore all feeds initialization when offline
+            log.warn("Could not get the feeds on startup. Check on next app start and continue.")
+        }
+        try {
             // First try to get the latest feed. This will refresh the feed automatically if it has
             // not been fetched yet.
             val feed = feedService.getFeedFlow().first()

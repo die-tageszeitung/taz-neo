@@ -4,6 +4,7 @@ import android.content.Context
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.METADATA_DOWNLOAD_RETRY_INDEFINITELY
 import de.taz.app.android.annotation.Mockable
+import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.interfaces.DownloadableCollection
 import de.taz.app.android.api.interfaces.DownloadableStub
 import de.taz.app.android.api.interfaces.ObservableDownload
@@ -26,6 +27,7 @@ import de.taz.app.android.persistence.repository.AbstractIssueKey
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
 import de.taz.app.android.persistence.repository.AppInfoRepository
 import de.taz.app.android.persistence.repository.ArticleRepository
+import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssueKeyWithPages
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.persistence.repository.IssuePublicationWithPages
@@ -62,6 +64,7 @@ class ContentService(
     private val resourceInfoRepository = ResourceInfoRepository.getInstance(applicationContext)
     private val momentRepository = MomentRepository.getInstance(applicationContext)
     private val downloadDataStore = DownloadDataStore.getInstance(applicationContext)
+    private val apiService = ApiService.getInstance(applicationContext)
 
     /**
      * As [ObservableDownload]s will trigger multiple (sub) operations, concerning the
@@ -260,10 +263,10 @@ class ContentService(
     /**
      * Download issue meta data and return [Issue]
      */
-    suspend fun downloadIssueMetadata(articleDate: String): Issue? {
+    suspend fun downloadIssueMetadata(articleDate: String, allowCache: Boolean = true): Issue? {
         return try {
             val issuePublication = IssuePublication(BuildConfig.DISPLAYED_FEED, articleDate)
-            downloadMetadata(issuePublication, maxRetries = 5, allowCache = true) as Issue?
+            downloadMetadata(issuePublication, maxRetries = 5, allowCache = allowCache) as Issue?
         } catch (e: Exception) {
             log.warn("Error while trying to download metadata of issue publication of $articleDate",e)
             SentryWrapper.captureException(e)
@@ -294,5 +297,28 @@ class ContentService(
             SentryWrapper.captureException(e)
             null
         }
+    }
+
+    /**
+     * Checks whether the locally cached version of an issue is up-to-date
+     * @returns false if no issueKey is given, the issue is not yet in the database or the issue is not up to date
+     * @returns true if the issue is up to date
+     */
+    suspend fun issueIsUpToDate(issueKey: AbstractIssueKey?): Boolean {
+        val startTime = android.os.SystemClock.elapsedRealtime()
+        if (issueKey == null) return false
+
+        val cachedIssue = issueRepository.get(IssueKey(issueKey)) ?: return false
+        val latestIssueVersion = try {
+            apiService.getIssueVersionByFeedAndDate(issueKey.feedName, issueKey.date)
+        } catch (_: Exception) {
+            // Fallback to cached metadata if the API call fails (e.g., no internet)
+            log.warn("Could not get the latest issue version from API")
+            cachedIssue.version
+        } ?: return false
+
+
+        log.debug("time passed: ${android.os.SystemClock.elapsedRealtime()- startTime}ms")
+        return cachedIssue.version == latestIssueVersion
     }
 }

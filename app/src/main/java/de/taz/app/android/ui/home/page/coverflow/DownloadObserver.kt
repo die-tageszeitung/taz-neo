@@ -436,7 +436,7 @@ class DownloadObserver(
     private suspend fun downloadIssuePublication(issuePublication: AbstractIssuePublication) {
         try {
             // FIXME: maybe show the loading state immediately
-            contentService.downloadIssuePublicationToCache(issuePublication)
+            contentService.downloadIssuePublicationToCache(issuePublication, allowCache = false)
         } catch (e: Exception) {
             log.warn("Exception while downloading an issue publication from the download observer", e)
             SentryWrapper.captureException(e)

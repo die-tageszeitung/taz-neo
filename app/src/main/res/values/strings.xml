@@ -16,6 +16,7 @@
     <string name="toast_imprint_not_possible_to_bookmark">Das Impressum kann nicht zur Leseliste hinzugefügt werden</string>
     <string name="toast_tom_not_possible_to_bookmark">Der Tom am Ende kann nicht zur Leseliste hinzugefügt werden</string>
     <string name="toast_tom_not_possible_to_share">Der Tom am Ende kann nicht geteilt werden</string>
+    <string name="toast_loading_new_issue_from_server">Eine aktualisierte Ausgabe wird geladen</string>
 
     <string name="snack_article_bookmarked">Der Artikel wurde zur Leseliste hinzugefügt.</string>
     <string name="snack_article_debookmarked">Der Artikel wurde aus Ihrer Leseliste entfernt.</string>
@@ -248,7 +249,6 @@
     <string name="settings_dialog_download_do_not_ask_again">Nicht mehr fragen</string>
     <string name="settings_dialog_download_load_pdf">ePaper laden</string>
     <string name="settings_dialog_download_too_much_data">Nein, zuviel Daten</string>
-
 
     <string name="settings_dialog_cancellation_are_you_sure_title">Möchten Sie Ihr Konto wirklich löschen?</string>
     <string name="settings_dialog_cancellation_taz_id_title">Website zum Löschen Ihres Kontos aufrufen?</string>

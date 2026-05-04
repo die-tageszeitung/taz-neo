@@ -9,6 +9,7 @@ import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import de.taz.app.android.ADVERTISEMENT_URL_STRING
 import de.taz.app.android.BuildConfig
+import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.Frame
@@ -28,6 +29,7 @@ import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.PageRepository
 import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.singletons.AuthHelper
+import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.issueViewer.IssueKeyWithDisplayableKey
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment.Companion.getShouldShowSubscriptionElapsedDialogFlow
@@ -35,7 +37,9 @@ import de.taz.app.android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
@@ -75,6 +79,7 @@ class PdfPagerViewModel(
     private val issueRepository = IssueRepository.getInstance(application.applicationContext)
     private val generalDataStore = GeneralDataStore.getInstance(application.applicationContext)
     private val pageRepository = PageRepository.getInstance(application.applicationContext)
+    private val toastHelper = ToastHelper.getInstance(application.applicationContext)
     private val tracker = Tracker.getInstance(application.applicationContext)
 
     private var issuePublication: IssuePublicationWithPages? = null
@@ -146,6 +151,14 @@ class PdfPagerViewModel(
         }
     }
 
+    private val _reloadPdfFlow = MutableSharedFlow<Unit>()
+    val reloadPdfFlow = _reloadPdfFlow.asSharedFlow()
+    fun refresh() {
+        viewModelScope.launch {
+            _reloadPdfFlow.emit(Unit)
+        }
+    }
+
     private fun loadIssue(continueReadDirectly: Boolean = false, displayableKey: String? = null) {
         val issuePublicationWithPages = this.issuePublication
         if (issuePublicationWithPages != null) {
@@ -160,7 +173,7 @@ class PdfPagerViewModel(
                     // If the Issue metadata is not downloaded yet, we try to download it
                     suspend fun downloadMetadata(maxRetries: Int = -1) =
                         contentService.downloadMetadata(
-                            issuePublicationWithPages, maxRetries = maxRetries
+                            issuePublicationWithPages, maxRetries = maxRetries, allowCache = false
                         ) as IssueWithPages
 
                     val issue = try {
@@ -185,6 +198,27 @@ class PdfPagerViewModel(
                     }
 
                     issueRepository.getStub(issue.issueKey)
+                }
+
+                // Check for updates in the background if the issue is already present.
+                if (isIssuePresent && cachedIssueKey != null) {
+                    viewModelScope.launch {
+                        if (!contentService.issueIsUpToDate(cachedIssueKey)) {
+                            toastHelper.showToast(R.string.toast_loading_new_issue_from_server, true)
+                            // Redownload the issue in background and refresh when loaded
+                            getApplicationScope().launch {
+                                try {
+                                    contentService.downloadToCache(
+                                        issuePublicationWithPages, allowCache = false
+                                    )
+                                    refresh()
+                                } catch (e: Exception) {
+                                    log.error("Failed to download updated PDF issue. Showing old cached issue instead", e)
+                                    SentryWrapper.captureException(e)
+                                }
+                            }
+                        }
+                    }
                 }
 
                 if (issueStub == null) {
@@ -253,7 +287,6 @@ class PdfPagerViewModel(
             issueStubFlow.value = null
         }
     }
-
 
     private fun handleIssueContentDownloadProgress(issueStub: IssueStub) {
         viewModelScope.launch {
