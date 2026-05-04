@@ -134,7 +134,7 @@ class IssueViewerViewModel(
             try {
                 contentService.downloadIssuePublicationToCache(IssuePublication(issueKey))
                 issueRepository.updateLastViewedDate(issueKey)
-            } catch (e: CacheOperationFailedException) {
+            } catch (_: CacheOperationFailedException) {
                 issueLoadingFailedErrorFlow.emit(true)
             } catch (e: CannotDetermineBaseUrlException) {
                 // FIXME (johannes): Workaround to #14367
@@ -208,6 +208,14 @@ class IssueViewerViewModel(
             log.warn("Could not find articleFileName for articleName=$articleName in $knownArticleFileNames")
         }
         return articleStub
+    }
+
+    val reloadWebviewsFlow = MutableSharedFlow<Unit>()
+
+    fun refresh() {
+        viewModelScope.launch {
+            reloadWebviewsFlow.emit(Unit)
+        }
     }
 
     val fabHelpEnabledFlow = generalDataStore.helpFabEnabled.asFlow()

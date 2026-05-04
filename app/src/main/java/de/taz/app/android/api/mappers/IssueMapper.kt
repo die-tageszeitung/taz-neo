@@ -13,6 +13,7 @@ object IssueMapper {
         return Issue(
             feedName,
             issueDto.date,
+            issueDto.version,
             issueDto.validityDate,
             MomentMapper.from(issueKey, issueDto.baseUrl, issueDto.moment),
             issueDto.key,

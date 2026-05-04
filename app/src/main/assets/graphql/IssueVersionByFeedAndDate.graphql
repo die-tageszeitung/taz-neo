@@ -1,9 +1,8 @@
-query Moment($feedName: String, $issueDate: String!, $limit: Int!) {
+query IssueVersionByFeedAndDateQuery($feedName: String, $issueDate: String!) {
     product {
         feedList(name: $feedName) {
-            issueList(issueDate: $issueDate, limit: $limit) {
-                date
-                version
+            issueList(issueDate: $issueDate, limit: 1) {
+                date,
                 moment {
                     imageList {
                         name
@@ -33,12 +32,12 @@ query Moment($feedName: String, $issueDate: String!, $limit: Int!) {
                         size
                     }
                     duration
-                }
-                key
-                baseUrl
-                status
-                minResourceVersion
-                moTime
+                },
+                baseUrl,
+                status,
+                minResourceVersion,
+                moTime,
+                version
             }
         }
     }

@@ -115,6 +115,15 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
                 }
             }.launchIn(lifecycleScope)
 
+        pdfPagerViewModel.reloadPdfFlow
+            .flowWithLifecycle(lifecycle)
+            .onEach {
+                val adapter = viewBinding?.readerView?.adapter as? PageAdapter
+                adapter?.refresh() // Clears page size cache
+                viewBinding?.readerView?.refresh() // Triggers re-layout and re-render
+            }.launchIn(lifecycleScope)
+
+
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {

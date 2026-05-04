@@ -316,7 +316,7 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
             } else {
                 issuePublication
             }
-            contentService.downloadIssuePublicationToCache(abstractIssuePublication)
+            contentService.downloadIssuePublicationToCache(abstractIssuePublication, allowCache = false)
         } catch (e: CacheOperationFailedException) {
             // Errors are handled in CoverViewBinding
         } catch (e: CannotDetermineBaseUrlException) {

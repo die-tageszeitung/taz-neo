@@ -17,6 +17,7 @@
           "issueList": [
             {
               "date": "2020-03-02",
+              "version": 0,
               "moment": {
                 "imageList": [
                   {

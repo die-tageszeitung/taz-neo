@@ -23,6 +23,7 @@ enum class QueryType {
     Feed,
     GetCustomerData,
     IssueByFeedAndDate,
+    IssueVersionByFeedAndDate,
     Moment,
     LastIssues,
     Notification,

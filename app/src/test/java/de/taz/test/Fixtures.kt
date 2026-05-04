@@ -87,6 +87,7 @@ object Fixtures {
     val issueBase: Issue = Issue(
         feedName,
         issueDate,
+        0,
         null,
         momentBase,
         "key",

@@ -17,6 +17,7 @@ import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssuePublication
+import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.SuccessfulLoginAction
@@ -27,6 +28,7 @@ import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragm
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.showAlwaysTitleSectionSettingDialog
 import de.taz.app.android.ui.showContinueReadSettingDialog
+import de.taz.app.android.util.Log
 import de.taz.app.android.util.showIssueDownloadFailedDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -80,6 +82,7 @@ class IssueViewerWrapperFragment : TazViewerFragment(), SuccessfulLoginAction {
     private lateinit var authHelper: AuthHelper
     private lateinit var toastHelper: ToastHelper
     private lateinit var generalDataStore: GeneralDataStore
+    private val log by Log
 
     private val issueViewerViewModel: IssueViewerViewModel by activityViewModels()
 
@@ -108,6 +111,7 @@ class IssueViewerWrapperFragment : TazViewerFragment(), SuccessfulLoginAction {
         contentService = ContentService.getInstance(context.applicationContext)
         authHelper = AuthHelper.getInstance(context.applicationContext)
         generalDataStore = GeneralDataStore.getInstance(context.applicationContext)
+        toastHelper = ToastHelper.getInstance(context.applicationContext)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -115,43 +119,42 @@ class IssueViewerWrapperFragment : TazViewerFragment(), SuccessfulLoginAction {
 
         if (savedInstanceState == null) {
             lifecycleScope.launch(Dispatchers.Default) {
+                val issue = this@IssueViewerWrapperFragment.issuePublication
+                val cachedIssueKey = contentService.getIssueKey(issue)
 
-                val issuePublication = this@IssueViewerWrapperFragment.issuePublication
-                val cachedIssueKey = contentService.getIssueKey(issuePublication)
-
-                val issueKey = if (cachedIssueKey != null) {
-                    IssueKey(cachedIssueKey)
+                // Initial Load: Use cache if available, otherwise download latest
+                val (currentKey, isFromCache) = if (cachedIssueKey != null) {
+                    IssueKey(cachedIssueKey) to true
                 } else {
-                    // If the Issue metadata is not downloaded yet, we try to download it
-                    downloadIssuePublication(issuePublication)
+                    downloadIssuePublication(issue) to false
                 }
 
+                // Show the issue immediately
                 withContext(Dispatchers.Main) {
-                    val continueReadDisplayable = if (displayableKey != null) {
-                        issueViewerViewModel.setDisplayable(
-                            issueKey,
-                            displayableKey,
-                            loadIssue = true,
-                            continueReadDirectly = continueReadDirectly,
-                        )
-                    } else {
-                        issueViewerViewModel.setDisplayable(issueKey, loadIssue = true)
+                    setupIssueDisplay(currentKey, showContinueReadDialog = isFromCache)
+                }
+
+                // Background Update: Only if we loaded a potentially stale version from cache
+                if (isFromCache && !contentService.issueIsUpToDate(currentKey)) {
+                    withContext(Dispatchers.Main) {
+                        toastHelper.showToast(R.string.toast_loading_new_issue_from_server, true)
                     }
-                    val askEachTime =
-                        generalDataStore.settingsContinueReadAskEachTime.get()
-                    if (continueReadDisplayable != null && askEachTime && !continueReadDirectly) {
-                        if (childFragmentManager.findFragmentByTag(
-                                ContinueReadBottomSheetFragment.TAG
-                            ) == null
-                        ) {
-                            ContinueReadBottomSheetFragment.newInstance(
-                                continueReadDisplayable
-                            )
-                                .show(
-                                    childFragmentManager,
-                                    ContinueReadBottomSheetFragment.TAG
-                                )
+                    try {
+                        // Download latest metadata AND contents before refreshing
+                        contentService.downloadIssuePublicationToCache(
+                            issue,
+                            allowCache = false
+                        )
+                        val newKey = contentService.getIssueKey(issue)
+                            ?: throw IllegalStateException("Could not find issue key after download")
+                        // Refresh UI with the updated metadata
+                        withContext(Dispatchers.Main) {
+                            issueViewerViewModel.refresh()
+                            setupIssueDisplay(IssueKey(newKey), showContinueReadDialog = false)
                         }
+                    } catch (e: Exception) {
+                        log.error("Failed to download updated issue. Showing old cached issue instead", e)
+                        SentryWrapper.captureException(e)
                     }
                 }
             }
@@ -162,9 +165,9 @@ class IssueViewerWrapperFragment : TazViewerFragment(), SuccessfulLoginAction {
         val wasElapsed = authHelper.isElapsed()
 
         val issue = try {
-            contentService.downloadIssueMetadata(issuePublication, maxRetries = 3)
+            contentService.downloadIssueMetadata(issuePublication, maxRetries = 3, allowCache = false)
 
-        } catch (e: CacheOperationFailedException) {
+        } catch (_: CacheOperationFailedException) {
             // In case of an error, we might show an error then retry infinitely
 
             // If an elapsed status is just found during the download of this issue,
@@ -186,12 +189,37 @@ class IssueViewerWrapperFragment : TazViewerFragment(), SuccessfulLoginAction {
 
     private suspend fun ContentService.downloadIssueMetadata(
         issuePublication: IssuePublication,
-        maxRetries: Int
+        maxRetries: Int,
+        allowCache: Boolean = true,
     ): Issue =
         downloadMetadata(
             issuePublication,
-            maxRetries = maxRetries
+            maxRetries = maxRetries,
+            allowCache = allowCache,
         ) as Issue
+
+    private suspend fun setupIssueDisplay(issueKey: IssueKey, showContinueReadDialog: Boolean) {
+        val continueReadDisplayable = if (displayableKey != null) {
+            issueViewerViewModel.setDisplayable(
+                issueKey,
+                displayableKey,
+                loadIssue = true,
+                continueReadDirectly = continueReadDirectly,
+            )
+        } else {
+            issueViewerViewModel.setDisplayable(issueKey, loadIssue = true)
+        }
+
+        if (showContinueReadDialog) {
+            val askEachTime = generalDataStore.settingsContinueReadAskEachTime.get()
+            if (continueReadDisplayable != null && askEachTime && !continueReadDirectly) {
+                if (childFragmentManager.findFragmentByTag(ContinueReadBottomSheetFragment.TAG) == null) {
+                    ContinueReadBottomSheetFragment.newInstance(continueReadDisplayable)
+                        .show(childFragmentManager, ContinueReadBottomSheetFragment.TAG)
+                }
+            }
+        }
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

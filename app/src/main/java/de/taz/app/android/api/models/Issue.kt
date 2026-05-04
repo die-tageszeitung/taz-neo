@@ -6,6 +6,7 @@ import java.util.Date
 data class Issue(
     override val feedName: String,
     override val date: String,
+    override val version: Int,
     override val validityDate: String?,
     val moment: Moment,
     override val key: String? = null,
@@ -27,6 +28,7 @@ data class Issue(
     constructor(issue: IssueWithPages) : this(
         issue.feedName,
         issue.date,
+        issue.version,
         issue.validityDate,
         issue.moment,
         issue.key,
