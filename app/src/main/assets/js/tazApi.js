@@ -309,6 +309,43 @@ var tazApi = (function() {
         );
     }
 
+    function enableIconAudioListener(play) {
+        console.log("set podcast play icon");
+        var playIcon = document.getElementById("podcastPlayButton");
+        var playIconSection = document.getElementById("podcastPlayButtonSection");
+        if (!!playIcon) playIcon.style.display = "block";
+        if (!!playIconSection) playIconSection.style.display = "block";
+
+        if (play == true) {
+            if (!!playIcon) playIcon.src = "resources/ic_play_button.svg";
+            if (!!playIconSection) playIconSection.src = "resources/ic_play_button_teaser.svg";
+        } else {
+            if (!!playIcon) playIcon.src = "resources/ic_pause_button.svg";
+            if (!!playIconSection) playIconSection.src = "resources/ic_pause_button_teaser.svg";
+        }
+    }
+
+    function setAudioIconToPlay(value) {
+        var playIcon = document.getElementById("podcastPlayButton");
+        var playIconSection = document.getElementById("podcastPlayButtonSection");
+
+        if (value) {
+            if (!!playIcon) playIcon.src = "resources/ic_play_button.svg";
+            if (!!playIconSection) playIconSection.src = "resources/ic_play_button_teaser.svg";
+        } else {
+            if (!!playIcon) playIcon.src = "resources/ic_pause_button.svg";
+            if (!!playIconSection) playIconSection.src = "resources/ic_pause_button_teaser.svg";
+        }
+    }
+
+    function togglePlayButton(mediaSyncId, file) {
+        ANDROIDAPI.togglePlayButton(mediaSyncId, file)
+    }
+
+    function togglePlayButtonSection(mediaSyncId, file) {
+       ANDROIDAPI.togglePlayButton(mediaSyncId, file)
+    }
+
     return {
         getConfiguration : getConfiguration,
         setConfiguration : setConfiguration,
@@ -327,5 +364,9 @@ var tazApi = (function() {
         disableArticleColumnMode: disableArticleColumnMode,
         setPaddingRight: setPaddingRight,
         setWebViewNowVisible: setWebViewNowVisible,
+        enableIconAudioListener: enableIconAudioListener,
+        setAudioIconToPlay: setAudioIconToPlay,
+        togglePlayButton: togglePlayButton,
+        togglePlayButtonSection: togglePlayButtonSection,
     };
 }());

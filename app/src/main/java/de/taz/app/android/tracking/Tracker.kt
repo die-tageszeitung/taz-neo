@@ -135,7 +135,8 @@ interface Tracker {
 
     fun trackAudioPlayerPlayArticleEvent(articleOperations: ArticleOperations)
     fun trackAudioPlayerPlayPodcastEvent(
-        fileName: String
+        fileName: String,
+        mediaSyncId: Int?,
     )
     fun trackAudioPlayerPlaySearchHitEvent(searchHit: SearchHit)
     fun trackAudioPlayerChangePlaySpeedEvent(playbackSpeed: Float)

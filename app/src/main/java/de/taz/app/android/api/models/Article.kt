@@ -95,5 +95,5 @@ data class Article(
 }
 
 enum class ArticleType {
-    STANDARD, IMPRINT;
+    STANDARD, IMPRINT, PODCAST;
 }

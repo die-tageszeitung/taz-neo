@@ -51,6 +51,16 @@ abstract class AudioPlayerViewModel<PLAYABLE: AudioPlayerPlayable>(androidApplic
         isPlayerVisible && audioPlayerItem != null && audioPlayerItem.playableKey == playableKey
     }
 
+    val isPlaying: Flow<Boolean> = audioPlayerService.uiState.map {
+        it.getPlayerStateOrNull() is UiState.PlayerState.Playing
+    }
+
+    val isActiveAndPlaying: Flow<Boolean> = combine(
+        isActiveAudio, isPlaying
+    ) { active, playing ->
+        active && playing
+    }
+
     fun setVisible(articleStub: PLAYABLE) {
         visiblePlayable.value = articleStub
     }
@@ -58,7 +68,7 @@ abstract class AudioPlayerViewModel<PLAYABLE: AudioPlayerPlayable>(androidApplic
     /**
      * Handle actions on the bottom navigation bar.
      * Will start to play the currently visible article,
-     * or dismiss the player if it is was already showing that article.
+     * or dismiss the player if it is already showing that article.
      */
     fun handleOnAudioActionOnVisible() {
         viewModelScope.launch {

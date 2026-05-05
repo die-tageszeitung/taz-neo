@@ -3,14 +3,33 @@ package de.taz.app.android.persistence.dao
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
 import de.taz.app.android.api.models.ArticleBookmarkTime
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.IssueStatus
+import de.taz.app.android.persistence.pojo.ArticleWithDetails
 import java.util.Date
 
 @Dao
 interface ArticleDao : BaseDao<ArticleStub> {
+    @Transaction
+    @Query(
+        """SELECT Article.* FROM Article
+        LEFT JOIN SectionArticleJoin ON Article.articleFileName = SectionArticleJoin.articleFileName 
+        LEFT JOIN IssueSectionJoin ON SectionArticleJoin.sectionFileName = IssueSectionJoin.sectionFileName
+        WHERE IssueSectionJoin.issueFeedName = :issueFeedName
+            AND IssueSectionJoin.issueDate = :issueDate
+            AND IssueSectionJoin.issueStatus = :issueStatus
+        ORDER BY IssueSectionJoin.`index` ASC , SectionArticleJoin.`index` ASC
+    """
+    )
+    suspend fun getArticlesWithDetailsForIssue(
+        issueFeedName: String,
+        issueDate: String,
+        issueStatus: IssueStatus
+    ): List<ArticleWithDetails>
+
     @Query("SELECT * FROM Article WHERE Article.articleFileName == :articleFileName LIMIT 1")
     suspend fun get(articleFileName: String): ArticleStub?
 
@@ -64,6 +83,20 @@ interface ArticleDao : BaseDao<ArticleStub> {
         issueFeedName: String,
         issueDate: String
     ): ArticleStub?
+
+    @Transaction
+    @Query(
+        """SELECT Article.* FROM Article
+        WHERE Article.articleType = 'IMPRINT'
+          AND Article.issueFeedName = :issueFeedName
+          AND Article.issueDate = :issueDate
+        ORDER BY dateDownload DESC LIMIT 1
+    """
+    )
+    suspend fun getImprintArticleWithDetailsForIssue(
+        issueFeedName: String,
+        issueDate: String
+    ): ArticleWithDetails?
 
     @Query(
         """

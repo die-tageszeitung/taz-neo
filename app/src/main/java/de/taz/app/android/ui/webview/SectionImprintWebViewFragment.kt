@@ -118,8 +118,9 @@ class SectionImprintWebViewFragment : WebViewFragment<
      */
     private fun applyExtraPaddingOnCutoutDisplay() {
         viewLifecycleOwner.lifecycleScope.launch {
+            val context = context ?: return@launch
             val extraPadding = generalDataStore.displayCutoutExtraPadding.get()
-            if (extraPadding > 0 && resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            if (extraPadding > 0 && context.resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
                 viewBinding?.headerToolbar?.setPadding(0, extraPadding, 0, 0)
             }
         }

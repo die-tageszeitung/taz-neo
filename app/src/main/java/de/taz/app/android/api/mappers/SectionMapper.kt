@@ -1,7 +1,6 @@
 package de.taz.app.android.api.mappers
 
 import de.taz.app.android.api.dto.SectionDto
-import de.taz.app.android.api.models.ArticleType
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.persistence.repository.IssueKey
 
@@ -14,7 +13,9 @@ object SectionMapper {
             type = SectionTypeMapper.from(sectionDto.type),
             navButton = ImageMapper.from(issueKey, sectionDto.navButton),
             articleList = sectionDto.articleList?.map {
-                ArticleMapper.from(issueKey, it, ArticleType.STANDARD)
+                ArticleMapper.from(
+                    issueKey, it, null
+                )
             } ?: listOf(),
             imageList = sectionDto.imageList?.map { ImageMapper.from(issueKey, it) } ?: listOf(),
             extendedTitle = sectionDto.extendedTitle,

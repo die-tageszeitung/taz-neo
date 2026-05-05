@@ -77,7 +77,7 @@ class NoOpTracker : Tracker {
     override fun trackDrawerToggleAllSectionsEvent() {}
     override fun trackDrawerToggleSectionEvent() {}
     override fun trackAudioPlayerPlayArticleEvent(articleOperations: ArticleOperations) {}
-    override fun trackAudioPlayerPlayPodcastEvent(fileName: String) {}
+    override fun trackAudioPlayerPlayPodcastEvent(fileName: String, mediaSyncId: Int?) {}
     override fun trackAudioPlayerPlaySearchHitEvent(searchHit: SearchHit) {}
     override fun trackAudioPlayerChangePlaySpeedEvent(playbackSpeed: Float) {}
     override fun trackAudioPlayerMaximizeEvent() {}

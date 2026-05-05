@@ -18,7 +18,10 @@ import com.google.android.material.appbar.AppBarLayout
 import de.taz.app.android.DELAY_FOR_VIEW_HEIGHT_CALCULATION
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.ArticleOperations
+import de.taz.app.android.api.models.ArticleType
 import de.taz.app.android.api.models.IssueStatus
+import de.taz.app.android.audioPlayer.ArticleAudioPlayerViewModel
+import de.taz.app.android.audioPlayer.AudioPlayerService
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.databinding.FragmentWebviewArticleBinding
 import de.taz.app.android.persistence.repository.ArticleRepository
@@ -29,6 +32,7 @@ import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
 import de.taz.app.android.ui.login.LoginBottomSheetFragment
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -50,11 +54,13 @@ class ArticleWebViewFragment :
     }
 
     override val viewModel by viewModels<ArticleWebViewViewModel>()
+    private val audioPlayerViewModel: ArticleAudioPlayerViewModel by viewModels()
     private val tapIconsViewModel: TapIconsViewModel by activityViewModels()
     private val drawerAndLogoViewModel: DrawerAndLogoViewModel by activityViewModels()
 
     private var articleOperations: ArticleOperations? = null
     private lateinit var articleFileName: String
+    private lateinit var audioPlayerService: AudioPlayerService
     private lateinit var tazApiCssDataStore: TazApiCssDataStore
     private lateinit var articleRepository: ArticleRepository
     private lateinit var tracker: Tracker
@@ -112,6 +118,7 @@ class ArticleWebViewFragment :
     override fun onAttach(context: Context) {
         super.onAttach(context)
         articleRepository = ArticleRepository.getInstance(context.applicationContext)
+        audioPlayerService = AudioPlayerService.getInstance(context.applicationContext)
         tazApiCssDataStore = TazApiCssDataStore.getInstance(context.applicationContext)
         tracker = Tracker.getInstance(context.applicationContext)
         authHelper = AuthHelper.getInstance(context.applicationContext)
@@ -217,14 +224,41 @@ class ArticleWebViewFragment :
             .flowWithLifecycle(lifecycle)
             .launchIn(lifecycleScope)
 
+        if (articleOperations?.articleType == ArticleType.PODCAST) {
+            val showPlayIcon = !(audioPlayerService.isPlaying() && audioPlayerService.getCurrent()?.audio?.file?.name == articleOperations?.key)
+            webView?.callTazApi("enableIconAudioListener",showPlayIcon)
+            observeCurrentIsPlaying()
+        }
+
         viewLifecycleOwner.lifecycleScope.launch {
-            // setting multi column mode is only possible after page is rendered so the webView can compute its scroll width
+            // setting multi-column mode is only possible after page is rendered so the webView can compute its scroll width
             if (isMultiColumnMode) {
                 setupMultiColumnMode()
             } else {
                 hideLoadingScreen()
                 delay(DELAY_FOR_VIEW_HEIGHT_CALCULATION)
                 ensurePublicArticlesCanBeScrolled()
+            }
+        }
+    }
+
+    private fun observeCurrentIsPlaying() {
+        articleOperations?.let {
+            audioPlayerViewModel.setVisible(it)
+            audioPlayerViewModel.isActiveAndPlaying.distinctUntilChanged().onEach { isPLaying ->
+                val showPlay = !isPLaying
+                webView?.callTazApi("setAudioIconToPlay", showPlay)
+            }.launchIn(lifecycleScope)
+        }
+    }
+
+    override suspend fun togglePlay(mediaSyncId: Int?, filePath: String?) {
+        articleOperations?.let {
+            if (audioPlayerViewModel.isActiveAndPlaying.first()) {
+                audioPlayerService.toggleAudioPlaying()
+            } else {
+                // TODO improve playArticle function to have proper podcast tracking
+                audioPlayerService.playArticle(it.key)
             }
         }
     }
@@ -333,7 +367,7 @@ class ArticleWebViewFragment :
         val isPublic = issueStub.status == IssueStatus.public
 
         if (isPublic && !article.isImprint()) {
-            // Ensure the scrolling content is at least 1px higher then the scroll view
+            // Ensure the scrolling content is at least 1px higher than the scroll view
             val deviceHeight =
                 resources.displayMetrics.heightPixels / resources.displayMetrics.density
             webView?.evaluateJavascript("document.documentElement.style.minHeight=\"${deviceHeight + 1}px\"") {}

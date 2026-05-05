@@ -34,14 +34,18 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewModelScope
 import com.google.android.material.appbar.AppBarLayout
 import de.taz.app.android.R
+import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.interfaces.SectionOperations
+import de.taz.app.android.api.models.ArticleType
 import de.taz.app.android.api.models.SectionType
+import de.taz.app.android.audioPlayer.ArticleAudioPlayerViewModel
 import de.taz.app.android.audioPlayer.AudioPlayerService
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentWebviewSectionBinding
 import de.taz.app.android.monkey.AppBarLayoutState
 import de.taz.app.android.monkey.addOnStateChangeListener
 import de.taz.app.android.monkey.pinToolbar
+import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.BookmarkRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.SectionRepository
@@ -58,9 +62,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.shareIn
@@ -98,9 +105,11 @@ class SectionWebViewFragment : WebViewFragment<
     private lateinit var tracker: Tracker
     private lateinit var generalDataStore: GeneralDataStore
     private lateinit var audioPlayerService: AudioPlayerService
+    private lateinit var articleRepository: ArticleRepository
 
 
     override val viewModel by viewModels<SectionWebViewViewModel>()
+    private val audioPlayerViewModel: ArticleAudioPlayerViewModel by viewModels()
     private val drawerAndLogoViewModel: DrawerAndLogoViewModel by activityViewModels()
     private val issueContentViewModel: IssueViewerViewModel by activityViewModels()
 
@@ -124,6 +133,8 @@ class SectionWebViewFragment : WebViewFragment<
         get() = viewBinding?.appBarLayout
 
     override val bottomNavigationLayout: View? = null
+    private var articleListObservationJob: Job? = null
+    private var podcastPlaybackJob: Job? = null
 
     companion object {
         private const val SECTION_FILE_NAME = "SECTION_FILE_NAME"
@@ -151,6 +162,7 @@ class SectionWebViewFragment : WebViewFragment<
         tracker = Tracker.getInstance(context.applicationContext)
         generalDataStore = GeneralDataStore.getInstance(context.applicationContext)
         audioPlayerService = AudioPlayerService.getInstance(context.applicationContext)
+        articleRepository = ArticleRepository.getInstance(context.applicationContext)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -341,6 +353,29 @@ class SectionWebViewFragment : WebViewFragment<
         viewLifecycleOwner.lifecycleScope.launch {
             hideLoadingScreen()
         }
+
+        articleListObservationJob?.cancel()
+        articleListObservationJob = issueContentViewModel.articleListFlow
+            .map { list ->
+                list.filter {
+                    it.sectionKey == sectionFileName && it.articleStub.articleType == ArticleType.PODCAST
+                }.map { it.articleStub }
+            }
+            .distinctUntilChanged()
+            .onEach { podcasts ->
+                val podcast = podcasts.firstOrNull()
+                if (podcast != null) {
+                    val isPlaying = audioPlayerService.isPlaying() &&
+                            audioPlayerService.getCurrent()?.audio?.file?.name == podcast.key
+                    webView?.callTazApi("enableIconAudioListener", !isPlaying)
+                    observeCurrentIsPlaying(podcast)
+                } else {
+                    podcastPlaybackJob?.cancel()
+                }
+            }
+            .flowWithLifecycle(viewLifecycleOwner.lifecycle)
+            .launchIn(viewLifecycleOwner.lifecycleScope)
+
     }
 
     override suspend fun reloadAfterCssChange() {
@@ -649,6 +684,28 @@ class SectionWebViewFragment : WebViewFragment<
         if (!hidden && isResumed) {
             setLogoDependingOnAppBarState()
             setFABDependingOnAppBarState()
+        }
+    }
+
+    private fun observeCurrentIsPlaying(article: ArticleOperations) {
+        podcastPlaybackJob?.cancel()
+        audioPlayerViewModel.setVisible(article)
+        podcastPlaybackJob = audioPlayerViewModel.isActiveAndPlaying
+            .distinctUntilChanged()
+            .onEach { isPlaying ->
+                webView?.callTazApi("setAudioIconToPlay", !isPlaying)
+            }
+            .launchIn(viewLifecycleOwner.lifecycleScope)
+    }
+
+    override suspend fun togglePlay(mediaSyncId: Int?, filePath: String?) {
+        if (mediaSyncId == null) return
+        val article = articleRepository.getStubByMediaSyncId(mediaSyncId) ?: return
+        if (audioPlayerViewModel.isActiveAndPlaying.first()) {
+            audioPlayerService.toggleAudioPlaying()
+        } else {
+            // TODO improve playArticle function to have proper podcast tracking
+            audioPlayerService.playArticle(article.key)
         }
     }
 }

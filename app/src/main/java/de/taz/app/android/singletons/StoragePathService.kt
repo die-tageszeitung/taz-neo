@@ -78,7 +78,7 @@ class StoragePathService private constructor(private val applicationContext: Con
      */
     suspend fun determineBaseUrl(
         fileEntry: FileEntry,
-        issue: IssueOperations
+        issue: IssueOperations?
     ): String = withContext(Dispatchers.IO) {
         when (fileEntry.storageType) {
             StorageType.global -> {
@@ -95,7 +95,7 @@ class StoragePathService private constructor(private val applicationContext: Con
                 ) as ResourceInfo).resourceBaseUrl
             }
 
-            StorageType.issue -> issue.baseUrl
+            StorageType.issue -> requireNotNull(issue).baseUrl
         }
     }
 }

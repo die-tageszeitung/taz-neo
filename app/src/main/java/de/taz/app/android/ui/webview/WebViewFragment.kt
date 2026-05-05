@@ -530,7 +530,7 @@ abstract class WebViewFragment<
     abstract fun setHeader(displayable: DISPLAYABLE)
 
     /**
-     * Setup the handling for the bookmarks in the current webview.
+     * Set up the handling for the bookmarks in the current webview.
      * It must return a list of all bookmarked Article names to be used for the initial state.
      *
      * Return a List of bookmarked Article names (without the .html suffix) for the current webview.
@@ -546,7 +546,7 @@ abstract class WebViewFragment<
     ) = Unit
 
     /**
-     * Setup the handling for the playlist in the current webview.
+     * Set up the handling for the playlist in the current webview.
      * It must return a list of all Article names enqueued in the initial state.
      *
      * Return a List of enqueued Article names (without the .html suffix) for the current webview.
@@ -556,7 +556,7 @@ abstract class WebViewFragment<
         emptyList()
 
     open suspend fun onEnqueued(articleName: String, isEnqueued: Boolean) = Unit
-
+    open suspend fun togglePlay(mediaSyncId: Int?, filePath: String?) = Unit
 
     open fun onPageRendered() {
         isRendered = true
