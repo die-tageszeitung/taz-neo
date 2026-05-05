@@ -180,18 +180,24 @@ class MetadataDownload(
                 return cachedMoment
             }
         }
-        return apiService.retryOnConnectionFailure(maxRetries = retriesOnConnectionError) {
-            val moment = apiService.getMomentByFeedAndDate(
-                momentPublication.feedName,
-                simpleDateFormat.parse(momentPublication.date)!!
-            )
-            if (moment != null && moment.issueStatus >= minStatus) {
-                momentRepository.save(moment)
-            } else {
-                throw CacheOperationFailedException(
-                    "Unable to retrieve issue by publication. Min status $minStatus not being met"
+        return try {
+            apiService.retryOnConnectionFailure(maxRetries = retriesOnConnectionError) {
+                val moment = apiService.getMomentByFeedAndDate(
+                    momentPublication.feedName,
+                    simpleDateFormat.parse(momentPublication.date)!!
                 )
+                if (moment != null && moment.issueStatus >= minStatus) {
+                    momentRepository.save(moment)
+                } else {
+                    throw CacheOperationFailedException(
+                        "Unable to retrieve issue by publication. Min status $minStatus not being met"
+                    )
+                }
             }
+        } catch (e: ConnectivityException) {
+            throw CacheOperationFailedException(
+                "Got some ConnectivityException: ${e.message}", e
+            )
         }
     }
 
