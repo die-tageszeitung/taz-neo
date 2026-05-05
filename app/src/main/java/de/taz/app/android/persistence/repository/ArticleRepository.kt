@@ -11,6 +11,7 @@ import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.StorageType
 import de.taz.app.android.persistence.join.ArticleAuthorImageJoin
 import de.taz.app.android.persistence.join.ArticleImageJoin
+import de.taz.app.android.persistence.pojo.ArticleWithDetails
 import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.util.SingletonHolder
 import java.util.Date
@@ -306,9 +307,72 @@ class ArticleRepository private constructor(applicationContext: Context) :
         }
     }
 
-    suspend fun getArticleListForIssue(issueKey: IssueKey): List<Article> =
-        getArticleStubListForIssue(issueKey)
-            .mapNotNull { articleStubToArticle(it.articleStub) }
+    suspend fun getArticleListForIssue(issueKey: IssueKey): List<Article> {
+        val articleWithDetailsList = appDatabase.articleDao()
+            .getArticlesWithDetailsForIssue(issueKey.feedName, issueKey.date, issueKey.status)
+            .toMutableList()
+
+        // Add imprint to the article list - if it exists
+        appDatabase.articleDao().getImprintArticleWithDetailsForIssue(issueKey.feedName, issueKey.date)
+            ?.let { imprintWithDetails ->
+                articleWithDetailsList.add(imprintWithDetails)
+            }
+
+        return articleWithDetailsList.mapNotNull { articleWithDetailsToArticle(it) }
+    }
+
+    private fun articleWithDetailsToArticle(articleWithDetails: ArticleWithDetails): Article? {
+        val articleStub = articleWithDetails.articleStub
+        val articleHtml = articleWithDetails.articleHtml ?: return null
+
+        val articleImages = articleWithDetails.imagesWithFiles.mapNotNull { imageWithFile ->
+            imageWithFile.fileEntry?.let { Image(it, imageWithFile.imageStub) }
+        }
+
+        val audio = articleWithDetails.audioWithFile?.let { audioWithFile ->
+            audioWithFile.fileEntry?.let {
+                de.taz.app.android.api.models.Audio(
+                    it,
+                    audioWithFile.audioStub.playtime,
+                    audioWithFile.audioStub.duration,
+                    audioWithFile.audioStub.speaker,
+                    audioWithFile.audioStub.breaks
+                )
+            }
+        }
+
+        val articlePdf = articleWithDetails.pdf
+
+        val authors = articleWithDetails.authorJoins.map { authorJoinWithFile ->
+            Author(
+                authorJoinWithFile.authorJoin.authorName,
+                authorJoinWithFile.fileEntry
+            )
+        }
+
+        return Article(
+            articleHtml,
+            articleStub.issueFeedName,
+            articleStub.issueDate,
+            articleStub.title,
+            articleStub.teaser,
+            articleStub.onlineLink,
+            audio,
+            articleStub.pageNameList,
+            articleImages,
+            authors,
+            articleStub.mediaSyncId,
+            articleStub.chars,
+            articleStub.words,
+            articleStub.readMinutes,
+            articleStub.articleType,
+            articleStub.bookmarkedTime,
+            articleStub.position,
+            articleStub.percentage,
+            articleStub.dateDownload,
+            articlePdf,
+        )
+    }
 
     suspend fun setDownloadDate(
         articleStub: ArticleStub,

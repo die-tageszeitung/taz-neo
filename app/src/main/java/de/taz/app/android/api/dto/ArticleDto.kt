@@ -1,5 +1,6 @@
 package de.taz.app.android.api.dto
 
+import de.taz.app.android.api.models.ArticleType
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -16,5 +17,6 @@ data class ArticleDto (
     val chars: Int? = null,
     val words: Int? = null,
     val readMinutes: Int? = null,
+    val articleType: String? = null,
     val pdf: FileEntryDto? = null,
 )

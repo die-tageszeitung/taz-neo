@@ -214,10 +214,7 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
                 val issueStub = checkNotNull(
                     issueRepository.getMostValuableIssueStubForPublication(issuePublication)
                 )
-                contentService.downloadAllAudiosFromIssuePublication(
-                    issuePublication,
-                    issueStub.baseUrl
-                )
+                contentService.downloadAllAudiosFromIssuePublication(issueStub)
                 tracker.trackIssueDownloadAudiosEvent(issueStub.issueKey)
                 withContext(Dispatchers.Main) {
                     dismiss()

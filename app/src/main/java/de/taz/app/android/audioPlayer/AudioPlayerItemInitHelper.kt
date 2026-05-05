@@ -103,7 +103,7 @@ class AudioPlayerItemInitHelper(
         return listOf(podcastAudioItem)
     }
 
-    suspend fun initSectionPodcast(issueStub: IssueStub, section: SectionOperations, audio: Audio): List<AudioPlayerItem> {
+    suspend fun initSectionPodcast(issueStub: IssueStub?, section: SectionOperations, audio: Audio): List<AudioPlayerItem> {
         val podcastAudioItem = AudioPlayerItem(
             generateId(audio),
             audio,

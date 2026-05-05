@@ -591,11 +591,12 @@ class MatomoTracker(applicationContext: Context) : Tracker {
     }
 
     override fun trackAudioPlayerPlayPodcastEvent(
-        fileName: String
+        fileName: String,
+        mediaSyncId: Int?
     ) {
         TrackHelper.track()
             .event(CATEGORY_AUDIO_PLAYER, "Play Podcast")
-            .name(fileName)
+            .name("$fileName ($mediaSyncId)")
             .with(matomoTracker)
     }
 

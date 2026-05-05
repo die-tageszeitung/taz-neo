@@ -13,6 +13,7 @@ import de.taz.app.android.DEFAULT_AUDIO_PLAYBACK_SPEED
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.interfaces.SectionOperations
+import de.taz.app.android.api.models.ArticleType
 import de.taz.app.android.api.models.Audio
 import de.taz.app.android.api.models.AudioSpeaker
 import de.taz.app.android.api.models.IssueStub
@@ -24,7 +25,6 @@ import de.taz.app.android.dataStore.AudioPlayerDataStore
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.PlaylistRepository
 import de.taz.app.android.sentry.SentryWrapper
-import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.SingletonHolder
@@ -47,7 +47,6 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.guava.await
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -199,6 +198,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
     }
 
     fun playArticle(articleKey: String) {
+        showLoadingIfHidden()
         isIssuePlayer = false
         initItems(articleKey = articleKey) {
             audioPlayerItemInitHelper.initIssueOfArticleAudio(articleKey)
@@ -206,6 +206,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
     }
 
     fun playPlaylist(index: Int) {
+        showLoadingIfHidden()
         isIssuePlayer = false
         val newPlaylist = Playlist(index, _persistedPlaylistState.value.items)
         _persistedPlaylistState.compareAndSet(_persistedPlaylistState.value, newPlaylist)
@@ -215,13 +216,15 @@ class AudioPlayerService private constructor(private val applicationContext: Con
     }
 
     fun playPodcast(issueStub: IssueStub, page: Page, audio: Audio) {
+        showLoadingIfHidden()
         isIssuePlayer = false
         initItems {
             audioPlayerItemInitHelper.initPagePodcast(issueStub, page, audio)
         }
     }
 
-    fun playPodcast(issueStub: IssueStub, section: SectionOperations, audio: Audio) {
+    fun playPodcast(issueStub: IssueStub?, section: SectionOperations, audio: Audio) {
+        showLoadingIfHidden()
         isIssuePlayer = false
         initItems {
             audioPlayerItemInitHelper.initSectionPodcast(issueStub, section, audio)
@@ -229,6 +232,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
     }
 
     fun playSearchHit(searchHit: SearchHit) {
+        showLoadingIfHidden()
         isIssuePlayer = false
         initItems {
             audioPlayerItemInitHelper.initSearchHitAudio(searchHit)
@@ -236,6 +240,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
     }
 
     fun playBookmarkedArticle(articleKey: String) {
+        showLoadingIfHidden()
         isIssuePlayer = false
         initItems(articleKey = articleKey) {
             audioPlayerItemInitHelper.initBookmarkedArticlesAudio()
@@ -294,8 +299,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
     private fun showLoadingIfHidden() {
         val currentUiState = _uiState.value
         if (currentUiState is UiState.Hidden) {
-            connectController(playWhenReady = false)
-            trySetStateIsLoading(true)
+            connectController(playWhenReady = true)
         }
     }
 
@@ -605,7 +609,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
 
 
         // Trigger tracking if a different article is played
-        launch(Dispatchers.Default) {
+        launch {
             var lastItemTracked: AudioPlayerItem? = null
             combine(
                 state.filter { it is PlayerState.AudioReady && it.isPlaying },
@@ -1147,12 +1151,16 @@ class AudioPlayerService private constructor(private val applicationContext: Con
             AudioPlayerItem.Type.ARTICLE -> {
                 item.playableKey?.let { articleKey ->
                     articleRepository.getStub(articleKey)?.let { articleStub ->
-                        tracker.trackAudioPlayerPlayArticleEvent(articleStub)
+                        if (articleStub.articleType == ArticleType.PODCAST) {
+                            tracker.trackAudioPlayerPlayPodcastEvent(item.audio.file.name, articleStub.mediaSyncId)
+                        } else {
+                            tracker.trackAudioPlayerPlayArticleEvent(articleStub)
+                        }
                     }
                 }
             }
             AudioPlayerItem.Type.PODCAST ->
-                tracker.trackAudioPlayerPlayPodcastEvent(item.audio.file.name)
+                tracker.trackAudioPlayerPlayPodcastEvent(item.audio.file.name, null)
             AudioPlayerItem.Type.SEARCH_HIT ->
                 item.searchHit?.let { tracker.trackAudioPlayerPlaySearchHitEvent(it) }
             AudioPlayerItem.Type.DISCLAIMER -> {

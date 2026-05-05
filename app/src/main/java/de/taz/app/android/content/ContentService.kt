@@ -14,6 +14,7 @@ import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.Issue
 import de.taz.app.android.api.models.IssueStatus
+import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.ResourceInfoKey
 import de.taz.app.android.content.cache.CacheOperation
 import de.taz.app.android.content.cache.CacheOperationFailedException
@@ -38,6 +39,7 @@ import de.taz.app.android.persistence.repository.NotFoundException
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.singletons.AuthHelper
+import de.taz.app.android.singletons.StoragePathService
 import de.taz.app.android.util.SingletonHolder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -65,6 +67,7 @@ class ContentService(
     private val momentRepository = MomentRepository.getInstance(applicationContext)
     private val downloadDataStore = DownloadDataStore.getInstance(applicationContext)
     private val apiService = ApiService.getInstance(applicationContext)
+
 
     /**
      * As [ObservableDownload]s will trigger multiple (sub) operations, concerning the
@@ -139,16 +142,14 @@ class ContentService(
         downloadToCache(download, priority, isAutomaticDownload, allowCache)
     }
 
-    suspend fun downloadAllAudiosFromIssuePublication(
-        issuePublication: AbstractIssuePublication,
-        baseUrl: String,
-    ) {
-        val issueAudios = issueRepository.saveAllAudios(issuePublication)
+    suspend fun downloadAllAudiosFromIssuePublication(issueStub: IssueStub) {
+        val issueAudios = issueRepository.saveAllAudios(issueStub)
+        val storagePathService = StoragePathService.getInstance(applicationContext)
         issueAudios.map {
             CoroutineScope(Dispatchers.IO).launch {
                 downloadSingleFileIfNotDownloaded(
                     it.file,
-                    baseUrl
+                    storagePathService.determineBaseUrl(it.file, issueStub),
                 )
             }
         }.joinAll()

@@ -20,6 +20,8 @@ import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.ImagePagerActivity
 import de.taz.app.android.util.Json
 import de.taz.app.android.util.Log
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.util.concurrent.ConcurrentHashMap
@@ -208,8 +210,16 @@ class TazApiJS(private val webViewFragment: WebViewFragment<*, out WebViewViewMo
     fun setEnqueued(articleName: String, isEnqueued: Boolean) {
         webViewFragment.preventTap.set(true)
         val correctArticleName = articleName.replace("PlaylistAdd.","")
-        runBlocking {
+        webViewFragment.lifecycleScope.launch {
             webViewFragment.onEnqueued(correctArticleName, isEnqueued)
+        }
+    }
+
+    @JavascriptInterface
+    fun togglePlayButton(mediaSyncId: String?, file: String?) {
+        log.debug("play button was clicked with mediaSyncId $mediaSyncId and file: $file")
+        webViewFragment.lifecycleScope.launch {
+            webViewFragment.togglePlay(mediaSyncId?.toIntOrNull(), file)
         }
     }
 

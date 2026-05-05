@@ -178,6 +178,7 @@ query LastIssuesQuery($feedName: String, $limit: Int!) {
                         chars
                         words
                         readMinutes
+                        articleType
                     }
                     imageList {
                         name

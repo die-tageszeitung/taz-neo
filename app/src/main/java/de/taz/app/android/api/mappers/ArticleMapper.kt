@@ -7,7 +7,7 @@ import de.taz.app.android.persistence.repository.IssueKey
 
 object ArticleMapper {
 
-    fun from(issueKey: IssueKey, articleDto: ArticleDto, articleType: ArticleType): Article {
+    fun from(issueKey: IssueKey, articleDto: ArticleDto, articleType: ArticleType?): Article {
         return Article(
             FileEntryMapper.from(issueKey, articleDto.articleHtml),
             issueKey.feedName,
@@ -23,12 +23,20 @@ object ArticleMapper {
             articleDto.chars,
             articleDto.words,
             articleDto.readMinutes,
-            articleType,
+            articleType ?: articleTypeMapper(articleDto.articleType),
             bookmarkedTime = null,
             0,
             0,
             null,
             articleDto.pdf?.let { FileEntryMapper.from(issueKey, it) },
         )
+    }
+
+    private fun articleTypeMapper(typeString: String?): ArticleType {
+        return when (typeString) {
+            "imprint" -> ArticleType.IMPRINT
+            "podcast" -> ArticleType.PODCAST
+            else -> ArticleType.STANDARD
+        }
     }
 }

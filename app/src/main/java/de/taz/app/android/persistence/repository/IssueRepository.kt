@@ -524,9 +524,7 @@ class IssueRepository private constructor(applicationContext: Context) :
      *
      * @return a list of those [Audio]
      */
-    suspend fun saveAllAudios(issuePublication: AbstractIssuePublication): List<Audio> {
-        val issueStub =
-            getMostValuableIssueStubForPublication(issuePublication) ?: return emptyList()
+    suspend fun saveAllAudios(issueStub: IssueStub): List<Audio> {
         val audioList = mutableListOf<Audio>()
         articleRepository.getArticleStubListForIssue(issueStub.issueKey).forEach { item ->
             item.articleStub.audioFileName?.let { audioName ->
