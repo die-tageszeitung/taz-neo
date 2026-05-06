@@ -3,6 +3,7 @@ package de.taz.app.android.audioPlayer
 import android.content.Context
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.api.interfaces.SectionOperations
+import de.taz.app.android.api.models.ArticleType
 import de.taz.app.android.api.models.Audio
 import de.taz.app.android.api.models.Issue
 import de.taz.app.android.api.models.IssueStub
@@ -26,23 +27,44 @@ class AudioPlayerItemInitHelper(
     private val storagePathService = StoragePathService.getInstance(applicationContext)
 
     suspend fun initIssueOfArticleAudio(articleKey: String): List<AudioPlayerItem> {
+        val articleToPlay = articleRepository.get(articleKey)
+            ?: throw AudioPlayerException.Generic("No article found for $articleKey")
         val issueStub = issueRepository.getIssueStubForArticle(articleKey)
             ?: throw AudioPlayerException.Generic("No issue found for $articleKey")
         val issueKey = issueStub.issueKey // small optimization to only create one IssueKey instance
-        val articles = articleRepository.getArticleListForIssue(issueKey)
-        val articlesWithAudio = articles.filter { it.audio != null }
 
-        return articlesWithAudio.map {
-            val audio = requireNotNull(it.audio)
-            AudioPlayerItem(
+        if (articleToPlay.articleType == ArticleType.PODCAST) {
+            // When we are a podcast, do not enqueue the whole issue, we just play the podcast
+            val audio = requireNotNull(articleToPlay.audio)
+            val podcastItem = AudioPlayerItem(
                 generateId(audio),
                 audio,
-                storagePathService.determineBaseUrl(it.audio.file, issueStub),
-                uiStateHelper.articleAsAUiItem(it, issueKey),
+                storagePathService.determineBaseUrl(articleToPlay.audio.file),
+                uiStateHelper.articleAsAUiItem(articleToPlay, issueKey),
                 issueKey,
-                it.key,
+                articleToPlay.key,
+                // Actually it is a podcast, but for now it is an article with articleTypePodcast for proper tracking
                 type = AudioPlayerItem.Type.ARTICLE,
             )
+            return listOf(podcastItem)
+        } else {
+            // Otherwise we enqueue all articles of the issue (except podcast articles)
+            val articles = articleRepository.getArticleListForIssue(issueKey)
+            val articlesWithAudio =
+                articles.filter { it.audio != null && it.articleType != ArticleType.PODCAST }
+
+            return articlesWithAudio.map {
+                val audio = requireNotNull(it.audio)
+                AudioPlayerItem(
+                    generateId(audio),
+                    audio,
+                    storagePathService.determineBaseUrl(it.audio.file, issueStub),
+                    uiStateHelper.articleAsAUiItem(it, issueKey),
+                    issueKey,
+                    it.key,
+                    type = AudioPlayerItem.Type.ARTICLE,
+                )
+            }
         }
     }
 
