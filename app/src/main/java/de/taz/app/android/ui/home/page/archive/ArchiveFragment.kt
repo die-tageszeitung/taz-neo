@@ -25,6 +25,7 @@ import de.taz.app.android.ui.bottomSheet.HomePresentationBottomSheet
 import de.taz.app.android.ui.home.page.IssueFeedFragment
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -79,7 +80,7 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
     }
 
     fun observeRequestDate() {
-        viewModel.requestDateFocus.onEach { scrollToDate(it) }.launchIn(lifecycleScope)
+        viewModel.requestDateFocus.filterNotNull().onEach { scrollToDate(it) }.launchIn(lifecycleScope)
     }
 
     /**

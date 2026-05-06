@@ -157,7 +157,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
 
     private fun observeDate() {
         // scroll to date if focus is requested
-        viewModel.requestDateFocus.onEach { date ->
+        viewModel.requestDateFocus.filterNotNull().onEach { date ->
             adapter?.getPosition(date)?.let { position ->
                 skipToPositionIfNecessary(position)
             }
@@ -446,6 +446,8 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
                 } else {
                     scrollToPosition(position)
                 }
+                // Set the requestDateFocus to null as otherwise an old set date could be observed
+                viewModel.requestDateFocus(null)
             }
         }
     }
