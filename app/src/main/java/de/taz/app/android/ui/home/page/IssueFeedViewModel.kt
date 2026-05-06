@@ -38,16 +38,16 @@ class IssueFeedViewModel(
     private val feedService = FeedService.getInstance(application)
     private val log by Log
 
-    private val _mutableRequestDateFocus = MutableSharedFlow<Date>(
+    private val _mutableRequestDateFocus = MutableSharedFlow<Date?>(
         replay = 1,
         onBufferOverflow = BufferOverflow.DROP_OLDEST
     )
-    val requestDateFocus: Flow<Date> = _mutableRequestDateFocus
+    val requestDateFocus: Flow<Date?> = _mutableRequestDateFocus
 
     /**
      * set [requestDateFocus] to date if not already matching
      */
-    fun requestDateFocus(date: Date) = viewModelScope.launch {
+    fun requestDateFocus(date: Date?) = viewModelScope.launch {
         _mutableRequestDateFocus.emit(date)
     }
 
