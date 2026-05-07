@@ -73,7 +73,7 @@ class UiStateHelper(val applicationContext: Context) {
     }
 
     private fun getAudioImage(article: Article): Uri? {
-        val articleImage = article.imageList.firstOrNull()
+        val articleImage = article.imageList.firstOrNull { it.dateDownload != null }
         val articleImageUriString = articleImage?.let { storageService.getFileUri(it) }
         return articleImageUriString?.let { Uri.parse(it) }
     }
