@@ -257,7 +257,6 @@ class ArticleWebViewFragment :
             if (audioPlayerViewModel.isActiveAndPlaying.first()) {
                 audioPlayerService.toggleAudioPlaying()
             } else {
-                // TODO improve playArticle function to have proper podcast tracking
                 audioPlayerService.playArticle(it.key)
             }
         }
