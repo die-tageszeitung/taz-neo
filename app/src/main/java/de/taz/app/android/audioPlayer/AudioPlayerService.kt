@@ -198,7 +198,6 @@ class AudioPlayerService private constructor(private val applicationContext: Con
     }
 
     fun playArticle(articleKey: String) {
-        showLoadingIfHidden()
         isIssuePlayer = false
         initItems(articleKey = articleKey) {
             audioPlayerItemInitHelper.initIssueOfArticleAudio(articleKey)
@@ -206,7 +205,6 @@ class AudioPlayerService private constructor(private val applicationContext: Con
     }
 
     fun playPlaylist(index: Int) {
-        showLoadingIfHidden()
         isIssuePlayer = false
         val newPlaylist = Playlist(index, _persistedPlaylistState.value.items)
         _persistedPlaylistState.compareAndSet(_persistedPlaylistState.value, newPlaylist)
@@ -216,7 +214,6 @@ class AudioPlayerService private constructor(private val applicationContext: Con
     }
 
     fun playPodcast(issueStub: IssueStub, page: Page, audio: Audio) {
-        showLoadingIfHidden()
         isIssuePlayer = false
         initItems {
             audioPlayerItemInitHelper.initPagePodcast(issueStub, page, audio)
@@ -224,7 +221,6 @@ class AudioPlayerService private constructor(private val applicationContext: Con
     }
 
     fun playPodcast(issueStub: IssueStub?, section: SectionOperations, audio: Audio) {
-        showLoadingIfHidden()
         isIssuePlayer = false
         initItems {
             audioPlayerItemInitHelper.initSectionPodcast(issueStub, section, audio)
@@ -232,7 +228,6 @@ class AudioPlayerService private constructor(private val applicationContext: Con
     }
 
     fun playSearchHit(searchHit: SearchHit) {
-        showLoadingIfHidden()
         isIssuePlayer = false
         initItems {
             audioPlayerItemInitHelper.initSearchHitAudio(searchHit)
@@ -240,7 +235,6 @@ class AudioPlayerService private constructor(private val applicationContext: Con
     }
 
     fun playBookmarkedArticle(articleKey: String) {
-        showLoadingIfHidden()
         isIssuePlayer = false
         initItems(articleKey = articleKey) {
             audioPlayerItemInitHelper.initBookmarkedArticlesAudio()
@@ -299,7 +293,8 @@ class AudioPlayerService private constructor(private val applicationContext: Con
     private fun showLoadingIfHidden() {
         val currentUiState = _uiState.value
         if (currentUiState is UiState.Hidden) {
-            connectController(playWhenReady = true)
+            connectController(playWhenReady = false)
+            trySetStateIsLoading(true)
         }
     }
 
