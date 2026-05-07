@@ -113,7 +113,6 @@ abstract class WebViewFragment<
 
     private var saveScrollPositionJob: Job? = null
 
-    private var currentIssueKey: IssueKey? = null
     private var currentDisplayableKey: String? = null
 
     open var isCurrentlyVisible: Boolean = false
@@ -164,8 +163,6 @@ abstract class WebViewFragment<
                         currentDisplayableKey = displayable.key
                         log.debug("Received a new displayable ${displayable.key}")
                         setHeader(displayable)
-                        currentIssueKey =
-                            displayable.getIssueStub(requireContext().applicationContext)?.issueKey
                         ensureDownloadedAndShow()
                     }.launchIn(lifecycleScope)
 
@@ -621,7 +618,7 @@ abstract class WebViewFragment<
     }
 
     fun setDisplayable(displayableKey: String, linkClicked: Boolean = false) {
-        currentIssueKey?.let {
+        issueViewerViewModel.issueKeyAndDisplayableKeyFlow.value?.issueKey?.let {
             lifecycleScope.launch {
                 if (activity is BookmarkViewerActivity && linkClicked) {
                     (activity as BookmarkViewerActivity).showDisplayable(it, displayableKey)
