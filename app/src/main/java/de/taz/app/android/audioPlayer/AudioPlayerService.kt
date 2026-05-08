@@ -206,6 +206,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
 
     fun playPlaylist(index: Int) {
         isIssuePlayer = false
+        isPlaylistPlayer = true
         val newPlaylist = Playlist(index, _persistedPlaylistState.value.items)
         _persistedPlaylistState.compareAndSet(_persistedPlaylistState.value, newPlaylist)
         initItems {

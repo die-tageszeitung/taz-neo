@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import de.taz.app.android.R
 import de.taz.app.android.audioPlayer.AudioPlayerService
 import de.taz.app.android.audioPlayer.AudioPlayerViewController
@@ -20,7 +19,6 @@ import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.bottomNavigationBack
 import de.taz.app.android.ui.navigation.setupBottomNavigation
-import de.taz.app.android.util.Log
 import kotlinx.coroutines.launch
 
 class PlaylistActivity:
@@ -33,8 +31,6 @@ class PlaylistActivity:
     private lateinit var tracker: Tracker
 
     private var isPlaylistInitialized = false
-
-    private val log by Log
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
