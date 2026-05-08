@@ -71,7 +71,7 @@ class AudioPlayerItemInitHelper(
     suspend fun initIssueAudio(issueStub: IssueStub): List<AudioPlayerItem> {
         val issueKey = issueStub.issueKey // small optimization to only create one IssueKey instance
         val articles = articleRepository.getArticleListForIssue(issueStub.issueKey)
-        val articlesWithAudio = articles.filter { it.audio != null }
+        val articlesWithAudio = articles.filter { it.audio != null && it.articleType != ArticleType.PODCAST }
         return articlesWithAudio.map {
             val audio = requireNotNull(it.audio)
             AudioPlayerItem(
