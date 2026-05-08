@@ -837,7 +837,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
         lifecycleScope.launch {
             val articleStub = articleRepository.getStub(displayableKey)
             articleStub?.let { stub ->
-                val issueStub = issueRepository.getIssueStubForArticle(stub.key)
+                val issueStub = issueRepository.getIssueStubForArticle(stub)
                 val sectionStub = stub.getSectionStub(requireContext().applicationContext)
                 // only the imprint should have no section
                 if (sectionStub?.title == null) {
@@ -954,16 +954,11 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
     }
     // endregion
 
-    private fun goBackToSection(sectionStub: SectionStub?) = lifecycleScope.launch {
-        sectionStub?.let {
-            issueRepository.getIssueStubForSection(sectionStub.sectionFileName)?.let { issueStub ->
-                lifecycleScope.launch {
-                    issueContentViewModel.setDisplayable(
-                        issueStub.issueKey,
-                        sectionStub.sectionFileName
-                    )
-                }
-            }
+    private fun goBackToSection(sectionStub: SectionStub?) {
+        val sectionFileName = sectionStub?.sectionFileName ?: return
+        val issueKey = issueContentViewModel.issueKeyAndDisplayableKeyFlow.value?.issueKey ?: return
+        lifecycleScope.launch {
+            issueContentViewModel.setDisplayable(issueKey, sectionFileName)
         }
     }
 

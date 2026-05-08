@@ -419,7 +419,7 @@ class BookmarkRepository(
                 articleStub.articleFileName, articleStub.issueDate
             )
             // Download Issue meta data to display issues moment in bookmark list
-            issue ?: issueRepository.getIssueStubForArticle(articleStub.key)?.let { issue ->
+            issue ?: issueRepository.getIssueStubForArticle(articleStub)?.let { issue ->
                 val moment = momentRepository.get(issue.issueKey)
                 if (moment != null) {
                     contentService.downloadToCache(moment)

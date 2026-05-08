@@ -228,7 +228,7 @@ class FirebaseMessagingService : FirebaseMessagingService() {
             return
         }
 
-        val issueKey = issueRepository.getIssueStubForArticle(articleStub.articleFileName)?.issueKey
+        val issueKey = issueRepository.getIssueStubForArticle(articleStub)?.issueKey
         if (issueKey == null) {
             log.warn("Could not fetch issueKey")
             return

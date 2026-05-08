@@ -5,6 +5,8 @@ import de.taz.app.android.api.models.ArticleType
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.persistence.repository.ArticleRepository
+import de.taz.app.android.persistence.repository.IssueKey
+import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.SectionRepository
 import java.util.Date
@@ -47,7 +49,9 @@ interface ArticleOperations: WebViewDisplayable, AudioPlayerPlayable {
         return if (isImprint()) {
             IssueRepository.getInstance(applicationContext).getIssueStubByImprintFileName(this.key)
         } else {
-            getSectionStub(applicationContext)?.getIssueStub(applicationContext)
+            IssueRepository.getInstance(applicationContext).getMostValuableIssueStubForPublication(
+                IssuePublication(issueFeedName, issueDate)
+            )
         }
     }
 

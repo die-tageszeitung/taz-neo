@@ -37,7 +37,6 @@ import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.download.DownloadPriority
 import de.taz.app.android.monkey.getVisibleHeight
 import de.taz.app.android.persistence.repository.FileEntryRepository
-import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.ViewerStateRepository
 import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.singletons.CannotDetermineBaseUrlException

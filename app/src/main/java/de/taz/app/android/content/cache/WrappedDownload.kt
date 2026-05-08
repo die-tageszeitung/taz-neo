@@ -279,7 +279,7 @@ class WrappedDownload(
     private suspend fun getRequiredResourceInfo(collection: ObservableDownload): ResourceInfo? {
         val minResourceVersion = when (collection) {
             is IssueOperations -> return getNewestResourceInfo() // Always get the newest ResourceInfo
-            is ArticleOperations -> issueRepository.getIssueStubForArticle(collection.key)?.minResourceVersion
+            is ArticleOperations -> issueRepository.getIssueStubForArticle(collection)?.minResourceVersion
             is SectionOperations -> issueRepository.getIssueStubForSection(collection.key)?.minResourceVersion
             else -> null
         }
