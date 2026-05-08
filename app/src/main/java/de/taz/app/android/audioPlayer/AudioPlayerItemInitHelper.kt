@@ -29,7 +29,7 @@ class AudioPlayerItemInitHelper(
     suspend fun initIssueOfArticleAudio(articleKey: String): List<AudioPlayerItem> {
         val articleToPlay = articleRepository.get(articleKey)
             ?: throw AudioPlayerException.Generic("No article found for $articleKey")
-        val issueStub = issueRepository.getIssueStubForArticle(articleKey)
+        val issueStub = issueRepository.guessIssueStubForArticle(articleKey)
             ?: throw AudioPlayerException.Generic("No issue found for $articleKey")
         val issueKey = issueStub.issueKey // small optimization to only create one IssueKey instance
 
@@ -172,7 +172,7 @@ class AudioPlayerItemInitHelper(
 
         return articlesWithAudio.map {
             val audio = requireNotNull(it.audio)
-            val issueStub = requireNotNull(issueRepository.getIssueStubForArticle(it.key))
+            val issueStub = requireNotNull(issueRepository.getIssueStubForArticle(it))
             AudioPlayerItem(
                 generateId(audio),
                 audio,

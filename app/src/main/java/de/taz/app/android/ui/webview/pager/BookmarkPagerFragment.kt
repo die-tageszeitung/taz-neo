@@ -365,7 +365,7 @@ class BookmarkPagerFragment :
         lifecycleScope.launch {
             val articleStub = articleRepository.getStub(displayableKey)
             articleStub?.let { stub ->
-                val issueStub = issueRepository.getIssueStubForArticle(stub.key)
+                val issueStub = issueRepository.getIssueStubForArticle(stub)
 
                 viewBinding?.header?.root?.isVisible = false
 

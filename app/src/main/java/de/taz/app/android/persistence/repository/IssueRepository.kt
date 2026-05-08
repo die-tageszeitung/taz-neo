@@ -5,6 +5,7 @@ import android.database.sqlite.SQLiteConstraintException
 import android.os.Parcelable
 import androidx.room.withTransaction
 import de.taz.app.android.BuildConfig
+import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.interfaces.ObservableDownload
 import de.taz.app.android.api.models.Article
@@ -209,11 +210,21 @@ class IssueRepository private constructor(applicationContext: Context) :
 
     /**
      * Alert - the same section can be referenced by multiple issues.
-     * By convention we'll return the "most valuable" issue here
-     * TODO: Clean up the DB model
+     * we'll return the "most valuable" issue here
      */
-    suspend fun getIssueStubForArticle(articleFileName: String): IssueStub? {
+    @Deprecated(
+        "This might return the wrong issue e.g. lmd instead of taz or vice versa",
+        ReplaceWith("getIssueStubForArticle"),
+        DeprecationLevel.WARNING,
+    )
+    suspend fun guessIssueStubForArticle(articleFileName: String): IssueStub? {
         return appDatabase.issueSectionJoinDao().getIssueStubsForArticle(articleFileName)
+            .maxByOrNull { it.status }
+    }
+
+    suspend fun getIssueStubForArticle(articleOperations: ArticleOperations): IssueStub? {
+        return appDatabase.issueSectionJoinDao().getIssueStubsForArticle(articleOperations.key)
+            .filter { it.feedName == articleOperations.issueFeedName }
             .maxByOrNull { it.status }
     }
 
