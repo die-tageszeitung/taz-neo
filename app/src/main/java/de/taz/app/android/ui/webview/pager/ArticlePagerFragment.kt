@@ -35,6 +35,7 @@ import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.ArticleStubWithSectionKey
+import de.taz.app.android.api.models.ArticleType
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.audioPlayer.ArticleAudioPlayerViewModel
 import de.taz.app.android.base.BaseMainFragment
@@ -693,6 +694,8 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
                     is ArticlePagerItem.ArticleRepresentation ->
                         if (currentItem.art.articleStub.isImprint()) {
                             toastHelper.showToast(R.string.toast_imprint_not_possible_to_bookmark)
+                        } else if (currentItem.art.articleStub.articleType == ArticleType.PODCAST) {
+                            toastHelper.showToast(R.string.toast_podcast_not_possible_to_bookmark)
                         } else {
                             toggleBookmark(currentItem.art.articleStub)
                         }
@@ -700,7 +703,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
                     is ArticlePagerItem.Tom -> toastHelper.showToast(R.string.toast_tom_not_possible_to_bookmark)
 
                     null ->
-                        log.warn("Current item in ArticlePagerFragemnt is null")
+                        log.warn("Current item in ArticlePagerFragment is null")
                 }
             }
 
@@ -741,9 +744,13 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
         when (val currentItem = getCurrentArticlePagerItem()) {
             is ArticlePagerItem.ArticleRepresentation -> {
                 val articleStub = currentItem.art.articleStub
-                tracker.trackShareArticleEvent(articleStub)
-                ShareArticleBottomSheet.newInstance(articleStub)
-                    .show(parentFragmentManager, ShareArticleBottomSheet.TAG)
+                if (articleStub.articleType == ArticleType.PODCAST) {
+                    toastHelper.showToast(R.string.toast_podcast_not_possible_to_share)
+                } else {
+                    tracker.trackShareArticleEvent(articleStub)
+                    ShareArticleBottomSheet.newInstance(articleStub)
+                        .show(parentFragmentManager, ShareArticleBottomSheet.TAG)
+                }
             }
 
             is ArticlePagerItem.Tom ->

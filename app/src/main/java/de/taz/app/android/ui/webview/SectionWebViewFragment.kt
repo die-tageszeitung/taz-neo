@@ -74,6 +74,7 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.collections.filterNotNull
 import kotlin.math.ceil
 
 
@@ -493,6 +494,11 @@ class SectionWebViewFragment : WebViewFragment<
         val articleStub = issueViewerViewModel.findArticleStubByArticleName(articleName)
         if (articleStub == null) {
             log.warn("Could not set bookmark for articleName=$articleName as no articleStub was found.")
+            return
+        }
+        // Do not bookmark podcasts, show a toast instead
+        if (articleStub.articleType == ArticleType.PODCAST) {
+            toastHelper.showToast(R.string.toast_podcast_not_possible_to_bookmark)
             return
         }
 

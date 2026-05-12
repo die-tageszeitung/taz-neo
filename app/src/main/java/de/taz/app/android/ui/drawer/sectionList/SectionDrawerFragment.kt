@@ -23,6 +23,7 @@ import com.google.android.material.behavior.HideViewOnScrollBehavior.EDGE_BOTTOM
 import de.taz.app.android.R
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.models.Article
+import de.taz.app.android.api.models.ArticleType
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.Moment
 import de.taz.app.android.api.models.Section
@@ -392,6 +393,11 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
     }
 
     private fun handleArticleBookmarkClick(article: Article) {
+        // Do not bookmark podcasts, show a toast instead
+        if (article.articleType == ArticleType.PODCAST) {
+            toastHelper.showToast(R.string.toast_podcast_not_possible_to_bookmark)
+            return
+        }
         tracker.trackDrawerTapBookmarkEvent()
         viewBinding?.root?.let {
             lifecycleScope.launch {

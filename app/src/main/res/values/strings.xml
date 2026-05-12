@@ -15,7 +15,9 @@
     <string name="toast_click_again_to_exit">Nochmal drücken um App zu schließen</string>
     <string name="toast_imprint_not_possible_to_bookmark">Das Impressum kann nicht zur Leseliste hinzugefügt werden</string>
     <string name="toast_tom_not_possible_to_bookmark">Der Tom am Ende kann nicht zur Leseliste hinzugefügt werden</string>
+    <string name="toast_podcast_not_possible_to_bookmark">Podcasts können nicht zur Leseliste hinzugefügt werden</string>
     <string name="toast_tom_not_possible_to_share">Der Tom am Ende kann nicht geteilt werden</string>
+    <string name="toast_podcast_not_possible_to_share">Der Podcast kann nicht geteilt werden</string>
     <string name="toast_loading_new_issue_from_server">Eine aktualisierte Ausgabe wird geladen</string>
 
     <string name="snack_article_bookmarked">Der Artikel wurde zur Leseliste hinzugefügt.</string>
