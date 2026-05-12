@@ -211,6 +211,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
                 feed,
             )
 
+            updateUIForCurrentDate()
             log.debug("Trying to restore position $position")
             if (position >= 0) {
                 viewBinding?.fragmentCoverFlowGrid?.scrollToPosition(position)
