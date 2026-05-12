@@ -10,6 +10,7 @@ import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.ArticleBookmarkTime
 import de.taz.app.android.api.models.ArticleStub
+import de.taz.app.android.api.models.ArticleType
 import de.taz.app.android.api.models.SynchronizeFromType
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.dataStore.GeneralDataStore
@@ -385,6 +386,15 @@ class BookmarkRepository(
         if (bookmarksSynchronizationEnabled) {
             checkForSynchronizedBookmarks()
         }
+    }
+
+    /**
+     * Remove this function in Release after 2.1.0 as no bookmarked podcasts should exist then
+     */
+    suspend fun deletePodcastBookmarks() {
+        val podcastBookmarks =
+            getBookmarkedArticleStubs().filter { it.articleType == ArticleType.PODCAST }
+        podcastBookmarks.forEach { removeBookmark(it) }
     }
 
     /**
