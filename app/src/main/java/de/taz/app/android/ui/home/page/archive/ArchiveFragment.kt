@@ -23,6 +23,7 @@ import de.taz.app.android.singletons.DatePickerHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.bottomSheet.HomePresentationBottomSheet
 import de.taz.app.android.ui.home.page.IssueFeedFragment
+import de.taz.app.android.util.Log
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filterNotNull
@@ -71,11 +72,6 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
             .onEach {
                 // redraw all visible views
                 viewBinding?.fragmentArchiveGrid?.adapter?.notifyDataSetChanged()
-
-                // Track a new screen if the PDF mode changes when the Fragment is already resumed.
-                // This is necessary in addition to the tracking in onResume because that is not called
-                // when we only update the UI.
-                tracker.trackArchiveScreen(it)
             }.launchIn(lifecycleScope)
     }
 
@@ -192,15 +188,6 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
         val datePicker =
             DatePickerHelper(selectedDate, feed, viewModel).initializeDatePicker()
         datePicker.show(childFragmentManager, "DATE_PICKER")
-    }
-
-    override fun onResume() {
-        super.onResume()
-        trackArchiveScreen()
-    }
-
-    private fun trackArchiveScreen() = lifecycleScope.launch {
-        tracker.trackArchiveScreen(viewModel.getPdfMode())
     }
 
     private fun calculateNoOfColumns(): Int {

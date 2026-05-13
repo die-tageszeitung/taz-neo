@@ -37,16 +37,13 @@ import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.home.page.IssueFeedFragment
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.util.Date
 import kotlin.math.abs
 
@@ -120,14 +117,6 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
                 viewBinding?.fragmentCoverFlowGrid?.adapter?.notifyDataSetChanged()
                 // Call updateUI because maybe the download status is different
                 updateUIForCurrentDate()
-            }.launchIn(lifecycleScope)
-
-        // once when initiated and whenever pdfMode changes track CoverFlow
-        viewModel.pdfModeFlow
-            .onEach { pdfMode ->
-                withContext(Dispatchers.Default) {
-                    tracker.trackCoverflowScreen(pdfMode)
-                }
             }.launchIn(lifecycleScope)
     }
 
