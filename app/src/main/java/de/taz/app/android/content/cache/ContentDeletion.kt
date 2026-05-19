@@ -98,7 +98,7 @@ class ContentDeletion(
         collection.setDownloadDate(null, applicationContext)
         try {
             for (item in cacheItems) {
-                storageService.deleteFile(item.item.fileEntryOperation.fileEntry)
+                storageService.deleteFile(item.fileEntryOperation.fileEntry)
             }
         } catch (e: Exception) {
             notifyFailure(e)
