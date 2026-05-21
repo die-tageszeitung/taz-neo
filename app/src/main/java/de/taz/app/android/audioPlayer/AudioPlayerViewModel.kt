@@ -35,6 +35,7 @@ abstract class AudioPlayerViewModel<PLAYABLE: AudioPlayerPlayable>(androidApplic
 
     private val visiblePlayable: MutableStateFlow<PLAYABLE?> = MutableStateFlow(null)
     private val visiblePlayableKey = visiblePlayable.map { it?.audioPlayerPlayableKey }
+    private val visibleAudioFileName = visiblePlayable.map { it?.audioFileName }
 
     private val _errorMessageFlow = MutableStateFlow<String?>(null)
     val errorMessageFlow: StateFlow<String?> = _errorMessageFlow.asStateFlow()
@@ -46,9 +47,12 @@ abstract class AudioPlayerViewModel<PLAYABLE: AudioPlayerPlayable>(androidApplic
      * Note, that does not mean it is playing.
      */
     val isActiveAudio: Flow<Boolean> = combine(
-        visiblePlayableKey, isPlayerVisible, audioPlayerService.currentItem
-    ) { playableKey: String?, isPlayerVisible: Boolean, audioPlayerItem: AudioPlayerItem? ->
-        isPlayerVisible && audioPlayerItem != null && audioPlayerItem.playableKey == playableKey
+        visiblePlayableKey, visibleAudioFileName, isPlayerVisible, audioPlayerService.currentItem
+    ) { playableKey: String?, audioFileName: String?, isPlayerVisible: Boolean, audioPlayerItem: AudioPlayerItem? ->
+        isPlayerVisible && audioPlayerItem != null && (
+            (audioFileName != null && audioPlayerItem.audio.file.name == audioFileName) ||
+            (audioFileName == null && audioPlayerItem.playableKey == playableKey)
+        )
     }
 
     val isPlaying: Flow<Boolean> = audioPlayerService.uiState.map {

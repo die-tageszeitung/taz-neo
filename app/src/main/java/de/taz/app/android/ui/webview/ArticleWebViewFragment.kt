@@ -254,7 +254,7 @@ class ArticleWebViewFragment :
 
     override suspend fun togglePlay(mediaSyncId: Int?, filePath: String?) {
         articleOperations?.let {
-            if (audioPlayerViewModel.isActiveAndPlaying.first()) {
+            if (audioPlayerViewModel.isActiveAudio.first()) {
                 audioPlayerService.toggleAudioPlaying()
             } else {
                 audioPlayerService.playArticle(it.key)

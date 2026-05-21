@@ -707,10 +707,9 @@ class SectionWebViewFragment : WebViewFragment<
     override suspend fun togglePlay(mediaSyncId: Int?, filePath: String?) {
         if (mediaSyncId == null) return
         val article = articleRepository.getStubByMediaSyncId(mediaSyncId) ?: return
-        if (audioPlayerViewModel.isActiveAndPlaying.first()) {
+        if (audioPlayerViewModel.isActiveAudio.first()) {
             audioPlayerService.toggleAudioPlaying()
         } else {
-            // TODO improve playArticle function to have proper podcast tracking
             audioPlayerService.playArticle(article.key)
         }
     }

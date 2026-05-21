@@ -15,7 +15,7 @@ data class SearchHit(
     val date: String,
     val articleHtml: String?,
     val articlePdfFileName: String?,
-    val audioFileName: String?,
+    override val audioFileName: String?,
 ): AudioPlayerPlayable {
     override val audioPlayerPlayableKey: String
         get() = articleFileName
