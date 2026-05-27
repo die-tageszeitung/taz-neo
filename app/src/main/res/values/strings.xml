@@ -44,6 +44,7 @@
     <string name="toast_logout_invalid">Sie sind abgemeldet.</string>
     <string name="toast_error_mapping_update">Die Server Antwort konnte nicht verarbeitet werden.\nBitte stellen Sie sicher, dass die App auf dem neuesten Stand ist.</string>
     <string name="toast_login_week">Du hast dich mit einem wochentaz-Abo angemeldet. Werktägliche taz-Ausgaben werden mit diesem Abo nicht in der App angezeigt.</string>
+    <string name="toast_section_drawer_error">Ein unbekannter Fehler ist aufgetreten.\nÖffnen Sie die Ausgabe erneut.</string>
 
     <string name="navigation_drawer_open">Seitenflügel öffnen</string>
     <string name="navigation_drawer_close">Seitenflügel schließen</string>
