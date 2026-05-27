@@ -83,6 +83,10 @@ abstract class AudioPlayerViewModel<PLAYABLE: AudioPlayerPlayable>(androidApplic
                     audioPlayerService.dismissPlayer()
                 } else {
                     try {
+                        // if player was running with isPlayListPlayer, set it to false
+                        if (audioPlayerService.isPlaylistPlayer) {
+                            audioPlayerService.isPlaylistPlayer = false
+                        }
                         play(playable)
                     } catch (e: Exception) {
                         log.error("Could not play article audio (${playable.audioPlayerPlayableKey})", e)
