@@ -338,14 +338,17 @@ class SectionWebViewFragment : WebViewFragment<
         super.onPageRendered()
 
         // restore scrollPosition only if scrollPosition was set to true
-        restoreScrollPositionViewModel.restoreScrollStateFlow
+        issueViewerViewModel.restoreScrollStateFlow
             .take(1)
-            .onEach {        // Do not restore scroll position of title section:
-                val issueKey = viewModel.issueStubFlow.first().issueKey
-                val titleSection =
-                    sectionRepository.getSectionStubsForIssue(issueKey).firstOrNull()?.key
-                if (sectionFileName != titleSection) {
-                    restoreLastScrollPosition()
+            .onEach {
+                if (it) {
+                    // Do not restore scroll position of title section:
+                    val issueKey = viewModel.issueStubFlow.first().issueKey
+                    val titleSection =
+                        sectionRepository.getSectionStubsForIssue(issueKey).firstOrNull()?.key
+                    if (sectionFileName != titleSection) {
+                        restoreLastScrollPosition()
+                    }
                 }
             }
             .flowWithLifecycle(lifecycle)

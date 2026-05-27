@@ -31,9 +31,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
@@ -67,6 +71,16 @@ class IssueViewerViewModel(
     val currentDisplayable: String?
         get() = issueKeyAndDisplayableKeyFlow.value?.displayableKey
 
+    private val _continueReadDirectlyClicked = MutableSharedFlow<Boolean>(replay = 1)
+
+    val restoreScrollStateFlow: Flow<Boolean> = merge(
+        generalDataStore.settingsContinueRead.asFlow().filter { it },
+        generalDataStore.continueReadClicked.asFlow()
+            .drop(1)
+            .filter { it > 0 }
+            .map { true },
+        _continueReadDirectlyClicked,
+    ).shareIn(viewModelScope, SharingStarted.Lazily, 1)
 
     fun setDisplayable(issueDisplayable: IssueKeyWithDisplayableKey?) {
         log.debug("setDisplayable(${issueDisplayable?.issueKey} ${issueDisplayable?.displayableKey})")
@@ -86,6 +100,11 @@ class IssueViewerViewModel(
         continueReadDirectly: Boolean = false,
     ): IssueKeyWithDisplayableKey? {
         var showContinueReadDisplayable: IssueKeyWithDisplayableKey? = null
+        if (continueReadDirectly) {
+            _continueReadDirectlyClicked.emit(true)
+        } else {
+            _continueReadDirectlyClicked.emit(false)
+        }
         if (loadIssue || displayableKey == null) {
             issueLoadingFailedErrorFlow.emit(false)
             try {

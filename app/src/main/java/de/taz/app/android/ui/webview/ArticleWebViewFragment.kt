@@ -216,13 +216,17 @@ class ArticleWebViewFragment :
     override fun onPageRendered() {
         super.onPageRendered()
         // restore scrollPosition only if scrollPosition was set to true
-        restoreScrollPositionViewModel.restoreScrollStateFlow
-            .take(1)
-            .onEach {
-                restoreLastScrollPosition()
-            }
-            .flowWithLifecycle(lifecycle)
-            .launchIn(lifecycleScope)
+        lifecycleScope.launch {
+            issueViewerViewModel.restoreScrollStateFlow
+                .take(1)
+                .onEach {
+                    if (it) {
+                        restoreLastScrollPosition()
+                    }
+                }
+                .flowWithLifecycle(lifecycle)
+                .launchIn(lifecycleScope)
+        }
 
         if (articleOperations?.articleType == ArticleType.PODCAST) {
             val showPlayIcon = !(audioPlayerService.isPlaying() && audioPlayerService.getCurrent()?.audio?.file?.name == articleOperations?.key)
@@ -288,9 +292,11 @@ class ArticleWebViewFragment :
     }
 
     override fun onMultiColumnLayoutReady(contentWidth: Int?) {
-        restoreScrollPositionViewModel.restoreScrollStateFlow
+        issueViewerViewModel.restoreScrollStateFlow
             .take(1)
-            .onEach { restoreLastHorizontalScrollPosition() }
+            .onEach {
+                if (it) restoreLastHorizontalScrollPosition()
+            }
             .flowWithLifecycle(lifecycle)
             .launchIn(lifecycleScope)
 
