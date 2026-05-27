@@ -55,10 +55,10 @@ class FileDownloader(
 
     override suspend fun enqueueDownload(operation: ContentDownload) {
         operation.notifyStart()
-        for (download in operation.cacheItems) {
-            log.debug("Offering ${download.item.fileEntryOperation.fileEntry.name} with priority ${download.item.priority()}")
+        for (item in operation.cacheItems) {
+            log.debug("Offering ${item.fileEntryOperation.fileEntry.name} with priority ${item.priority()}")
             queue.sendOrNotify(
-                download
+                item, operation
             )
         }
         ensureDownloaderRunning()

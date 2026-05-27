@@ -1,6 +1,5 @@
 package de.taz.app.android.content
 
-import de.taz.app.android.content.cache.CacheOperationItem
 import de.taz.app.android.content.cache.ContentDownload
 import de.taz.app.android.content.cache.FileCacheItem
 import de.taz.app.android.download.FiledownloaderInterface
@@ -10,12 +9,12 @@ import kotlinx.coroutines.launch
 
 abstract class TestFileDownloader : FiledownloaderInterface {
 
-    abstract suspend fun fakeDownloadItem(item: CacheOperationItem<FileCacheItem>)
+    abstract suspend fun fakeDownloadItem(item: FileCacheItem, operation: ContentDownload)
 
     override suspend fun enqueueDownload(operation: ContentDownload) {
         for (item in operation.cacheItems) {
             CoroutineScope(Dispatchers.IO).launch {
-                fakeDownloadItem(item)
+                fakeDownloadItem(item, operation)
                 operation.checkIfItemsCompleteAndNotifyResult(Unit)
             }
         }

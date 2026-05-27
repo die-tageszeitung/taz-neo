@@ -4,6 +4,7 @@ import android.content.Context
 import de.taz.app.android.download.DownloadPriority
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.util.Log
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
@@ -54,32 +55,31 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
     protected abstract val loadingState: CacheState
 
     /**
-     * The result of this operation. Should never be null after [notifySuccess]
+     * Deferred result of this operation.
      */
-    private var result: RESULT? = null
+    private val resultDeferred = CompletableDeferred<RESULT>()
 
     /**
      * The CacheItems that should be processed in this operation. It gets initialized with the
      * items in the constructor argument
      */
-    private val _cacheItems = items.map { item ->
+    private val _cacheItems = items.onEach { item ->
         // The CacheOperation overrides the priority of a CacheItem!
         // That allows us to dynamically rewrite the order as the user navigates
         item.priority = { this@CacheOperation.priority }
-        CacheOperationItem(item, this)
     }.toMutableList()
 
     /**
      * The CacheItems that should be processed in this operation.
      */
-    val cacheItems: List<CacheOperationItem<ITEM>>
-        get() = _cacheItems
+    val cacheItems: List<ITEM>
+        get() = synchronized(this) { _cacheItems.toList() }
 
     /**
      * Are all items complete? (Attention, for operations without items that is always true)
      */
     private val totalItemCount
-        get() = cacheItems.count()
+        get() = synchronized(this) { _cacheItems.size }
 
     private var successfulCount: AtomicInteger = AtomicInteger(0)
     protected var failedCount: AtomicInteger = AtomicInteger(0)
@@ -165,18 +165,16 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
      * is only known after a [MetadataDownload] for that [de.taz.app.android.api.models.Issue] is
      * done.
      *
-     * @param items The [CacheOperationItem]s to be added to this operation
+     * @param items The items to be added to this operation
      */
-    fun addItems(items: List<ITEM>) {
+    fun addItems(items: List<ITEM>) = synchronized(this) {
         if (state.hasCompleted) {
             throw IllegalStateException("Cannot add new items if the operation is already marked as complete")
         }
-        _cacheItems.addAll(items.map {
-            CacheOperationItem(it, this).apply {
-                // The CacheOperation overrides the priority of a CacheItem!
-                // That allows us to dynamically rewrite the order as the user navigates
-                item.priority = { this@CacheOperation.priority }
-            }
+        _cacheItems.addAll(items.onEach {
+            // The CacheOperation overrides the priority of a CacheItem!
+            // That allows us to dynamically rewrite the order as the user navigates
+            it.priority = { this@CacheOperation.priority }
         })
     }
 
@@ -187,7 +185,7 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
      * is only known after a [MetadataDownload] for that [de.taz.app.android.api.models.Issue] is
      * done.
      *
-     * @param item The [CacheOperationItem] to be added to this operation
+     * @param item The ITEM to be added to this operation
      */
     fun addItem(item: ITEM) = addItems(listOf(item))
 
@@ -323,6 +321,7 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
                 e
             )
         )
+        resultDeferred.completeExceptionally(e)
     }
 
     /**
@@ -330,8 +329,6 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
      * @param result The result of the operation, if the operation doesn't produce a result use [Unit]
      */
     fun notifySuccess(result: RESULT) {
-        this.result = result
-
         // remove from activeCacheOperations
         activeCacheOperations.remove(tag)
 
@@ -341,34 +338,14 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
                 targetState,
             )
         )
+        resultDeferred.complete(result)
     }
 
     /**
      * Suspend until the operation is either [CacheStateUpdate.Type.FAILED] or
      * [CacheStateUpdate.Type.SUCCEEDED]
      */
-    protected suspend fun waitOnCompletion(): RESULT = withContext(Dispatchers.Default) {
-        if (state.hasCompleted) return@withContext result!!
-
-        // wait until failed or completed
-        stateFlow.first { it.hasCompleted }
-
-        // rethrow the exception if failed
-        if (state.hasFailed)
-            throw state.exception ?: Exception("Unknown CacheOperation error")
-        // otherwise return result
-        requireNotNull(getResult()) {
-            "CacheOperation is completed, there is no exception so should have a result"
-        }
-    }
-
-    private fun getResult(): RESULT {
-        if (!state.hasCompleted) {
-            throw IllegalStateException("Cannot get operation result if operation not complete")
-        } else {
-            return result ?: throw IllegalStateException("Result is null despite complete state")
-        }
-    }
+    protected suspend fun waitOnCompletion(): RESULT = resultDeferred.await()
 
     /**
      * Set the latest update and emit it to listeners and livedata

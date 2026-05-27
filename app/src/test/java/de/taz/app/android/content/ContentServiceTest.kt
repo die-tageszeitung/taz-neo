@@ -5,7 +5,7 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.content.cache.CacheOperationFailedException
-import de.taz.app.android.content.cache.CacheOperationItem
+import de.taz.app.android.content.cache.ContentDownload
 import de.taz.app.android.content.cache.FileCacheItem
 import de.taz.app.android.download.FileDownloader
 import de.taz.app.android.persistence.AppDatabase
@@ -34,16 +34,16 @@ class ContentServiceTest {
     private lateinit var issueRepository: IssueRepository
 
     private val catastrophicTestDownloader = object : TestFileDownloader() {
-        override suspend fun fakeDownloadItem(item: CacheOperationItem<FileCacheItem>) {
-            item.operation.apply {
+        override suspend fun fakeDownloadItem(item: FileCacheItem, operation: ContentDownload) {
+            operation.apply {
                 notifyFailedItem(IOException("Bad file"))
             }
         }
     }
 
     private val reliableTestDownloader = object : TestFileDownloader() {
-        override suspend fun fakeDownloadItem(item: CacheOperationItem<FileCacheItem>) {
-            item.operation.apply {
+        override suspend fun fakeDownloadItem(item: FileCacheItem, operation: ContentDownload) {
+            operation.apply {
                 notifySuccessfulItem()
             }
         }
@@ -52,8 +52,8 @@ class ContentServiceTest {
     private val oneFileFailedDownloader = object : TestFileDownloader() {
         private var failed = 0
 
-        override suspend fun fakeDownloadItem(item: CacheOperationItem<FileCacheItem>) {
-            item.operation.apply {
+        override suspend fun fakeDownloadItem(item: FileCacheItem, operation: ContentDownload) {
+            operation.apply {
                 if (failed < 1) {
                     failed++
                     notifyFailedItem(IOException("Bad file"))
