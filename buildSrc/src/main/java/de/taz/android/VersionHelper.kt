@@ -168,15 +168,29 @@ object VersionHelper {
             "--exclude", "lmd-*"
         )
 
-        if (!ignoreDirty) {
-            command.add("--dirty")
-        }
+        try {
+            var tag = executeCommand(command)
 
-        return try {
-            executeCommand(command)
+            if (!ignoreDirty && isDirty()) {
+                tag += "-dirty"
+            }
+
+            return tag
         } catch (e: NoTagException) {
             error("No tags found. Please run 'git fetch --tags' to get all the remote tags.")
         }
+    }
+
+    private fun isDirty(): Boolean {
+        val process = ProcessBuilder(mutableListOf(
+            "git",
+            "diff",
+            "--name-status",
+            "--exit-code",
+            "--ignore-submodules",
+        )).start()
+        process.waitFor()
+        return process.exitValue() != 0
     }
 
     private fun getLmdGitTag(ignoreDirty: Boolean): String {
@@ -187,12 +201,14 @@ object VersionHelper {
             "--match", "lmd-*"
         )
 
-        if (!ignoreDirty) {
-            command.add("--dirty")
-        }
-
         return try {
-            executeCommand(command)
+            var tag = executeCommand(command)
+
+            if (!ignoreDirty && isDirty()) {
+                tag += "-dirty"
+            }
+
+            tag
         } catch (e: NoTagException) {
             // FIXME: temporary solution as long as we dont have any lmd tags in the repo
             "lmd-0.0.1-alpha.1"

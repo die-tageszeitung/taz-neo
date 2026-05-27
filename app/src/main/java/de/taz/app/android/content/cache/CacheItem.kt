@@ -19,23 +19,6 @@ abstract class CacheItem(
 }
 
 /**
- * The [CacheOperationItem] ties a [CacheItem] to an operation. Useful to track the parent operation
- * while processing [CacheItem]s
- *
- * @param item The item of type [CacheItem]
- * @param operation The operation it belongs to
- */
-class CacheOperationItem<ITEM: CacheItem> (
-    val item: ITEM,
-    val operation: AnyCacheOperation
-) : Comparable<CacheOperationItem<ITEM>> {
-    override fun compareTo(other: CacheOperationItem<ITEM>): Int {
-        return item.compareTo(other.item)
-    }
-}
-
-
-/**
  * A [FileCacheItem] represents a [de.taz.app.android.api.models.FileEntry], wrapped in a [FileEntryOperation] to provide
  * information about _from_ where and _to_ where a file should be transferred.
  *
@@ -51,7 +34,6 @@ class FileCacheItem(
 
 /**
  * A [SubOperationCacheItem] represents a suboperation that is being processed in course of another parent operation
- * Should only occur wrapped in a [CacheOperationItem].
  *
  * @param key a unique key to avoid duplication in the process queue
  * @param priority The [DownloadPriority] this item should be handled with
