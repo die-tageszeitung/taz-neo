@@ -60,8 +60,15 @@ class CoachMarkDialog : DialogFragment() {
         val anchorView = requireActivity().findViewById<View>(R.id.fab_help)
             ?: requireActivity().findViewById<View>(R.id.section_pager_fab_help)
 
-        val buttonSize = resources.getDimensionPixelSize(R.dimen.icon_size)
-        val newY = anchorView.y - (anchorView.height / 2) + (buttonSize / 2)
+        val newY = if (anchorView == null) {
+            // Probably we are on audio player where we don't have a fab
+            val audioAnchor = requireActivity().findViewById<View>(R.id.expanded_audio_action)
+            val playerHeight = requireActivity().findViewById<View>(R.id.audio_player_overlay).height
+            audioAnchor.rootView.height - playerHeight + audioAnchor.y
+        } else {
+            val buttonSize = resources.getDimensionPixelSize(R.dimen.icon_size)
+            anchorView.y - (anchorView.height / 2) + (buttonSize / 2)
+        }
 
         viewBinding.buttonNext.y = newY
         viewBinding.buttonPrev.y = newY
