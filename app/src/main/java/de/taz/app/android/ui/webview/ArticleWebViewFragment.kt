@@ -221,7 +221,11 @@ class ArticleWebViewFragment :
                 .take(1)
                 .onEach {
                     if (it) {
-                        restoreLastScrollPosition()
+                        if (isMultiColumnMode) {
+                            restoreLastHorizontalScrollPosition()
+                        } else {
+                            restoreLastScrollPosition()
+                        }
                     }
                 }
                 .flowWithLifecycle(lifecycle)
@@ -292,14 +296,6 @@ class ArticleWebViewFragment :
     }
 
     override fun onMultiColumnLayoutReady(contentWidth: Int?) {
-        issueViewerViewModel.restoreScrollStateFlow
-            .take(1)
-            .onEach {
-                if (it) restoreLastHorizontalScrollPosition()
-            }
-            .flowWithLifecycle(lifecycle)
-            .launchIn(lifecycleScope)
-
         hideLoadingScreen()
         super.onMultiColumnLayoutReady(contentWidth)
     }
@@ -440,6 +436,7 @@ class ArticleWebViewFragment :
                     oldScrollXOnMultiColumnSaved = false
                     oldScrollXOnMultiColumn = 0
                     helpFabViewModel.showHelpFab()
+                    drawerAndLogoViewModel.setFeedLogo()
                 }
             }
         }
