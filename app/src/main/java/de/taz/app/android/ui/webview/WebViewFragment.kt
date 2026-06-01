@@ -25,6 +25,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewbinding.ViewBinding
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.WebViewDisplayable
@@ -474,6 +475,12 @@ abstract class WebViewFragment<
                     // If the bottom navigation does not have a behavior, it is expanded
                     visibleBottom -= bottomNavigationLayout.height
                 }
+            } else {
+                // properly on section webview need to adjust here too
+                if (currentDisplayableKey?.startsWith("sec") == true) {
+                    val sectionBottomNav = requireActivity().findViewById<BottomNavigationView>(R.id.navigation_bottom_webview_pager)
+                    visibleBottom -= sectionBottomNav?.height ?:0
+                }
             }
 
             val scrollDelta = visibleBottom - targetTop
@@ -666,7 +673,9 @@ abstract class WebViewFragment<
                 delay(TAP_LOCK_JS_DELAY_MS)
                 // Maybe tapLock was set from setBookmark in tasApiJs, so check again:
                 if (preventTap.compareAndSet(false, true)) {
-                    scrollToDirection(multiColumnMode, direction)
+                    // Only scroll horizontally on articles with multiColumn enabled:
+                    val scrollHorizontally = multiColumnMode && currentDisplayableKey?.startsWith("art") == true
+                    scrollToDirection(scrollHorizontally , direction)
                     // wait some delay to prevent javascript from opening links
                     delay(TAP_LOCK_DELAY_MS)
                 }
