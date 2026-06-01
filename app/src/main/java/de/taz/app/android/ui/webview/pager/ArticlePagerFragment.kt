@@ -555,6 +555,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
                         wasUserInputEnabledOnArticles =
                             webviewPagerViewpager.isUserInputEnabled
                         // always show taz logo when on new article:
+                        drawerAndLogoViewModel.setFeedLogo()
                     }
 
                     is ArticlePagerItem.Tom -> {
