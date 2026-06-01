@@ -79,7 +79,7 @@
     <dimen name="drawer_margin_between_actions">15dp</dimen>
 
     <dimen name="fragment_drawer_body_table_of_content_header_margin_top">15dp</dimen>
-    <dimen name="fragment_drawer_separator_margin_top">20dp</dimen>
+    <dimen name="fragment_drawer_separator_margin_top">15dp</dimen>
     <dimen name="fragment_drawer_card_width">62dp</dimen>
     <dimen name="fragment_drawer_card_height">92dp</dimen>
 
