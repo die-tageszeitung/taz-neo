@@ -14,8 +14,10 @@ import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.bumptech.glide.Glide
 import com.google.android.material.behavior.HideViewOnScrollBehavior.EDGE_BOTTOM
 import de.taz.app.android.BuildConfig
@@ -51,6 +53,7 @@ import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.pdfViewer.PdfPagerWrapperFragment.Companion.ARTICLE_PAGER_FRAGMENT_BACKSTACK_NAME
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -158,6 +161,28 @@ class DrawerBodyPdfWithSectionsFragment :
             }
 
             setupFAB()
+
+            viewLifecycleOwner.lifecycleScope.launch {
+                viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    launch {
+                        drawerAudioPlayerViewModel.isIssueActiveAudio.collect { isActive ->
+                            val imageResource = if (isActive) {
+                                R.drawable.ic_audio_filled
+                            } else {
+                                R.drawable.ic_audio
+                            }
+                            viewBinding?.fragmentDrawerPlayIssueIcon?.setImageResource(imageResource)
+                        }
+                    }
+
+                    launch {
+                        drawerAudioPlayerViewModel.errorMessageFlow.filterNotNull().collect { message ->
+                            toastHelper.showToast(message, long = true)
+                            drawerAudioPlayerViewModel.clearErrorMessage()
+                        }
+                    }
+                }
+            }
         }
     }
     /**
