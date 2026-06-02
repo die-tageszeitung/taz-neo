@@ -276,6 +276,7 @@ class BookmarkRepository(
         return stateChangeFlow.map {
             getBookmarkedArticleStubs()
                 .mapNotNull { articleStubToArticle(it) }
+                .distinct()
         }
     }
 
