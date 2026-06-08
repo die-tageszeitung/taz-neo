@@ -49,6 +49,7 @@ data class ArticleStub(
     override val words: Int?,
     override val readMinutes: Int?,
     val pdfFileName: String?,
+    val iconFileName: String?,
 ) : ArticleOperations {
 
     val hasAudio: Boolean
@@ -73,6 +74,7 @@ data class ArticleStub(
         article.words,
         article.readMinutes,
         article.pdf?.name,
+        article.icon?.name,
     )
 
     @Ignore
@@ -123,7 +125,13 @@ data class ArticleStub(
 
 
     override suspend fun getAllFiles(applicationContext: Context): List<FileEntry> {
-        return ArticleRepository.getInstance(applicationContext).getFileNamesForArticle(articleFileName).mapNotNull {
+        val fileList = mutableListOf<String>()
+        fileList.addAll(
+            ArticleRepository.getInstance(applicationContext)
+                .getFileNamesForArticle(articleFileName)
+        )
+        iconFileName?.let { fileList.add(it) }
+        return fileList.mapNotNull {
             FileEntryRepository.getInstance(applicationContext).get(it)
         }
     }

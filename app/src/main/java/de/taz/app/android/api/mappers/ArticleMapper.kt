@@ -1,6 +1,7 @@
 package de.taz.app.android.api.mappers
 
 import de.taz.app.android.api.dto.ArticleDto
+import de.taz.app.android.api.dto.ImageResolutionDto
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.ArticleType
 import de.taz.app.android.persistence.repository.IssueKey
@@ -29,6 +30,7 @@ object ArticleMapper {
             0,
             null,
             articleDto.pdf?.let { FileEntryMapper.from(issueKey, it) },
+            articleDto.iconList?.firstOrNull { it.resolution == ImageResolutionDto.normal }?.let { ImageMapper.from(issueKey, it) },
         )
     }
 

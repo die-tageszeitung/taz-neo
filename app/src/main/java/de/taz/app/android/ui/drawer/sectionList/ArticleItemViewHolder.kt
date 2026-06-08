@@ -13,13 +13,13 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.bumptech.glide.request.RequestOptions
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.audioPlayer.AudioPlayerService
 import de.taz.app.android.singletons.StorageService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
@@ -43,126 +43,101 @@ class ArticleItemViewHolder(
     ), CoroutineScope {
 
     override val coroutineContext: CoroutineContext = SupervisorJob() + Dispatchers.Main
-    private val audioPlayerService: AudioPlayerService = AudioPlayerService.getInstance(itemView.context.applicationContext)
+    private val audioPlayerService: AudioPlayerService =
+        AudioPlayerService.getInstance(itemView.context.applicationContext)
 
-    private var rootLayout: ConstraintLayout = itemView.findViewById(R.id.drawer_article_item_layout)
+    private var rootLayout: ConstraintLayout =
+        itemView.findViewById(R.id.drawer_article_item_layout)
     private var titleTextView: TextView = itemView.findViewById(R.id.fragment_drawer_article_title)
-    private var teaserTextView: TextView = itemView.findViewById(R.id.fragment_drawer_article_teaser)
-    private var authorAndReadMinutesTextView: TextView = itemView.findViewById(R.id.fragment_drawer_article_author_and_read_minutes)
-    private var articleImageView: ImageView = itemView.findViewById(R.id.fragment_drawer_article_image)
-    private var bookmarkIconImageView: ImageView = itemView.findViewById(R.id.fragment_drawer_article_bookmark_icon)
-    private var audioEnqueueImageView: ImageView = itemView.findViewById(R.id.fragment_drawer_audio_enqueue)
-    private var audioEnqueuedImageView: ImageView = itemView.findViewById(R.id.fragment_drawer_audio_enqueued)
+    private var teaserTextView: TextView =
+        itemView.findViewById(R.id.fragment_drawer_article_teaser)
+    private var authorAndReadMinutesTextView: TextView =
+        itemView.findViewById(R.id.fragment_drawer_article_author_and_read_minutes)
+    private var articleImageView: ImageView =
+        itemView.findViewById(R.id.fragment_drawer_article_image)
+    private var bookmarkIconImageView: ImageView =
+        itemView.findViewById(R.id.fragment_drawer_article_bookmark_icon)
+    private var audioEnqueueImageView: ImageView =
+        itemView.findViewById(R.id.fragment_drawer_audio_enqueue)
+    private var audioEnqueuedImageView: ImageView =
+        itemView.findViewById(R.id.fragment_drawer_audio_enqueued)
 
     private val fileHelper = StorageService.getInstance(parent.context.applicationContext)
 
+    private var bindJob: Job? = null
+
     fun bind(sectionDrawerItem: SectionDrawerItem.Item, currentKey: String?) {
+        bindJob?.cancel()
         val article = sectionDrawerItem.article
         titleTextView.text = article.title
 
-        if (article.key == currentKey) {
-            rootLayout.setBackgroundColor(
-                ContextCompat.getColor(
-                    itemView.context,
-                    R.color.navigation_drawer_highlight_background
-                )
-            )
+        val backgroundColorRes = if (article.key == currentKey) {
+            R.color.navigation_drawer_highlight_background
         } else {
-            rootLayout.setBackgroundColor(
-                ContextCompat.getColor(
-                    itemView.context,
-                    R.color.navigation_drawer_background
-                )
-            )
+            R.color.navigation_drawer_background
         }
+        rootLayout.setBackgroundColor(ContextCompat.getColor(itemView.context, backgroundColorRes))
 
-        if (article.teaser.isNullOrBlank()) {
-            teaserTextView.visibility = View.GONE
-        } else {
-            teaserTextView.visibility = View.VISIBLE
-            teaserTextView.text = article.teaser
-        }
+        teaserTextView.isVisible = !article.teaser.isNullOrBlank()
+        teaserTextView.text = article.teaser
 
         // get the author(s) from the article
-        val authorsString = if (article.authorList.isNotEmpty()) {
-            val authorList = article.authorList.map { it.name }.distinct()
-            authorList.joinToString(", ")
-        } else {
-            ""
-        }
-        val readMinutesString = if (article.readMinutes != null) {
-            itemView.context.getString(
-                R.string.read_minutes,
-                article.readMinutes
-            )
-        } else {
-            ""
-        }
-        val twoStyledSpannable = constructAuthorsAndReadMinutesSpannable(authorsString, readMinutesString)
+        val authorsString = article.authorList.map { it.name }.distinct().joinToString(", ")
+        val readMinutesString = article.readMinutes?.let {
+            itemView.context.getString(R.string.read_minutes, it)
+        } ?: ""
+
+        val twoStyledSpannable =
+            constructAuthorsAndReadMinutesSpannable(authorsString, readMinutesString)
 
         authorAndReadMinutesTextView.apply {
             isVisible = twoStyledSpannable.isNotEmpty()
             setText(twoStyledSpannable, TextView.BufferType.SPANNABLE)
         }
 
-        if (article.imageList.isNotEmpty()) {
-            fileHelper.getAbsolutePath(article.imageList.first())?.let {
-                if (File(it).exists()) {
-                    articleImageView.visibility = View.VISIBLE
-                    Glide.with(itemView.context.applicationContext)
-                        .load(it)
-                        .apply(RequestOptions().override(articleImageView.width, articleImageView.height))
-                        .into(articleImageView)
-                }
-            }
-        } else {
-            articleImageView.setImageBitmap(null)
-            articleImageView.visibility = View.GONE
-        }
+        updateArticleImage(article)
+
         bookmarkIconImageView.setOnClickListener {
             onBookmarkClick(article)
         }
-
 
         itemView.setOnClickListener {
             onArticleClick(article)
         }
 
-        launch {
-            audioPlayerService.isInPlaylistFlow(article).collect { isEnqueued ->
-                if (article.audio != null)
-                    if (isEnqueued) {
-                        audioEnqueuedImageView.visibility = View.VISIBLE
-                        audioEnqueueImageView.visibility = View.GONE
-                        audioEnqueuedImageView.setOnClickListener {
-                            onAudioEnqueueClick(article, isEnqueued)
-                        }
-                    } else {
-                        audioEnqueuedImageView.visibility = View.GONE
-                        audioEnqueueImageView.visibility = View.VISIBLE
-                        audioEnqueueImageView.setOnClickListener {
-                            onAudioEnqueueClick(article, isEnqueued)
-                        }
-                    }
-                else {
-                    audioEnqueueImageView.visibility = View.GONE
-                    audioEnqueuedImageView.visibility = View.GONE
-                }
-            }
+        if (article.audio == null) {
+            audioEnqueueImageView.isVisible = false
+            audioEnqueuedImageView.isVisible = false
         }
 
-        launch {
-            getBookmarkStateFlow(article.key).collect { isBookmarked ->
-                if (isBookmarked) {
-                    bookmarkIconImageView.setImageResource(R.drawable.ic_bookmark_filled)
-                } else {
-                    bookmarkIconImageView.setImageResource(R.drawable.ic_bookmark)
+        bindJob = launch {
+            if (article.audio != null) {
+                launch {
+                    audioPlayerService.isInPlaylistFlow(article).collect { isEnqueued ->
+                        audioEnqueuedImageView.isVisible = isEnqueued
+                        audioEnqueueImageView.isVisible = !isEnqueued
+                        val clickListener =
+                            View.OnClickListener { onAudioEnqueueClick(article, isEnqueued) }
+                        audioEnqueuedImageView.setOnClickListener(clickListener)
+                        audioEnqueueImageView.setOnClickListener(clickListener)
+                    }
+                }
+            }
+
+            launch {
+                getBookmarkStateFlow(article.key).collect { isBookmarked ->
+                    val iconRes =
+                        if (isBookmarked) R.drawable.ic_bookmark_filled else R.drawable.ic_bookmark
+                    bookmarkIconImageView.setImageResource(iconRes)
                 }
             }
         }
     }
 
-    private fun constructAuthorsAndReadMinutesSpannable(authors: String, readMinutes: String): SpannableString {
+    private fun constructAuthorsAndReadMinutesSpannable(
+        authors: String,
+        readMinutes: String
+    ): SpannableString {
         val authorsAndReadMinutesString: String
         val authorSpanStart: Int
         val authorSpanEnd: Int
@@ -177,6 +152,7 @@ class ArticleItemViewHolder(
                 readMinutesSpanStart = 0
                 readMinutesSpanEnd = 0
             }
+
             readMinutes.isBlank() -> {
                 authorsAndReadMinutesString = authors
                 authorSpanStart = 0
@@ -184,6 +160,7 @@ class ArticleItemViewHolder(
                 readMinutesSpanStart = 0
                 readMinutesSpanEnd = 0
             }
+
             authors.isBlank() -> {
                 authorsAndReadMinutesString = readMinutes
                 authorSpanStart = 0
@@ -191,6 +168,7 @@ class ArticleItemViewHolder(
                 readMinutesSpanStart = 0
                 readMinutesSpanEnd = readMinutes.length
             }
+
             else -> {
                 authorsAndReadMinutesString = "$authors $readMinutes"
                 authorSpanStart = 0
@@ -204,7 +182,10 @@ class ArticleItemViewHolder(
 
         if (authorSpanStart < authorSpanEnd) {
             text.setSpan(
-                TextAppearanceSpan(itemView.context, R.style.TextAppearance_App_Drawer_Sections_Article_Meta_Author),
+                TextAppearanceSpan(
+                    itemView.context,
+                    R.style.TextAppearance_App_Drawer_Sections_Article_Meta_Author
+                ),
                 0,
                 authors.length,
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
@@ -224,5 +205,35 @@ class ArticleItemViewHolder(
         }
 
         return text
+    }
+
+    private fun showArticleImageView(imagePath: String) {
+        articleImageView.isVisible = true
+        Glide.with(itemView.context)
+            .load(imagePath)
+            .into(articleImageView)
+    }
+
+    private fun updateArticleImage(article: Article) {
+        if (showArticleIcon(article)) return
+
+        val imagePath = article.imageList
+            .firstOrNull { it.dateDownload != null }
+            ?.let { fileHelper.getAbsolutePath(it) }
+            ?.takeIf { File(it).exists() }
+
+        if (imagePath != null) {
+            showArticleImageView(imagePath)
+        } else {
+            articleImageView.isVisible = false
+            Glide.with(itemView.context).clear(articleImageView)
+        }
+    }
+
+    private fun showArticleIcon(article: Article): Boolean {
+        val iconPath = article.icon?.let { fileHelper.getAbsolutePath(it) }
+            ?.takeIf { File(it).exists() } ?: return false
+        showArticleImageView(iconPath)
+        return true
     }
 }

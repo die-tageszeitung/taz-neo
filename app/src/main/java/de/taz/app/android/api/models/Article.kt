@@ -27,6 +27,7 @@ data class Article(
     override val percentage: Int,
     override val dateDownload: Date?,
     val pdf: FileEntry?,
+    val icon: Image?,
 ) : ArticleOperations {
 
     val bookmarked = bookmarkedTime != null
@@ -39,6 +40,7 @@ data class Article(
         list.addAll(authorList.mapNotNull { it.imageAuthor })
         list.addAll(imageList.filter { it.resolution == ImageResolution.normal }
             .map { FileEntry(it) })
+        icon?.let { list.add(FileEntry(it)) }
         return list.distinct()
     }
 

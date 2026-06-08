@@ -19,4 +19,5 @@ data class ArticleDto (
     val readMinutes: Int? = null,
     val articleType: String? = null,
     val pdf: FileEntryDto? = null,
+    val iconList: List<ImageDto>? = null,
 )

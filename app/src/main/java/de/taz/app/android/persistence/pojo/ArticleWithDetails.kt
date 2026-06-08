@@ -26,6 +26,13 @@ data class ArticleWithDetails(
     val pdf: FileEntry?,
 
     @Relation(
+        entity = ImageStub::class,
+        parentColumn = "iconFileName",
+        entityColumn = "fileEntryName",
+    )
+    val icon: ImageWithFile?,
+
+    @Relation(
         entity = AudioStub::class,
         parentColumn = "audioFileName",
         entityColumn = "fileName"
