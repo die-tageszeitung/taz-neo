@@ -52,7 +52,7 @@ interface IssueDao : BaseDao<IssueStub> {
     /**
      * We exclude the last viewed issue from deletion, otherwise we might end up deleting an issue
      * that is currently being read.
-     * Additionally we exclude those issues with dateDownload null, as those are probably the
+     * Additionally, we exclude those issues with dateDownload null, as those are probably the
      * metadata of the issues deleted holding bookmarks.
      * Apart from the mentioned issue we will delete the one downloaded the furthest in the past.
      */

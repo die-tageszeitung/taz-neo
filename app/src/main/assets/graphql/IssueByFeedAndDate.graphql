@@ -186,6 +186,16 @@ query IssueByFeedAndDateQuery($feedName: String, $issueDate: String!, $limit: In
                             sha256
                             size
                         }
+                        iconList {
+                            name
+                            storageType
+                            moTime
+                            sha256
+                            size
+                            resolution
+                            type
+                            alpha
+                        }
                     }
                     imageList {
                         name

@@ -179,6 +179,16 @@ query LastIssuesQuery($feedName: String, $limit: Int!) {
                         words
                         readMinutes
                         articleType
+                        iconList {
+                            name
+                            storageType
+                            moTime
+                            sha256
+                            size
+                            resolution
+                            type
+                            alpha
+                        }
                     }
                     imageList {
                         name

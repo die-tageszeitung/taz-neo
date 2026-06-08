@@ -24,8 +24,8 @@ import de.taz.app.android.api.models.StorageType
 
 object Fixtures {
 
-    val feedName = "testFeed"
-    val issueDate = "2000-12-13"
+    const val FEED_NAME = "testFeed"
+    const val ISSUE_DATE = "2000-12-13"
     val issueStatus = IssueStatus.regular
 
     val fileEntry: FileEntry = FileEntry(
@@ -71,8 +71,8 @@ object Fixtures {
      * Base Moment without any relations
      */
     val momentBase: Moment = Moment(
-        feedName,
-        issueDate,
+        FEED_NAME,
+        ISSUE_DATE,
         issueStatus,
         "baseUrl",
         imageList = emptyList(),
@@ -85,8 +85,8 @@ object Fixtures {
      * Base Issue without any relations
      */
     val issueBase: Issue = Issue(
-        feedName,
-        issueDate,
+        FEED_NAME,
+        ISSUE_DATE,
         0,
         null,
         momentBase,
@@ -111,8 +111,8 @@ object Fixtures {
      */
     val articleBase: Article = Article(
         fileEntry.copy(name = "article01.html"),
-        feedName,
-        issueDate,
+        FEED_NAME,
+        ISSUE_DATE,
         "title",
         "teaser",
         onlineLink = "https://example.com",
@@ -130,10 +130,11 @@ object Fixtures {
         percentage = 0,
         dateDownload = null,
         pdf = null,
+        icon = null,
     )
 
     val pageBase: Page = Page(
-        fileEntry.copy("page01.pdf"),
+        fileEntry.copy(name = "page01.pdf"),
         "title",
         "pagina",
         PageType.left,
@@ -149,7 +150,7 @@ object Fixtures {
      */
     val sectionBase: Section = Section(
         fileEntry.copy(name = "section01.html"),
-        issueDate,
+        ISSUE_DATE,
         "title",
         SectionType.articles,
         fakeNavButton,
@@ -197,6 +198,7 @@ object Fixtures {
                 authorWithImage01,
             ),
             audio = audio.copyWithFileName("article01-audio.mp3"),
+            icon = image.copy(name = "article01-icon01.png"),
         )
 
     val article02 = articleBase.copyWithFileName("article02.html")
@@ -210,6 +212,7 @@ object Fixtures {
                 authorWithImage02,
             ),
             audio = audio.copyWithFileName("article02-audio.mp3"),
+            icon = image.copy(name = "article02-icon01.png"),
         )
 
     fun Article.copyWithFileName(name: String) = copy(
@@ -221,10 +224,10 @@ object Fixtures {
     )
 
     fun Page.copyWithFileName(name: String) = copy(
-        pagePdf.copy(name = name)
+        pagePdf = pagePdf.copy(name = name)
     )
 
     fun Audio.copyWithFileName(name: String) = copy(
-        fileEntry.copy(name = name)
+        file = fileEntry.copy(name = name)
     )
 }

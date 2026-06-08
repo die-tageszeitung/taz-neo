@@ -69,6 +69,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
                 insertOrReplace(ArticleImageJoin(articleFileName, image.name, index))
             }
         }
+        articleToSave.icon?.let { imageRepository.saveInternal(it) }
 
         // save authors
         appDatabase.articleAuthorImageJoinDao().apply {
@@ -96,18 +97,6 @@ class ArticleRepository private constructor(applicationContext: Context) :
     suspend fun getStubByMediaSyncId(articleMediaSyncId: Int): ArticleStub? {
         return appDatabase.articleDao().getByMediaSyncId(articleMediaSyncId)
     }
-
-    /* currently not used. see [TazApiJS] for further information
-    suspend fun saveScrollingPosition(articleFileName: String, percentage: Int, position: Int) {
-        val articleStub = getStub(articleFileName)
-        if (articleStub?.bookmarkedTime != null) {
-            log.debug("save scrolling position for article ${articleStub.articleFileName}")
-            appDatabase.articleDao().update(
-                articleStub.copy(percentage = percentage, position = position)
-            )
-        }
-    }
-    */
 
     suspend fun getSectionArticleStubListByArticleName(articleName: String): List<ArticleStub> {
         var articleStubList = appDatabase.articleDao().getSectionArticleListByArticle(articleName)
@@ -180,6 +169,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
         val articleImages = appDatabase.articleImageJoinDao().getImagesForArticle(articleName)
         val audio = articleStub.audioFileName?.let { audioRepository.get(it) }
         val articlePdf = articleStub.pdfFileName?.let { fileEntryRepository.get(it) }
+        val articleIcon = articleStub.iconFileName?.let { imageRepository.get(it) }
 
         // get authors
         val authorImageJoins =
@@ -230,6 +220,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
             articleStub.percentage,
             articleStub.dateDownload,
             articlePdf,
+            articleIcon,
         )
     }
 
@@ -249,6 +240,16 @@ class ArticleRepository private constructor(applicationContext: Context) :
 
                 // delete html file
                 fileEntryRepository.delete(article.articleHtml)
+
+                // delete icon
+                article.icon?.let { image ->
+                    try {
+                        imageRepository.delete(image)
+                    } catch (e: SQLiteConstraintException) {
+                        // do not delete - still used by section/otherIssue/bookmarked article
+                        log.info("Could not delete icon $image as it is still referenced")
+                    }
+                }
 
                 // Delete related images
                 appDatabase.articleImageJoinDao().deleteRelationToArticle(articleFileName)
@@ -329,6 +330,12 @@ class ArticleRepository private constructor(applicationContext: Context) :
             imageWithFile.fileEntry?.let { Image(it, imageWithFile.imageStub) }
         }
 
+        val articleIcon = articleWithDetails.icon?.let { imageWithFile ->
+            imageWithFile.fileEntry?.let {
+                Image(it, imageWithFile.imageStub)
+            }
+        }
+
         val audio = articleWithDetails.audioWithFile?.let { audioWithFile ->
             audioWithFile.fileEntry?.let {
                 de.taz.app.android.api.models.Audio(
@@ -371,6 +378,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
             articleStub.percentage,
             articleStub.dateDownload,
             articlePdf,
+            articleIcon,
         )
     }
 
