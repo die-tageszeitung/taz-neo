@@ -21,6 +21,9 @@ import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.monkey.getApplicationScope
+import de.taz.app.android.monkey.isArticleKey
+import de.taz.app.android.monkey.isPageKey
+import de.taz.app.android.monkey.isSectionKey
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssueKey
@@ -264,9 +267,9 @@ class PdfPagerViewModel(
 
                 // Check for displayable and (maybe) show continue read bottom sheet
                 val askEachTime = generalDataStore.settingsContinueReadAskEachTime.get()
-                val isArticle = lastDisplayable?.startsWith("art") == true
-                val isSection = lastDisplayable?.startsWith("sec") == true
-                val isPage = lastDisplayable?.startsWith("s") == true && lastDisplayable.endsWith(".pdf")
+                val isArticle = lastDisplayable?.isArticleKey() == true
+                val isSection = lastDisplayable?.isSectionKey() == true
+                val isPage = lastDisplayable?.isPageKey() == true
                 val isFirstPage = lastDisplayable == pdfPageListFlow.value?.first()?.pagePdf?.name
                 val continueRead = (continueReadDirectly || continueReadAutomatically) && lastDisplayable != null
 
@@ -350,14 +353,14 @@ class PdfPagerViewModel(
     }
 
     suspend fun onFrameLinkClicked(link: String) {
-        if (link.startsWith("art") && link.endsWith(".html")) {
+        if (link.isArticleKey()) {
             if(generalDataStore.openArticlePdfView.get()) {
                 showArticle(link)
             }
         } else if (link.startsWith("http") || link.startsWith("mailto:")) {
             handleIfAd(link)
             _openLinkEventFlow.value = OpenLinkEvent.OpenExternal(link)
-        } else if (link.startsWith("s") && link.endsWith(".pdf")) {
+        } else if (link.isPageKey()) {
             goToPdfPage(link)
         } else {
             val hint = "Don't know how to open $link"
@@ -442,7 +445,7 @@ class PdfPagerViewModel(
                     val articlesOfPage = mutableListOf<ArticleOperations>()
                     page.frameList?.forEach { frame ->
                         frame.link?.let { link ->
-                            if (link.startsWith("art") && link.endsWith(".html")) {
+                            if (link.isArticleKey()) {
                                 val article = getArticleForFrame(frame)
                                 val articleBeginsHere = articleBeginsOnPage(article, page)
                                 val articleNotListed = !isArticleListed(
@@ -520,7 +523,7 @@ class PdfPagerViewModel(
      * @return [ArticleOperations]
      */
     private suspend fun getArticleForFrame(frame: Frame): ArticleOperations? {
-        if (frame.link?.startsWith("art") == true && frame.link.endsWith(".html")) {
+        if (frame.link?.isArticleKey() == true) {
             val article = articleRepository.getStub(frame.link)
             if (article != null) {
                 return article

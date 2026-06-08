@@ -15,6 +15,9 @@ import de.taz.app.android.R
 import de.taz.app.android.base.ViewBindingBottomSheetFragment
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentContinueReadBottomSheetBinding
+import de.taz.app.android.monkey.isArticleKey
+import de.taz.app.android.monkey.isPageKey
+import de.taz.app.android.monkey.isSectionKey
 import de.taz.app.android.monkey.setBehaviorStateOnLandscape
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.PageRepository
@@ -85,9 +88,9 @@ class ContinueReadBottomSheetFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        isArticle = continueReadDisplayable.displayableKey.startsWith("art")
-        val isSection = continueReadDisplayable.displayableKey.startsWith("sec")
-        isPage = continueReadDisplayable.displayableKey.startsWith("s") && continueReadDisplayable.displayableKey.endsWith(".pdf")
+        isArticle = continueReadDisplayable.displayableKey.isArticleKey()
+        val isSection = continueReadDisplayable.displayableKey.isSectionKey()
+        isPage = continueReadDisplayable.displayableKey.isPageKey()
 
         lifecycleScope.launch {
             if (isArticle) {

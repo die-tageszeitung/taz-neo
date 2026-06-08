@@ -13,6 +13,7 @@ import de.taz.app.android.R
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.databinding.FragmentIssueContentBinding
+import de.taz.app.android.monkey.isArticleKey
 import de.taz.app.android.persistence.repository.BookmarkRepository
 import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.singletons.KeepScreenOnHelper
@@ -130,7 +131,7 @@ class IssueViewerFragment :
                 false -> {
                     val lastSectionKey = viewModel.lastSectionKey
                         ?: viewModel.currentDisplayable?.let { displayableKey ->
-                            if (displayableKey.startsWith("art")) {
+                            if (displayableKey.isArticleKey()) {
                                 runBlocking {
                                     sectionRepository.getSectionStubForArticle(
                                         displayableKey

@@ -14,6 +14,8 @@ import androidx.viewbinding.ViewBinding
 import de.taz.app.android.DISPLAYABLE_NAME
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.SectionOperations
+import de.taz.app.android.monkey.isArticleKey
+import de.taz.app.android.monkey.isSectionKey
 import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
@@ -115,7 +117,7 @@ class TazApiJS(private val webViewFragment: WebViewFragment<*, out WebViewViewMo
         webViewFragment.apply {
             lifecycleScope.launch {
                 if (preventTap.compareAndSet(false, true)) {
-                    if (url.endsWith(".html") && (url.startsWith("art") || url.startsWith("section"))) {
+                    if (url.isArticleKey() || url.isSectionKey()) {
                         setDisplayable(url, linkClicked = true)
                     } else {
                         openExternally(url)

@@ -3,6 +3,7 @@ package de.taz.app.android.api.models
 import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
+import de.taz.app.android.monkey.isArticleKey
 import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
@@ -67,7 +68,7 @@ class SectionTest {
         val fileList = section.getAllFiles(applicationContext)
 
         assertTrue(fileList.filter { it == section.sectionHtml }.size == 1)
-        assertTrue(fileList.none { it.name.startsWith("art") && it.name.endsWith(".html") })
+        assertTrue(fileList.none { it.name.isArticleKey() })
 
         section.imageList
             .filter { it.resolution == ImageResolution.normal }

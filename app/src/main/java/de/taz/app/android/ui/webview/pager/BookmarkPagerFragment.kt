@@ -32,6 +32,7 @@ import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.databinding.FragmentWebviewArticlePagerBinding
+import de.taz.app.android.monkey.isArticleKey
 import de.taz.app.android.monkey.isExpanded
 import de.taz.app.android.monkey.pinToolbar
 import de.taz.app.android.monkey.reduceDragSensitivity
@@ -288,7 +289,7 @@ class BookmarkPagerFragment :
     private suspend fun tryScrollToArticle() {
         val articleFileName = viewModel.articleFileNameLiveData.value
         if (
-            articleFileName?.startsWith("art") == true &&
+            articleFileName?.isArticleKey() == true &&
             viewModel.bookmarkedArticleStubsFlow.first().map { it.key }.contains(articleFileName)
         ) {
             setHeader(articleFileName)

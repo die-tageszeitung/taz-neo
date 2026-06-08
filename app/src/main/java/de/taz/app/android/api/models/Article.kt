@@ -2,6 +2,7 @@ package de.taz.app.android.api.models
 
 import android.content.Context
 import de.taz.app.android.api.interfaces.ArticleOperations
+import de.taz.app.android.monkey.isPublicArticle
 import de.taz.app.android.persistence.repository.ArticleRepository
 import java.util.Date
 
@@ -78,7 +79,7 @@ data class Article(
      * otherwise we assume an issue with status [IssueStatus.regular]
      */
     fun guessIssueStatusByArticleFileName(): IssueStatus {
-        return if (key.endsWith("public.html")) {
+        return if (key.isPublicArticle()) {
             IssueStatus.public
         } else {
             IssueStatus.regular

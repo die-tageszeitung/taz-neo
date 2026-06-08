@@ -14,6 +14,7 @@ import de.taz.app.android.api.models.ImageResolution
 import de.taz.app.android.audioPlayer.AudioPlayerViewController
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.databinding.ActivityImagePagerBinding
+import de.taz.app.android.monkey.isSectionKey
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.SectionRepository
@@ -67,7 +68,7 @@ class ImagePagerActivity : ViewBindingActivity<ActivityImagePagerBinding>() {
 
         // TODO should not need to be blocking -> move to ViewModel
         runBlocking {
-            availableImageList = if (displayableName.startsWith("section.")) {
+            availableImageList = if (displayableName.isSectionKey()) {
                 // for sections just load the clicked image
                 SectionRepository.getInstance(applicationContext).imagesForSectionStub(displayableName).filter {
                     it.name.startsWith(imageName.removeSuffix("norm.jpg"))

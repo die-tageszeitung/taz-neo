@@ -5,6 +5,8 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.Section
+import de.taz.app.android.monkey.isArticleKey
+import de.taz.app.android.monkey.isSectionKey
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -226,9 +228,9 @@ class SectionListAdapter(
 
     private fun notifyPositionOfKey(key: String?) {
         if (key != null) {
-            val position = if (key.startsWith("art") && key.endsWith(".html")) {
+            val position = if (key.isArticleKey()) {
                 sectionDrawerItemList.indexOfFirst { (it as? SectionDrawerItem.Item)?.article?.key == key }
-            } else if (key.startsWith("section") && key.endsWith(".html")) {
+            } else if (key.isSectionKey()) {
                 sectionDrawerItemList.indexOfFirst { (it as? SectionDrawerItem.Header)?.section?.key == key }
             } else {
                 -1

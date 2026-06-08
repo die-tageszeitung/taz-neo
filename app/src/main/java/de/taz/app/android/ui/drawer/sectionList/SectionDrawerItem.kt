@@ -6,4 +6,10 @@ import de.taz.app.android.api.models.Section
 sealed class SectionDrawerItem {
     class Item(val article: Article) : SectionDrawerItem()
     data class Header(val section: Section, val isExpanded: Boolean = false) : SectionDrawerItem()
+
+    val key: String
+        get() = when(this) {
+            is Item -> article.key
+            is Header -> section.key
+        }
 }

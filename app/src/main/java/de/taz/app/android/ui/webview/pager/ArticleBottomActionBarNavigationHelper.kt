@@ -11,6 +11,7 @@ import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.models.SearchHit
 import de.taz.app.android.ui.share.ShareArticleBottomSheet
 import de.taz.app.android.monkey.getHideViewOnScrollBehavior
+import de.taz.app.android.monkey.isPublicArticle
 import de.taz.app.android.monkey.setBottomNavigationBehavior
 
 class ArticleBottomActionBarNavigationHelper(
@@ -152,7 +153,7 @@ class ArticleBottomActionBarNavigationHelper(
          * The sharing icon will always be shown for public articles to urge users to subscribe.
          */
         fun shouldShareIconBeVisible(searchHit: SearchHit): Boolean {
-            val isPublicArticle = searchHit.articleFileName.endsWith("public.html")
+            val isPublicArticle = searchHit.articleFileName.isPublicArticle()
             return isPublicArticle || ShareArticleBottomSheet.isShareable(searchHit)
         }
 
@@ -161,7 +162,7 @@ class ArticleBottomActionBarNavigationHelper(
          * The sharing icon will always be shown for public articles to urge users to subscribe.
          */
         fun shouldShareIconBeVisible(article: ArticleOperations): Boolean {
-            val isPublicArticle = article.key.endsWith("public.html")
+            val isPublicArticle = article.key.isPublicArticle()
             return isPublicArticle || ShareArticleBottomSheet.isShareable(article)
         }
     }

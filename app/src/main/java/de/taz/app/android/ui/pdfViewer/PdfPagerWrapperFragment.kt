@@ -33,6 +33,7 @@ import de.taz.app.android.base.ViewBindingFragment
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.databinding.ActivityPdfDrawerLayoutBinding
+import de.taz.app.android.monkey.isArticleKey
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssuePublicationWithPages
 import de.taz.app.android.sentry.SentryWrapper
@@ -445,7 +446,7 @@ class PdfPagerWrapperFragment : ViewBindingFragment<ActivityPdfDrawerLayoutBindi
     }
 
     private fun goDirectlyToDisplayable(displayable: IssueKeyWithDisplayableKey) {
-        val isArticle = displayable.displayableKey.startsWith("art")
+        val isArticle = displayable.displayableKey.isArticleKey()
         if (isArticle) {
             pdfPagerViewModel.showArticle(
                 displayable.displayableKey,
