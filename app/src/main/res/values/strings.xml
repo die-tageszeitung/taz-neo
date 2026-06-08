@@ -15,7 +15,9 @@
     <string name="toast_click_again_to_exit">Nochmal drücken um App zu schließen</string>
     <string name="toast_imprint_not_possible_to_bookmark">Das Impressum kann nicht zur Leseliste hinzugefügt werden</string>
     <string name="toast_tom_not_possible_to_bookmark">Der Tom am Ende kann nicht zur Leseliste hinzugefügt werden</string>
+    <string name="toast_podcast_not_possible_to_bookmark">Podcasts können nicht zur Leseliste hinzugefügt werden</string>
     <string name="toast_tom_not_possible_to_share">Der Tom am Ende kann nicht geteilt werden</string>
+    <string name="toast_podcast_not_possible_to_share">Der Podcast kann nicht geteilt werden</string>
     <string name="toast_loading_new_issue_from_server">Eine aktualisierte Ausgabe wird geladen</string>
 
     <string name="snack_article_bookmarked">Der Artikel wurde zur Leseliste hinzugefügt.</string>
@@ -42,6 +44,7 @@
     <string name="toast_logout_invalid">Sie sind abgemeldet.</string>
     <string name="toast_error_mapping_update">Die Server Antwort konnte nicht verarbeitet werden.\nBitte stellen Sie sicher, dass die App auf dem neuesten Stand ist.</string>
     <string name="toast_login_week">Du hast dich mit einem wochentaz-Abo angemeldet. Werktägliche taz-Ausgaben werden mit diesem Abo nicht in der App angezeigt.</string>
+    <string name="toast_section_drawer_error">Ein unbekannter Fehler ist aufgetreten.\nÖffnen Sie die Ausgabe erneut.</string>
 
     <string name="navigation_drawer_open">Seitenflügel öffnen</string>
     <string name="navigation_drawer_close">Seitenflügel schließen</string>

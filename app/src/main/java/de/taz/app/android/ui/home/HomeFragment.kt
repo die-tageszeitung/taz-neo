@@ -37,6 +37,7 @@ import de.taz.app.android.databinding.FragmentHomeBinding
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.monkey.setRefreshingWithCallback
 import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.home.page.IssueFeedViewModel
 import de.taz.app.android.ui.home.page.archive.ArchiveFragment
 import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
@@ -48,6 +49,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -70,6 +72,7 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
     private lateinit var feedService: FeedService
     private lateinit var toastHelper: ToastHelper
     private lateinit var generalDataStore: GeneralDataStore
+    private lateinit var tracker: Tracker
 
     private val issueFeedViewModel: IssueFeedViewModel by activityViewModels()
 
@@ -78,6 +81,7 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
         feedService = FeedService.getInstance(context.applicationContext)
         toastHelper = ToastHelper.getInstance(context.applicationContext)
         generalDataStore = GeneralDataStore.getInstance(context.applicationContext)
+        tracker = Tracker.getInstance(context.applicationContext)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -107,12 +111,22 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
 
         setUpCoverFlowRefreshLayout()
 
-        // show Fragment if state changes and lifecycle in STARTED
-        generalDataStore.homeFragmentState.asFlow()
-            .flowWithLifecycle(lifecycle)
-            .onEach {
-                showFragmentForState(it)
-            }.launchIn(lifecycleScope)
+        // show Fragment and track properly if state changes and lifecycle in STARTED
+        combine(
+            generalDataStore.homeFragmentState.asFlow(),
+            issueFeedViewModel.pdfModeFlow,
+            ::Pair
+        )
+            .flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+            .distinctUntilChanged()
+            .onEach { (state, pdfMode) ->
+                showFragmentForState(state)
+                when (state) {
+                    State.ARCHIVE -> tracker.trackArchiveScreen(pdfMode)
+                    State.COVERFLOW -> tracker.trackCoverflowScreen(pdfMode)
+                }
+            }
+            .launchIn(viewLifecycleOwner.lifecycleScope)
 
         setupFAB()
     }

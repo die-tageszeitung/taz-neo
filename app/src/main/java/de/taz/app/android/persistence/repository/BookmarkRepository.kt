@@ -10,6 +10,7 @@ import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.ArticleBookmarkTime
 import de.taz.app.android.api.models.ArticleStub
+import de.taz.app.android.api.models.ArticleType
 import de.taz.app.android.api.models.SynchronizeFromType
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.dataStore.GeneralDataStore
@@ -275,6 +276,7 @@ class BookmarkRepository(
         return stateChangeFlow.map {
             getBookmarkedArticleStubs()
                 .mapNotNull { articleStubToArticle(it) }
+                .distinct()
         }
     }
 
@@ -388,6 +390,15 @@ class BookmarkRepository(
     }
 
     /**
+     * Remove this function in Release after 2.1.0 as no bookmarked podcasts should exist then
+     */
+    suspend fun deletePodcastBookmarks() {
+        val podcastBookmarks =
+            getBookmarkedArticleStubs().filter { it.articleType == ArticleType.PODCAST }
+        podcastBookmarks.forEach { removeBookmark(it) }
+    }
+
+    /**
      * Find out if [remoteButNotLocalBookmarks] need to be synchronized or added locally.
      * Therefore we look at the timestamp of when we locally changed it:
      */
@@ -419,7 +430,7 @@ class BookmarkRepository(
                 articleStub.articleFileName, articleStub.issueDate
             )
             // Download Issue meta data to display issues moment in bookmark list
-            issue ?: issueRepository.getIssueStubForArticle(articleStub.key)?.let { issue ->
+            issue ?: issueRepository.getIssueStubForArticle(articleStub)?.let { issue ->
                 val moment = momentRepository.get(issue.issueKey)
                 if (moment != null) {
                     contentService.downloadToCache(moment)

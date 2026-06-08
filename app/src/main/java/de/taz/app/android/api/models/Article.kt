@@ -92,6 +92,9 @@ data class Article(
             ""
         }
     }
+
+    override val audioFileName: String?
+        get() = audio?.file?.name
 }
 
 enum class ArticleType {

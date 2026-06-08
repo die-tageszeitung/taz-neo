@@ -74,6 +74,7 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.collections.filterNotNull
 import kotlin.math.ceil
 
 
@@ -337,14 +338,17 @@ class SectionWebViewFragment : WebViewFragment<
         super.onPageRendered()
 
         // restore scrollPosition only if scrollPosition was set to true
-        restoreScrollPositionViewModel.restoreScrollStateFlow
+        issueViewerViewModel.restoreScrollStateFlow
             .take(1)
-            .onEach {        // Do not restore scroll position of title section:
-                val issueKey = viewModel.issueStubFlow.first().issueKey
-                val titleSection =
-                    sectionRepository.getSectionStubsForIssue(issueKey).firstOrNull()?.key
-                if (sectionFileName != titleSection) {
-                    restoreLastScrollPosition()
+            .onEach {
+                if (it) {
+                    // Do not restore scroll position of title section:
+                    val issueKey = viewModel.issueStubFlow.first().issueKey
+                    val titleSection =
+                        sectionRepository.getSectionStubsForIssue(issueKey).firstOrNull()?.key
+                    if (sectionFileName != titleSection) {
+                        restoreLastScrollPosition()
+                    }
                 }
             }
             .flowWithLifecycle(lifecycle)
@@ -493,6 +497,11 @@ class SectionWebViewFragment : WebViewFragment<
         val articleStub = issueViewerViewModel.findArticleStubByArticleName(articleName)
         if (articleStub == null) {
             log.warn("Could not set bookmark for articleName=$articleName as no articleStub was found.")
+            return
+        }
+        // Do not bookmark podcasts, show a toast instead
+        if (articleStub.articleType == ArticleType.PODCAST) {
+            toastHelper.showToast(R.string.toast_podcast_not_possible_to_bookmark)
             return
         }
 
@@ -701,10 +710,9 @@ class SectionWebViewFragment : WebViewFragment<
     override suspend fun togglePlay(mediaSyncId: Int?, filePath: String?) {
         if (mediaSyncId == null) return
         val article = articleRepository.getStubByMediaSyncId(mediaSyncId) ?: return
-        if (audioPlayerViewModel.isActiveAndPlaying.first()) {
+        if (audioPlayerViewModel.isActiveAudio.first()) {
             audioPlayerService.toggleAudioPlaying()
         } else {
-            // TODO improve playArticle function to have proper podcast tracking
             audioPlayerService.playArticle(article.key)
         }
     }

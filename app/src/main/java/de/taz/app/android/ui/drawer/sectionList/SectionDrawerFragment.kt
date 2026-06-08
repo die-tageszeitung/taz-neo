@@ -20,9 +20,11 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.google.android.material.behavior.HideViewOnScrollBehavior.EDGE_BOTTOM
+import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.models.Article
+import de.taz.app.android.api.models.ArticleType
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.Moment
 import de.taz.app.android.api.models.Section
@@ -40,6 +42,7 @@ import de.taz.app.android.coachMarks.SectionDrawerToggleOneCoachMark
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.databinding.FragmentDrawerSectionsBinding
+import de.taz.app.android.monkey.getHideViewOnScrollBehavior
 import de.taz.app.android.monkey.setDefaultVerticalInsets
 import de.taz.app.android.persistence.repository.AbstractCoverPublication
 import de.taz.app.android.persistence.repository.BookmarkRepository
@@ -61,7 +64,6 @@ import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.webview.pager.BookmarkPagerViewModel
 import de.taz.app.android.util.Log
-import de.taz.app.android.monkey.getHideViewOnScrollBehavior
 import de.taz.app.android.util.showIssueDownloadFailedDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -305,9 +307,10 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
             }
 
             viewBinding?.fabHelp?.isVisible = issueContentViewModel.fabHelpEnabledFlow.first()
+            hideLoadingScreen()
         } catch (_: ConnectivityException.Recoverable) {
             // do nothing we can not load the issueStub as not in database yet.
-            // TODO wait for internet and show it once internet is available
+            toastHelper.showToast(R.string.toast_section_drawer_error)
         }
     }
 
@@ -392,6 +395,11 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
     }
 
     private fun handleArticleBookmarkClick(article: Article) {
+        // Do not bookmark podcasts, show a toast instead
+        if (article.articleType == ArticleType.PODCAST) {
+            toastHelper.showToast(R.string.toast_podcast_not_possible_to_bookmark)
+            return
+        }
         tracker.trackDrawerTapBookmarkEvent()
         viewBinding?.root?.let {
             lifecycleScope.launch {
@@ -481,6 +489,17 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
                 .onEach {
                     fabHelp.isVisible = it
                 }.launchIn(lifecycleScope)
+        }
+    }
+
+    private fun hideLoadingScreen() {
+        viewBinding?.loadingScreen?.root?.apply {
+            animate()
+                .alpha(0f)
+                .withEndAction {
+                    visibility = View.GONE
+                }
+                .duration = LOADING_SCREEN_FADE_OUT_TIME
         }
     }
 }

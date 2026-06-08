@@ -31,7 +31,6 @@
     <dimen name="drawer_margin_vertical">40dp</dimen>
     <dimen name="drawer_padding_horizontal">20dp</dimen>
     <dimen name="drawer_margin_top">12dp</dimen>
-    <dimen name="drawer_margin_top_old_sdk">25dp</dimen>
     <dimen name="drawer_width">@dimen/custom_match_parent</dimen>
     <!--    For more explanation about this value see
     https://stackoverflow.com/questions/16754305/full-width-navigation-drawer -->
@@ -80,7 +79,7 @@
     <dimen name="drawer_margin_between_actions">15dp</dimen>
 
     <dimen name="fragment_drawer_body_table_of_content_header_margin_top">15dp</dimen>
-    <dimen name="fragment_drawer_separator_margin_top">20dp</dimen>
+    <dimen name="fragment_drawer_separator_margin_top">15dp</dimen>
     <dimen name="fragment_drawer_card_width">62dp</dimen>
     <dimen name="fragment_drawer_card_height">92dp</dimen>
 

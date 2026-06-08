@@ -216,13 +216,21 @@ class ArticleWebViewFragment :
     override fun onPageRendered() {
         super.onPageRendered()
         // restore scrollPosition only if scrollPosition was set to true
-        restoreScrollPositionViewModel.restoreScrollStateFlow
-            .take(1)
-            .onEach {
-                restoreLastScrollPosition()
-            }
-            .flowWithLifecycle(lifecycle)
-            .launchIn(lifecycleScope)
+        lifecycleScope.launch {
+            issueViewerViewModel.restoreScrollStateFlow
+                .take(1)
+                .onEach {
+                    if (it) {
+                        if (isMultiColumnMode) {
+                            restoreLastHorizontalScrollPosition()
+                        } else {
+                            restoreLastScrollPosition()
+                        }
+                    }
+                }
+                .flowWithLifecycle(lifecycle)
+                .launchIn(lifecycleScope)
+        }
 
         if (articleOperations?.articleType == ArticleType.PODCAST) {
             val showPlayIcon = !(audioPlayerService.isPlaying() && audioPlayerService.getCurrent()?.audio?.file?.name == articleOperations?.key)
@@ -254,10 +262,9 @@ class ArticleWebViewFragment :
 
     override suspend fun togglePlay(mediaSyncId: Int?, filePath: String?) {
         articleOperations?.let {
-            if (audioPlayerViewModel.isActiveAndPlaying.first()) {
+            if (audioPlayerViewModel.isActiveAudio.first()) {
                 audioPlayerService.toggleAudioPlaying()
             } else {
-                // TODO improve playArticle function to have proper podcast tracking
                 audioPlayerService.playArticle(it.key)
             }
         }
@@ -289,12 +296,6 @@ class ArticleWebViewFragment :
     }
 
     override fun onMultiColumnLayoutReady(contentWidth: Int?) {
-        restoreScrollPositionViewModel.restoreScrollStateFlow
-            .take(1)
-            .onEach { restoreLastHorizontalScrollPosition() }
-            .flowWithLifecycle(lifecycle)
-            .launchIn(lifecycleScope)
-
         hideLoadingScreen()
         super.onMultiColumnLayoutReady(contentWidth)
     }
@@ -435,6 +436,7 @@ class ArticleWebViewFragment :
                     oldScrollXOnMultiColumnSaved = false
                     oldScrollXOnMultiColumn = 0
                     helpFabViewModel.showHelpFab()
+                    drawerAndLogoViewModel.setFeedLogo()
                 }
             }
         }

@@ -39,7 +39,7 @@ data class ArticleStub(
     override val onlineLink: String?,
     override val pageNameList: List<String>,
     override val bookmarkedTime: Date?,
-    val audioFileName: String?,
+    override val audioFileName: String?,
     override val articleType: ArticleType,
     override val position: Int,
     override val percentage: Int,

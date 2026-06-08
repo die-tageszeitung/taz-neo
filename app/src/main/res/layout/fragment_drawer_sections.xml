@@ -6,6 +6,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <include
+        android:id="@+id/loading_screen"
+        layout="@layout/include_loading_screen"
+        android:background="@android:color/transparent"
+        tools:visibility="gone"/>
+
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">

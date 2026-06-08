@@ -17,8 +17,8 @@ import de.taz.app.android.sentry.SentryWrapperLevel
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.SingletonHolder
 import io.ktor.client.HttpClient
-import io.ktor.client.call.body
-import io.ktor.client.request.get
+import io.ktor.client.request.prepareGet
+import io.ktor.client.statement.bodyAsChannel
 import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.readAvailable
 import kotlinx.coroutines.CoroutineScope
@@ -96,91 +96,83 @@ class FileDownloader(
     }
 
     private suspend fun downloadCacheItem(download: FileCacheItem, operations: List<ContentDownload>) {
+        val fileName = download.fileEntryOperation.fileEntry.name
         try {
             ensureHelperInitialized()
-            val response = downloadConnectionHelper.retryOnConnectivityFailure({
-                operations.map { it.notifyBadConnection() }
+            downloadConnectionHelper.retryOnConnectivityFailure({
+                operations.forEach { it.notifyBadConnection() }
             }) {
                 transformToConnectivityException {
-                    httpClient.get(
-                        download.fileEntryOperation.origin!!
-                    )
-                }
-            }
-            val fileName = download.fileEntryOperation.fileEntry.name
-
-            when (response.status.value) {
-                in 200..299 -> {
-                    val channel = response.body<ByteReadChannel>()
-                    val hash = saveFile(download.fileEntryOperation, channel)
-                    if (hash != download.fileEntryOperation.fileEntry.sha256) {
-                        val hint = "Hash mismatch on ${download.fileEntryOperation.fileEntry.name}.\n" +
-                                "Local hash $hash vs remote hash ${download.fileEntryOperation.fileEntry.sha256}"
-                        log.warn(hint
-                        )
-                        SentryWrapper.captureMessage(hint, SentryWrapperLevel.WARNING)
+                    httpClient.prepareGet(download.fileEntryOperation.origin!!).execute { response ->
+                        when (response.status.value) {
+                            in 200..299 -> {
+                                val channel = response.bodyAsChannel()
+                                val hash = saveFile(download.fileEntryOperation, channel)
+                                if (hash != download.fileEntryOperation.fileEntry.sha256) {
+                                    val hint = "Hash mismatch on $fileName.\n" +
+                                            "Local hash $hash vs remote hash ${download.fileEntryOperation.fileEntry.sha256}"
+                                    log.warn(hint)
+                                    SentryWrapper.captureMessage(hint, SentryWrapperLevel.WARNING)
+                                }
+                                download.fileEntryOperation.fileEntry.setDownloadDate(Date(), applicationContext)
+                                operations.forEach { it.notifySuccessfulItem() }
+                                log.verbose("Download of $fileName successful")
+                            }
+                            in 400..499 -> {
+                                val hint =
+                                    "Response code ${response.status.value} while trying to download $fileName"
+                                log.warn("Download of $fileName not successful ${response.status.value}")
+                                val exception = ConnectivityException.ImplementationException(
+                                    hint,
+                                    null,
+                                    response
+                                )
+                                operations.forEach { it.notifyFailedItem(exception) }
+                                SentryWrapper.captureException(exception)
+                            }
+                            in 500..599 -> {
+                                val hint =
+                                    "Response code ${response.status.value} while trying to download $fileName"
+                                log.warn(hint)
+                                val exception = ConnectivityException.ServerUnavailableException(hint)
+                                operations.forEach { it.notifyFailedItem(exception) }
+                                SentryWrapper.captureException(exception)
+                            }
+                            else -> {
+                                val hint = "Unexpected code ${response.status.value} for  $fileName"
+                                log.warn(hint)
+                                operations.forEach { it.notifyFailedItem(ConnectivityException.ImplementationException(hint)) }
+                            }
+                        }
                     }
-                    download.fileEntryOperation.fileEntry.setDownloadDate(Date(), applicationContext)
-                    operations.map {
-                        it.notifySuccessfulItem()
-                    }
-                    log.verbose("Download of $fileName successful")
-                }
-                in 400..499 -> {
-                    val hint =
-                        "Response code ${response.status.value} while trying to download $fileName"
-                    log.warn("Download of $fileName not successful ${response.status.value}")
-                    val exception = ConnectivityException.ImplementationException(
-                        hint,
-                        null,
-                        response
-                    )
-                    operations.map { it.notifyFailedItem(exception) }
-                    SentryWrapper.captureException(exception)
-                }
-                in 500..599 -> {
-                    val hint =
-                        "Response code ${response.status.value} while trying to download $fileName"
-                    log.warn(hint)
-                    val exception = ConnectivityException.ServerUnavailableException(hint)
-                    operations.map { it.notifyFailedItem(exception) }
-                    SentryWrapper.captureException(exception)
-                }
-                else -> {
-                    val hint = "Unexpected code ${response.status.value} for  $fileName"
-                    log.warn(hint)
-                    operations.map { it.notifyFailedItem(ConnectivityException.ImplementationException(hint)) }
                 }
             }
 
         } catch (e: Exception) {
-            operations.map { it.notifyFailedItem(e) }
+            operations.forEach { it.notifyFailedItem(e) }
             SentryWrapper.captureException(e)
         } finally {
-            operations.map { it.checkIfItemsCompleteAndNotifyResult(Unit) }
+            operations.forEach { it.checkIfItemsCompleteAndNotifyResult(Unit) }
         }
     }
 
     private suspend fun saveFile(download: FileEntryOperation, channel: ByteReadChannel): String {
         val file = File(download.destination!!)
         file.parentFile?.mkdirs()
-        // clear out file
-        file.writeBytes(ByteArray(0))
-        val fileStream = file.outputStream()
+
         val hash = MessageDigest.getInstance("SHA-256")
 
-        fileStream.use {
+        file.outputStream().use { fileStream ->
             val buffer = ByteArray(COPY_BUFFER_SIZE)
-            do {
+            while (true) {
                 val read = channel.readAvailable(buffer)
-                if (read > 0) {
-                    hash.update(buffer, 0, read)
-                    it.write(buffer, 0, read)
-                }
-            } while (read > 0)
+                if (read <= 0) break
+                hash.update(buffer, 0, read)
+                fileStream.write(buffer, 0, read)
+            }
         }
 
         val digest = hash.digest()
-        return digest.fold("") { str, it -> str + "%02x".format(it) }
+        return digest.joinToString("") { "%02x".format(it) }
     }
 }

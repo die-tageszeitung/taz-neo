@@ -269,6 +269,12 @@ class LoginBottomSheetFragment : FullscreenViewBindingBottomSheetFragment<Fragme
     private fun showFragment(fragment: Fragment) {
         val fragmentClassName = fragment::class.java.name
 
+        val currentFragment = childFragmentManager.findFragmentById(R.id.login_fragment_placeholder)
+        if (currentFragment != null && currentFragment::class.java == fragment::class.java) {
+            log.verbose("Fragment $fragmentClassName already showing, skip replacement")
+            return
+        }
+
         childFragmentManager.apply {
             popBackStack(fragmentClassName, POP_BACK_STACK_INCLUSIVE)
             commit {

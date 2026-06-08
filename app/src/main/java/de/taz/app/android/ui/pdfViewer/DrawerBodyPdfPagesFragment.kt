@@ -79,17 +79,6 @@ class DrawerBodyPdfPagesFragment : ViewBindingFragment<FragmentDrawerBodyPdfPage
         viewBinding?.apply {
             wrapper.setDefaultVerticalInsets()
 
-            if (Build.VERSION.SDK_INT < 35) {
-                ViewCompat.setOnApplyWindowInsetsListener(wrapper) { v, windowInsets ->
-                    val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-                    val margin = resources.getDimensionPixelSize(R.dimen.drawer_margin_top_old_sdk)
-                    v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                        topMargin = insets.top + margin
-                    }
-                    WindowInsetsCompat.CONSUMED
-                }
-            }
-
             // Disable animations on the RV in hope of preventing some internal crashes:
             // See: https://redmine.hal.taz.de/issues/15694
             // Note: The RV should actually not recycle anything because it has effectively set its

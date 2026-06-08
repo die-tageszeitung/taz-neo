@@ -10,8 +10,9 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import de.taz.app.android.R
 import de.taz.app.android.util.SingletonHolder
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
 
 // region old setting names
 private const val PREFERENCES_TAZ_API_CSS = "preferences_tazapicss"
@@ -77,9 +78,12 @@ class TazApiCssDataStore private constructor(applicationContext: Context) {
         dataStore, intPreferencesKey(LOGO_WIDTH), -1
     )
 
-    val regenerateCssFlow = merge(
+    @OptIn(FlowPreview::class)
+    val regenerateCssFlow = combine(
         fontSize.asFlow(),
         nightMode.asFlow(),
         textJustification.asFlow(),
-    )
+    ) { fontSize, nightMode, textJustification ->
+        Triple(fontSize, nightMode, textJustification)
+    }.debounce(100)
 }

@@ -35,6 +35,7 @@ import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.ArticleStubWithSectionKey
+import de.taz.app.android.api.models.ArticleType
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.audioPlayer.ArticleAudioPlayerViewModel
 import de.taz.app.android.base.BaseMainFragment
@@ -554,6 +555,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
                         wasUserInputEnabledOnArticles =
                             webviewPagerViewpager.isUserInputEnabled
                         // always show taz logo when on new article:
+                        drawerAndLogoViewModel.setFeedLogo()
                     }
 
                     is ArticlePagerItem.Tom -> {
@@ -693,6 +695,8 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
                     is ArticlePagerItem.ArticleRepresentation ->
                         if (currentItem.art.articleStub.isImprint()) {
                             toastHelper.showToast(R.string.toast_imprint_not_possible_to_bookmark)
+                        } else if (currentItem.art.articleStub.articleType == ArticleType.PODCAST) {
+                            toastHelper.showToast(R.string.toast_podcast_not_possible_to_bookmark)
                         } else {
                             toggleBookmark(currentItem.art.articleStub)
                         }
@@ -700,7 +704,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
                     is ArticlePagerItem.Tom -> toastHelper.showToast(R.string.toast_tom_not_possible_to_bookmark)
 
                     null ->
-                        log.warn("Current item in ArticlePagerFragemnt is null")
+                        log.warn("Current item in ArticlePagerFragment is null")
                 }
             }
 
@@ -741,9 +745,13 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
         when (val currentItem = getCurrentArticlePagerItem()) {
             is ArticlePagerItem.ArticleRepresentation -> {
                 val articleStub = currentItem.art.articleStub
-                tracker.trackShareArticleEvent(articleStub)
-                ShareArticleBottomSheet.newInstance(articleStub)
-                    .show(parentFragmentManager, ShareArticleBottomSheet.TAG)
+                if (articleStub.articleType == ArticleType.PODCAST) {
+                    toastHelper.showToast(R.string.toast_podcast_not_possible_to_share)
+                } else {
+                    tracker.trackShareArticleEvent(articleStub)
+                    ShareArticleBottomSheet.newInstance(articleStub)
+                        .show(parentFragmentManager, ShareArticleBottomSheet.TAG)
+                }
             }
 
             is ArticlePagerItem.Tom ->
@@ -837,7 +845,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
         lifecycleScope.launch {
             val articleStub = articleRepository.getStub(displayableKey)
             articleStub?.let { stub ->
-                val issueStub = issueRepository.getIssueStubForArticle(stub.key)
+                val issueStub = issueRepository.getIssueStubForArticle(stub)
                 val sectionStub = stub.getSectionStub(requireContext().applicationContext)
                 // only the imprint should have no section
                 if (sectionStub?.title == null) {
@@ -954,16 +962,11 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
     }
     // endregion
 
-    private fun goBackToSection(sectionStub: SectionStub?) = lifecycleScope.launch {
-        sectionStub?.let {
-            issueRepository.getIssueStubForSection(sectionStub.sectionFileName)?.let { issueStub ->
-                lifecycleScope.launch {
-                    issueContentViewModel.setDisplayable(
-                        issueStub.issueKey,
-                        sectionStub.sectionFileName
-                    )
-                }
-            }
+    private fun goBackToSection(sectionStub: SectionStub?) {
+        val sectionFileName = sectionStub?.sectionFileName ?: return
+        val issueKey = issueContentViewModel.issueKeyAndDisplayableKeyFlow.value?.issueKey ?: return
+        lifecycleScope.launch {
+            issueContentViewModel.setDisplayable(issueKey, sectionFileName)
         }
     }
 

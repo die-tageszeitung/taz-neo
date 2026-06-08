@@ -151,6 +151,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>(), SuccessfulLogin
                     if (newAppSessionCount != null) {
                         maybeStartReviewFlow(newAppSessionCount)
                         bookmarkRepository.checkForSynchronizedBookmarksIfEnabled()
+                        bookmarkRepository.deletePodcastBookmarks()
                     }
                 }
             }

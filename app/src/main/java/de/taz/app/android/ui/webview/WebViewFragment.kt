@@ -19,13 +19,13 @@ import androidx.core.view.doOnLayout
 import androidx.core.view.marginBottom
 import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewbinding.ViewBinding
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.WebViewDisplayable
@@ -37,7 +37,6 @@ import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.download.DownloadPriority
 import de.taz.app.android.monkey.getVisibleHeight
 import de.taz.app.android.persistence.repository.FileEntryRepository
-import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.ViewerStateRepository
 import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.singletons.CannotDetermineBaseUrlException
@@ -88,13 +87,6 @@ abstract class WebViewFragment<
 
     abstract override val viewModel: VIEW_MODEL
 
-    val restoreScrollPositionViewModel by viewModels<RestoreScrollPositionViewModel>(ownerProducer = {
-        // we need to create the viewModel in the scope of the IssueViewerWrapperFragment
-        // as we need to ensure we listen to the correct continueReadClicked event
-        // triggered by the BottomSheet
-        requireParentFragment().requireParentFragment()
-    })
-
     protected val log by Log
 
     private lateinit var storageService: StorageService
@@ -113,7 +105,6 @@ abstract class WebViewFragment<
 
     private var saveScrollPositionJob: Job? = null
 
-    private var currentIssueKey: IssueKey? = null
     private var currentDisplayableKey: String? = null
 
     open var isCurrentlyVisible: Boolean = false
@@ -164,8 +155,6 @@ abstract class WebViewFragment<
                         currentDisplayableKey = displayable.key
                         log.debug("Received a new displayable ${displayable.key}")
                         setHeader(displayable)
-                        currentIssueKey =
-                            displayable.getIssueStub(requireContext().applicationContext)?.issueKey
                         ensureDownloadedAndShow()
                     }.launchIn(lifecycleScope)
 
@@ -486,6 +475,12 @@ abstract class WebViewFragment<
                     // If the bottom navigation does not have a behavior, it is expanded
                     visibleBottom -= bottomNavigationLayout.height
                 }
+            } else {
+                // properly on section webview need to adjust here too
+                if (currentDisplayableKey?.startsWith("sec") == true) {
+                    val sectionBottomNav = requireActivity().findViewById<BottomNavigationView>(R.id.navigation_bottom_webview_pager)
+                    visibleBottom -= sectionBottomNav?.height ?:0
+                }
             }
 
             val scrollDelta = visibleBottom - targetTop
@@ -621,7 +616,7 @@ abstract class WebViewFragment<
     }
 
     fun setDisplayable(displayableKey: String, linkClicked: Boolean = false) {
-        currentIssueKey?.let {
+        issueViewerViewModel.issueKeyAndDisplayableKeyFlow.value?.issueKey?.let {
             lifecycleScope.launch {
                 if (activity is BookmarkViewerActivity && linkClicked) {
                     (activity as BookmarkViewerActivity).showDisplayable(it, displayableKey)
@@ -678,7 +673,9 @@ abstract class WebViewFragment<
                 delay(TAP_LOCK_JS_DELAY_MS)
                 // Maybe tapLock was set from setBookmark in tasApiJs, so check again:
                 if (preventTap.compareAndSet(false, true)) {
-                    scrollToDirection(multiColumnMode, direction)
+                    // Only scroll horizontally on articles with multiColumn enabled:
+                    val scrollHorizontally = multiColumnMode && currentDisplayableKey?.startsWith("art") == true
+                    scrollToDirection(scrollHorizontally , direction)
                     // wait some delay to prevent javascript from opening links
                     delay(TAP_LOCK_DELAY_MS)
                 }

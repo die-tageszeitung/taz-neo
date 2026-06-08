@@ -36,7 +36,7 @@ class BookmarkPagerViewModel(
         addSource(articleFileNameLiveData) { articleFileName ->
             viewModelScope.launch {
                 articleFileName?.let { articleFileName ->
-                    issueRepository.getIssueStubForArticle(articleFileName)?.let { issueStub ->
+                    issueRepository.guessIssueStubForArticle(articleFileName)?.let { issueStub ->
                         postValue(issueStub to articleFileName)
                     }
                 }

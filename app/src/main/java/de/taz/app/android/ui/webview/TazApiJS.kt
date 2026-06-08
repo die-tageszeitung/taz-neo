@@ -219,8 +219,10 @@ class TazApiJS(private val webViewFragment: WebViewFragment<*, out WebViewViewMo
     fun togglePlayButton(mediaSyncId: String?, file: String?) {
         log.debug("play button was clicked with mediaSyncId $mediaSyncId and file: $file")
         webViewFragment.lifecycleScope.launch {
-            webViewFragment.togglePlay(mediaSyncId?.toIntOrNull(), file)
-        }
+            if (webViewFragment.preventTap.compareAndSet(false, true)) {
+                    webViewFragment.togglePlay(mediaSyncId?.toIntOrNull(), file)
+                }
+            }
     }
 
     /**
