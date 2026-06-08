@@ -12,6 +12,7 @@ import androidx.lifecycle.withStarted
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentArchiveBinding
@@ -143,7 +144,11 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
             }.launchIn(lifecycleScope)
 
         viewBinding?.apply {
-            feedButtons = FeedButtons(tazFeed, wochentazFeed, lmdFeed)
+            feedButtons = if (BuildConfig.DISPLAYED_FEED == "taz") {
+                FeedButtons(tazFeed, wochentazFeed, lmdFeed)
+            } else {
+                null
+            }
             collapsingToolbarLayout.setDefaultTopInset()
 
             appBarLayout.addOnOffsetChangedListener { _, verticalOffset ->

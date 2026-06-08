@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.commit
 import androidx.lifecycle.Lifecycle
@@ -234,6 +235,7 @@ abstract class IssueFeedFragment<VIEW_BINDING : ViewBinding> :
         val buttonMap = buttons.asMap()
 
         buttonMap.forEach { (name, view) ->
+            view?.isVisible = true
             view?.setOnClickListener {
                 viewModel.switchFeed(name)
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
