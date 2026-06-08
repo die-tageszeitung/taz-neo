@@ -50,6 +50,7 @@ import de.taz.app.android.ui.webview.SectionImprintWebViewFragment
 import de.taz.app.android.ui.webview.SectionWebViewFragment
 import de.taz.app.android.util.Log
 import de.taz.app.android.monkey.getHideViewOnScrollBehavior
+import de.taz.app.android.monkey.isSectionKey
 import de.taz.app.android.util.runIfNotNull
 import de.taz.app.android.monkey.setupLogoScrollBehavior
 import kotlinx.coroutines.delay
@@ -315,7 +316,7 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
     }
 
     private suspend fun tryScrollToSection(displayableKey: String) {
-        if (displayableKey.startsWith("sec")) {
+        if (displayableKey.isSectionKey()) {
             log.debug("Section selected: $displayableKey")
             issueContentViewModel.lastSectionKey = displayableKey
 

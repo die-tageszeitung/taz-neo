@@ -14,6 +14,8 @@ import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.monkey.getApplicationScope
+import de.taz.app.android.monkey.isPageKey
+import de.taz.app.android.monkey.isSectionKey
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssuePublication
@@ -111,7 +113,7 @@ class IssueViewerViewModel(
                 val lastDisplayable = issueRepository.getLastDisplayable(issueKey)
                 val titleSectionsDisplayable = sectionRepository.getSectionStubsForIssue(issueKey).firstOrNull()?.key
                 val continueReadAutomatically = generalDataStore.settingsContinueRead.get()
-                val isPage = lastDisplayable?.startsWith("s") == true && lastDisplayable.endsWith(".pdf")
+                val isPage = lastDisplayable?.isPageKey() == true
 
                 if (lastDisplayable != null && lastDisplayable != titleSectionsDisplayable && !isPage) {
                     showContinueReadDisplayable = IssueKeyWithDisplayableKey(issueKey,lastDisplayable)
@@ -179,7 +181,7 @@ class IssueViewerViewModel(
             val displayableKey = it?.displayableKey
             if (displayableKey == null)
                 IssueContentDisplayMode.Loading
-            else if (displayableKey.startsWith("sec"))
+            else if (displayableKey.isSectionKey())
                 IssueContentDisplayMode.Section
             else
                 IssueContentDisplayMode.Article

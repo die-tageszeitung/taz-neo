@@ -22,6 +22,7 @@ import de.taz.app.android.content.cache.CacheState
 import de.taz.app.android.content.cache.CacheStateUpdate
 import de.taz.app.android.dataStore.DownloadDataStore
 import de.taz.app.android.dataStore.GeneralDataStore
+import de.taz.app.android.monkey.isPageKey
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssuePublication
@@ -450,8 +451,7 @@ class DownloadObserver(
         if (issueStub == null) return false
         val lastDisplayable = issueStub.lastDisplayableName
         if (lastDisplayable == null) return false
-        val lastDisplayableIsPage =
-            lastDisplayable.startsWith("s") && lastDisplayable.endsWith(".pdf")
+        val lastDisplayableIsPage = lastDisplayable.isPageKey()
 
         return generalDataStore.pdfMode.get() || !lastDisplayableIsPage
     }

@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.RequestManager
 import de.taz.app.android.api.models.Page
 import de.taz.app.android.api.models.PageType
+import de.taz.app.android.monkey.isArticleKey
 
 class PdfDrawerRecyclerViewAdapter(
     private val itemList: List<Page>,
@@ -57,9 +58,9 @@ class PdfDrawerRecyclerViewAdapter(
 
         private fun hasArticles(page: Page): Boolean {
             val hasArticle = page.frameList?.any { frame ->
-                frame.link?.startsWith("art") == true && frame.link.endsWith(".html")
-            }
-            return hasArticle == true
+                frame.link?.isArticleKey() == true
+            } ?: false
+            return hasArticle
         }
     }
 

@@ -89,6 +89,7 @@ import de.taz.app.android.ui.webview.HelpFabViewModel
 import de.taz.app.android.ui.webview.TapIconsViewModel
 import de.taz.app.android.util.Log
 import de.taz.app.android.monkey.getHideViewOnScrollBehavior
+import de.taz.app.android.monkey.isArticleKey
 import de.taz.app.android.util.runIfNotNull
 import de.taz.app.android.monkey.setupLogoScrollBehavior
 import kotlinx.coroutines.Dispatchers
@@ -767,8 +768,8 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
         articleStubs: List<ArticleStubWithSectionKey>
     ) {
         if (
-            articleKey.startsWith("art") && articleStubs.map { it.articleStub.key }
-                .contains(articleKey)
+            articleKey.isArticleKey()
+            && articleStubs.map { it.articleStub.key }.contains(articleKey)
         ) {
             if (articleKey != getCurrentArticleStub()?.key) {
                 log.debug("I will now display $articleKey")
