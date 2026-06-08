@@ -264,7 +264,11 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
 
         // initialize the views
         viewBinding?.apply {
-            feedButtons = FeedButtons(tazFeed, wochentazFeed, lmdFeed)
+            feedButtons = if (BuildConfig.DISPLAYED_FEED == "taz") {
+                FeedButtons(tazFeed, wochentazFeed, lmdFeed)
+            } else {
+                null
+            }
             // ensure padding is correct
             root.setDefaultInsets()
 
