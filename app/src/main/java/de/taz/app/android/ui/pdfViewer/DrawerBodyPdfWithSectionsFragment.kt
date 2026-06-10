@@ -23,7 +23,7 @@ import com.google.android.material.behavior.HideViewOnScrollBehavior.EDGE_BOTTOM
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
-import de.taz.app.android.api.interfaces.ArticleOperations
+import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.audioPlayer.DrawerAudioPlayerViewModel
 import de.taz.app.android.base.ViewBindingFragment
@@ -206,7 +206,7 @@ class DrawerBodyPdfWithSectionsFragment :
      * @param pagePosition Absolute adapter position of article page.
      * @param article Article that was clicked.
      */
-    private fun handleArticleClick(pagePosition: Int, article: ArticleOperations) {
+    private fun handleArticleClick(pagePosition: Int, article: Article) {
         tracker.trackDrawerTapArticleEvent()
         if (!article.isImprint()) {
             pdfPagerViewModel.updateCurrentItem(pagePosition)
@@ -215,12 +215,12 @@ class DrawerBodyPdfWithSectionsFragment :
         (requireParentFragment() as? PdfPagerWrapperFragment)?.showArticle(article)
     }
 
-    private fun handleArticleBookmarkClick(article: ArticleOperations) {
+    private fun handleArticleBookmarkClick(article: Article) {
         tracker.trackDrawerTapBookmarkEvent()
         toggleBookmark(article)
     }
 
-    private fun handleAudioEnqueueClick(article: ArticleOperations, isEnqueued: Boolean? = false) {
+    private fun handleAudioEnqueueClick(article: Article, isEnqueued: Boolean? = false) {
         if (isEnqueued == true) {
             drawerAudioPlayerViewModel.removeFromPlaylist(article.key)
         } else {
@@ -229,11 +229,11 @@ class DrawerBodyPdfWithSectionsFragment :
         }
     }
 
-    private fun createArticleBookmarkStateFlow(article: ArticleOperations): Flow<Boolean> {
+    private fun createArticleBookmarkStateFlow(article: Article): Flow<Boolean> {
         return bookmarkRepository.createBookmarkStateFlow(article.key)
     }
 
-    private fun toggleBookmark(article: ArticleOperations) {
+    private fun toggleBookmark(article: Article) {
         viewBinding?.root?.let {
             lifecycleScope.launch {
                 val isBookmarked = bookmarkRepository.toggleBookmarkAsync(article).await()

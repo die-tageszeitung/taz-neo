@@ -5,6 +5,8 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import de.taz.app.android.KEEP_LATEST_MOMENTS_COUNT
 import de.taz.app.android.api.interfaces.StorageLocation
+import de.taz.app.android.api.models.AudioStub
+import de.taz.app.android.api.models.AudioWithFile
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.persistence.AppDatabase
@@ -43,7 +45,6 @@ class ScrubberTest {
 
     private lateinit var db: AppDatabase
     private lateinit var context: Context
-
     private lateinit var scrubber: Scrubber
     private lateinit var fileEntryRepository: FileEntryRepository
     private lateinit var issueRepository: IssueRepository
@@ -138,13 +139,21 @@ class ScrubberTest {
 
     @Test
     fun `Audio is kept if referenced from an Article`() = runTest {
-        val audio = Fixtures.audio
+        val audioFileName = "article02-audio.mp3"
+        val audio = Fixtures.audio.copyWithFileName(audioFileName)
+
         val issue = Fixtures.issueBase.copy(
             sectionList = listOf(
                 Fixtures.sectionBase.copy(
                     articleList = listOf(
                         Fixtures.articleBase.copy(
-                            audio = audio
+                            audioWithFile = AudioWithFile(
+                                AudioStub(audio),
+                                audio.file
+                            ),
+                            articleStub = Fixtures.articleBase.articleStub.copy(
+                                audioFileName = audioFileName
+                            )
                         )
                     )
                 )
@@ -154,7 +163,7 @@ class ScrubberTest {
 
         scrubber.scrub()
 
-        assertEquals(audio, audioRepository.get(audio.file.name))
+        assertEquals(audio, audioRepository.get(audioFileName))
     }
 
     @Test
@@ -219,13 +228,15 @@ class ScrubberTest {
     @Test
     fun `Article with Bookmark is kept`() = runTest {
         val article = Fixtures.articleBase.copy(
-            bookmarkedTime = requireNotNull(DateHelper.stringToDate("2000-12-13"))
+            articleStub = Fixtures.articleBase.articleStub.copy(
+                bookmarkedTime = requireNotNull(DateHelper.stringToDate("2000-12-13"))
+            ),
         )
         articleRepository.saveInternal(article)
 
         scrubber.scrub()
 
-        assertEquals(article, articleRepository.get(article.key))
+        assertEquals(article.articleStub, articleRepository.get(article.key)?.articleStub)
     }
 
     @Test
@@ -244,7 +255,7 @@ class ScrubberTest {
 
         scrubber.scrub()
 
-        assertEquals(article, articleRepository.get(article.key))
+        assertEquals(article.articleStub, articleRepository.get(article.key)?.articleStub)
     }
 
     @Test
@@ -257,7 +268,7 @@ class ScrubberTest {
 
         scrubber.scrub()
 
-        assertEquals(article, articleRepository.get(article.key))
+        assertEquals(article.articleStub, articleRepository.get(article.key)?.articleStub)
     }
 
     @Test
@@ -469,7 +480,8 @@ class ScrubberTest {
         // Given
         val issuePublic = Fixtures.issueBase.copy(status = IssueStatus.public, date = "2000-12-13")
         val issueDemo = Fixtures.issueBase.copy(status = IssueStatus.demo, date = "2001-12-13")
-        val issueRegular = Fixtures.issueBase.copy(status = IssueStatus.regular, date = "2002-12-13")
+        val issueRegular =
+            Fixtures.issueBase.copy(status = IssueStatus.regular, date = "2002-12-13")
 
         issueRepository.save(issuePublic)
         issueRepository.save(issueDemo)

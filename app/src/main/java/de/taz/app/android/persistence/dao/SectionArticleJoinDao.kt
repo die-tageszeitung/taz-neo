@@ -2,8 +2,8 @@ package de.taz.app.android.persistence.dao
 
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.Transaction
 import de.taz.app.android.api.models.Article
-import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.persistence.join.SectionArticleJoin
@@ -12,13 +12,14 @@ import de.taz.app.android.persistence.join.SectionArticleJoin
 @Dao
 interface SectionArticleJoinDao : BaseDao<SectionArticleJoin> {
 
+    @Transaction
     @Query(
         """ SELECT Article.* FROM Article INNER JOIN SectionArticleJoin
             ON Article.articleFileName == SectionArticleJoin.articleFileName
             WHERE SectionArticleJoin.sectionFileName == :sectionFileName ORDER BY SectionArticleJoin.`index` ASC
         """
     )
-    suspend fun getArticlesForSection(sectionFileName: String): List<ArticleStub>
+    suspend fun getArticlesForSection(sectionFileName: String): List<Article>
 
 
     @Query(
@@ -31,7 +32,7 @@ interface SectionArticleJoinDao : BaseDao<SectionArticleJoin> {
     suspend fun getSectionStubForArticleFileName(articleFileName: String): SectionStub?
 
     suspend fun getSectionStubForArticle(article: Article): SectionStub?
-            = getSectionStubForArticleFileName(article.articleHtml.name)
+            = getSectionStubForArticleFileName(article.articleFileName)
 
     @Query(
         """ SELECT Section.sectionFileName FROM Section INNER JOIN SectionArticleJoin
@@ -43,10 +44,11 @@ interface SectionArticleJoinDao : BaseDao<SectionArticleJoin> {
     suspend fun getSectionFileNameForArticleFileName(articleFileName: String): String?
 
     suspend fun getSectionFileNameForArticle(article: Article): String?
-            = getSectionFileNameForArticleFileName(article.articleHtml.name)
+            = getSectionFileNameForArticleFileName(article.articleFileName)
 
 
-    @Query(""" SELECT Article.* FROM Article
+    @Transaction
+    @Query(""" SELECT Article.articleFileName FROM Article
          INNER JOIN SectionArticleJoin as SAJ1
          INNER JOIN SectionArticleJoin as SAJ2
           WHERE SAJ1.articleFileName == :articleFileName
@@ -54,10 +56,11 @@ interface SectionArticleJoinDao : BaseDao<SectionArticleJoin> {
           AND SAJ1.sectionFileName == SAJ2.sectionFileName
           AND Article.articleFileName == SAJ2.articleFileName
     """)
-    suspend fun getNextArticleStubInSection(articleFileName: String): ArticleStub?
+    suspend fun getNextArticleKeyInSection(articleFileName: String): String?
 
+    @Transaction
     @Query(
-        """ SELECT Article.* FROM Article
+        """ SELECT Article.articleFileName FROM Article
          INNER JOIN SectionArticleJoin as SAJ1
          INNER JOIN SectionArticleJoin as SAJ2
          INNER JOIN IssueSectionJoin as ISJ1
@@ -72,12 +75,11 @@ interface SectionArticleJoinDao : BaseDao<SectionArticleJoin> {
           AND Article.articleFileName == SAJ2.articleFileName
     """
     )
-    suspend fun getNextArticleStubInNextSection(articleFileName: String): ArticleStub?
+    suspend fun getNextArticleKeyInNextSection(articleFileName: String): String?
 
 
-
-
-    @Query(""" SELECT Article.* FROM Article
+    @Transaction
+    @Query(""" SELECT Article.articleFileName FROM Article
          INNER JOIN SectionArticleJoin as SAJ1
          INNER JOIN SectionArticleJoin as SAJ2
           WHERE SAJ1.articleFileName == :articleFileName
@@ -85,10 +87,11 @@ interface SectionArticleJoinDao : BaseDao<SectionArticleJoin> {
           AND SAJ1.sectionFileName == SAJ2.sectionFileName
           AND Article.articleFileName == SAJ2.articleFileName
     """)
-    suspend fun getPreviousArticleStubInSection(articleFileName: String): ArticleStub?
+    suspend fun getPreviousArticleKeyInSection(articleFileName: String): String?
 
+    @Transaction
     @Query(
-        """ SELECT Article.* FROM Article
+        """ SELECT Article.articleFileName FROM Article
          INNER JOIN SectionArticleJoin as SAJ1
          INNER JOIN SectionArticleJoin as SAJ2
          INNER JOIN IssueSectionJoin as ISJ1
@@ -104,7 +107,7 @@ interface SectionArticleJoinDao : BaseDao<SectionArticleJoin> {
           LIMIT 1
       """
     )
-    suspend fun getPreviousArticleStubInPreviousSection(articleFileName: String): ArticleStub?
+    suspend fun getPreviousArticleKeyInPreviousSection(articleFileName: String): String?
 
 
     @Query(

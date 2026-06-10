@@ -10,7 +10,7 @@ import androidx.lifecycle.viewModelScope
 import de.taz.app.android.ADVERTISEMENT_URL_STRING
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
-import de.taz.app.android.api.interfaces.ArticleOperations
+import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.Frame
 import de.taz.app.android.api.models.IssueStatus
@@ -58,7 +58,7 @@ data class PageWithArticles(
     val pagePdf: FileEntry,
     val pagina: String?,
     val title: String?,
-    val articles: List<ArticleOperations>? = null
+    val articles: List<Article>? = null
 )
 
 sealed class OpenLinkEvent {
@@ -412,10 +412,10 @@ class PdfPagerViewModel(
         _openLinkEventFlow.value = null
     }
 
-    private suspend fun getCorrectArticle(link: String, issueKey: IssueKey): ArticleOperations? {
+    private suspend fun getCorrectArticle(link: String, issueKey: IssueKey): Article? {
         val publicLink = link.replace(".html", ".public.html")
         // If we do not have regular article (try to) get the public one
-        val article = articleRepository.getStub(link) ?: articleRepository.getStub(publicLink)
+        val article = articleRepository.get(link) ?: articleRepository.get(publicLink)
 
         return article
     }
@@ -440,9 +440,9 @@ class PdfPagerViewModel(
                     .withIndex()
                     .associate { it.value to it.index }
                 val pages = mutableListOf<PageWithArticlesListItem>()
-                var imprint: ArticleOperations? = null
+                var imprint: Article? = null
                 pageRepository.getPagesForIssueKey(issueStub.issueKey).forEach { page ->
-                    val articlesOfPage = mutableListOf<ArticleOperations>()
+                    val articlesOfPage = mutableListOf<Article>()
                     page.frameList?.forEach { frame ->
                         frame.link?.let { link ->
                             if (link.isArticleKey()) {
@@ -501,7 +501,7 @@ class PdfPagerViewModel(
      * @param itemsToC items of ToC either Page or Imprint
      */
     private fun isArticleListed(
-        article: ArticleOperations?,
+        article: Article?,
         itemsToC: List<PageWithArticlesListItem>
     ): Boolean {
         return itemsToC.any { item ->
@@ -510,21 +510,21 @@ class PdfPagerViewModel(
         }
     }
 
-    private fun articleBeginsOnPage(article: ArticleOperations?, page: Page): Boolean {
+    private fun articleBeginsOnPage(article: Article?, page: Page): Boolean {
         return page.pagePdf.name == article?.pageNameList?.firstOrNull()
     }
 
     /**
-     * Get [ArticleOperations] of page [Frame].
+     * Get [Article] of page [Frame].
      *
      * If no non-public article is found it tries to get the public article.
      *
      * @param frame - Frame to look for an article
-     * @return [ArticleOperations]
+     * @return [Article]
      */
-    private suspend fun getArticleForFrame(frame: Frame): ArticleOperations? {
+    private suspend fun getArticleForFrame(frame: Frame): Article? {
         if (frame.link?.isArticleKey() == true) {
-            val article = articleRepository.getStub(frame.link)
+            val article = articleRepository.get(frame.link)
             if (article != null) {
                 return article
             }
@@ -534,7 +534,7 @@ class PdfPagerViewModel(
             // with their names, which are not accessible for not logged-in users.
             // To fix this, the ".public." sub string is added to the article link.
             val publicArticleName = frame.link.replace(".html", ".public.html")
-            val publicArticle = articleRepository.getStub(publicArticleName)
+            val publicArticle = articleRepository.get(publicArticleName)
 
             if (publicArticle == null) {
                 val hint = "Could not get the public article for frame link ${frame.link}"

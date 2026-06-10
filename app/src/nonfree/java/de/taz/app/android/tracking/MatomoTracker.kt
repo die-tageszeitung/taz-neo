@@ -1,8 +1,8 @@
 package de.taz.app.android.tracking
 
 import android.content.Context
-import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.interfaces.SectionOperations
+import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.SearchHit
 import de.taz.app.android.dataStore.GeneralDataStore
@@ -203,6 +203,10 @@ class MatomoTracker(applicationContext: Context) : Tracker {
         TrackHelper.track().screen("/settings").title("Settings").with(matomoTracker)
     }
 
+    private fun issuePath(article: Article): String {
+        return "issue/${article.issueFeedName}/${article.issueDate}"
+    }
+
     private fun issuePath(issueKey: AbstractIssuePublication): String {
         return "issue/${issueKey.feedName}/${issueKey.date}"
     }
@@ -211,7 +215,7 @@ class MatomoTracker(applicationContext: Context) : Tracker {
         return "section/${section.key}"
     }
 
-    private fun articlePath(article: ArticleOperations): String =
+    private fun articlePath(article: Article): String =
         articlePath(article.key, article.mediaSyncId)
 
     private fun articlePath(articleFileName: String, mediaSyncId: Int?): String {
@@ -236,12 +240,11 @@ class MatomoTracker(applicationContext: Context) : Tracker {
     }
 
     override fun trackArticleScreen(
-        issueKey: AbstractIssuePublication,
         sectionOperations: SectionOperations,
-        article: ArticleOperations
+        article: Article
     ) {
         val path =
-            "/${issuePath(issueKey)}/${sectionPath(sectionOperations)}/${articlePath(article)}"
+            "/${issuePath(article)}/${sectionPath(sectionOperations)}/${articlePath(article)}"
         TrackHelper.track()
             .screen(path)
             .title(article.title)
@@ -473,7 +476,7 @@ class MatomoTracker(applicationContext: Context) : Tracker {
             .with(matomoTracker)
     }
 
-    override fun trackShareArticleEvent(article: ArticleOperations) {
+    override fun trackShareArticleEvent(article: Article) {
         trackShareArticleEvent(article.key, article.mediaSyncId)
     }
 
@@ -583,10 +586,10 @@ class MatomoTracker(applicationContext: Context) : Tracker {
             .with(matomoTracker)
     }
 
-    override fun trackAudioPlayerPlayArticleEvent(articleOperations: ArticleOperations) {
+    override fun trackAudioPlayerPlayArticleEvent(article: Article) {
         TrackHelper.track()
             .event(CATEGORY_AUDIO_PLAYER, "Play Article")
-            .name(articlePath(articleOperations.key, articleOperations.mediaSyncId))
+            .name(articlePath(article.key, article.mediaSyncId))
             .with(matomoTracker)
     }
 

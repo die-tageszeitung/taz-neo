@@ -25,7 +25,6 @@ import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.NoOpTracker
 import de.taz.app.android.tracking.Tracker
 import de.taz.test.MainDispatcherRule
-import de.taz.test.SingletonTestUtil
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -140,7 +139,7 @@ class LoginViewModelTest {
         ContentService.inject(mock())
         ToastHelper.inject(mock())
         BookmarkRepository.inject(mock {
-            onBlocking { getBookmarkedArticleStubs() }.doReturn(emptyList())
+            onBlocking { getBookmarkedArticles() }.doReturn(emptyList())
         })
 
         dataStore = PreferenceDataStoreFactory.create {

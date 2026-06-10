@@ -26,7 +26,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.taz.app.android.ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
 import de.taz.app.android.R
-import de.taz.app.android.api.interfaces.ArticleOperations
+import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.ViewBindingFragment
@@ -386,7 +386,7 @@ class PdfPagerWrapperFragment : ViewBindingFragment<ActivityPdfDrawerLayoutBindi
     /**
      * May be used from child fragments to show an Article within the [ArticlePagerFragment]
      */
-    fun showArticle(article: ArticleOperations) {
+    fun showArticle(article: Article) {
         lifecycleScope.launch {
             pdfPagerViewModel.issueStub?.let { issueStub ->
                 val displayableKey = article.key

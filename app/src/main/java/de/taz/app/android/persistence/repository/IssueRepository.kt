@@ -5,7 +5,6 @@ import android.database.sqlite.SQLiteConstraintException
 import android.os.Parcelable
 import androidx.room.withTransaction
 import de.taz.app.android.BuildConfig
-import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.interfaces.ObservableDownload
 import de.taz.app.android.api.models.Article
@@ -81,7 +80,7 @@ class IssueRepository private constructor(applicationContext: Context) :
                     deleteRelationToIssue(issue.feedName, issue.date, issue.status)
                     insertOrReplace(
                         IssueImprintJoin(
-                            issue.feedName, issue.date, issue.status, imprint.articleHtml.name
+                            issue.feedName, issue.date, issue.status, imprint.articleFileName
                         )
                     )
                 }
@@ -222,7 +221,7 @@ class IssueRepository private constructor(applicationContext: Context) :
             .maxByOrNull { it.status }
     }
 
-    suspend fun getIssueStubForArticle(articleOperations: ArticleOperations): IssueStub? {
+    suspend fun getIssueStubForArticle(articleOperations: Article): IssueStub? {
         return appDatabase.issueSectionJoinDao().getIssueStubsForArticle(articleOperations.key)
             .filter { it.feedName == articleOperations.issueFeedName }
             .maxByOrNull { it.status }
@@ -232,7 +231,7 @@ class IssueRepository private constructor(applicationContext: Context) :
         return appDatabase.issueDao().getIssueToDelete()
     }
 
-    suspend fun getImprintStub(issueKey: IssueKey): ArticleStub? {
+    suspend fun getImprintStub(issueKey: IssueKey): Article? {
         return getImprintStub(issueKey.feedName, issueKey.date, issueKey.status)
     }
 
@@ -240,11 +239,11 @@ class IssueRepository private constructor(applicationContext: Context) :
             issueFeedName: String,
             issueDate: String,
             issueStatus: IssueStatus
-    ): ArticleStub? {
+    ): Article? {
         val imprintName = appDatabase.issueImprintJoinDao().getArticleImprintNameForIssue(
             issueFeedName, issueDate, issueStatus
         )
-        return imprintName?.let { articleRepository.getStub(it) }
+        return imprintName?.let { articleRepository.get(it) }
     }
 
     suspend fun getDownloadDate(issue: IssueOperations): Date? {
@@ -470,7 +469,7 @@ class IssueRepository private constructor(applicationContext: Context) :
                     issue.feedName,
                     issue.date,
                     issue.status,
-                    imprint.articleHtml.name
+                    imprint.articleFileName,
                 )
             )
             try {
@@ -537,8 +536,8 @@ class IssueRepository private constructor(applicationContext: Context) :
      */
     suspend fun saveAllAudios(issueStub: IssueStub): List<Audio> {
         val audioList = mutableListOf<Audio>()
-        articleRepository.getArticleStubListForIssue(issueStub.issueKey).forEach { item ->
-            item.articleStub.audioFileName?.let { audioName ->
+        articleRepository.getArticlesForIssue(issueStub.issueKey).forEach { item ->
+            item.article.audio?.file?.name?.let { audioName ->
                 val audio = audioRepository.get(audioName)
                 if (audio != null) {
                     audioList.add(audio)
@@ -555,9 +554,9 @@ class IssueRepository private constructor(applicationContext: Context) :
         val issueStub =
             getMostValuableIssueStubForPublication(issuePublication) ?: return false
 
-        val articleList = articleRepository.getArticleStubListForIssue(issueStub.issueKey)
+        val articleList = articleRepository.getArticlesForIssue(issueStub.issueKey)
         return articleList
-            .mapNotNull { it.articleStub.audioFileName }
+            .mapNotNull { it.article.audio?.file?.name }
             .none { fileRepository.getDownloadDate(it) == null}
     }
 }

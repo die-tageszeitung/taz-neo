@@ -3,9 +3,11 @@ package de.taz.app.android.persistence.repository
 import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
+import de.taz.app.android.api.models.Section
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.api.models.StorageType
 import de.taz.app.android.persistence.AppDatabase
+import de.taz.app.android.persistence.join.SectionArticleJoin
 import de.taz.app.android.util.Log
 import de.taz.test.Fixtures
 import de.taz.test.Fixtures.copyWithFileName
@@ -65,15 +67,24 @@ class SectionRepositoryTest {
 
 
     @Test
-    @Throws(Exception::class)
-    fun writeAndRead() = runTest {
+    fun `saving and then retrieving a section should return the same section`() = runTest {
+        // Ensure the repository's default nav button matches the section under test
+        sectionRepository.injectDefaultNavButton(section.navButton)
+
+        // When
         sectionRepository.saveInternal(section)
-        val fromDB = sectionRepository.get(section.sectionHtml.name)
-        assertEquals(fromDB, section)
+        val retrievedSection = sectionRepository.get(section.key)
+
+        // Then
+        val expected = section.withExpectedJoins()
+        assertEquals(
+            "The retrieved section properties should match the original fixture including joins",
+            expected,
+            retrievedSection
+        )
     }
 
     @Test
-    @Throws(Exception::class)
     fun readBase()  = runTest {
         sectionRepository.saveInternal(section)
         val fromDB = sectionRepository.getStub(section.sectionHtml.name)
@@ -81,13 +92,14 @@ class SectionRepositoryTest {
     }
 
     @Test
-    @Throws(Exception::class)
-    fun writeAndReadMultiple() = runTest {
+    fun `saving and then retrieving multiple sections should return correct data for each`() = runTest {
         for (section in sections) {
             log.debug("checking section ${section.sectionHtml.name}")
+            sectionRepository.injectDefaultNavButton(section.navButton)
             sectionRepository.saveInternal(section)
-            val fromDB = sectionRepository.get(section.sectionHtml.name)
-            assertEquals(fromDB, section)
+            val expected = section.withExpectedJoins()
+            val fromDB = sectionRepository.get(section.key)
+            assertEquals("Data for section ${section.key} should match", expected, fromDB)
         }
     }
 
@@ -156,5 +168,23 @@ class SectionRepositoryTest {
         // THEN
         //
         assertNull(sectionRepository.get(publicSection.key))
+    }
+
+    /**
+     * Prepares a section fixture as it is expected to be returned from the repository.
+     * This includes:
+     * 1. Setting the [de.taz.app.android.persistence.join.SectionArticleJoin] for each article.
+     * 2. Setting the [SectionStub] back-reference for each article.
+     */
+    private fun Section.withExpectedJoins(): Section {
+        val sectionStub = SectionStub(this)
+        return this.copy(
+            articleList = articleList.mapIndexed { index, article ->
+                article.copy(
+                    sectionArticleJoin = SectionArticleJoin(key, article.key, index),
+                    section = sectionStub
+                )
+            }
+        )
     }
 }

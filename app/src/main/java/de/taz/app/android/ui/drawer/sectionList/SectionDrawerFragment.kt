@@ -434,8 +434,7 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
             groupedList.add(
                 SectionDrawerItem.Header(section)
             )
-            val articleStubs = section.articleList
-            articleStubs.forEach {
+            section.articleList.forEach {
                 groupedList.add(
                     SectionDrawerItem.Item(it)
                 )

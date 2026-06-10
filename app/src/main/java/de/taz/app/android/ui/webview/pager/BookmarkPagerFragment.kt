@@ -24,8 +24,7 @@ import com.google.android.material.appbar.AppBarLayout
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
-import de.taz.app.android.api.interfaces.ArticleOperations
-import de.taz.app.android.api.models.ArticleStub
+import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.audioPlayer.ArticleAudioPlayerViewModel.BookmarksAudioPlayerViewModel
 import de.taz.app.android.base.BaseViewModelFragment
@@ -123,8 +122,8 @@ class BookmarkPagerFragment :
             viewLifecycleOwner.lifecycleScope.launch {
                 repeatOnLifecycle(Lifecycle.State.STARTED) {
                     launch {
-                        viewModel.bookmarkedArticleStubsFlow.collect {
-                            articlePagerAdapter.articleStubs = it
+                        viewModel.bookmarkedArticlesFlow.collect {
+                            articlePagerAdapter.articles = it
                             loadingScreen.root.isVisible = false
                             tryScrollToArticle()
                         }
@@ -206,7 +205,7 @@ class BookmarkPagerFragment :
             articlePagerAdapter.registerAdapterDataObserver(object :
                 RecyclerView.AdapterDataObserver() {
                 override fun onChanged() {
-                    articlePagerAdapter.getArticleStub(
+                    articlePagerAdapter.getArticle(
                         currentItem
                     )?.let {
                         rebindBottomNavigation(it)
@@ -216,7 +215,7 @@ class BookmarkPagerFragment :
         }
     }
 
-    private fun rebindBottomNavigation(articleToBindTo: ArticleOperations) {
+    private fun rebindBottomNavigation(articleToBindTo: Article) {
         // show the share icon always when in public issues (as it shows a popup that the user should log in)
         // OR when an onLink link is provided
         articleBottomActionBarNavigationHelper.setShareIconVisibility(articleToBindTo)
@@ -230,12 +229,12 @@ class BookmarkPagerFragment :
     private val pageChangeListener = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
             // If the pager is empty (no bookmarks left) we want to pop it off the stack and return to the last fragment
-            if (articlePagerAdapter.articleStubs.isEmpty()) {
+            if (articlePagerAdapter.articles.isEmpty()) {
                 this@BookmarkPagerFragment.parentFragmentManager.popBackStack()
                 return
             }
-            val articleStub = articlePagerAdapter.getArticleStub(position)
-            articleStub?.let {
+            val article = articlePagerAdapter.getArticle(position)
+            article?.let {
                 viewModel.articleFileNameLiveData.value = it.articleFileName
                 rebindBottomNavigation(it)
                 audioPlayerViewModel.setVisible(it)
@@ -244,7 +243,7 @@ class BookmarkPagerFragment :
 
             articleBottomActionBarNavigationHelper.apply {
                 // show the player button only for articles with audio
-                val hasAudio = articleStub?.hasAudio == true
+                val hasAudio = article?.hasAudio == true
                 setArticleAudioVisibility(hasAudio)
 
                 // ensure the action bar is showing when the article changes
@@ -260,7 +259,7 @@ class BookmarkPagerFragment :
             R.id.bottom_navigation_action_home_article -> MainActivity.start(requireContext())
 
             R.id.bottom_navigation_action_bookmark -> {
-                getCurrentlyDisplayedArticleStub()?.let {
+                getCurrentlyDisplayedArticle()?.let {
                     viewModel.toggleBookmark(it)
                 }
             }
@@ -279,7 +278,7 @@ class BookmarkPagerFragment :
     }
 
     private fun share() {
-        getCurrentlyDisplayedArticleStub()?.let { articleStub ->
+        getCurrentlyDisplayedArticle()?.let { articleStub ->
             tracker.trackShareArticleEvent(articleStub)
             ShareArticleBottomSheet.newInstance(articleStub)
                 .show(parentFragmentManager, ShareArticleBottomSheet.TAG)
@@ -290,7 +289,7 @@ class BookmarkPagerFragment :
         val articleFileName = viewModel.articleFileNameLiveData.value
         if (
             articleFileName?.isArticleKey() == true &&
-            viewModel.bookmarkedArticleStubsFlow.first().map { it.key }.contains(articleFileName)
+            viewModel.bookmarkedArticlesFlow.first().map { it.key }.contains(articleFileName)
         ) {
             setHeader(articleFileName)
             log.debug("I will now display $articleFileName")
@@ -304,15 +303,15 @@ class BookmarkPagerFragment :
         }
     }
 
-    private fun getCurrentlyDisplayedArticleStub(): ArticleStub? =
-        articlePagerAdapter.getArticleStub(getCurrentPagerPosition())
+    private fun getCurrentlyDisplayedArticle(): Article? =
+        articlePagerAdapter.getArticle(getCurrentPagerPosition())
 
     private fun getCurrentPagerPosition(): Int {
         return viewBinding?.webviewPagerViewpager?.currentItem ?: 0
     }
 
     private fun getSupposedPagerPosition(): Int? {
-        val position = articlePagerAdapter.articleStubs.indexOfFirst {
+        val position = articlePagerAdapter.articles.indexOfFirst {
             it.key == viewModel.articleFileNameLiveData.value
         }
         return if (position >= 0) {
@@ -326,32 +325,32 @@ class BookmarkPagerFragment :
         this@BookmarkPagerFragment
     ) {
 
-        var articleStubs: List<ArticleStub> = emptyList()
+        var articles: List<Article> = emptyList()
             set(value) {
                 field = value
                 notifyDataSetChanged()
             }
 
         override fun createFragment(position: Int): Fragment {
-            val article = articleStubs[position]
+            val article = articles[position]
             val pagerPosition = position + 1
-            val pagerTotal = articleStubs.size
+            val pagerTotal = articles.size
             return ArticleWebViewFragment.newInstance(article, pagerPosition, pagerTotal)
         }
 
         override fun getItemId(position: Int): Long {
-            return articleStubs[position].key.hashCode().toLong()
+            return articles[position].key.hashCode().toLong()
         }
 
         override fun containsItem(itemId: Long): Boolean {
-            return articleStubs.any { itemId == it.key.hashCode().toLong() }
+            return articles.any { itemId == it.key.hashCode().toLong() }
         }
 
-        override fun getItemCount(): Int = articleStubs.size
+        override fun getItemCount(): Int = articles.size
 
 
-        fun getArticleStub(position: Int): ArticleStub? {
-            return articleStubs.getOrNull(position)
+        fun getArticle(position: Int): Article? {
+            return articles.getOrNull(position)
         }
 
     }
@@ -364,15 +363,15 @@ class BookmarkPagerFragment :
 
     private fun setHeader(displayableKey: String) {
         lifecycleScope.launch {
-            val articleStub = articleRepository.getStub(displayableKey)
-            articleStub?.let { stub ->
+            val article = articleRepository.get(displayableKey)
+            article?.let { stub ->
                 val issueStub = issueRepository.getIssueStubForArticle(stub)
 
                 viewBinding?.header?.root?.isVisible = false
 
                 val position =
-                    articlePagerAdapter.articleStubs.indexOf(
-                        getCurrentlyDisplayedArticleStub()
+                    articlePagerAdapter.articles.indexOf(
+                        getCurrentlyDisplayedArticle()
                     ) + 1
                 val total = articlePagerAdapter.itemCount
 
@@ -385,7 +384,7 @@ class BookmarkPagerFragment :
                             total
                         )
                     sectionTitle.text =
-                        stub.getSectionStub(requireContext().applicationContext)?.title
+                        stub.section?.title
                     publishedDate.text = getString(
                         R.string.fragment_header_custom_published_date,
                         determineDateString(stub, issueStub)
@@ -396,7 +395,7 @@ class BookmarkPagerFragment :
     }
 
     private fun determineDateString(
-        articleOperations: ArticleOperations,
+        articleOperations: Article,
         issueStub: IssueStub?
     ): String {
         if (BuildConfig.IS_LMD) {

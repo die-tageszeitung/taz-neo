@@ -3,7 +3,9 @@ package de.taz.app.android.persistence
 import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
+import de.taz.app.android.api.models.AuthorJoinWithFile
 import de.taz.app.android.api.models.Image
+import de.taz.app.android.persistence.join.ArticleAuthorImageJoin
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.ImageRepository
@@ -60,49 +62,61 @@ class ArticleAuthorImageTest {
 
     // Reproduces Bug https://redmine.hal.taz.de/issues/16312
     @Test
-    fun `Article Image and FileEntry is kept even if a Section referencing it in its imageList is deleted`() = runTest {
+    fun `Article Image and FileEntry is kept even if a Section referencing it in its imageList is deleted`() =
+        runTest {
 
-        //
-        // Given
-        //
-        val author = Fixtures.authorWithImage01
-        val authorImage = Fixtures.authorImage01
-        val authorImageFileName = authorImage.name
+            //
+            // Given
+            //
+            val author = Fixtures.authorWithImage01
+            val authorImage = Fixtures.authorImage01
+            val authorImageFileName = authorImage.name
 
-        val article = Fixtures.articleBase.copy(
-            authorList = listOf(author)
-        )
+            val article = Fixtures.articleBase.copy(
+                authorJoins = listOf(author).mapIndexed { index, author ->
+                    AuthorJoinWithFile(
+                        ArticleAuthorImageJoin(
+                            Fixtures.articleBase.articleFileName,
+                            author.name,
+                            author.imageAuthor?.name,
+                            index,
+                            index+1,
+                        ),
+                        author.imageAuthor
+                    )
+                }
+            )
 
-        val section = Fixtures.sectionBase.copy(
-            navButton = defaultNavButton,
-            imageList = listOf(authorImage)
-        )
+            val section = Fixtures.sectionBase.copy(
+                navButton = defaultNavButton,
+                imageList = listOf(authorImage)
+            )
 
-        //
-        // prepare
-        //
-        articleRepository.saveInternal(article)
-        assertEquals(article, articleRepository.get(article.key))
+            //
+            // prepare
+            //
+            articleRepository.saveInternal(article)
+            assertEquals(article, articleRepository.get(article.key))
 
-        // saving the Author trough the Article won't create an Image, only the FileEntry
-        assertEquals(author.imageAuthor, fileEntryRepository.get(authorImageFileName))
-        assertEquals(null, imageRepository.get(authorImageFileName))
+            // saving the Author trough the Article won't create an Image, only the FileEntry
+            assertEquals(author.imageAuthor, fileEntryRepository.get(authorImageFileName))
+            assertEquals(null, imageRepository.get(authorImageFileName))
 
-        sectionRepository.saveInternal(section)
-        assertEquals(section, sectionRepository.get(section.key))
-        // saving the Author Image as part of the Section.imageList will create the Image in the db
-        assertEquals(authorImage, imageRepository.get(authorImageFileName))
+            sectionRepository.saveInternal(section)
+            assertEquals(section, sectionRepository.get(section.key))
+            // saving the Author Image as part of the Section.imageList will create the Image in the db
+            assertEquals(authorImage, imageRepository.get(authorImageFileName))
 
-        //
-        // when
-        //
-        sectionRepository.delete(section)
+            //
+            // when
+            //
+            sectionRepository.delete(section)
 
-        //
-        // then
-        //
-        assertEquals(authorImage, imageRepository.get(authorImageFileName))
-        assertEquals(author.imageAuthor, fileEntryRepository.get(authorImageFileName))
-        assertEquals(article, articleRepository.get(article.key))
-    }
+            //
+            // then
+            //
+            assertEquals(authorImage, imageRepository.get(authorImageFileName))
+            assertEquals(author.imageAuthor, fileEntryRepository.get(authorImageFileName))
+            assertEquals(article, articleRepository.get(article.key))
+        }
 }

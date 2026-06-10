@@ -265,13 +265,13 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
 
     private fun toggleBookmark(articleFileName: String, date: Date?) {
         applicationScope.launch {
-            val articleStub = articleRepository.getStub(articleFileName)
+            val article = articleRepository.get(articleFileName)
 
             viewBinding?.apply {
                 when {
-                    articleStub != null -> {
+                    article != null -> {
                         val isBookmarked =
-                            bookmarkRepository.toggleBookmarkAsync(articleStub).await()
+                            bookmarkRepository.toggleBookmarkAsync(article).await()
                         if (isBookmarked) {
                             SnackBarHelper.showBookmarkSnack(
                                 context = requireContext(),
@@ -320,7 +320,7 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
             if (!contentService.isPresent(issuePublication)) {
                 contentService.downloadMetadata(issuePublication, maxRetries = 5)
             }
-            val article = requireNotNull(articleRepository.getStub(articleFileName))
+            val article = requireNotNull(articleRepository.get(articleFileName))
             contentService.downloadToCache(article)
             bookmarkRepository.addBookmark(article)
         } catch (e: Exception) {

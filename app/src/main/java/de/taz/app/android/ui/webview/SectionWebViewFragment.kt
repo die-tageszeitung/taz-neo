@@ -34,8 +34,8 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewModelScope
 import com.google.android.material.appbar.AppBarLayout
 import de.taz.app.android.R
-import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.interfaces.SectionOperations
+import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.ArticleType
 import de.taz.app.android.api.models.SectionType
 import de.taz.app.android.audioPlayer.ArticleAudioPlayerViewModel
@@ -62,7 +62,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
@@ -74,7 +73,6 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlin.collections.filterNotNull
 import kotlin.math.ceil
 
 
@@ -362,8 +360,8 @@ class SectionWebViewFragment : WebViewFragment<
         articleListObservationJob = issueContentViewModel.articleListFlow
             .map { list ->
                 list.filter {
-                    it.sectionKey == sectionFileName && it.articleStub.articleType == ArticleType.PODCAST
-                }.map { it.articleStub }
+                    it.sectionKey == sectionFileName && it.article.articleType == ArticleType.PODCAST
+                }.map { it.article }
             }
             .distinctUntilChanged()
             .onEach { podcasts ->
@@ -473,7 +471,7 @@ class SectionWebViewFragment : WebViewFragment<
 
     override suspend fun setupBookmarkHandling(articleNamesInWebView: List<String>): List<String> {
         val articleFileNames = articleNamesInWebView.mapNotNull {
-            issueViewerViewModel.findArticleStubByArticleName(it)?.articleFileName
+            issueViewerViewModel.findArticleByArticleName(it)?.articleFileName
         }
 
         setupBookmarkStateFlows(articleFileNames)
@@ -494,22 +492,22 @@ class SectionWebViewFragment : WebViewFragment<
         val anchorView = rootView.findViewById<View>(R.id.navigation_bottom_webview_pager)
 
         // 2. Find the article
-        val articleStub = issueViewerViewModel.findArticleStubByArticleName(articleName)
-        if (articleStub == null) {
+        val article = issueViewerViewModel.findArticleByArticleName(articleName)
+        if (article == null) {
             log.warn("Could not set bookmark for articleName=$articleName as no articleStub was found.")
             return
         }
         // Do not bookmark podcasts, show a toast instead
-        if (articleStub.articleType == ArticleType.PODCAST) {
+        if (article.articleType == ArticleType.PODCAST) {
             toastHelper.showToast(R.string.toast_podcast_not_possible_to_bookmark)
             return
         }
 
         // 3. Perform the repository operation
         if (isBookmarked) {
-            bookmarkRepository.addBookmark(articleStub)
+            bookmarkRepository.addBookmark(article)
         } else {
-            bookmarkRepository.removeBookmark(articleStub)
+            bookmarkRepository.removeBookmark(article)
         }
 
         // 4. Handle UI feedback
@@ -556,7 +554,7 @@ class SectionWebViewFragment : WebViewFragment<
 
     override suspend fun setupEnqueuedHandling(articleNamesInWebView: List<String>): List<String> {
         val articleFileNames = articleNamesInWebView.mapNotNull {
-            issueViewerViewModel.findArticleStubByArticleName(it)?.articleFileName
+            issueViewerViewModel.findArticleByArticleName(it)?.articleFileName
         }
 
         setupEnqueuedStateFlows(articleFileNames)
@@ -575,19 +573,19 @@ class SectionWebViewFragment : WebViewFragment<
         articleName: String,
         setEnqueued: Boolean,
     ) {
-        val articleStub = issueViewerViewModel.findArticleStubByArticleName(articleName)
-        if (articleStub != null && articleStub.hasAudio) {
+        val article = issueViewerViewModel.findArticleByArticleName(articleName)
+        if (article != null && article.hasAudio) {
             if (setEnqueued) {
                 try {
-                    audioPlayerService.enqueueArticle(articleStub.key)
+                    audioPlayerService.enqueueArticle(article.key)
                 } catch (e: Exception) {
-                    log.error("Could not play article audio (${articleStub.key})", e)
+                    log.error("Could not play article audio (${article.key})", e)
                 }
             } else {
                 try {
-                    audioPlayerService.removeItemFromPlaylist(articleStub.key)
+                    audioPlayerService.removeItemFromPlaylist(article.key)
                 } catch (e: Exception) {
-                    log.error("Could not remove item from playlist (${articleStub.key})", e)
+                    log.error("Could not remove item from playlist (${article.key})", e)
                 }
             }
         } else {
@@ -696,7 +694,7 @@ class SectionWebViewFragment : WebViewFragment<
         }
     }
 
-    private fun observeCurrentIsPlaying(article: ArticleOperations) {
+    private fun observeCurrentIsPlaying(article: Article) {
         podcastPlaybackJob?.cancel()
         audioPlayerViewModel.setVisible(article)
         podcastPlaybackJob = audioPlayerViewModel.isActiveAndPlaying
@@ -709,7 +707,7 @@ class SectionWebViewFragment : WebViewFragment<
 
     override suspend fun togglePlay(mediaSyncId: Int?, filePath: String?) {
         if (mediaSyncId == null) return
-        val article = articleRepository.getStubByMediaSyncId(mediaSyncId) ?: return
+        val article = articleRepository.getByMediaSyncId(mediaSyncId) ?: return
         if (audioPlayerViewModel.isActiveAudio.first()) {
             audioPlayerService.toggleAudioPlaying()
         } else {

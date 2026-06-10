@@ -3,7 +3,6 @@ package de.taz.app.android.content.cache
 import android.content.Context
 import de.taz.app.android.METADATA_DOWNLOAD_RETRY_INDEFINITELY
 import de.taz.app.android.api.ApiService
-import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.interfaces.DownloadableCollection
 import de.taz.app.android.api.interfaces.DownloadableStub
 import de.taz.app.android.api.interfaces.IssueOperations
@@ -279,7 +278,7 @@ class WrappedDownload(
     private suspend fun getRequiredResourceInfo(collection: ObservableDownload): ResourceInfo? {
         val minResourceVersion = when (collection) {
             is IssueOperations -> return getNewestResourceInfo() // Always get the newest ResourceInfo
-            is ArticleOperations -> issueRepository.getIssueStubForArticle(collection)?.minResourceVersion
+            is Article -> issueRepository.getIssueStubForArticle(collection)?.minResourceVersion
             is SectionOperations -> issueRepository.getIssueStubForSection(collection.key)?.minResourceVersion
             else -> null
         }

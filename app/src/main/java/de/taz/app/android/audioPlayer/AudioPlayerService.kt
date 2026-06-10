@@ -11,8 +11,8 @@ import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import de.taz.app.android.DEFAULT_AUDIO_PLAYBACK_SPEED
 import de.taz.app.android.R
-import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.interfaces.SectionOperations
+import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.ArticleType
 import de.taz.app.android.api.models.Audio
 import de.taz.app.android.api.models.AudioSpeaker
@@ -551,7 +551,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
         return uiState.value.getPlayerStateOrNull() is UiState.PlayerState.Playing
     }
 
-    fun isInPlaylistFlow(articleOperations: ArticleOperations): Flow<Boolean> {
+    fun isInPlaylistFlow(articleOperations: Article): Flow<Boolean> {
         return persistedPlaylistState.map { playlistState ->
             playlistState.items.any { it.playableKey == articleOperations.key }
         }
@@ -1146,11 +1146,11 @@ class AudioPlayerService private constructor(private val applicationContext: Con
         when (item.type) {
             AudioPlayerItem.Type.ARTICLE -> {
                 item.playableKey?.let { articleKey ->
-                    articleRepository.getStub(articleKey)?.let { articleStub ->
-                        if (articleStub.articleType == ArticleType.PODCAST) {
-                            tracker.trackAudioPlayerPlayPodcastEvent(item.audio.file.name, articleStub.mediaSyncId)
+                    articleRepository.get(articleKey)?.let { article ->
+                        if (article.articleType == ArticleType.PODCAST) {
+                            tracker.trackAudioPlayerPlayPodcastEvent(item.audio.file.name, article.mediaSyncId)
                         } else {
-                            tracker.trackAudioPlayerPlayArticleEvent(articleStub)
+                            tracker.trackAudioPlayerPlayArticleEvent(article)
                         }
                     }
                 }

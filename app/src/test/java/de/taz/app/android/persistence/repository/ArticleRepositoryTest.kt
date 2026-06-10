@@ -3,14 +3,22 @@ package de.taz.app.android.persistence.repository
 import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
+import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.ArticleStub
+import de.taz.app.android.api.models.AuthorJoinWithFile
 import de.taz.app.android.api.models.FileEntry
+import de.taz.app.android.api.models.ImageStub
+import de.taz.app.android.api.models.ImageWithFile
 import de.taz.app.android.api.models.Issue
+import de.taz.app.android.api.models.Section
+import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.api.models.StorageType
 import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.join.ArticleAuthorImageJoin
+import de.taz.app.android.persistence.join.SectionArticleJoin
 import de.taz.test.Fixtures
 import de.taz.test.Fixtures.copyWithFileName
+import de.taz.test.Fixtures.image
 import de.taz.test.RobolectricTestApplication
 import de.taz.test.SingletonTestUtil
 import de.taz.test.TestDataUtil
@@ -65,64 +73,74 @@ class ArticleRepositoryTest {
 
     @Test
     @Throws(Exception::class)
-    fun writeAndRead() = runTest {
-        val article = Fixtures.article01
-        articleRepository.saveInternal(article)
-        val fromDB = articleRepository.get(article.articleHtml.name)
+    fun `saving and then retrieving aan article should return the same article`() = runTest {
+        // Fix the fixture inconsistency before saving
+        val article = Fixtures.article01.withExpectedIcon()
 
-        assertEquals(fromDB, article)
+        // When
+        articleRepository.saveInternal(article)
+        val retrievedArticle = articleRepository.get(article.key)
+
+        // Then
+        assertEquals(article, retrievedArticle)
     }
 
     @Test
     @Throws(Exception::class)
     fun readBase() = runTest {
-        val article = Fixtures.article01
+        val article = Fixtures.article01.withExpectedIcon()
         articleRepository.saveInternal(article)
-        val fromDB = articleRepository.getStub(article.articleHtml.name)
+        val fromDB = articleRepository.get(article.articleFileName)!!
 
-        assertEquals(fromDB, ArticleStub(article))
+        assertEquals(article.title, fromDB.title)
+        assertEquals(article.teaser, fromDB.teaser)
+        assertEquals(article.articleHtml, fromDB.articleHtml)
+        assertEquals(article.imageList, fromDB.imageList)
+        assertEquals(article.authorList, fromDB.authorList)
+        assertEquals(article.audio, fromDB.audio)
+        assertEquals(article.icon, fromDB.icon)
     }
 
     @Test
     @Throws(Exception::class)
     fun writeAndReadMultiple() = runTest {
-        val article = Fixtures.article01
-        val article2 = Fixtures.article02
+        val article = Fixtures.article01.withExpectedIcon()
+        val article2 = Fixtures.article02.withExpectedIcon()
 
         articleRepository.saveInternal(article)
         articleRepository.saveInternal(article2)
-        val fromDB = articleRepository.get(article.articleHtml.name)
-        val fromDB2 = articleRepository.get(article2.articleHtml.name)
+        val fromDB = articleRepository.get(article.articleFileName)
+        val fromDB2 = articleRepository.get(article2.articleFileName)
 
-        assertEquals(fromDB, article)
-        assertEquals(fromDB2, article2)
+        assertEquals(article.articleStub, fromDB?.articleStub)
+        assertEquals(article2.articleStub, fromDB2?.articleStub)
     }
 
     @Test
     @Throws(Exception::class)
     fun delete() = runTest {
-        val article = Fixtures.article01
+        val article = Fixtures.article01.withExpectedIcon()
         articleRepository.saveInternal(article)
-        val fromDB = articleRepository.get(article.articleHtml.name)
+        val fromDB = articleRepository.get(article.articleFileName)
         assertEquals(fromDB, article)
 
         articleRepository.deleteArticle(article)
-        assertNull(articleRepository.get(fromDB!!.articleHtml.name))
+        assertNull(articleRepository.get(fromDB!!.articleFileName))
     }
 
 
     @Test
     @Throws(Exception::class)
     fun deleteBookmarkedFails() = runTest {
-        val article = Fixtures.article01
+        val article = Fixtures.article01.withExpectedIcon()
         articleRepository.saveInternal(article)
-        val fromDB = articleRepository.get(article.articleHtml.name)
+        val fromDB = articleRepository.get(article.articleFileName)
         assertEquals(fromDB, article)
 
         bookmarkRepository.addBookmark(fromDB!!)
-        val fromDBNew = articleRepository.get(article.articleHtml.name)
+        val fromDBNew = articleRepository.get(article.articleFileName)
         articleRepository.deleteArticle(fromDBNew!!)
-        assertNotNull(articleRepository.get(fromDBNew.articleHtml.name))
+        assertNotNull(articleRepository.get(fromDBNew.articleFileName))
     }
 
     @Test
@@ -135,7 +153,7 @@ class ArticleRepositoryTest {
         val authorImageFile = requireNotNull(author.imageAuthor)
         assertEquals(authorImage.name, authorImageFile.name)
         val article = Fixtures.articleBase.copy(
-            authorList = listOf(author),
+            authorJoins = listOf(AuthorJoinWithFile(Fixtures.articleBase.articleFileName, author, 0, 1))
         )
 
         articleRepository.saveInternal(article)
@@ -157,10 +175,11 @@ class ArticleRepositoryTest {
         //
         // Given
         //
+        val articleFileName = "article01.html"
         val author = Fixtures.authorWithImage01
         val authorImageFileName = requireNotNull(author.imageAuthor).name
-        val article01 = Fixtures.articleBase.copyWithFileName("article01.html").copy(
-            authorList = listOf(author),
+        val article01 = Fixtures.articleBase.copyWithFileName(articleFileName).copy(
+            authorJoins = listOf(AuthorJoinWithFile(articleFileName, author, 0, 1))
         )
         val article02 = article01.copyWithFileName("article02.html")
 
@@ -197,8 +216,8 @@ class ArticleRepositoryTest {
         val authorImageFile = requireNotNull(author.imageAuthor)
         assertEquals(authorImage.name, authorImageFile.name)
         val article = Fixtures.articleBase.copy(
-            authorList = listOf(author),
-            imageList = listOf(authorImage)
+            authorJoins = listOf(AuthorJoinWithFile(Fixtures.articleBase.articleFileName, author, 0, 1)),
+            imagesWithFiles = listOf(authorImage).map { image -> ImageWithFile(ImageStub(image), Fixtures.fileEntry.copy(name = image.name)) }
         )
 
         articleRepository.saveInternal(article)
@@ -224,7 +243,7 @@ class ArticleRepositoryTest {
         val authorImageFile = requireNotNull(author.imageAuthor)
         assertEquals(authorImage.name, authorImageFile.name)
         val article = Fixtures.articleBase.copy(
-            authorList = listOf(author),
+            authorJoins = listOf(AuthorJoinWithFile(Fixtures.articleBase.articleFileName, author, 0, 1)),
         )
 
         val section = Fixtures.sectionBase.copy(
@@ -258,7 +277,9 @@ class ArticleRepositoryTest {
         val publicArticle = Fixtures.articleBase
             .copyWithFileName("public.html")
             .copy(
-                imageList = listOf(image)
+                imagesWithFiles = listOf(image).map { image -> ImageWithFile(
+                    ImageStub(image), Fixtures.fileEntry.copy(name = image.name, storageType = image.storageType)
+                ) }
             )
         val regularArticle = publicArticle.copyWithFileName("regular.html")
 
@@ -285,10 +306,10 @@ class ArticleRepositoryTest {
         val image = Fixtures.image
         val globalImage = Fixtures.image.copy(name="global.png", storageType = StorageType.global)
         val article = Fixtures.articleBase.copy(
-            imageList = listOf(
+            imagesWithFiles = listOf(
                 image,
                 globalImage,
-            )
+            ).map { image -> ImageWithFile(ImageStub(image), Fixtures.fileEntry.copy(name = image.name, storageType = image.storageType)) }
         )
 
         //
@@ -321,7 +342,7 @@ class ArticleRepositoryTest {
             //
             // WHEN
             //
-            val stubFromDB = articleRepository.getStub(article.key)!!
+            val stubFromDB = articleRepository.get(article.key)!!
 
             //
             // THEN
@@ -344,16 +365,29 @@ class ArticleRepositoryTest {
             //
             // WHEN
             //
-            val stubFromDB = articleRepository.getStub(article.key)!!
+            val stubFromDB = articleRepository.get(article.key)!!
 
             //
             // THEN
             //
-            val authorNames = article.getAuthorNames(context)
-            assertEquals(authorNames, stubFromDB.getAuthorNames(context))
+            val authorNames = article.getAuthorNames()
+            assertEquals(authorNames, stubFromDB.getAuthorNames())
             assertNotEquals(authorNames, emptyList<FileEntry>())
         }
     }
 
+    /**
+     * Prepares an article fixture as it is expected to be returned from the repository.
+     * This ensures that the iconFileName in the Stub matches the actual icon file.
+     */
+    private fun Article.withExpectedIcon(): Article {
+        val fileName = iconWithFile?.imageStub?.fileEntryName
+            ?: iconWithFile?.fileEntry?.name
 
+        return this.copy(
+            articleStub = this.articleStub.copy(
+                iconFileName = fileName
+            )
+        )
+    }
 }

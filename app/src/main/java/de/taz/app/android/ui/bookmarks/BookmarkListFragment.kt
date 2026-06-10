@@ -12,7 +12,6 @@ import de.taz.app.android.BuildConfig
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
-import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.base.BaseMainFragment
@@ -125,7 +124,7 @@ class BookmarkListFragment : BaseMainFragment<FragmentBookmarksBinding>() {
 
     private fun shareArticle(article: Article) {
         tracker.trackShareArticleEvent(article)
-        ShareArticleBottomSheet.newInstance(ArticleStub(article))
+        ShareArticleBottomSheet.newInstance(article)
             .show(parentFragmentManager, ShareArticleBottomSheet.TAG)
     }
 

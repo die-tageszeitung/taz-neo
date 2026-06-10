@@ -90,7 +90,7 @@ class TazApiJS(private val webViewFragment: WebViewFragment<*, out WebViewViewMo
         log.verbose("nextArticle $position")
         webViewFragment.lifecycleScope.launch {
             displayable?.next(applicationContext)?.let { next ->
-                webViewFragment.setDisplayable(next.key)
+                webViewFragment.setDisplayable(next)
             }
         }
     }
@@ -100,7 +100,7 @@ class TazApiJS(private val webViewFragment: WebViewFragment<*, out WebViewViewMo
         log.verbose("previousArticle $position")
         webViewFragment.lifecycleScope.launch {
             displayable?.previous(applicationContext)?.let { previous ->
-                webViewFragment.setDisplayable(previous.key)
+                webViewFragment.setDisplayable(previous)
             }
         }
     }
