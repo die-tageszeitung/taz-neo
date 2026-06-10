@@ -48,7 +48,7 @@ class IssueDownloadNotifier(
      */
     suspend fun stop() {
         try {
-            notifyIssueDownloadStop()
+            notifyIssueDownloadStop(isAutomaticDownload)
             WidgetHelper.updateWidget(applicationContext)
         } catch (e: Exception) {
             log.warn("Error while notifying download stop for $issueKey",e)
@@ -75,14 +75,14 @@ class IssueDownloadNotifier(
     /**
      * Calculates the passed time and notifies the API of download completion
      */
-    private suspend fun notifyIssueDownloadStop() {
+    private suspend fun notifyIssueDownloadStop(isAutomaticDownload: Boolean) {
         val secondsTaken = (Date().time - started.time).toFloat() / 1000
 
         downloadId?.let {
             apiService.notifyServerOfDownloadStop(
                 it, secondsTaken
             )
-            tracker.trackIssueDownloadEvent(issueKey)
+            tracker.trackIssueDownloadEvent(issueKey, isAutomaticDownload)
             // Immediately dispatch all tracker events, as this happens frequently on a background
             // thread (eg automatic download) and this might be missed when not opening the app
             // soonish... (see #17866)

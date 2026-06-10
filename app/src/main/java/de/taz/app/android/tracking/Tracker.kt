@@ -161,7 +161,7 @@ interface Tracker {
 
     fun trackTapToScrollSettingStatusEvent(enable: Boolean)
 
-    fun trackIssueDownloadEvent(issueKey: AbstractIssuePublication)
+    fun trackIssueDownloadEvent(issueKey: AbstractIssuePublication, isAutomaticDownload: Boolean)
     fun trackIssueDownloadAudiosEvent(issueKey: AbstractIssuePublication)
 
     fun trackTestTrackingGoal()
