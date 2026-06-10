@@ -5,8 +5,8 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import de.taz.app.android.AbstractTazApplication
 import de.taz.app.android.R
-import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.interfaces.AudioPlayerPlayable
+import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.SearchHit
 import de.taz.app.android.persistence.repository.AbstractIssueKey
 import de.taz.app.android.util.Log
@@ -116,16 +116,16 @@ class SearchHitAudioPlayerViewModel(androidApplication: Application) :
 }
 
 class ArticleAudioPlayerViewModel(androidApplication: Application) :
-    AudioPlayerViewModel<ArticleOperations>(androidApplication) {
+    AudioPlayerViewModel<Article>(androidApplication) {
 
-    override fun play(playable: ArticleOperations) {
+    override fun play(playable: Article) {
         audioPlayerService.playArticle(playable.key)
     }
 
     class BookmarksAudioPlayerViewModel(androidApplication: Application) :
-        AudioPlayerViewModel<ArticleOperations>(androidApplication) {
+        AudioPlayerViewModel<Article>(androidApplication) {
 
-        override fun play(playable: ArticleOperations) {
+        override fun play(playable: Article) {
             audioPlayerService.playBookmarkedArticle(playable.key)
         }
     }

@@ -542,11 +542,11 @@ class SearchActivity :
     // region helper functions
     private fun toggleBookmark(articleFileName: String, date: Date?) {
         applicationScope.launch {
-            val articleStub = articleRepository.getStub(articleFileName)
+            val article = articleRepository.get(articleFileName)
 
             when {
-                articleStub != null -> {
-                    val isBookmarked = bookmarkRepository.toggleBookmarkAsync(articleStub).await()
+                article != null -> {
+                    val isBookmarked = bookmarkRepository.toggleBookmarkAsync(article).await()
                     if (isBookmarked) {
                         SnackBarHelper.showBookmarkSnack(
                             context = this@SearchActivity,

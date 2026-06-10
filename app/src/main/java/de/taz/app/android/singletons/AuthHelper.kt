@@ -10,7 +10,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.map
 import de.taz.app.android.R
-import de.taz.app.android.api.interfaces.ArticleOperations
+import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.Issue
 import de.taz.app.android.api.models.IssueStatus
@@ -204,13 +204,13 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
     private suspend fun transformBookmarks() {
         // Re-Download the bookmarks for the current AuthStatus - if the user logged the
         // regular issues will be downloaded.
-        bookmarkRepository.getBookmarkedArticleStubs().forEach { articleStub ->
+        bookmarkRepository.getBookmarkedArticles().forEach { articleStub ->
             getArticleIssue(articleStub)
         }
         bookmarkRepository.migratePublicBookmarks()
     }
 
-    private suspend fun getArticleIssue(article: ArticleOperations): Issue {
+    private suspend fun getArticleIssue(article: Article): Issue {
         return contentService.downloadMetadata(
             IssuePublication(
                 article.issueFeedName,

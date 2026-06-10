@@ -14,7 +14,7 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.appbar.AppBarLayout
 import de.taz.app.android.R
-import de.taz.app.android.api.interfaces.ArticleOperations
+import de.taz.app.android.api.models.Article
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentWebviewSectionBinding
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
@@ -25,8 +25,8 @@ import kotlinx.coroutines.launch
 
 
 class SectionImprintWebViewFragment : WebViewFragment<
-        ArticleOperations,
-        WebViewViewModel<ArticleOperations>,
+        Article,
+        WebViewViewModel<Article>,
         FragmentWebviewSectionBinding
         >() {
 
@@ -74,7 +74,7 @@ class SectionImprintWebViewFragment : WebViewFragment<
         hideLoadingScreen()
     }
 
-    override fun setHeader(displayable: ArticleOperations) {
+    override fun setHeader(displayable: Article) {
         viewLifecycleOwner.lifecycleScope.launch {
             // Keep a copy of the current context while running this coroutine.
             // This is necessary to prevent from a crash while calling requireContext() if the

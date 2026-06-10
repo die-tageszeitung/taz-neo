@@ -22,7 +22,7 @@ class UiStateHelper(val applicationContext: Context) {
 
         return AudioPlayerItem.UiItem(
             getAudioTitle(article),
-            article.getAuthorNames(applicationContext),
+            article.getAuthorNames(),
             getAudioImage(article),
             null,
             OpenItemSpec.OpenIssueItemSpec(issueKey, article.key),

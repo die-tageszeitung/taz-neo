@@ -17,7 +17,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.appbar.AppBarLayout
 import de.taz.app.android.DELAY_FOR_VIEW_HEIGHT_CALCULATION
 import de.taz.app.android.R
-import de.taz.app.android.api.interfaces.ArticleOperations
+import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.ArticleType
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.audioPlayer.ArticleAudioPlayerViewModel
@@ -40,7 +40,7 @@ import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 
 class ArticleWebViewFragment :
-    WebViewFragment<ArticleOperations, WebViewViewModel<ArticleOperations>, FragmentWebviewArticleBinding>(),
+    WebViewFragment<Article, WebViewViewModel<Article>, FragmentWebviewArticleBinding>(),
     MultiColumnLayoutReadyCallback {
 
     /**
@@ -58,7 +58,7 @@ class ArticleWebViewFragment :
     private val tapIconsViewModel: TapIconsViewModel by activityViewModels()
     private val drawerAndLogoViewModel: DrawerAndLogoViewModel by activityViewModels()
 
-    private var articleOperations: ArticleOperations? = null
+    private var article: Article? = null
     private lateinit var articleFileName: String
     private lateinit var audioPlayerService: AudioPlayerService
     private lateinit var tazApiCssDataStore: TazApiCssDataStore
@@ -105,12 +105,12 @@ class ArticleWebViewFragment :
         }
 
         fun newInstance(
-            articleOperations: ArticleOperations,
+            article: Article,
             pagerPosition: Int? = null,
             pagerTotal: Int? = null
         ): ArticleWebViewFragment {
-            val fragment = newInstance(articleOperations.key, pagerPosition, pagerTotal)
-            fragment.articleOperations = articleOperations
+            val fragment = newInstance(article.key, pagerPosition, pagerTotal)
+            fragment.article = article
             return fragment
         }
     }
@@ -129,8 +129,8 @@ class ArticleWebViewFragment :
         articleFileName = requireArguments().getString(ARTICLE_FILE_NAME)!!
 
         lifecycleScope.launch {
-            articleOperations = articleOperations ?: articleRepository.getStub(articleFileName)
-            viewModel.displayable = articleOperations
+            article = article ?: articleRepository.get(articleFileName)
+            viewModel.displayable = article
         }
     }
 
@@ -139,8 +139,7 @@ class ArticleWebViewFragment :
         viewLifecycleOwner.lifecycleScope.launch {
             val article = viewModel.articleFlow.first()
             val sectionStub = viewModel.sectionStubFlow.first()
-            val issueStub = viewModel.issueStubFlow.first()
-            tracker.trackArticleScreen(issueStub.issueKey, sectionStub, article)
+            tracker.trackArticleScreen(sectionStub, article)
         }
     }
 
@@ -208,7 +207,7 @@ class ArticleWebViewFragment :
         }
     }
 
-    override fun setHeader(displayable: ArticleOperations) {
+    override fun setHeader(displayable: Article) {
         // The article header is handled by the ArticlePagerFragment
         // to enable custom header behavior when swiping articles of different sections.
     }
@@ -232,8 +231,8 @@ class ArticleWebViewFragment :
                 .launchIn(lifecycleScope)
         }
 
-        if (articleOperations?.articleType == ArticleType.PODCAST) {
-            val showPlayIcon = !(audioPlayerService.isPlaying() && audioPlayerService.getCurrent()?.audio?.file?.name == articleOperations?.key)
+        if (article?.articleType == ArticleType.PODCAST) {
+            val showPlayIcon = !(audioPlayerService.isPlaying() && audioPlayerService.getCurrent()?.audio?.file?.name == article?.key)
             webView?.callTazApi("enableIconAudioListener",showPlayIcon)
             observeCurrentIsPlaying()
         }
@@ -251,7 +250,7 @@ class ArticleWebViewFragment :
     }
 
     private fun observeCurrentIsPlaying() {
-        articleOperations?.let {
+        article?.let {
             audioPlayerViewModel.setVisible(it)
             audioPlayerViewModel.isActiveAndPlaying.distinctUntilChanged().onEach { isPLaying ->
                 val showPlay = !isPLaying
@@ -261,7 +260,7 @@ class ArticleWebViewFragment :
     }
 
     override suspend fun togglePlay(mediaSyncId: Int?, filePath: String?) {
-        articleOperations?.let {
+        article?.let {
             if (audioPlayerViewModel.isActiveAudio.first()) {
                 audioPlayerService.toggleAudioPlaying()
             } else {
@@ -382,7 +381,7 @@ class ArticleWebViewFragment :
             val isPublic = issueStub.status == IssueStatus.public
             // IssueStatus.demo is not reliable, it might be also a demo issue if we have an onlineLink or authors
             val isProbablyDemo =
-                isPublic && (article.getAuthorNames(requireContext().applicationContext).isNotEmpty() || !article.onlineLink.isNullOrBlank())
+                isPublic && (article.getAuthorNames().isNotEmpty() || !article.onlineLink.isNullOrBlank())
 
             if (isPublic && !article.isImprint() && !isProbablyDemo && isResumed) {
                 if (authHelper.isElapsed()) {

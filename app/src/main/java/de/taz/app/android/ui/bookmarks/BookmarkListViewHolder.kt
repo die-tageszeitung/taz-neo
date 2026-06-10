@@ -76,7 +76,7 @@ class BookmarkListViewHolder(
             }
 
             if (article.imageList.isNotEmpty()) {
-                fileHelper.getAbsolutePath(article.imageList.first())?.let {
+                fileHelper.getAbsolutePath(article.imageList.first { it.dateDownload != null })?.let {
                     if (File(it).exists()) {
 
                         val bitmapOptions = BitmapFactory.Options()

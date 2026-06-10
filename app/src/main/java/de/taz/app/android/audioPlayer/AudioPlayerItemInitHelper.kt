@@ -39,7 +39,7 @@ class AudioPlayerItemInitHelper(
             val podcastItem = AudioPlayerItem(
                 generateId(audio),
                 audio,
-                storagePathService.determineBaseUrl(articleToPlay.audio.file),
+                storagePathService.determineBaseUrl(audio.file),
                 uiStateHelper.articleAsAUiItem(articleToPlay, issueKey),
                 issueKey,
                 articleToPlay.key,
@@ -58,7 +58,7 @@ class AudioPlayerItemInitHelper(
                 AudioPlayerItem(
                     generateId(audio),
                     audio,
-                    storagePathService.determineBaseUrl(it.audio.file, issueStub),
+                    storagePathService.determineBaseUrl(audio.file, issueStub),
                     uiStateHelper.articleAsAUiItem(it, issueKey),
                     issueKey,
                     it.key,
@@ -77,7 +77,7 @@ class AudioPlayerItemInitHelper(
             AudioPlayerItem(
                 generateId(audio),
                 audio,
-                storagePathService.determineBaseUrl(it.audio.file, issueStub),
+                storagePathService.determineBaseUrl(audio.file, issueStub),
                 uiStateHelper.articleAsAUiItem(it, issueKey),
                 issueKey,
                 it.key,
@@ -89,15 +89,15 @@ class AudioPlayerItemInitHelper(
     suspend fun initArticleAudio(articleKey: String): List<AudioPlayerItem> {
         val article = articleRepository.get(articleKey)
         if (article != null) {
-            val sectionStub = article.getSectionStub(applicationContext)
+            val sectionStub = article.section
             val issueStub = sectionStub?.getIssueStub(applicationContext)
-
+            val audio = requireNotNull(article.audio)
             if (issueStub != null && article.audio != null) {
                 val issueKey = issueStub.issueKey
                 val articleAudioItem = AudioPlayerItem(
-                    generateId(article.audio),
-                    article.audio,
-                    storagePathService.determineBaseUrl(article.audio.file, issueStub),
+                    generateId(audio),
+                    audio,
+                    storagePathService.determineBaseUrl(audio.file, issueStub),
                     uiStateHelper.articleAsAUiItem(article, issueKey),
                     issueKey,
                     article.key,
@@ -166,7 +166,7 @@ class AudioPlayerItemInitHelper(
         }
     }
     suspend fun initBookmarkedArticlesAudio(): List<AudioPlayerItem>{
-        val bookmarkedArticles = bookmarkRepository.getBookmarkedArticleStubs()
+        val bookmarkedArticles = bookmarkRepository.getBookmarkedArticles()
         val articles = bookmarkedArticles.mapNotNull { articleRepository.get(it.key) }
         val articlesWithAudio = articles.filter { it.audio != null }
 
@@ -176,7 +176,7 @@ class AudioPlayerItemInitHelper(
             AudioPlayerItem(
                 generateId(audio),
                 audio,
-                storagePathService.determineBaseUrl(it.audio.file, issueStub),
+                storagePathService.determineBaseUrl(audio.file, issueStub),
                 uiStateHelper.articleAsAUiItem(it, issueStub.issueKey),
                 issueStub.issueKey,
                 it.key,

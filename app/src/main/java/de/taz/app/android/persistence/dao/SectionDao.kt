@@ -27,7 +27,7 @@ interface SectionDao : BaseDao<SectionStub> {
     ): List<SectionStub>
 
     @Query(
-        """ SELECT Section.* FROM Section 
+        """ SELECT Section.sectionFileName FROM Section 
         INNER JOIN IssueSectionJoin as ISJ1
         INNER JOIN IssueSectionJoin as ISJ2
         WHERE ISJ1.issueDate == ISJ2.issueDate
@@ -38,11 +38,11 @@ interface SectionDao : BaseDao<SectionStub> {
         AND Section.sectionFileName == ISJ2.sectionFileName
     """
     )
-    suspend fun getPrevious(sectionFileName: String): SectionStub?
+    suspend fun getPreviousKey(sectionFileName: String): String?
 
 
     @Query(
-        """ SELECT Section.* FROM Section 
+        """ SELECT Section.sectionFileName FROM Section 
         INNER JOIN IssueSectionJoin as ISJ1
         INNER JOIN IssueSectionJoin as ISJ2
         WHERE ISJ1.issueDate == ISJ2.issueDate
@@ -53,7 +53,7 @@ interface SectionDao : BaseDao<SectionStub> {
         AND Section.sectionFileName == ISJ2.sectionFileName
     """
     )
-    suspend fun getNext(sectionFileName: String): SectionStub?
+    suspend fun getNextKey(sectionFileName: String): String?
 
     @Query("SELECT dateDownload FROM Section WHERE sectionFileName == :sectionFileName")
     suspend fun getDownloadDate(sectionFileName: String): Date?

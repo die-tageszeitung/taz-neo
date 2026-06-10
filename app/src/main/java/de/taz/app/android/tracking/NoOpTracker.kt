@@ -1,7 +1,7 @@
 package de.taz.app.android.tracking
 
-import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.interfaces.SectionOperations
+import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.SearchHit
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
 
@@ -25,7 +25,7 @@ class NoOpTracker : Tracker {
     override fun trackSettingsScreen() {}
     override fun trackSectionScreen(issueKey: AbstractIssuePublication, section: SectionOperations) {}
     override fun trackPdfPageScreen(issueKey: AbstractIssuePublication, pagina: String) {}
-    override fun trackArticleScreen(issueKey: AbstractIssuePublication, sectionOperations: SectionOperations, article: ArticleOperations) {}
+    override fun trackArticleScreen(sectionOperations: SectionOperations, article: Article) {}
     override fun trackErrorReportScreen() {}
     override fun trackWebViewScreen(htmlFile: String) {}
     override fun trackLoginScreen() {}
@@ -60,7 +60,7 @@ class NoOpTracker : Tracker {
     override fun trackSectionAdShown(adId: String, date: String, sectionTitle: String) {}
     override fun trackPageAdShown(adId: String, date: String, pageTitle: String) {}
     override fun trackAdTapped(adId: String) {}
-    override fun trackShareArticleEvent(article: ArticleOperations) {}
+    override fun trackShareArticleEvent(article: Article) {}
     override fun trackShareArticleEvent(articleFileName: String, mediaSyncId: Int?) {}
     override fun trackShareArticlePdfEvent(articleFileName: String, mediaSyncId: Int?) {}
     override fun trackShareArticleLinkEvent(articleFileName: String, mediaSyncId: Int?) {}
@@ -76,7 +76,7 @@ class NoOpTracker : Tracker {
     override fun trackDrawerTapPlayIssueEvent() {}
     override fun trackDrawerToggleAllSectionsEvent() {}
     override fun trackDrawerToggleSectionEvent() {}
-    override fun trackAudioPlayerPlayArticleEvent(articleOperations: ArticleOperations) {}
+    override fun trackAudioPlayerPlayArticleEvent(article: Article) {}
     override fun trackAudioPlayerPlayPodcastEvent(fileName: String, mediaSyncId: Int?) {}
     override fun trackAudioPlayerPlaySearchHitEvent(searchHit: SearchHit) {}
     override fun trackAudioPlayerChangePlaySpeedEvent(playbackSpeed: Float) {}

@@ -32,10 +32,9 @@ import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.TAP_ICON_FADE_OUT_TIME
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
-import de.taz.app.android.api.interfaces.ArticleOperations
-import de.taz.app.android.api.models.ArticleStub
-import de.taz.app.android.api.models.ArticleStubWithSectionKey
+import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.ArticleType
+import de.taz.app.android.api.models.ArticleWithSectionKey
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.audioPlayer.ArticleAudioPlayerViewModel
 import de.taz.app.android.base.BaseMainFragment
@@ -188,8 +187,8 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
                     launch {
                         issueContentViewModel.articleListFlow.collect { articleStubsWithSectionKey ->
                             if (
-                                articleStubsWithSectionKey.map { it.articleStub.key } !=
-                                (webviewPagerViewpager.adapter as? ArticlePagerAdapter)?.articleStubs?.map { it.key }
+                                articleStubsWithSectionKey.map { it.article.key } !=
+                                (webviewPagerViewpager.adapter as? ArticlePagerAdapter)?.articleList?.map { it.article.articleFileName }
                             ) {
                                 webviewPagerViewpager.adapter =
                                     ArticlePagerAdapter(
@@ -543,7 +542,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
                 when (selectedItem) {
                     is ArticlePagerItem.ArticleRepresentation -> {
                         onArticleSelected(
-                            position, selectedItem.art.articleStub
+                            position, selectedItem.art.article
                         )
 
                         if (prevItem !is ArticlePagerItem.ArticleRepresentation) {
@@ -576,7 +575,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
             }
         }
 
-        private fun onArticleSelected(position: Int, nextStub: ArticleStub) {
+        private fun onArticleSelected(position: Int, nextArticle: Article) {
             if (lastPage != null && lastPage != position) {
                 // if position has been changed by 1 (swipe to left or right)
                 if (abs(position - lastPage!!) == 1) {
@@ -584,7 +583,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
                 }
                 runIfNotNull(
                     issueContentViewModel.issueKeyAndDisplayableKeyFlow.value?.issueKey,
-                    nextStub
+                    nextArticle
                 ) { issueKey, displayable ->
                     log.debug("After swiping select displayable to ${displayable.key} (${displayable.title})")
                     if (issueContentViewModel.activeDisplayModeFlow.value == IssueContentDisplayMode.Article) {
@@ -601,7 +600,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
                     issueContentViewModel.lastSectionKey = null
                     // in pdf mode update the corresponding page:
                     if (tag == ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE) {
-                        val pdfPageWhereArticleBegins = nextStub.pageNameList.firstOrNull()
+                        val pdfPageWhereArticleBegins = nextArticle.pageNameList.firstOrNull()
                         pdfPageWhereArticleBegins?.let {
                             lifecycleScope.launch {
                                 pdfPagerViewModel.goToPdfPage(it, saveLastDisplayable = false)
@@ -615,20 +614,20 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
             viewLifecycleOwner.lifecycleScope.launch {
                 // show the share icon always when in public issues (as it shows a popup that the user should log in)
                 // OR when an onLink link is provided
-                articleBottomActionBarNavigationHelper.setShareIconVisibility(nextStub)
+                articleBottomActionBarNavigationHelper.setShareIconVisibility(nextArticle)
 
                 isBookmarkedLiveData?.removeObserver(isBookmarkedObserver)
                 isBookmarkedLiveData =
-                    bookmarkRepository.createBookmarkStateFlow(nextStub.articleFileName)
+                    bookmarkRepository.createBookmarkStateFlow(nextArticle.articleFileName)
                         .asLiveData()
                 isBookmarkedLiveData?.observe(this@ArticlePagerFragment, isBookmarkedObserver)
             }
 
-            audioPlayerViewModel.setVisible(nextStub)
+            audioPlayerViewModel.setVisible(nextArticle)
 
             articleBottomActionBarNavigationHelper.apply {
                 // show the player button only for articles with audio
-                setArticleAudioVisibility(nextStub.hasAudio)
+                setArticleAudioVisibility(nextArticle.hasAudio)
                 // ensure the action bar is showing when the article changes
                 expand(true)
             }
@@ -670,7 +669,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
     override fun onBackPressed(): Boolean {
         try {
             val isImprint =
-                (getCurrentArticlePagerItem() as? ArticlePagerItem.ArticleRepresentation)?.art?.articleStub?.isImprint() == true
+                (getCurrentArticlePagerItem() as? ArticlePagerItem.ArticleRepresentation)?.art?.article?.isImprint() == true
             val isTom = getCurrentArticlePagerItem() is ArticlePagerItem.Tom
 
             return if (isImprint || isTom) {
@@ -694,12 +693,12 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
             R.id.bottom_navigation_action_bookmark -> {
                 when (val currentItem = getCurrentArticlePagerItem()) {
                     is ArticlePagerItem.ArticleRepresentation ->
-                        if (currentItem.art.articleStub.isImprint()) {
+                        if (currentItem.art.article.isImprint()) {
                             toastHelper.showToast(R.string.toast_imprint_not_possible_to_bookmark)
-                        } else if (currentItem.art.articleStub.articleType == ArticleType.PODCAST) {
+                        } else if (currentItem.art.article.articleType == ArticleType.PODCAST) {
                             toastHelper.showToast(R.string.toast_podcast_not_possible_to_bookmark)
                         } else {
-                            toggleBookmark(currentItem.art.articleStub)
+                            toggleBookmark(currentItem.art.article)
                         }
 
                     is ArticlePagerItem.Tom -> toastHelper.showToast(R.string.toast_tom_not_possible_to_bookmark)
@@ -722,7 +721,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
         }
     }
 
-    private fun toggleBookmark(article: ArticleOperations) =
+    private fun toggleBookmark(article: Article) =
         viewBinding?.webviewPagerViewpager?.let {
             lifecycleScope.launch {
                 val isBookmarked = bookmarkRepository.toggleBookmarkAsync(article).await()
@@ -745,12 +744,12 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
     private fun share() {
         when (val currentItem = getCurrentArticlePagerItem()) {
             is ArticlePagerItem.ArticleRepresentation -> {
-                val articleStub = currentItem.art.articleStub
-                if (articleStub.articleType == ArticleType.PODCAST) {
+                val article = currentItem.art.article
+                if (article.articleType == ArticleType.PODCAST) {
                     toastHelper.showToast(R.string.toast_podcast_not_possible_to_share)
                 } else {
-                    tracker.trackShareArticleEvent(articleStub)
-                    ShareArticleBottomSheet.newInstance(articleStub)
+                    tracker.trackShareArticleEvent(article)
+                    ShareArticleBottomSheet.newInstance(article)
                         .show(parentFragmentManager, ShareArticleBottomSheet.TAG)
                 }
             }
@@ -765,13 +764,13 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
 
     private suspend fun tryScrollToArticle(
         articleKey: String,
-        articleStubs: List<ArticleStubWithSectionKey>
+        articleStubs: List<ArticleWithSectionKey>
     ) {
         if (
             articleKey.isArticleKey()
-            && articleStubs.map { it.articleStub.key }.contains(articleKey)
+            && articleStubs.map { it.article.key }.contains(articleKey)
         ) {
-            if (articleKey != getCurrentArticleStub()?.key) {
+            if (articleKey != getCurrentArticle()?.key) {
                 log.debug("I will now display $articleKey")
                 getSupposedPagerPosition()?.let {
                     if (it >= 0) {
@@ -793,8 +792,8 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
 
     private suspend fun getSupposedPagerPosition(): Int? {
         val position =
-            (viewBinding?.webviewPagerViewpager?.adapter as? ArticlePagerAdapter)?.articleStubs?.indexOfFirst {
-                it.key == issueContentViewModel.displayableKeyFlow.first()
+            (viewBinding?.webviewPagerViewpager?.adapter as? ArticlePagerAdapter)?.articleList?.indexOfFirst {
+                it.article.key == issueContentViewModel.displayableKeyFlow.first()
             }
         return if (position != null && position >= 0) {
             position
@@ -813,8 +812,8 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
         return articlePagerItem
     }
 
-    private fun getCurrentArticleStub(): ArticleStub? {
-        return (getCurrentArticlePagerItem() as? ArticlePagerItem.ArticleRepresentation)?.art?.articleStub
+    private fun getCurrentArticle(): Article? {
+        return (getCurrentArticlePagerItem() as? ArticlePagerItem.ArticleRepresentation)?.art?.article
     }
 
     override fun onDestroyView() {
@@ -844,26 +843,25 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
 
     private fun setHeader(displayableKey: String) {
         lifecycleScope.launch {
-            val articleStub = articleRepository.getStub(displayableKey)
-            articleStub?.let { stub ->
-                val issueStub = issueRepository.getIssueStubForArticle(stub)
-                val sectionStub = stub.getSectionStub(requireContext().applicationContext)
+            articleRepository.get(displayableKey)?.let { article ->
+                val issueStub = issueRepository.getIssueStubForArticle(article)
+                val sectionStub = article.section
                 // only the imprint should have no section
                 if (sectionStub?.title == null) {
                     setHeaderForImprint()
                 } else if (BuildConfig.IS_LMD) {
-                    val firstPage = stub.pageNameList.firstOrNull()
+                    val firstPage = article.pageNameList.firstOrNull()
                     if (firstPage !== null) {
                         setHeaderWithPage(firstPage)
                     } else {
                         hideHeaderWithPage()
                     }
                 } else {
-                    val index = stub.getIndexInSection(requireContext().applicationContext) ?: 0
-                    val count = articleRepository.getSectionArticleStubListByArticleName(
-                        stub.key
+                    val index = article.indexInSection ?: 0
+                    val count = articleRepository.getSectionArticlesByArticleName(
+                        article.key
                     ).size
-                    setHeaderForSection(index, count, sectionStub, stub.pageNameList.firstOrNull())
+                    setHeaderForSection(index, count, sectionStub, article.pageNameList.firstOrNull())
                 }
 
                 if (issueStub?.isWeekend == true) {

@@ -10,7 +10,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.R
-import de.taz.app.android.api.interfaces.ArticleOperations
+import de.taz.app.android.api.models.Article
 import de.taz.app.android.audioPlayer.AudioPlayerService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -30,16 +30,16 @@ private const val TYPE_ARTICLE_LAST = 1
  * @property onArticleClick Callback that should be triggered, when user clicks on an article
  */
 class ArticleAdapter(
-    var articles: List<ArticleOperations>,
-    private val onArticleClick: (article: ArticleOperations) -> Unit,
-    private val onArticleBookmarkClick: (article: ArticleOperations) -> Unit,
-    private val onAudioEnqueueClick: (ArticleOperations, Boolean) -> Unit,
-    private val articleBookmarkStateFlowCreator: (article: ArticleOperations) -> Flow<Boolean>,
+    var articles: List<Article>,
+    private val onArticleClick: (article: Article) -> Unit,
+    private val onArticleBookmarkClick: (article: Article) -> Unit,
+    private val onAudioEnqueueClick: (Article, Boolean) -> Unit,
+    private val articleBookmarkStateFlowCreator: (article: Article) -> Flow<Boolean>,
 ) : RecyclerView.Adapter<ArticleAdapter.ArticleHolder>() {
 
     inner class ArticleHolder(
         view: View,
-        private val onArticleClick: (article: ArticleOperations) -> Unit,
+        private val onArticleClick: (article: Article) -> Unit,
         private val showDivider: Boolean
     ) : RecyclerView.ViewHolder(view), CoroutineScope {
 
@@ -66,7 +66,7 @@ class ArticleAdapter(
          *
          * @param article Article to be displayed.
          */
-        fun bind(article: ArticleOperations) {
+        fun bind(article: Article) {
             articleTitle.text = article.title
             if (!article.teaser.isNullOrBlank()) {
                 articleTeaser.apply {
@@ -78,7 +78,7 @@ class ArticleAdapter(
             }
 
             launch {
-                val authorNames: String = article.getAuthorNames(applicationContext)
+                val authorNames: String = article.getAuthorNames()
                 val authorsString = authorNames.ifEmpty { "" }
                 val readMinutesString = if (article.readMinutes != null) {
                     itemView.context.getString(
@@ -128,7 +128,7 @@ class ArticleAdapter(
             val articleIsEnqueuedFlow = audioPlayerService.isInPlaylistFlow(article)
             launch {
                 articleIsEnqueuedFlow.collect { isEnqueued ->
-                    if (article.hasAudio(applicationContext))
+                    if (article.hasAudio)
                         if (isEnqueued) {
                             articleIsEnQueuedIcon.visibility = View.VISIBLE
                             articleEnqueueIcon.visibility = View.GONE

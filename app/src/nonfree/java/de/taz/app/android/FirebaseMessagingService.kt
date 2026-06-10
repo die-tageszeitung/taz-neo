@@ -6,7 +6,7 @@ import android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
-import de.taz.app.android.api.models.ArticleStub
+import de.taz.app.android.api.models.Article
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.data.DownloadScheduler
 import de.taz.app.android.dataStore.GeneralDataStore
@@ -201,7 +201,7 @@ class FirebaseMessagingService : FirebaseMessagingService() {
     }
 
     /**
-     * We try to get the [ArticleStub] from the given [mediaSyncId].
+     * We try to get the [Article] from the given [mediaSyncId].
      * If we don't get it, we need to download the issues metadata first.
      * Then we can call [generateArticleNotification].
      */
@@ -211,13 +211,13 @@ class FirebaseMessagingService : FirebaseMessagingService() {
         articleTitle: String?,
         articleTeaser: String?,
     ) {
-        var articleStub = articleRepository.getStubByMediaSyncId(mediaSyncId.toInt())
-        if (articleStub == null) {
+        var article = articleRepository.getByMediaSyncId(mediaSyncId.toInt())
+        if (article == null) {
             contentService.downloadIssueMetadata(articleDate)
         }
-        articleStub = articleStub ?: articleRepository.getStubByMediaSyncId(mediaSyncId.toInt())
+        article = article ?: articleRepository.getByMediaSyncId(mediaSyncId.toInt())
 
-        if (articleStub == null) {
+        if (article == null) {
             val message = "Could not download issue and fetch article for articleMediaSyncId $mediaSyncId"
             log.warn(message)
             SentryWrapper.captureMessage(message)
@@ -228,17 +228,17 @@ class FirebaseMessagingService : FirebaseMessagingService() {
             return
         }
 
-        val issueKey = issueRepository.getIssueStubForArticle(articleStub)?.issueKey
+        val issueKey = issueRepository.getIssueStubForArticle(article)?.issueKey
         if (issueKey == null) {
             log.warn("Could not fetch issueKey")
             return
         }
 
         generateArticleNotification(
-            articleStub.key,
+            article.key,
             issueKey,
-            articleTitle ?: articleStub.title,
-            articleTeaser ?: articleStub.teaser,
+            articleTitle ?: article.title,
+            articleTeaser ?: article.teaser,
         )
 
     }

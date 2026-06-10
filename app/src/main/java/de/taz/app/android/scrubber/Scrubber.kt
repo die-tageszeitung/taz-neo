@@ -264,14 +264,12 @@ class Scrubber(applicationContext: Context) {
             return
         }
 
-        val articleStub = ArticleStub(article)
-
         try {
             appDatabase.withTransaction {
                 appDatabase.articleAuthorImageJoinDao().deleteRelationToArticle(article.key)
                 appDatabase.articleImageJoinDao().deleteRelationToArticle(article.key)
 
-                appDatabase.articleDao().delete(articleStub)
+                appDatabase.articleDao().delete(article.articleStub)
             }
 
         } catch (e: SQLiteConstraintException) {
@@ -279,7 +277,7 @@ class Scrubber(applicationContext: Context) {
             return
         }
 
-        deleteFile(article.articleHtml)
+        article.articleHtml?.let { deleteFile(it) }
         article.audio?.let { deleteAudio(it) }
 
         article.imageList.forEach { deleteImage(it) }

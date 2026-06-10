@@ -1,8 +1,8 @@
 package de.taz.app.android.tracking
 
 import android.content.Context
-import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.interfaces.SectionOperations
+import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.SearchHit
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
 import de.taz.app.android.util.SingletonHolder
@@ -73,9 +73,8 @@ interface Tracker {
     fun trackSectionScreen(issueKey: AbstractIssuePublication, section: SectionOperations)
     fun trackPdfPageScreen(issueKey: AbstractIssuePublication, pagina: String)
     fun trackArticleScreen(
-        issueKey: AbstractIssuePublication,
         sectionOperations: SectionOperations,
-        article: ArticleOperations
+        article: Article
     )
     fun trackErrorReportScreen()
     fun trackWebViewScreen(htmlFile: String)
@@ -116,7 +115,7 @@ interface Tracker {
     fun trackSectionAdShown(adId: String, date: String, sectionTitle: String)
     fun trackPageAdShown(adId: String, date: String, pageTitle: String)
     fun trackAdTapped(adId: String)
-    fun trackShareArticleEvent(article: ArticleOperations)
+    fun trackShareArticleEvent(article: Article)
     fun trackShareArticleEvent(articleFileName: String, mediaSyncId: Int?)
     fun trackShareArticlePdfEvent(articleFileName: String, mediaSyncId: Int?)
     fun trackShareArticleLinkEvent(articleFileName: String, mediaSyncId: Int?)
@@ -133,7 +132,7 @@ interface Tracker {
     fun trackDrawerToggleAllSectionsEvent()
     fun trackDrawerToggleSectionEvent()
 
-    fun trackAudioPlayerPlayArticleEvent(articleOperations: ArticleOperations)
+    fun trackAudioPlayerPlayArticleEvent(articleOperations: Article)
     fun trackAudioPlayerPlayPodcastEvent(
         fileName: String,
         mediaSyncId: Int?,

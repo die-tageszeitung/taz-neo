@@ -62,7 +62,7 @@ class SectionRepository private constructor(applicationContext: Context) :
             deleteRelationToSection(sectionFileName)
             insertOrReplace(section.articleList.mapIndexed { index, article ->
                 SectionArticleJoin(
-                    section.sectionHtml.name, article.articleHtml.name, index
+                    section.sectionHtml.name, article.articleFileName, index
                 )
             })
         }
@@ -94,8 +94,8 @@ class SectionRepository private constructor(applicationContext: Context) :
         return appDatabase.sectionArticleJoinDao().getSectionStubForArticleFileName(articleFileName)
     }
 
-    suspend fun getNextSectionStub(sectionFileName: String): SectionStub? {
-        return appDatabase.sectionDao().getNext(sectionFileName)
+    suspend fun getNextSectionStub(sectionFileName: String): String? {
+        return appDatabase.sectionDao().getNextKey(sectionFileName)
     }
 
     suspend fun getSectionStubsForIssue(
@@ -112,8 +112,8 @@ class SectionRepository private constructor(applicationContext: Context) :
         ).mapNotNull { sectionStubToSection(it) }
     }
 
-    suspend fun getPreviousSectionStub(sectionFileName: String): SectionStub? {
-        return appDatabase.sectionDao().getPrevious(sectionFileName)
+    suspend fun getPreviousSectionKey(sectionFileName: String): String? {
+        return appDatabase.sectionDao().getPreviousKey(sectionFileName)
     }
 
     suspend fun imagesForSectionStub(sectionFileName: String): List<Image> {
@@ -130,7 +130,6 @@ class SectionRepository private constructor(applicationContext: Context) :
 
         val articles =
             appDatabase.sectionArticleJoinDao().getArticlesForSection(sectionFileName)
-                .mapNotNull { articleRepository.articleStubToArticle(it) }
 
         val images = appDatabase.sectionImageJoinDao().getImagesForSection(sectionFileName)
 
@@ -160,7 +159,7 @@ class SectionRepository private constructor(applicationContext: Context) :
             section.articleList.mapIndexed { index, article ->
                 SectionArticleJoin(
                     section.sectionHtml.name,
-                    article.articleHtml.name,
+                    article.articleFileName,
                     index
                 )
             }

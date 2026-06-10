@@ -3,12 +3,12 @@ package de.taz.app.android.ui.webview.pager
 import android.annotation.SuppressLint
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import de.taz.app.android.api.models.ArticleStub
-import de.taz.app.android.api.models.ArticleStubWithSectionKey
+import de.taz.app.android.api.models.Article
+import de.taz.app.android.api.models.ArticleWithSectionKey
 import de.taz.app.android.ui.webview.ArticleWebViewFragment
 
 class ArticlePagerAdapter(
-    articleList: List<ArticleStubWithSectionKey>,
+    val articleList: List<ArticleWithSectionKey>,
     fragment: Fragment,
 ) : FragmentStateAdapter(fragment) {
 
@@ -44,7 +44,7 @@ class ArticlePagerAdapter(
             }
     }
 
-    val articleStubs: List<ArticleStub> = articleRepresentations.map { it.art.articleStub }
+    val articles: List<Article> = articleRepresentations.map { it.art.article }
 
     // The if else statement is needed, otherwise on slow devices the tom header may appear
     val articlePagerItems = if (articleRepresentations.isEmpty()) {
@@ -56,7 +56,7 @@ class ArticlePagerAdapter(
     override fun createFragment(position: Int): Fragment {
         return if (articlePagerItems[position] is ArticlePagerItem.ArticleRepresentation) {
             val articleStub =
-                (articlePagerItems[position] as ArticlePagerItem.ArticleRepresentation).art.articleStub
+                (articlePagerItems[position] as ArticlePagerItem.ArticleRepresentation).art.article
             ArticleWebViewFragment.newInstance(articleStub)
         } else {
             val tom = articlePagerItems[position] as ArticlePagerItem.Tom

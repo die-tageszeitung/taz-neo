@@ -17,7 +17,7 @@ interface SectionImageJoinDao : BaseDao<SectionImageJoin> {
         LIMIT 1
     """
     )
-    suspend fun firstImageForSection(sectionFileName: String): Image
+    suspend fun firstImageForSection(sectionFileName: String): Image?
 
 
     @Query(

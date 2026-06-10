@@ -14,7 +14,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import de.taz.app.android.R
-import de.taz.app.android.api.interfaces.ArticleOperations
+import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.SearchHit
 import de.taz.app.android.base.ViewBindingBottomSheetFragment
 import de.taz.app.android.databinding.FragmentBottomSheetShareOptionsBinding
@@ -40,7 +40,7 @@ class ShareArticleBottomSheet :
         private const val ARGUMENT_ARTICLE_TITLE = "articleTitle"
         private const val ARGUMENT_ARTICLE_ONLINE_URL = "articleOnlineUrl"
 
-        // ArticleStub arguments
+        // Article arguments
         private const val ARGUMENT_ARTICLE_KEY = "articleKey"
         private const val ARGUMENT_ARTICLE_WORDS = "articleWords"
 
@@ -55,15 +55,15 @@ class ShareArticleBottomSheet :
 
         const val TAG = "ShareArticleBottomSheet"
 
-        fun newInstance(articleStub: ArticleOperations): DialogFragment =
-            if (isShareable(articleStub)) {
+        fun newInstance(article: Article): DialogFragment =
+            if (isShareable(article)) {
                 ShareArticleBottomSheet().apply {
                     arguments = bundleOf(
-                        ARGUMENT_ARTICLE_KEY to articleStub.key,
-                        ARGUMENT_ARTICLE_TITLE to articleStub.title,
-                        ARGUMENT_ARTICLE_ONLINE_URL to articleStub.onlineLink,
-                        ARGUMENT_ARTICLE_MEDIA_SYNC_ID to articleStub.mediaSyncId,
-                        ARGUMENT_ARTICLE_WORDS to articleStub.words
+                        ARGUMENT_ARTICLE_KEY to article.key,
+                        ARGUMENT_ARTICLE_TITLE to article.title,
+                        ARGUMENT_ARTICLE_ONLINE_URL to article.onlineLink,
+                        ARGUMENT_ARTICLE_MEDIA_SYNC_ID to article.mediaSyncId,
+                        ARGUMENT_ARTICLE_WORDS to article.words
                     )
                 }
             } else {
@@ -91,7 +91,7 @@ class ShareArticleBottomSheet :
             searchHit.onlineLink != null || searchHit.articlePdfFileName != null || searchHit.articleHtml != null
 
         // something from an article is always sharable, either the online link, the pdf or the text
-        fun isShareable(article: ArticleOperations): Boolean =
+        fun isShareable(article: Article): Boolean =
             true
     }
 
@@ -223,13 +223,13 @@ class ShareArticleBottomSheet :
         showLoading()
 
         try {
-            val articleStub = articleRepository.getStub(articleKey)
-                ?: throw Exception("No ArticleStub for $articleKey")
+            val article = articleRepository.get(articleKey)
+                ?: throw Exception("No Article for $articleKey")
 
-            tracker.trackShareArticlePdfEvent(articleStub.articleFileName, articleStub.mediaSyncId)
+            tracker.trackShareArticlePdfEvent(article.articleFileName, article.mediaSyncId)
 
-            val cachedArticlePdfFile = shareArticleDownloadHelper.downloadArticlePdf(articleStub)
-            shareCachedPdfFile(cachedArticlePdfFile, articleStub.title)
+            val cachedArticlePdfFile = shareArticleDownloadHelper.downloadArticlePdf(article)
+            shareCachedPdfFile(cachedArticlePdfFile, article.title)
 
         } catch (e: Exception) {
             log.error("Article PDF download failed", e)
@@ -276,12 +276,12 @@ class ShareArticleBottomSheet :
         try {
             val context = requireContext()
 
-            val articleStub = articleRepository.getStub(articleKey)
-                ?: throw Exception("No ArticleStub for $articleKey")
+            val article = articleRepository.get(articleKey)
+                ?: throw Exception("No Article for $articleKey")
 
-            tracker.trackShareArticleTextEvent(articleStub.articleFileName, articleStub.mediaSyncId)
+            tracker.trackShareArticleTextEvent(article.articleFileName, article.mediaSyncId)
 
-            val fileEntry = fileEntryRepository.getOrThrow(articleStub.articleFileName)
+            val fileEntry = fileEntryRepository.getOrThrow(article.articleFileName)
 
             val htmlFile = storageService.getFile(fileEntry)
                 ?: throw Exception("No File found for fileEntry ${fileEntry.name}")
@@ -295,7 +295,7 @@ class ShareArticleBottomSheet :
                 Html.fromHtml(articleStrippedHtmlText).toString()
             }
 
-            val articleTitle = articleStub.title
+            val articleTitle = article.title
 
             ShareCompat.IntentBuilder(context)
                 .setType("text/plain")

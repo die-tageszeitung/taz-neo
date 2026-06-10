@@ -5,9 +5,8 @@ import android.os.Parcelable
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import de.taz.app.android.api.interfaces.ArticleOperations
-import de.taz.app.android.api.models.ArticleStub
-import de.taz.app.android.api.models.ArticleStubWithSectionKey
+import de.taz.app.android.api.models.Article
+import de.taz.app.android.api.models.ArticleWithSectionKey
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.content.ContentService
@@ -194,15 +193,15 @@ class IssueViewerViewModel(
     val displayableKeyFlow: Flow<String> =
         issueKeyAndDisplayableKeyFlow.filterNotNull().map { it.displayableKey }
 
-    val articleListFlow: Flow<List<ArticleStubWithSectionKey>> = this.issueKeyFlow.map {
-        articleRepository.getArticleStubListForIssue(it)
+    val articleListFlow: Flow<List<ArticleWithSectionKey>> = this.issueKeyFlow.map {
+        articleRepository.getArticlesForIssue(it)
     }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
     val sectionListFlow: Flow<List<SectionStub>> = this.issueKeyFlow.map {
         sectionRepository.getSectionStubsForIssue(it)
     }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
-    val imprintArticleFlow: Flow<ArticleOperations?> = this.issueKeyFlow.map {
+    val imprintArticleFlow: Flow<Article?> = this.issueKeyFlow.map {
         issueRepository.getImprintStub(it)
     }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
@@ -218,17 +217,17 @@ class IssueViewerViewModel(
         isPublic && shouldShowSubscriptionElapsedDialog
     }
 
-    suspend fun findArticleStubByArticleName(articleName: String): ArticleStub? {
-        val articleStub = articleListFlow.first().find {
-            ArticleName.fromArticleFileName(it.articleStub.articleFileName) == articleName
-        }?.articleStub
+    suspend fun findArticleByArticleName(articleName: String): Article? {
+        val article = articleListFlow.first().find {
+            ArticleName.fromArticleFileName(it.article.articleFileName) == articleName
+        }?.article
 
-        if (articleStub == null) {
+        if (article == null) {
             val knownArticleFileNames =
-                articleListFlow.first().joinToString { it.articleStub.articleFileName }
+                articleListFlow.first().joinToString { it.article.articleFileName }
             log.warn("Could not find articleFileName for articleName=$articleName in $knownArticleFileNames")
         }
-        return articleStub
+        return article
     }
 
     val reloadWebviewsFlow = MutableSharedFlow<Unit>()

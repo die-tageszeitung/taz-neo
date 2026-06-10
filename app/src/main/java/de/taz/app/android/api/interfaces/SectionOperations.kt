@@ -24,12 +24,12 @@ interface SectionOperations: WebViewDisplayable {
         return IssueRepository.getInstance(applicationContext).getIssueStubForSection(key)
     }
 
-    override suspend fun previous(applicationContext: Context): SectionOperations? {
+    override suspend fun previous(applicationContext: Context): String? {
         val sectionRepository = SectionRepository.getInstance(applicationContext)
-        return sectionRepository.getPreviousSectionStub(this.key)
+        return sectionRepository.getPreviousSectionKey(this.key)
     }
 
-    override suspend fun next(applicationContext: Context): SectionOperations? {
+    override suspend fun next(applicationContext: Context): String? {
         val sectionRepository = SectionRepository.getInstance(applicationContext)
         return sectionRepository.getNextSectionStub(this.key)
     }

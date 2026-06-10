@@ -4,14 +4,12 @@ import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.ArticleStub
-import de.taz.app.android.api.models.ArticleStubWithSectionKey
-import de.taz.app.android.api.models.Author
+import de.taz.app.android.api.models.ArticleWithSectionKey
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.StorageType
 import de.taz.app.android.persistence.join.ArticleAuthorImageJoin
 import de.taz.app.android.persistence.join.ArticleImageJoin
-import de.taz.app.android.persistence.pojo.ArticleWithDetails
 import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.util.SingletonHolder
 import java.util.Date
@@ -40,11 +38,11 @@ class ArticleRepository private constructor(applicationContext: Context) :
      */
     suspend fun saveInternal(article: Article) {
         var articleToSave = article
-        getStub(articleToSave.key)?.let {
-            articleToSave = articleToSave.copy(bookmarkedTime = it.bookmarkedTime)
-        }
+        articleToSave = articleToSave.copy(
+            articleStub = articleToSave.articleStub.copy(bookmarkedTime = articleToSave.articleStub.bookmarkedTime)
+        )
 
-        val articleFileName = articleToSave.articleHtml.name
+        val articleFileName = articleToSave.articleFileName
 
         // [ArticleStub.audioFileName] references the [AudioStub.fileName] as a ForeignKey,
         // thus the [AudioStub] must be saved before the [ArticleStub] to fulfill the constraint.
@@ -56,10 +54,10 @@ class ArticleRepository private constructor(applicationContext: Context) :
             fileEntryRepository.save(pdf)
         }
 
-        appDatabase.articleDao().insertOrReplace(ArticleStub(articleToSave))
+        appDatabase.articleDao().insertOrReplace(articleToSave.articleStub)
 
         // save html file
-        fileEntryRepository.save(articleToSave.articleHtml)
+        articleToSave.articleHtml?.let { fileEntryRepository.save(it) }
 
         // save images and relations
         imageRepository.saveInternal(articleToSave.imageList)
@@ -87,37 +85,33 @@ class ArticleRepository private constructor(applicationContext: Context) :
     }
 
     suspend fun get(articleFileName: String): Article? {
-        return getStub(articleFileName)?.let { articleStubToArticle(it) }
-    }
-
-    suspend fun getStub(articleFileName: String): ArticleStub? {
         return appDatabase.articleDao().get(articleFileName)
     }
 
-    suspend fun getStubByMediaSyncId(articleMediaSyncId: Int): ArticleStub? {
+    suspend fun getByMediaSyncId(articleMediaSyncId: Int): Article? {
         return appDatabase.articleDao().getByMediaSyncId(articleMediaSyncId)
     }
 
-    suspend fun getSectionArticleStubListByArticleName(articleName: String): List<ArticleStub> {
-        var articleStubList = appDatabase.articleDao().getSectionArticleListByArticle(articleName)
+    suspend fun getSectionArticlesByArticleName(articleName: String): List<Article> {
+        var articles = appDatabase.articleDao().getSectionArticleListByArticle(articleName)
         // if it is the imprint we want to return a list of it
-        if (articleStubList.isEmpty()) {
-            articleStubList = getStub(articleName)?.let {
+        if (articles.isEmpty()) {
+            articles = get(articleName)?.let {
                 listOf(it)
             } ?: emptyList()
         }
-        return articleStubList
+        return articles
     }
 
-    suspend fun nextArticleStub(articleName: String): ArticleStub? {
-        return appDatabase.sectionArticleJoinDao().getNextArticleStubInSection(articleName)
-            ?: appDatabase.sectionArticleJoinDao().getNextArticleStubInNextSection(articleName)
+    suspend fun nextArticleKey(articleName: String): String? {
+        return appDatabase.sectionArticleJoinDao().getNextArticleKeyInSection(articleName)
+            ?: appDatabase.sectionArticleJoinDao().getNextArticleKeyInNextSection(articleName)
     }
 
 
-    suspend fun previousArticleStub(articleName: String): ArticleStub? {
-        return appDatabase.sectionArticleJoinDao().getPreviousArticleStubInSection(articleName)
-            ?: appDatabase.sectionArticleJoinDao().getPreviousArticleStubInPreviousSection(
+    suspend fun previousArticleKey(articleName: String): String? {
+        return appDatabase.sectionArticleJoinDao().getPreviousArticleKeyInSection(articleName)
+            ?: appDatabase.sectionArticleJoinDao().getPreviousArticleKeyInPreviousSection(
                 articleName
             )
     }
@@ -126,120 +120,22 @@ class ArticleRepository private constructor(applicationContext: Context) :
         return appDatabase.articleImageJoinDao().getImagesForArticle(articleFileName)
     }
 
-    suspend fun articleStubToArticle(articleStub: ArticleStub): Article? {
-        return try {
-            articleStubToArticleOrThrow(articleStub)
-        } catch (e: NotFoundException) {
-            log.error("Could not get Article (${articleStub.articleFileName}), because some critical data can't be loaded.", e)
-            null
-        }
-    }
-
-    suspend fun getFileNamesForArticle(articleName: String): List<String> {
-        val list = mutableListOf(articleName)
-        list.addAll(appDatabase.articleImageJoinDao().getNormalImageFileNamesForArticle(articleName))
-
-        // get authors
-        val authorImageJoins =
-            appDatabase.articleAuthorImageJoinDao().getAuthorImageJoinForArticle(articleName)
-
-        val authorImageNames = authorImageJoins
-                .filter { !it.authorFileName.isNullOrEmpty() }
-                .mapNotNull { it.authorFileName }
-
-        list.addAll(authorImageNames)
-        return list.distinct()
-    }
-
-    suspend fun getAuthorNamesForArticle(articleName: String): List<String> {
-        val authorImageJoins =
-            appDatabase.articleAuthorImageJoinDao().getAuthorImageJoinForArticle(articleName)
-
-        return authorImageJoins.mapNotNull { it.authorName }.distinct()
-    }
-
-
-    /**
-     * Tries convert the ArticleStub to an Article
-     * or throws an [NotFoundException] if some of the critical data can't be loaded.
-     */
-    private suspend fun articleStubToArticleOrThrow(articleStub: ArticleStub): Article {
-        val articleName = articleStub.articleFileName
-        val articleHtml = fileEntryRepository.getOrThrow(articleName)
-        val articleImages = appDatabase.articleImageJoinDao().getImagesForArticle(articleName)
-        val audio = articleStub.audioFileName?.let { audioRepository.get(it) }
-        val articlePdf = articleStub.pdfFileName?.let { fileEntryRepository.get(it) }
-        val articleIcon = articleStub.iconFileName?.let { imageRepository.get(it) }
-
-        // get authors
-        val authorImageJoins =
-            appDatabase.articleAuthorImageJoinDao().getAuthorImageJoinForArticle(articleName)
-
-        val authorImages = try {
-            fileEntryRepository.getOrThrow(
-                authorImageJoins
-                    .filter { !it.authorFileName.isNullOrEmpty() }
-                    .map { it.authorFileName!! }
-            )
-        } catch (nfe: NotFoundException) {
-            val hint = "fileEntryRepository could not find fileEntries for authorImages: " +
-                    "${
-                        authorImageJoins
-                            .filter { !it.authorFileName.isNullOrEmpty() }
-                            .map { it.authorFileName!! }
-                    }"
-            log.warn(hint, nfe)
-            SentryWrapper.captureException(nfe)
-            null
-        }
-
-        val authors = authorImageJoins.map { authorImageJoin ->
-            Author(
-                authorImageJoin.authorName,
-                authorImages?.find { it.name == authorImageJoin.authorFileName })
-        }
-
-        return Article(
-            articleHtml,
-            articleStub.issueFeedName,
-            articleStub.issueDate,
-            articleStub.title,
-            articleStub.teaser,
-            articleStub.onlineLink,
-            audio,
-            articleStub.pageNameList,
-            articleImages,
-            authors,
-            articleStub.mediaSyncId,
-            articleStub.chars,
-            articleStub.words,
-            articleStub.readMinutes,
-            articleStub.articleType,
-            articleStub.bookmarkedTime,
-            articleStub.position,
-            articleStub.percentage,
-            articleStub.dateDownload,
-            articlePdf,
-            articleIcon,
-        )
-    }
-
     suspend fun getIndexInSection(articleName: String): Int? {
         return appDatabase.sectionArticleJoinDao().getIndexOfArticleInSection(articleName)?.plus(1)
     }
 
     suspend fun deleteArticle(article: Article) {
         appDatabase.articleDao().get(article.key)?.let {
-            val articleStub = ArticleStub(article)
+            val articleStub = article.articleStub
             if (it.bookmarkedTime == null) {
-                val articleFileName = article.articleHtml.name
+                val articleFileName = article.articleFileName
 
                 // Delete all author relations of this Article,
                 // but keep the actual FileEntries and rely on the Scrubber to clean them later
                 appDatabase.articleAuthorImageJoinDao().deleteRelationToArticle(articleFileName)
 
                 // delete html file
-                fileEntryRepository.delete(article.articleHtml)
+                article.articleHtml?.let { fileEntry -> fileEntryRepository.delete(fileEntry) }
 
                 // delete icon
                 article.icon?.let { image ->
@@ -284,9 +180,9 @@ class ArticleRepository private constructor(applicationContext: Context) :
         }
     }
 
-    suspend fun getArticleStubListForIssue(
+    suspend fun getArticlesForIssue(
         issueKey: IssueKey
-    ): List<ArticleStubWithSectionKey> {
+    ): List<ArticleWithSectionKey> {
         val articleStubList = appDatabase.articleDao()
             .getArticleStubListForIssue(issueKey.feedName, issueKey.date, issueKey.status)
             .toMutableList()
@@ -304,82 +200,22 @@ class ArticleRepository private constructor(applicationContext: Context) :
 
         return articleStubList.map {
             val sectionKey = articleSectionMap[it.articleFileName]
-            ArticleStubWithSectionKey(it, sectionKey)
+            ArticleWithSectionKey(it, sectionKey)
         }
     }
 
     suspend fun getArticleListForIssue(issueKey: IssueKey): List<Article> {
-        val articleWithDetailsList = appDatabase.articleDao()
+        val articleList = appDatabase.articleDao()
             .getArticlesWithDetailsForIssue(issueKey.feedName, issueKey.date, issueKey.status)
             .toMutableList()
 
         // Add imprint to the article list - if it exists
-        appDatabase.articleDao().getImprintArticleWithDetailsForIssue(issueKey.feedName, issueKey.date)
+        appDatabase.articleDao().getImprintForIssue(issueKey.feedName, issueKey.date)
             ?.let { imprintWithDetails ->
-                articleWithDetailsList.add(imprintWithDetails)
+                articleList.add(imprintWithDetails)
             }
 
-        return articleWithDetailsList.mapNotNull { articleWithDetailsToArticle(it) }
-    }
-
-    private fun articleWithDetailsToArticle(articleWithDetails: ArticleWithDetails): Article? {
-        val articleStub = articleWithDetails.articleStub
-        val articleHtml = articleWithDetails.articleHtml ?: return null
-
-        val articleImages = articleWithDetails.imagesWithFiles.mapNotNull { imageWithFile ->
-            imageWithFile.fileEntry?.let { Image(it, imageWithFile.imageStub) }
-        }
-
-        val articleIcon = articleWithDetails.icon?.let { imageWithFile ->
-            imageWithFile.fileEntry?.let {
-                Image(it, imageWithFile.imageStub)
-            }
-        }
-
-        val audio = articleWithDetails.audioWithFile?.let { audioWithFile ->
-            audioWithFile.fileEntry?.let {
-                de.taz.app.android.api.models.Audio(
-                    it,
-                    audioWithFile.audioStub.playtime,
-                    audioWithFile.audioStub.duration,
-                    audioWithFile.audioStub.speaker,
-                    audioWithFile.audioStub.breaks
-                )
-            }
-        }
-
-        val articlePdf = articleWithDetails.pdf
-
-        val authors = articleWithDetails.authorJoins.map { authorJoinWithFile ->
-            Author(
-                authorJoinWithFile.authorJoin.authorName,
-                authorJoinWithFile.fileEntry
-            )
-        }
-
-        return Article(
-            articleHtml,
-            articleStub.issueFeedName,
-            articleStub.issueDate,
-            articleStub.title,
-            articleStub.teaser,
-            articleStub.onlineLink,
-            audio,
-            articleStub.pageNameList,
-            articleImages,
-            authors,
-            articleStub.mediaSyncId,
-            articleStub.chars,
-            articleStub.words,
-            articleStub.readMinutes,
-            articleStub.articleType,
-            articleStub.bookmarkedTime,
-            articleStub.position,
-            articleStub.percentage,
-            articleStub.dateDownload,
-            articlePdf,
-            articleIcon,
-        )
+        return articleList
     }
 
     suspend fun setDownloadDate(

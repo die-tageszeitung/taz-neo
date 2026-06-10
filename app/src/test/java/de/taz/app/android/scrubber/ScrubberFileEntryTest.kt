@@ -6,7 +6,10 @@ import androidx.test.core.app.ApplicationProvider
 import de.taz.app.android.TAZ_API_CSS_FILENAME
 import de.taz.app.android.TAZ_API_JS_FILENAME
 import de.taz.app.android.api.interfaces.StorageLocation
+import de.taz.app.android.api.models.AuthorJoinWithFile
 import de.taz.app.android.api.models.FileEntry
+import de.taz.app.android.api.models.ImageStub
+import de.taz.app.android.api.models.ImageWithFile
 import de.taz.app.android.api.models.StorageType
 import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.repository.FileEntryRepository
@@ -41,7 +44,6 @@ class ScrubberFileEntryTest {
 
     private lateinit var context: Context
     private lateinit var db: AppDatabase
-
     private lateinit var scrubber: Scrubber
     private lateinit var fileEntryRepository: FileEntryRepository
     private lateinit var issueRepository: IssueRepository
@@ -160,7 +162,7 @@ class ScrubberFileEntryTest {
         )
         val articleFileEntry = Fixtures.articleBase.articleHtml
         issueRepository.save(issue)
-        assertEquals(articleFileEntry, fileEntryRepository.get(articleFileEntry.name))
+        assertEquals(articleFileEntry, fileEntryRepository.get(articleFileEntry?.name!!))
 
         scrubber.scrub()
 
@@ -174,8 +176,13 @@ class ScrubberFileEntryTest {
                 Fixtures.sectionBase.copy(
                     articleList = listOf(
                         Fixtures.articleBase.copy(
-                            authorList = listOf(
-                                Fixtures.authorWithImage01
+                            authorJoins = listOf(
+                                AuthorJoinWithFile(
+                                    Fixtures.articleBase.articleFileName,
+                                    Fixtures.authorWithImage01,
+                                    0,
+                                    1,
+                                ),
                             )
                         )
                     )
@@ -200,7 +207,10 @@ class ScrubberFileEntryTest {
                 Fixtures.sectionBase.copy(
                     articleList = listOf(
                         Fixtures.articleBase.copy(
-                            imageList = listOf(image)
+                            imagesWithFiles = listOf(image).map { image -> ImageWithFile(
+                                ImageStub(image),
+                                Fixtures.fileEntry.copy(name = image.name, storageType = StorageType.issue),
+                            ) },
                         )
                     )
                 )

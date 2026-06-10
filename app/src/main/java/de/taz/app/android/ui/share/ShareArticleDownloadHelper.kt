@@ -1,7 +1,7 @@
 package de.taz.app.android.ui.share
 
 import android.content.Context
-import de.taz.app.android.api.models.ArticleStub
+import de.taz.app.android.api.models.Article
 import de.taz.app.android.data.HTTP_CLIENT_ENGINE
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.singletons.StoragePathService
@@ -46,16 +46,16 @@ class ShareArticleDownloadHelper(private val applicationContext: Context) {
     }
 
     /**
-     * Download the PDF file for an [ArticleStub] stored in the local database to a cache directory for sharing.
+     * Download the PDF file for an [Article] stored in the local database to a cache directory for sharing.
      *
      * @throws ShareArticleException in case of errors
      */
-    suspend fun downloadArticlePdf(articleStub: ArticleStub): File {
-        val articlePdf = articleStub.pdfFileName?.let { fileEntryRepository.get(it) }
-        val issueStub = articleStub.getIssueStub(applicationContext)
+    suspend fun downloadArticlePdf(article: Article): File {
+        val articlePdf = article.pdfFileName?.let { fileEntryRepository.get(it) }
+        val issueStub = article.getIssueStub(applicationContext)
 
         if (issueStub == null || articlePdf == null) {
-            throw ShareArticleException("${articleStub.key} (articlePdf=${articlePdf != null}, issueStub=${issueStub != null})")
+            throw ShareArticleException("${article.key} (articlePdf=${articlePdf != null}, issueStub=${issueStub != null})")
         }
 
         val baseUrl = storagePathService.determineBaseUrl(articlePdf, issueStub)

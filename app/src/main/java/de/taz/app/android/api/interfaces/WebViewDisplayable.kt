@@ -7,9 +7,9 @@ interface WebViewDisplayable: DownloadableCollection {
 
     val key: String
 
-    suspend fun previous(applicationContext: Context): WebViewDisplayable?
+    suspend fun previous(applicationContext: Context): String?
 
-    suspend fun next(applicationContext: Context): WebViewDisplayable?
+    suspend fun next(applicationContext: Context): String?
 
     suspend fun getIssueStub(applicationContext: Context): IssueStub?
 }

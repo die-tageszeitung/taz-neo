@@ -5,17 +5,17 @@ import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
+import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.ArticleBookmarkTime
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.IssueStatus
-import de.taz.app.android.persistence.pojo.ArticleWithDetails
 import java.util.Date
 
 @Dao
 interface ArticleDao : BaseDao<ArticleStub> {
     @Transaction
-    @Query(
-        """SELECT Article.* FROM Article
+    @Query("""
+        SELECT Article.* FROM Article
         LEFT JOIN SectionArticleJoin ON Article.articleFileName = SectionArticleJoin.articleFileName 
         LEFT JOIN IssueSectionJoin ON SectionArticleJoin.sectionFileName = IssueSectionJoin.sectionFileName
         WHERE IssueSectionJoin.issueFeedName = :issueFeedName
@@ -28,20 +28,25 @@ interface ArticleDao : BaseDao<ArticleStub> {
         issueFeedName: String,
         issueDate: String,
         issueStatus: IssueStatus
-    ): List<ArticleWithDetails>
+    ): List<Article>
 
+    @Transaction
+    @Query("""SELECT * FROM Article WHERE Article.articleFileName == :articleFileName LIMIT 1""")
+    suspend fun get(articleFileName: String): Article?
+
+    @Transaction
     @Query("SELECT * FROM Article WHERE Article.articleFileName == :articleFileName LIMIT 1")
-    suspend fun get(articleFileName: String): ArticleStub?
+    fun getLiveData(articleFileName: String): LiveData<Article?>
 
-    @Query("SELECT * FROM Article WHERE Article.articleFileName == :articleFileName LIMIT 1")
-    fun getLiveData(articleFileName: String): LiveData<ArticleStub?>
-
+    @Transaction
     @Query("SELECT * FROM Article WHERE Article.articleFileName in (:articleFileNames)")
-    suspend fun get(articleFileNames: List<String>): List<ArticleStub>
+    suspend fun get(articleFileNames: List<String>): List<Article>
 
+    @Transaction
     @Query("SELECT * FROM Article WHERE Article.mediaSyncId == :articleMediaSyncId ORDER BY Article.dateDownload DESC LIMIT 1")
-    suspend fun getByMediaSyncId(articleMediaSyncId: Int): ArticleStub?
+    suspend fun getByMediaSyncId(articleMediaSyncId: Int): Article?
 
+    @Transaction
     @Query(
         """SELECT Article.* FROM Article INNER JOIN SectionArticleJoin INNER JOIN SectionArticleJoin as SAJ
             ON Article.articleFileName == SAJ.articleFileName
@@ -50,11 +55,12 @@ interface ArticleDao : BaseDao<ArticleStub> {
             ORDER BY SAJ.`index` ASC
     """
     )
-    suspend fun getSectionArticleListByArticle(articleFileName: String): List<ArticleStub>
+    suspend fun getSectionArticleListByArticle(articleFileName: String): List<Article>
 
     @Query("SELECT dateDownload FROM Article WHERE articleFileName == :articleFileName")
     suspend fun getDownloadStatus(articleFileName: String): Date?
 
+    @Transaction
     @Query(
         """SELECT Article.* FROM Article
         LEFT JOIN SectionArticleJoin ON Article.articleFileName = SectionArticleJoin.articleFileName 
@@ -69,8 +75,9 @@ interface ArticleDao : BaseDao<ArticleStub> {
         issueFeedName: String,
         issueDate: String,
         issueStatus: IssueStatus
-    ): List<ArticleStub>
+    ): List<Article>
 
+    @Transaction
     @Query(
         """SELECT Article.* FROM Article
         WHERE Article.articleType = 'IMPRINT'
@@ -82,7 +89,7 @@ interface ArticleDao : BaseDao<ArticleStub> {
     suspend fun getImprintArticleStubForIssue(
         issueFeedName: String,
         issueDate: String
-    ): ArticleStub?
+    ): Article?
 
     @Transaction
     @Query(
@@ -93,10 +100,10 @@ interface ArticleDao : BaseDao<ArticleStub> {
         ORDER BY dateDownload DESC LIMIT 1
     """
     )
-    suspend fun getImprintArticleWithDetailsForIssue(
+    suspend fun getImprintForIssue(
         issueFeedName: String,
         issueDate: String
-    ): ArticleWithDetails?
+    ): Article?
 
     @Query(
         """
@@ -129,7 +136,7 @@ interface ArticleDao : BaseDao<ArticleStub> {
 
 
     // region Bookmarks
-
+    @Transaction
     @Query(
         """SELECT Article.* FROM Article
             INNER JOIN SectionArticleJoin
@@ -139,7 +146,7 @@ interface ArticleDao : BaseDao<ArticleStub> {
             AND Article.bookmarkedTime IS NOT NULL
          ORDER BY Article.issueDate DESC, IssueSectionJoin.`index` ASC"""
     )
-    suspend fun getBookmarkedArticles(): List<ArticleStub>
+    suspend fun getBookmarkedArticles(): List<Article>
 
     @Query("""SELECT Article.articleFileName, Article.bookmarkedTime
                 FROM Article""")

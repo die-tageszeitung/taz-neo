@@ -2,26 +2,21 @@ package de.taz.app.android.ui.webview.pager
 
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import de.taz.app.android.api.models.ArticleStub
-import de.taz.app.android.api.models.ArticleStubWithSectionKey
+import de.taz.app.android.api.models.ArticleWithSectionKey
 import de.taz.app.android.ui.webview.ArticleWebViewFragment
 
 class ArticlePagerAdapter(
-    articleList: List<ArticleStubWithSectionKey>,
+    val articleList: List<ArticleWithSectionKey>,
     fragment: Fragment,
 ) : FragmentStateAdapter(fragment) {
 
-    private val articleRepresentations =
-        articleList.map { ArticlePagerItem.ArticleRepresentation(it) }
-
-    val articleStubs: List<ArticleStub> = articleRepresentations.map { it.art.articleStub }
-
-    val articlePagerItems = articleRepresentations
+    // TODO check why not needed in taz but in LMD
+    val articlePagerItems = articleList.map { ArticlePagerItem.ArticleRepresentation(it) }
 
     override fun createFragment(position: Int): Fragment {
-        val articleStub = articlePagerItems[position].art.articleStub
-        return ArticleWebViewFragment.newInstance(articleStub)
+        val article = articleList[position]
+        return ArticleWebViewFragment.newInstance(article.article)
     }
 
-    override fun getItemCount(): Int = articlePagerItems.size
+    override fun getItemCount(): Int = articleList.size
 }

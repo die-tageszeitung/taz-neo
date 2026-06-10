@@ -3,42 +3,40 @@ package de.taz.app.android.api.mappers
 import de.taz.app.android.api.dto.ArticleDto
 import de.taz.app.android.api.dto.ImageResolutionDto
 import de.taz.app.android.api.models.Article
+import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.ArticleType
+import de.taz.app.android.api.models.AudioStub
+import de.taz.app.android.api.models.AudioWithFile
+import de.taz.app.android.api.models.AuthorJoinWithFile
+import de.taz.app.android.api.models.ImageWithFile
+import de.taz.app.android.persistence.join.ArticleAuthorImageJoin
 import de.taz.app.android.persistence.repository.IssueKey
 
 object ArticleMapper {
 
     fun from(issueKey: IssueKey, articleDto: ArticleDto, articleType: ArticleType?): Article {
         return Article(
-            FileEntryMapper.from(issueKey, articleDto.articleHtml),
-            issueKey.feedName,
-            issueKey.date,
-            articleDto.title,
-            articleDto.teaser,
-            articleDto.onlineLink,
-            articleDto.audio?.let { AudioMapper.from(issueKey, it) },
-            articleDto.pageNameList ?: emptyList(),
-            articleDto.imageList?.map { ImageMapper.from(issueKey, it) } ?: emptyList(),
-            articleDto.authorList?.map { AuthorMapper.from(it) } ?: emptyList(),
-            articleDto.mediaSyncId,
-            articleDto.chars,
-            articleDto.words,
-            articleDto.readMinutes,
-            articleType ?: articleTypeMapper(articleDto.articleType),
-            bookmarkedTime = null,
-            0,
-            0,
-            null,
-            articleDto.pdf?.let { FileEntryMapper.from(issueKey, it) },
-            articleDto.iconList?.firstOrNull { it.resolution == ImageResolutionDto.normal }?.let { ImageMapper.from(issueKey, it) },
+            ArticleStub(issueKey, articleDto, articleType),
+            articleHtml = FileEntryMapper.from(issueKey, articleDto.articleHtml),
+            pdf = articleDto.pdf?.let { FileEntryMapper.from(issueKey, it) },
+            audioWithFile = articleDto.audio?.let { AudioMapper.from(issueKey, it) }
+                ?.let { AudioWithFile(AudioStub(it), it.file) },
+            imagesWithFiles = articleDto.imageList?.map {
+                ImageWithFile(ImageMapper.from(issueKey, it))
+            } ?: emptyList(),
+            authorJoins = (articleDto.authorList?.map { AuthorMapper.from(it) }
+                ?: emptyList()).mapIndexed { index, it ->
+                AuthorJoinWithFile(
+                    ArticleAuthorImageJoin(
+                        articleDto.articleHtml.name,
+                        it.name,
+                        it.imageAuthor?.name,
+                        index
+                    ), it.imageAuthor
+                )
+            },
+            iconWithFile = articleDto.iconList?.firstOrNull { it.resolution == ImageResolutionDto.normal }
+                ?.let { ImageWithFile(ImageMapper.from(issueKey, it)) },
         )
-    }
-
-    private fun articleTypeMapper(typeString: String?): ArticleType {
-        return when (typeString) {
-            "imprint" -> ArticleType.IMPRINT
-            "podcast" -> ArticleType.PODCAST
-            else -> ArticleType.STANDARD
-        }
     }
 }

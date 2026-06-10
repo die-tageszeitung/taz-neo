@@ -6,6 +6,7 @@ import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.persistence.repository.IssueRepository
 import java.util.Date
 
+// TODO add FileEntry as @EMBEDDED
 data class Image(
     override val name: String,
     override val storageType: StorageType,
