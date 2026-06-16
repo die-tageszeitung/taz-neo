@@ -100,7 +100,8 @@ class IssueDownloadWorker(
         }
 
         contentService.downloadIssuePublicationToCache(
-            IssuePublication(downloadDate)
+            IssuePublication(downloadDate),
+            isAutomaticDownload = true
         )
         log.info("Downloaded new issue automatically: $downloadDate")
     }

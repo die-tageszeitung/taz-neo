@@ -743,9 +743,14 @@ class MatomoTracker(applicationContext: Context) : Tracker {
             .with(matomoTracker)
     }
 
-    override fun trackIssueDownloadEvent(issueKey: AbstractIssuePublication) {
+    override fun trackIssueDownloadEvent(issueKey: AbstractIssuePublication, isAutomaticDownload: Boolean) {
+        val actionName = if (isAutomaticDownload) {
+            "Auto Download"
+        } else {
+            "Download"
+        }
         TrackHelper.track()
-            .event(CATEGORY_ISSUE, "Download")
+            .event(CATEGORY_ISSUE, actionName)
             .name(issueKey.date)
             .with(matomoTracker)
     }
