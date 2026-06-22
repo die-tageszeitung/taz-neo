@@ -438,6 +438,13 @@ class SectionWebViewFragment : WebViewFragment<
 
     @UiThread
     private fun runWhenWebViewReady(function: () -> Unit) {
+        val viewLifecycleOwner = try {
+           viewLifecycleOwner
+        } catch (e: IllegalStateException) {
+            log.warn("Could not get viewLifeCycleOwner. $function can not be executed")
+            null
+        } ?: return
+
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 isRenderedFlow.first { it }
