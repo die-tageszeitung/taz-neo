@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.webkit.WebView
 import androidx.activity.viewModels
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.view.WindowCompat
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.commit
 import androidx.lifecycle.Lifecycle
@@ -163,6 +164,13 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>(), SuccessfulLogin
 
         // Ensure only the keep_issues_amount is hold
         IssueCountHelper.getInstance(this)
+
+        // Force light icons (false = white icons for dark backgrounds) on the navigation bar
+        // Only for tablets with Android 10, as later on Android handle the color properly
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q && resources.getBoolean(R.bool.isTablet)) {
+            val controller = WindowCompat.getInsetsController(window, window.decorView)
+            controller.isAppearanceLightNavigationBars = false
+        }
     }
 
     override fun onResume() {
