@@ -144,12 +144,12 @@
         android:layout_height="0dp"
         android:clipChildren="false"
         android:clipToPadding="false"
-        app:layout_constraintBottom_toTopOf="@id/guideline_bottom"
+        app:layout_constraintBottom_toTopOf="@id/fragment_cover_flow_date_download_wrapper"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHeight_default="wrap"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/feed_menu"
-        app:layout_constraintVertical_bias="0.4" />
+        app:layout_constraintVertical_chainStyle="packed" />
 
     <ImageView
         android:id="@+id/fragment_cover_flow_icon_go_previous"
@@ -183,12 +183,12 @@
         android:layout_height="@dimen/fragment_cover_flow_download_wrapper_size"
         android:layout_gravity="center_horizontal"
         android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/guideline_bottom"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/fragment_cover_flow_grid"
-        app:layout_constraintVertical_bias="0.3"
+        app:layout_constraintVertical_chainStyle="packed"
         tools:visibility="visible">
 
         <androidx.constraintlayout.widget.ConstraintLayout
