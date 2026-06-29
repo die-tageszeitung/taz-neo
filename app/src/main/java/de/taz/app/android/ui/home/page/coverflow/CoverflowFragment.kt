@@ -21,7 +21,7 @@ import de.taz.app.android.R
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentCoverflowBinding
-import de.taz.app.android.monkey.setDefaultInsets
+import de.taz.app.android.monkey.setDefaultTopInset
 import de.taz.app.android.monkey.setOnTapListener
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
 import de.taz.app.android.persistence.repository.IssuePublication
@@ -270,7 +270,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
                 null
             }
             // ensure padding is correct
-            root.setDefaultInsets()
+            root.setDefaultTopInset()
 
             fragmentCoverFlowGrid.apply {
                 // make it bouncy
@@ -287,6 +287,14 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
                 // add scroll logic
                 addOnScrollListener(onScrollListener)
             }
+            generalDataStore.helpFabEnabled.asFlow().onEach {
+                val guideLineAt = if (it) {
+                    resources.getDimensionPixelSize(R.dimen.fragment_cover_flow_guideline_end)
+                } else {
+                    0
+                }
+                guidelineBottom.setGuidelineEnd(guideLineAt)
+            }.launchIn(lifecycleScope)
 
             snapHelper.apply {
                 attachToRecyclerView(fragmentCoverFlowGrid)
