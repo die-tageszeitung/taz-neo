@@ -58,6 +58,7 @@ private const val SETTINGS_HOME_FRAGMENT_STATUS = "settings_home_fragment_status
 private const val SETTINGS_HELP_FAB_ENABLED = "settings_help_fab_enabled"
 private const val SETTINGS_PDF_DRAWER_LIST = "settings_pdf_drawer_list"
 private const val SETTINGS_ARTICLE_PDF= "settings_article_pdf"
+private const val SKIPPED_DOWNLOAD_TASKS_LAST_TIME= "skipped_download_tasks_last_time"
 
 // Deprecated/Removed setting keys
 private const val ENABLE_EXPERIMENTAL_ARTICLE_READER = "ENABLE_EXPERIMENTAL_ARTICLE_READER"
@@ -217,6 +218,10 @@ class GeneralDataStore private constructor(applicationContext: Context) {
 
     val openArticlePdfView = SimpleDataStoreEntry(
         dataStore, booleanPreferencesKey(SETTINGS_ARTICLE_PDF), true
+    )
+
+    val skippedDownloadTasksLastTime = SimpleDataStoreEntry(
+        dataStore, booleanPreferencesKey(SKIPPED_DOWNLOAD_TASKS_LAST_TIME), false
     )
 
     init {
