@@ -1202,8 +1202,11 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         lifecycleScope.launch {
             val mail = authHelper.email.get()
             val isValidMail = emailValidator(mail)
+            // We need to encode the email as utf8,
+            // otherwise an URI with a + sign in it is not getting filled in
+            val encodedMail = java.net.URLEncoder.encode(mail, "utf-8")
             val uri = if (isValidMail) {
-                "$portalLink?email=$mail"
+                "$portalLink?email=$encodedMail"
             } else {
                 portalLink
             }
