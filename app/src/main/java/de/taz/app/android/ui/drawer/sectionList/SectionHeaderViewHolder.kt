@@ -9,6 +9,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Section
@@ -64,6 +65,7 @@ class SectionHeaderViewHolder(
         }
 
         if (header.section.articleList.isNotEmpty()) {
+            toggleSeparator.isVisible = true
             toggleWrapper.setOnClickListener {
                 onCollapseClickListener(header.section)
             }
@@ -71,7 +73,7 @@ class SectionHeaderViewHolder(
             // if the sections have no articles, let the arrow indicate that (eg "anzeige")
             // (and open the section clicking on the arrow)
             toggleIcon.rotation = 270f
-            toggleSeparator.visibility = View.GONE
+            toggleSeparator.isVisible = false
             toggleWrapper.setOnClickListener {
                 onTitleClickListener(header.section)
             }
