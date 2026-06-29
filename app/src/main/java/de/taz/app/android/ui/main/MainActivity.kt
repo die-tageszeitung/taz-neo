@@ -169,8 +169,9 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>(), SuccessfulLogin
         IssueCountHelper.getInstance(this)
 
         // Force light icons (false = white icons for dark backgrounds) on the navigation bar
-        // Only for tablets with Android 10, as later on Android handle the color properly
-        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q && resources.getBoolean(R.bool.isTablet)) {
+        // Only for tablets with Android 10 and 11, as later on Android handle the color properly
+        if ((Build.VERSION.SDK_INT == Build.VERSION_CODES.Q || Build.VERSION.SDK_INT == Build.VERSION_CODES.R)
+            && resources.getBoolean(R.bool.isTablet)) {
             val controller = WindowCompat.getInsetsController(window, window.decorView)
             controller.isAppearanceLightNavigationBars = false
         }
