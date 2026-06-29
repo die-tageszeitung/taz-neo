@@ -98,7 +98,7 @@
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/switch_drawer_layout"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/fragment_drawer_body_pdf_with_sections_negative_margin"
                     android:clickable="true"
@@ -106,6 +106,7 @@
                     android:padding="8dp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@id/play_issue_layout"
+                    app:layout_constraintHorizontal_chainStyle="spread"
                     app:layout_constraintStart_toStartOf="@id/guideline_mid">
 
                     <ImageView
@@ -125,6 +126,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/fragment_drawer_body_pdf_with_sections_small_margin"
+                        android:ellipsize="end"
+                        android:maxLines="1"
                         android:text="@string/fragment_drawer_switch_grid_view"
                         android:textColor="@color/textColor"
                         app:layout_constraintBottom_toBottomOf="parent" />
@@ -133,7 +136,7 @@
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/play_issue_layout"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/fragment_drawer_body_pdf_with_sections_negative_margin"
                     android:clickable="true"
@@ -141,6 +144,7 @@
                     android:padding="8dp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_chainStyle="spread"
                     app:layout_constraintStart_toEndOf="@+id/switch_drawer_layout">
 
                     <ImageView
@@ -160,6 +164,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/fragment_drawer_body_pdf_with_sections_small_margin"
+                        android:ellipsize="end"
+                        android:maxLines="1"
                         android:text="@string/drawer_play_issue"
                         android:textColor="@color/textColor"
                         app:layout_constraintBottom_toBottomOf="parent" />
