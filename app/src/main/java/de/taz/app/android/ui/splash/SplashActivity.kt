@@ -56,17 +56,20 @@ import de.taz.app.android.ui.splash.SplashActivity.Companion.KEY_DISPLAYABLE
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.clearCustomPDFThumbnailLoaderCache
 import de.taz.app.android.util.showConnectionErrorDialog
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
+import java.util.Date
 
 const val CHANNEL_ID_NEW_VERSION = "NEW_VERSION"
 const val NEW_VERSION_REQUEST_CODE = 0
 private const val MAX_RETRIES_ON_STARTUP = 3
 private const val DOWNLOAD_TASKS_TIMEOUT_MS = 2_000L
+private const val DOWNLOAD_TASKS_REDUCED_TIMEOUT_MS = 500L
 private const val MIN_VERSION_QUERY_TIMEOUT_MS = 250L
 
 @SuppressLint("CustomSplashScreen")
@@ -195,33 +198,21 @@ class SplashActivity : StartupActivity() {
 
     private suspend fun initialize() {
         log.verbose("Start initialize")
+        val initializationStartTime = Date()
 
-        // Run the general initialization logic that is required to start the App.
-        // These steps must run before the download tasks may be started
-        generateNotificationChannels()
-        verifyStorageLocation()
-        initResources()
+        // 1. Parallelize non-network initialization tasks
+        val setupTasks = listOf(
+            lifecycleScope.async { generateNotificationChannels() },
+            lifecycleScope.async { verifyStorageLocation() },
+            lifecycleScope.async(Dispatchers.IO) { initResources() }
+        )
 
-        if (!checkMinVersion()) {
-            // Stop the initialization if the min version is not met.
-            // As we did not start the downloads and thus won't end up in a broken state
-            // we can mark the initComplete
-            getTazApplication().isInitComplete = true
-            return
-        }
+        // 2. Start all download tasks in parallel early, including the minVersion check.
+        // This allows network requests to start while other initialization is happening.
+        val minVersionTask = lifecycleScope.async { checkMinVersion() }
 
-        // Create async coroutines for all init tasks that might require network for downloads.
-        // The [Deferred]s can be awaited with a timeout if the network is very slow.
-        // Starting them async has the advantage of possible parallelization.
-        // And it is required to be able to use a timeout, as for some reason CacheOperation.execute
-        // is using a NonCancellable CoroutineContext.
-        // Note that the async Coroutines will continue even when this Activity is closed due to
-        // them being NonCancellable
         val downloadTasks = listOf(
             lifecycleScope.async {
-                // Note that both of these are using [ContentService] with the same tag and
-                // will be serialized internally by the download manager:
-                // thus there is no advantage in starting them on separate coroutines
                 checkAppVersion()
                 ensureAppInfo()
             },
@@ -233,10 +224,24 @@ class SplashActivity : StartupActivity() {
             },
         )
 
-        // First we'll try to await the download tasks with a timeout, if we hit the timeout we will
-        // check if all the required offline data is ready and start the main app.
+        // 3. Ensure min version is checked first as it's a critical gatekeeper
+        if (!minVersionTask.await()) {
+            // Stop the initialization if the min version is not met.
+            // As we did not wait for the downloads and thus won't end up in a broken state
+            // we can mark the initComplete
+            getTazApplication().isInitComplete = true
+            return
+        }
+
+        // 4. Ensure other setup tasks are completed
+        setupTasks.awaitAll()
+
+        // 5. Wait for download tasks with a timeout.
+        // If offline data is already ready, we can use a shorter timeout to speed up startup.
+        val timeout = if (isOfflineReady()) DOWNLOAD_TASKS_REDUCED_TIMEOUT_MS else DOWNLOAD_TASKS_TIMEOUT_MS
+
         try {
-            withTimeout(DOWNLOAD_TASKS_TIMEOUT_MS) {
+            withTimeout(timeout) {
                 downloadTasks.awaitAll()
             }
 
@@ -245,23 +250,24 @@ class SplashActivity : StartupActivity() {
             return
 
         } catch (e: TimeoutCancellationException) {
-            log.debug("Initialization download tasks took longer than ${DOWNLOAD_TASKS_TIMEOUT_MS}ms")
+            log.debug("Initialization download tasks took longer than ${timeout}ms")
             if (isOfflineReady()) {
                 log.debug("Offline data is ready - skip waiting for downloads and start App immediately")
-                finishOnInitCompleteAndContinue()
+                generalDataStore.skippedDownloadTasksLastTime.set(true)
+                finishOnInitCompleteAndContinue(initializationStartTime)
                 return
             }
         }
 
         // Otherwise, if the offline data is not ready, we continue waiting for the download tasks.
-        // If they have already finished, this second await call will return immediately.
         try {
             downloadTasks.awaitAll()
+            generalDataStore.skippedDownloadTasksLastTime.set(false)
         } catch (e: InitializationException) {
             handleInitializationException(e)
             return
         }
-        finishOnInitCompleteAndContinue()
+        finishOnInitCompleteAndContinue(initializationStartTime)
     }
 
     private suspend fun verifyStorageLocation() {
@@ -470,7 +476,9 @@ class SplashActivity : StartupActivity() {
      * To be called if the initialization is complete and the the app ready to be started.
      * Will finish the SplashActivity, start background tasks and continue to the next Activity
      */
-    private suspend fun finishOnInitCompleteAndContinue() {
+    private suspend fun finishOnInitCompleteAndContinue(initializationStartTime: Date) {
+        val initializationDuration = Date().time - initializationStartTime.time
+        log.verbose("Initialization took $initializationDuration ms.")
         getTazApplication().isInitComplete = true
         startBackgroundTasks()
 
@@ -534,10 +542,12 @@ class SplashActivity : StartupActivity() {
         val latestAppInfo = appInfoRepository.get()
         val latestFeed = feedRepository.get(BuildConfig.DISPLAYED_FEED)
         val latestResourceInfo = resourceInfoRepository.getNewest()
+        val skippedDownloadTasksLastTime = generalDataStore.skippedDownloadTasksLastTime.get()
 
         return latestAppInfo != null
                 && latestFeed != null && latestFeed.publicationDates.isNotEmpty()
                 && latestResourceInfo != null && latestResourceInfo.dateDownload != null
+                && !skippedDownloadTasksLastTime
     }
 
     /**

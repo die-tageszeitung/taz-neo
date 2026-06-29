@@ -18,7 +18,7 @@ object WidgetHelper {
      */
     fun updateWidget(context: Context) {
         val intent = Intent(context, MomentWidget::class.java)
-        intent.setAction(ACTION_APPWIDGET_UPDATE)
+        intent.action = ACTION_APPWIDGET_UPDATE
         // Use an array and EXTRA_APPWIDGET_IDS instead of AppWidgetManager.EXTRA_APPWIDGET_ID,
         // since it seems the onUpdate() is only fired on that:
         val ids = AppWidgetManager.getInstance(context).getAppWidgetIds(

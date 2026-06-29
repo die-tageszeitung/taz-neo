@@ -160,7 +160,10 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>(), SuccessfulLogin
 
         // create WebView then throw it away so later instantiations are faster
         // otherwise we have lags in the [CoverFlowFragment]
-        WebView(this)
+        // This is done after the first layout to not block initial frame rendering
+        viewBinding.root.post {
+            WebView(this)
+        }
 
         // Ensure only the keep_issues_amount is hold
         IssueCountHelper.getInstance(this)

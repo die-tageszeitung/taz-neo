@@ -12,7 +12,6 @@
         <item name="checkboxStyle">@style/Widget.App.CheckBox</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
-        <item name="android:statusBarColor">#0F000000</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:windowTranslucentStatus">true</item>
         <item name="android:colorEdgeEffect">@color/colorEdgeEffect</item>
@@ -25,7 +24,6 @@
         <item name="colorOnPrimary">@color/backgroundColor</item>
         <item name="bottomSheetDialogTheme">@style/ThemeOverlay.AppTheme.BottomSheetDialog</item>
         <item name="navigationViewStyle">@style/AppTheme.Widget.NavigationView</item>
-        <item name="android:navigationBarColor">@color/navigation_bottom_background</item>
         <item name="android:autofilledHighlight" tools:ignore="NewApi">@color/colorAutofillBackground</item>
         <item name="snackbarStyle">@style/AppTheme.SnackBar</item>
         <item name="snackbarTextViewStyle">@style/Widget.App.SnackbarTextView</item>
@@ -92,7 +90,6 @@
             much nicer on most screens.
         -->
         <item name="android:windowTranslucentStatus">false</item>
-        <item name="android:statusBarColor">@android:color/transparent</item>
         <!-- Material3.BottomSheetDialog is overwriting materialButtonStyle, therefore we need to reset it here: -->
         <item name="materialButtonStyle">@style/Widget.App.Button</item>
     </style>
