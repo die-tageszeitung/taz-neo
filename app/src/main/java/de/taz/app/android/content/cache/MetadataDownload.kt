@@ -115,17 +115,13 @@ class MetadataDownload(
                         exception
                     )
                 }
-            }.also {
-                notifySuccess(it)
             }
         } catch (e: ConnectivityException.Recoverable) {
-            notifyFailure(e)
             throw CacheOperationFailedException(
                 "Could not retrieve Metadata because of a connectivity issue",
                 e
             )
         } catch (e: Exception) {
-            notifyFailure(e)
             throw e
         }
     }

@@ -21,6 +21,7 @@ import io.ktor.client.request.prepareGet
 import io.ktor.client.statement.bodyAsChannel
 import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.readAvailable
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -29,6 +30,8 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.yield
 import java.io.BufferedOutputStream
 import java.io.File
@@ -53,6 +56,7 @@ class FileDownloader(
 
 
     private var downloaderJob: Job? = null
+    private val initializationMutex = Mutex()
 
     override suspend fun enqueueDownload(operation: ContentDownload) {
         operation.notifyStart()
@@ -70,10 +74,15 @@ class FileDownloader(
     private suspend fun ensureHelperInitialized() {
         val contentService = ContentService.getInstance(applicationContext)
         if (!::downloadConnectionHelper.isInitialized) {
-            val healthCheckUrl = (contentService.downloadMetadata(
-                AppInfoKey()
-            ) as AppInfo).globalBaseUrl
-            downloadConnectionHelper = DownloadConnectionHelper(healthCheckUrl)
+            initializationMutex.withLock {
+                if (!::downloadConnectionHelper.isInitialized) {
+                    val healthCheckUrl = (contentService.downloadMetadata(
+                        AppInfoKey(),
+                        maxRetries = 5 // Don't block agents infinitely if health check fails
+                    ) as AppInfo).globalBaseUrl
+                    downloadConnectionHelper = DownloadConnectionHelper(healthCheckUrl)
+                }
+            }
         }
     }
 
@@ -102,7 +111,7 @@ class FileDownloader(
             ensureHelperInitialized()
             downloadConnectionHelper.retryOnConnectivityFailure({
                 operations.forEach { it.notifyBadConnection() }
-            }) {
+            }, maxRetries = 10) { // Limit retries for individual files to avoid blocking agents forever
                 transformToConnectivityException {
                     httpClient.prepareGet(download.fileEntryOperation.origin!!).execute { response ->
                         when (response.status.value) {
@@ -151,6 +160,7 @@ class FileDownloader(
 
         } catch (e: Exception) {
             operations.forEach { it.notifyFailedItem(e) }
+            if (e is CancellationException) throw e
             SentryWrapper.captureException(e)
         } finally {
             operations.forEach { it.checkIfItemsCompleteAndNotifyResult(Unit) }
@@ -170,6 +180,7 @@ class FileDownloader(
                 if (read <= 0) break
                 hash.update(buffer, 0, read)
                 fileStream.write(buffer, 0, read)
+                yield()
             }
             fileStream.flush()
         }

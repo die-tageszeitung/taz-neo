@@ -4,6 +4,7 @@ import android.content.Context
 import de.taz.app.android.download.DownloadPriority
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.util.Log
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -155,7 +156,15 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
             try { e.blockingOperation.waitOnCompletion() } catch (e: Exception) {}
             return@withContext execute(forceExecution)
         }
-        return@withContext doWork()
+
+        try {
+            val result = doWork()
+            notifySuccess(result)
+            return@withContext result
+        } catch (e: Exception) {
+            notifyFailure(e)
+            throw e
+        }
     }
 
     /**
@@ -249,6 +258,7 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
      * Counts a successful item and emits an update indicating that
      */
     fun notifySuccessfulItem() {
+        if (state.hasCompleted) return
         successfulCount.incrementAndGet()
         log.verbose(
             "Notifying a successful file in $tag.\n" +
@@ -267,6 +277,7 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
      * @param exception The exception that is the cause of this failed item
      */
     fun notifyFailedItem(exception: Exception) {
+        if (state.hasCompleted) return
         failedCount.incrementAndGet()
         log.verbose(
             "Notifying a failed file in $tag. with reason $exception \n" +
@@ -310,9 +321,15 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
      * Mark the operation as failed, will emit failiure updates to its listeners
      * @param e An exception indicating the cause of the failiure
      */
-    fun notifyFailure(e: Exception) {
+    private fun notifyFailure(e: Exception) {
+        if (state.hasCompleted) return
         // remove from activeCacheOperations
         activeCacheOperations.remove(tag)
+
+        // Account for any items that haven't been reported yet
+        while (completedItemCount < totalItemCount) {
+            notifyFailedItem(e)
+        }
 
         emitUpdate(
             CacheStateUpdate(
@@ -328,14 +345,20 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
      * Mark the operation as succeeded, will emit success updates to its listeners
      * @param result The result of the operation, if the operation doesn't produce a result use [Unit]
      */
-    fun notifySuccess(result: RESULT) {
+    private fun notifySuccess(result: RESULT) {
+        if (state.hasCompleted) return
         // remove from activeCacheOperations
         activeCacheOperations.remove(tag)
+
+        // Account for any items that haven't been reported yet
+        while (completedItemCount < totalItemCount) {
+            notifySuccessfulItem()
+        }
 
         emitUpdate(
             CacheStateUpdate(
                 CacheStateUpdate.Type.SUCCEEDED,
-                targetState,
+                this.targetState,
             )
         )
         resultDeferred.complete(result)

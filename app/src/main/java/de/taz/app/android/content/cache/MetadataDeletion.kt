@@ -60,13 +60,8 @@ class MetadataDeletion(
                 else -> {
                     throw IllegalArgumentException("A ${download::class} is not allowed to be deleted")
                 }
-            }.also {
-                notifySuccessfulItem()
-                notifySuccess(it)
             }
         } catch (e: Exception) {
-            notifyFailedItem(e)
-            notifyFailure(e)
             throw CacheOperationFailedException("Metadata deletion of ${download.getDownloadTag()} failed", e)
         }
     }

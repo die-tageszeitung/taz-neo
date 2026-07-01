@@ -96,13 +96,8 @@ class ContentDeletion(
         // Reset the collection download date immediately. Even if the deletion has issues it's
         // better to assume the content deleted
         collection.setDownloadDate(null, applicationContext)
-        try {
-            for (item in cacheItems) {
-                storageService.deleteFile(item.fileEntryOperation.fileEntry)
-            }
-        } catch (e: Exception) {
-            notifyFailure(e)
+        for (item in cacheItems) {
+            storageService.deleteFile(item.fileEntryOperation.fileEntry)
         }
-        notifySuccess(Unit)
     }
 }

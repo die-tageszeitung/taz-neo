@@ -14,11 +14,11 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
+import kotlinx.coroutines.suspendCancellableCoroutine
 import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
-import kotlin.coroutines.suspendCoroutine
 
 const val BACK_OFF_FACTOR = 1.75f
 
@@ -64,13 +64,15 @@ abstract class ConnectionHelper {
                 if (maxRetries > -1 && failedAttempts >= maxRetries) {
                     throw ConnectivityException.Recoverable("Maximum retries exceeded", e)
                 } else {
-                    suspendCoroutine<Unit> { continuation ->
-                        waitingCalls.offer(
-                            WaitingCall(
-                                continuation,
-                                maxRetries
-                            )
+                    suspendCancellableCoroutine<Unit> { continuation ->
+                        val waitingCall = WaitingCall(
+                            continuation,
+                            maxRetries
                         )
+                        waitingCalls.offer(waitingCall)
+                        continuation.invokeOnCancellation {
+                            waitingCalls.remove(waitingCall)
+                        }
                     }
                 }
             }
