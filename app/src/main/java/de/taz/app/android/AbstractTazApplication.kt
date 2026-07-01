@@ -3,6 +3,8 @@ package de.taz.app.android
 import android.app.Activity
 import android.app.Application
 import android.os.StrictMode
+import org.conscrypt.Conscrypt
+import java.security.Security
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
@@ -38,6 +40,9 @@ abstract class AbstractTazApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+
+        // Speed up SSL/TLS handshakes using Conscrypt native engine
+        Security.insertProviderAt(Conscrypt.newProvider(), 1)
 
         // Install the global exception handler
         UncaughtExceptionHandler(applicationContext)

@@ -30,7 +30,7 @@ data class WaitingCall(
 const val INFINITE = -1
 
 // Default ktor client engine to be used
-val HTTP_CLIENT_ENGINE = Android
+val HTTP_CLIENT_ENGINE = Android.create()
 
 
 abstract class ConnectionHelper {

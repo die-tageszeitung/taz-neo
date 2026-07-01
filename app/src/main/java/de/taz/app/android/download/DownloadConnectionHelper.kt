@@ -11,10 +11,12 @@ import io.ktor.http.Url
 class DownloadConnectionHelper(
     private val downloadEndpoint: String,
 ) : ConnectionHelper() {
+    private val httpClient = HttpClient(HTTP_CLIENT_ENGINE)
+
     override suspend fun checkConnectivity(): Boolean {
         return try {
             transformToConnectivityException {
-                val response = HttpClient(HTTP_CLIENT_ENGINE).get(Url(downloadEndpoint))
+                val response = httpClient.get(Url(downloadEndpoint))
                 response.status.value in 200..299
             }
         } catch (e: ConnectivityException.Recoverable) {

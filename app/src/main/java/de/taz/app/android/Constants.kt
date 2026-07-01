@@ -43,7 +43,7 @@ const val DISPLAYABLE_NAME = "displayableName"
 val simpleDateFormat
     get() = SimpleDateFormat("yyyy-MM-dd", Locale.US)
 
-const val COPY_BUFFER_SIZE = 100 * 1024 // 100kiB
+const val COPY_BUFFER_SIZE = 256 * 1024 // 256kiB
 
 const val METADATA_DOWNLOAD_RETRY_INDEFINITELY = -1
 const val METADATA_DOWNLOAD_DEFAULT_RETRIES = 7
