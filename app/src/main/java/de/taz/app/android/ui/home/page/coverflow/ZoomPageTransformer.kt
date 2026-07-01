@@ -29,7 +29,7 @@ object ZoomPageTransformer {
     private fun translationXAtScale(view: View, position: Float): Float =
         view.run {
             val child = getCachedMoment(view)
-            val border = (width - child.width).toFloat()
+            val border = (width - child.width)*1.2f
             val result = border * position
             // this factor is found by experimentation :)
             // The idea behind is: the more outer you are (bigger position) the higher the factor should be

@@ -18,6 +18,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/fragment_cover_flow_login_button_margin_horizontal"
+        android:paddingBottom="10dp"
         app:layout_constraintTop_toBottomOf="@id/representation">
 
         <TextView
