@@ -3,7 +3,7 @@ package de.taz.app.android.persistence.repository
 import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
-import de.taz.app.android.api.models.PageStub
+import de.taz.app.android.api.models.Page
 import de.taz.app.android.persistence.AppDatabase
 import de.taz.test.RobolectricTestApplication
 import de.taz.test.SingletonTestUtil
@@ -69,7 +69,7 @@ class PageRepositoryTest {
     fun getWithoutFile() = runTest {
         pageRepository.saveInternal(page)
         val fromDB = pageRepository.getWithoutFile(page.pagePdf.name)
-        assertEquals(fromDB, PageStub(page))
+        assertEquals(fromDB, page)
     }
 
     @Test

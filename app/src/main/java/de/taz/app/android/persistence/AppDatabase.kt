@@ -15,6 +15,7 @@ import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.ImageStub
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.MomentStub
+import de.taz.app.android.api.models.Page
 import de.taz.app.android.api.models.PageStub
 import de.taz.app.android.api.models.ResourceInfoStub
 import de.taz.app.android.api.models.SectionStub
@@ -90,6 +91,7 @@ import de.taz.app.android.persistence.migrations.Migration38to39
 import de.taz.app.android.persistence.migrations.Migration39to40
 import de.taz.app.android.persistence.migrations.Migration3to4
 import de.taz.app.android.persistence.migrations.Migration40to41
+import de.taz.app.android.persistence.migrations.Migration41to42
 import de.taz.app.android.persistence.migrations.Migration4to5
 import de.taz.app.android.persistence.migrations.Migration5to6
 import de.taz.app.android.persistence.migrations.Migration6to7
@@ -116,7 +118,7 @@ import de.taz.app.android.persistence.typeconverters.StorageTypeConverter
 import de.taz.app.android.persistence.typeconverters.StringListTypeConverter
 import de.taz.app.android.util.SingletonHolder
 
-const val DATABASE_VERSION = 41
+const val DATABASE_VERSION = 42
 const val DATABASE_NAME = "db"
 
 fun allMigrations() = arrayOf(
@@ -160,6 +162,7 @@ fun allMigrations() = arrayOf(
     Migration38to39(),
     Migration39to40(),
     Migration40to41(),
+    Migration41to42(),
 )
 
 @Database(

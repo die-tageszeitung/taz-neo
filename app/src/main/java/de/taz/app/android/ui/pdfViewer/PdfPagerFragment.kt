@@ -44,7 +44,6 @@ import de.taz.app.android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -101,7 +100,6 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
 
         pdfPagerViewModel.pdfPageListFlow
             .flowWithLifecycle(lifecycle)
-            .filterNotNull()
             .onEach { pdfPageList ->
                 if (pdfPageList.isEmpty()) {
                     return@onEach
@@ -203,11 +201,11 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
      */
     private suspend fun handlePageClick(page: Page, x: Float, y: Float) {
         val issueStub = pdfPagerViewModel.issueStub
-        if (page.podcast != null && issueStub != null && x in 0f..1f && y in 0f..1f) {
+        val podcast = page.podcast
+        if (podcast != null && issueStub != null && x in 0f..1f && y in 0f..1f) {
             // This page has a podcast and the click was anywhere on the pdf page. Trigger playing the PDF
-            audioPlayerService.playPodcast(issueStub, page, page.podcast)
+            audioPlayerService.playPodcast(issueStub, page, podcast)
         } else {
-
             val frameList = page.frameList ?: emptyList()
             val frame = frameList.firstOrNull { it.x1 <= x && x < it.x2 && it.y1 <= y && y < it.y2 }
             frame?.link?.let {
@@ -295,15 +293,17 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
 
     private fun trackOnPageChange(position: Int) = CoroutineScope(Dispatchers.Default).launch {
         val issueStub = pdfPagerViewModel.issueStub
-        val page = pdfPagerViewModel.pdfPageListFlow.first()?.getOrNull(position)
+        val page = pdfPagerViewModel.pdfPageListFlow.first().getOrNull(position)
 
         if (issueStub != null && page != null) {
             val pagina = page.pagina ?: (position + 1).toString()
             tracker.trackPdfPageScreen(issueStub.issueKey, pagina)
             // Track when ads are on the page
-            page.adIdList?.forEach {
-                log.debug("Track ad on page $it, ${issueStub.date}, Seite ${page.pagina}")
-                tracker.trackPageAdShown(it, issueStub.date, "Seite ${page.pagina}")
+            if (page.dateDownload != null) {
+                page.adIdList?.forEach {
+                    log.debug("Track ad on page $it, ${issueStub.date}, Seite ${page.pagina}")
+                    tracker.trackPageAdShown(it, issueStub.date, "Seite ${page.pagina}")
+                }
             }
         } else {
             log.warn("Could not get page for position=$position")

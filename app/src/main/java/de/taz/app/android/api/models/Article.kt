@@ -244,7 +244,9 @@ data class AudioWithFile(
         entityColumn = "name"
     )
     val fileEntry: FileEntry?
-)
+) {
+    constructor(audio: Audio) : this(AudioStub(audio), audio.file)
+}
 
 data class ImageWithFile(
     @Embedded val imageStub: ImageStub,

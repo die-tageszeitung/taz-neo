@@ -4,6 +4,7 @@ import com.artifex.mupdf.fitz.Cookie
 import com.artifex.mupdf.fitz.Point
 import de.taz.app.android.ui.pdfViewer.mupdf.MuPDFCore
 import java.io.File
+import androidx.core.graphics.createBitmap
 
 class MuPDFThumbnail(filename: String) : MuPDFCore(File(filename).readBytes(), filename) {
 
@@ -14,11 +15,7 @@ class MuPDFThumbnail(filename: String) : MuPDFCore(File(filename).readBytes(), f
             pageSize.x * mSourceScale,
             pageSize.y * mSourceScale
         )
-        val bp = Bitmap.createBitmap(
-            size.x.toInt(),
-            size.y.toInt(),
-            Bitmap.Config.ARGB_8888
-        )
+        val bp = createBitmap(size.x.toInt(), size.y.toInt())
         drawPage(
             bp,
             0,

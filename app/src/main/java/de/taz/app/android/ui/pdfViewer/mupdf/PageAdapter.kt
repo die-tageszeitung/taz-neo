@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import de.taz.app.android.api.models.Page
+import androidx.core.graphics.createBitmap
 
 class PageAdapter(
     private val mContext: Context,
@@ -57,7 +58,7 @@ class PageAdapter(
         val cachedSharedHqBm = sharedHqBm
         val hqBitmap =
             if (cachedSharedHqBm == null || cachedSharedHqBm.width != parent.width || cachedSharedHqBm.height != parent.height) {
-                Bitmap.createBitmap(parent.width, parent.height, Bitmap.Config.ARGB_8888).also {
+                createBitmap(parent.width, parent.height).also {
                     sharedHqBm = it
                 }
             } else {

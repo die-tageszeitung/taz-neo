@@ -38,20 +38,24 @@ import de.taz.app.android.ui.issueViewer.IssueKeyWithDisplayableKey
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment.Companion.getShouldShowSubscriptionElapsedDialogFlow
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-private const val DEFAULT_NUMBER_OF_PAGES = 29
 private const val KEY_CURRENT_ITEM = "KEY_CURRENT_ITEM"
 
 data class PageWithArticles(
@@ -95,7 +99,12 @@ class PdfPagerViewModel(
     val issueStub: IssueStub?
         get() = issueStubFlow.value
 
-    val pdfPageListFlow: MutableStateFlow<List<Page>?> = MutableStateFlow(null)
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val pdfPageListFlow: StateFlow<List<Page>> = issueStubFlow.flatMapLatest {
+        it?.issueKey?.let {
+            issueKey -> pageRepository.getPagesForIssueKeyFlow(issueKey)
+        } ?: flowOf(emptyList())
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
     val issueDownloadFailedErrorFlow = MutableStateFlow(false)
 
@@ -116,8 +125,11 @@ class PdfPagerViewModel(
             return@withContext
         }
 
-        val pdfPageList = pdfPageListFlow.value
-        val validPosition = position.coerceIn(0, pdfPageList?.size ?: DEFAULT_NUMBER_OF_PAGES)
+        // wait for pdfPageList to be initialized
+        val pdfPageList = pdfPageListFlow.first { it.isNotEmpty() }
+
+        val validPosition = position.coerceIn(0, pdfPageList.size - 1)
+
         if (_currentItem.value != validPosition) {
             _currentItem.value = validPosition
 
@@ -130,7 +142,7 @@ class PdfPagerViewModel(
                     )
                     // Use lastDisplayable to also store the page number. It is necessary for the
                     // continue read functionality to distinguish between  page and article
-                    pdfPageList?.get(validPosition)?.pagePdf?.name?.let { fileName ->
+                    pdfPageList.getOrNull(validPosition)?.pagePdf?.name?.let { fileName ->
                         issueRepository.saveLastDisplayable(it, fileName)
                     }
                 }
@@ -245,18 +257,6 @@ class PdfPagerViewModel(
                 // Finally store the IssueStub, even it if is not downloaded yet
                 issueStubFlow.value = issueStub
 
-                // Download issue or set pages flow if downloaded
-                if (issueStub.dateDownload != null && issueStub.dateDownloadWithPages != null) {
-                    pdfPageListFlow.value = pageRepository.getPagesForIssueKey(issueStub.issueKey)
-
-                } else {
-                    // If the Issue is not fully downloaded we have to observer the download progress
-                    // and update the pageList when new data is available.
-                    handleIssueContentDownloadProgress(issueStub)
-                }
-
-                // Update current (and set lastDisplayable with it)
-
                 // Update the latest page position if continueReadAutomatically is set
                 val lastPagePosition = if (continueReadAutomatically || continueReadDirectly) {
                     lastPage ?: 0
@@ -270,7 +270,7 @@ class PdfPagerViewModel(
                 val isArticle = lastDisplayable?.isArticleKey() == true
                 val isSection = lastDisplayable?.isSectionKey() == true
                 val isPage = lastDisplayable?.isPageKey() == true
-                val isFirstPage = lastDisplayable == pdfPageListFlow.value?.first()?.pagePdf?.name
+                val isFirstPage = lastDisplayable == pdfPageListFlow.value.firstOrNull()?.pagePdf?.name
                 val continueRead = (continueReadDirectly || continueReadAutomatically) && lastDisplayable != null
 
                 // If continueReadAutomatically setting is set and last displayable is article
@@ -291,52 +291,6 @@ class PdfPagerViewModel(
         }
     }
 
-    private fun handleIssueContentDownloadProgress(issueStub: IssueStub) {
-        viewModelScope.launch {
-            // Once the Issue is fully downloaded, we have to store it on the flow, so that the
-            // depending operations will start (for example itemsToC)
-            issueStubFlow.value =
-                issueRepository.getStubFlow(issueStub.feedName, issueStub.date, issueStub.status)
-                    .first { it?.dateDownload != null && it.dateDownloadWithPages != null }
-
-            // We could get the pages for the issue here again to be on the safe side.
-            // But it does not seem to be required, so we skip it for now.
-        }
-
-        viewModelScope.launch {
-            // Attention: the following code is n^2: it will get the whole list of Pages
-            // every time a single Page changes. For example when it is downloaded
-            val pagesFlow = pageRepository.getPagesForIssueKeyFlow(issueStub.issueKey)
-            pagesFlow.collect { pages ->
-                val allPagesDownloaded = pages.all { it.dateDownload != null }
-
-                if (allPagesDownloaded) {
-                    // Once all the pages are downloaded, we stop listening for database changes
-                    pdfPageListFlow.value = pages
-                    cancel()
-
-                } else {
-                    // As the PageStub.dateDownloaded is overwritten when the Issue.pageList is saved
-                    // we hack around and look at the pdfs FileEntry dateDownloaded directly.
-                    // This will allow to show the FrontPage immediately without waiting for its re-download.
-                    val pagesWithFileEntryDateDownloaded = pages.map { page ->
-                        if (page.dateDownload == null && page.pagePdf.dateDownload != null) {
-                            page.copy(dateDownload = page.pagePdf.dateDownload)
-                        } else {
-                            page
-                        }
-                    }
-                    val anyPageDownloaded =
-                        pagesWithFileEntryDateDownloaded.any { it.dateDownload != null }
-                    if (anyPageDownloaded) {
-                        pdfPageListFlow.value = pagesWithFileEntryDateDownloaded
-                    } else {
-                        pdfPageListFlow.value = null
-                    }
-                }
-            }
-        }
-    }
     fun goToPdfPage(link: String, saveLastDisplayable: Boolean = true) {
         // it is only possible to go to another page if we are on a regular issue
         // (otherwise we only have the first page)
@@ -349,7 +303,7 @@ class PdfPagerViewModel(
 
     private fun getPositionOfPdf(fileName: String): Int {
         val pdfPageList = pdfPageListFlow.value
-        return pdfPageList?.indexOfFirst { it.pagePdf.name == fileName } ?: 0
+        return pdfPageList.indexOfFirst { it.pagePdf.name == fileName }
     }
 
     suspend fun onFrameLinkClicked(link: String) {
@@ -384,7 +338,7 @@ class PdfPagerViewModel(
                 log.warn("Could not show article because there is no issue selected")
                 return@launch
             }
-            val article = getCorrectArticle(link, issueKeyWithPages)
+            val article = getCorrectArticle(link)
 
             val issueKey = IssueKey(issueKeyWithPages)
 
@@ -412,7 +366,7 @@ class PdfPagerViewModel(
         _openLinkEventFlow.value = null
     }
 
-    private suspend fun getCorrectArticle(link: String, issueKey: IssueKey): Article? {
+    private suspend fun getCorrectArticle(link: String): Article? {
         val publicLink = link.replace(".html", ".public.html")
         // If we do not have regular article (try to) get the public one
         val article = articleRepository.get(link) ?: articleRepository.get(publicLink)

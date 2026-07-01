@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import de.taz.app.android.api.models.IssueStatus
+import de.taz.app.android.api.models.Page
 import de.taz.app.android.api.models.PageStub
 
 @Entity(

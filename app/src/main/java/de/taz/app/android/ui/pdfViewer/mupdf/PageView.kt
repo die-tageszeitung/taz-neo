@@ -7,7 +7,6 @@ import android.graphics.Matrix
 import android.graphics.Point
 import android.graphics.PointF
 import android.graphics.Rect
-import android.os.Build
 import android.os.Handler
 import android.view.ViewGroup
 import android.widget.ImageView.ScaleType
@@ -21,6 +20,7 @@ import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
 import kotlin.math.min
+import androidx.core.graphics.createBitmap
 
 class PageView(
     context: Context,
@@ -42,6 +42,7 @@ class PageView(
     var page: Page? = null
         private set
     private var muPDFCore: MuPDFCore? = null
+    private var fileStream: FileStream? = null
 
     // Size of page at minimum zoom
     var minZoomSize: Point = parentSize
@@ -90,6 +91,13 @@ class PageView(
         page = null
         muPDFCore?.onDestroy()
         muPDFCore = null
+
+        try {
+            fileStream?.close()
+        } catch (e: Exception) {
+            log.error("Could not close fileStream", e)
+        }
+        fileStream = null
 
         clearEntire()
         clearPatch()
@@ -154,14 +162,27 @@ class PageView(
     private fun setPage(page: Page): Boolean {
         // Always reset the scale, even if this is the same page again
         scale = 1f
-        return if (this.page == page) {
+        if (this.page == page && muPDFCore != null) {
+            return false
+        }
+
+        reinit()
+
+        this.page = page
+        return try {
+            val pdfFilePath = storageService.getAbsolutePath(page.pagePdf)
+            if (pdfFilePath != null) {
+                val fs = FileStream(pdfFilePath, "r")
+                fileStream = fs
+                muPDFCore = MuPDFCore(fs, MIME_TYPE_PDF)
+                true
+            } else {
+                log.error("Could not open PDF file: getAbsolutePath returned null for ${page.pagePdf}")
+                false
+            }
+        } catch (e: Exception) {
+            log.error("Could not open PDF file", e)
             false
-        } else {
-            this.page = page
-            val pdfFilePath = requireNotNull(storageService.getAbsolutePath(page.pagePdf))
-            val fileStream = FileStream(pdfFilePath, "r")
-            muPDFCore = MuPDFCore(fileStream, MIME_TYPE_PDF)
-            true
         }
     }
 
@@ -269,7 +290,7 @@ class PageView(
         if (currentBm != null && currentBm.width == size.x && currentBm.height == size.y) {
             return currentBm
         } else {
-            val newBm = Bitmap.createBitmap(size.x, size.y, Bitmap.Config.ARGB_8888)
+            val newBm = createBitmap(size.x, size.y)
             entireBm = newBm
             return newBm
         }
@@ -401,12 +422,6 @@ class PageView(
     ): CancellableTaskDefinition<Void?, Void?> {
         return object : MuPDFCancellableTaskDefinition<Void, Void>(debugTag) {
             override fun doInBackground(cookie: Cookie, vararg params: Void): Void? {
-                // Workaround bug in Android Honeycomb 3.x, where the bitmap generation count
-                // is not incremented when drawing.
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB && Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-                    bm.eraseColor(0)
-                }
-
                 muPDFCore?.drawPage(
                     bm,
                     0,
@@ -430,11 +445,6 @@ class PageView(
     ): CancellableTaskDefinition<Void?, Void?> {
         return object : MuPDFCancellableTaskDefinition<Void, Void>(debugTag) {
             override fun doInBackground(cookie: Cookie, vararg params: Void): Void? {
-                // Workaround bug in Android Honeycomb 3.x, where the bitmap generation count
-                // is not incremented when drawing.
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB && Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-                    bm.eraseColor(0)
-                }
                 muPDFCore?.updatePage(
                     bm,
                     0,

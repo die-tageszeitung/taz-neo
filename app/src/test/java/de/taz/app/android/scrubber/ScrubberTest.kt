@@ -109,7 +109,8 @@ class ScrubberTest {
         val issue = Fixtures.issueBase.copy(
             pageList = listOf(
                 Fixtures.pageBase.copy(
-                    podcast = audio
+                    pageStub = Fixtures.pageBase.pageStub.copy(podcastFileName = audio.file.name),
+                    audioFile = AudioWithFile(audio)
                 )
             )
         )

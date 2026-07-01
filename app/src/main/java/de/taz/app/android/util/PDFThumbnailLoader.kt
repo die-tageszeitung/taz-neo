@@ -54,14 +54,17 @@ class PDFThumbnailLoader: ModelLoader<String, Bitmap> {
         private val width: Int
     ): DataFetcher<Bitmap> {
         override fun loadData(priority: Priority, callback: DataFetcher.DataCallback<in Bitmap>) {
+            val thumbnail = MuPDFThumbnail(input)
             try {
                 // create thumbnail for first page of pdf file
-                val output: Bitmap = MuPDFThumbnail(input).thumbnail(width)
+                val output: Bitmap = thumbnail.thumbnail(width)
                 // send output data
                 callback.onDataReady(output)
             } catch (e: Exception) {
                 // if error
                 callback.onLoadFailed(e)
+            } finally {
+                thumbnail.onDestroy()
             }
         }
 
