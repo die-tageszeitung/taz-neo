@@ -109,8 +109,8 @@ class IssueDeletion(
         }
 
         if (failedCount.get() > 0) {
-            // If we encountered errors while deleting content skip deleting metadata, just indicate another failed item and throw exception
-            notifyFailedItem(CacheOperationFailedException("Operation aborted due to previous errors"))
+            // If we encountered errors while deleting content skip deleting metadata.
+            throw CacheOperationFailedException("Operation aborted due to previous errors")
         } else {
             for (item in metadataDeletionCacheItems) {
                 try {
@@ -124,8 +124,6 @@ class IssueDeletion(
                     )
                 }
             }
-
         }
-        checkIfItemsCompleteAndNotifyResult(Unit)
     }
 }

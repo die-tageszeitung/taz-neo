@@ -20,6 +20,7 @@ import de.taz.app.android.download.DownloadPriority
 import de.taz.app.android.persistence.repository.AbstractIssueKey
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.sentry.SentryWrapper
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
@@ -107,7 +108,6 @@ class WrappedDownload(
         // For a wrapped download a successful cache hit is if the download and it's content is
         // complete, so we use the getCacheState function
         if (allowCache && contentService.isPresent(parent)) {
-            notifySuccess(Unit)
             return
         }
 
@@ -126,23 +126,19 @@ class WrappedDownload(
         val parentCollection = try {
             metadataDownload.execute()
         } catch (originalException: Exception) {
-            val exception =
-                CacheOperationFailedException("Retrieving metadata failed", originalException)
-            notifyFailure(
-                exception
-            )
-            throw exception
+            if (originalException is CancellationException) throw originalException
+            throw CacheOperationFailedException("Retrieving metadata failed", originalException)
         }
 
         val dependentCollections = try {
             resolveCollections(parentCollection)
         } catch (originalException: Exception) {
+            if (originalException is CancellationException) throw originalException
             val exception = CacheOperationFailedException(
                 "Error while retrieving metadata",
                 originalException
             )
             notifyFailedItem(exception)
-            notifyFailure(exception)
             throw exception
         }
 
@@ -164,7 +160,6 @@ class WrappedDownload(
         // Add all content downloads to the items
         addItems(subOperationCacheItems)
 
-        var errorCount = 0
         // Launch each collection download in parallel and notify each item
         coroutineScope {
             subOperationCacheItems.map {
@@ -173,8 +168,8 @@ class WrappedDownload(
                         it.subOperation.execute()
                         notifySuccessfulItem()
                     } catch (e: Exception) {
-                        errorCount++
                         notifyFailedItem(e)
+                        if (e is CancellationException) throw e
                         log.warn(
                             "Exception during processing a WrappedDownload of ${parent.getDownloadTag()}",
                             e
@@ -185,19 +180,14 @@ class WrappedDownload(
             }.joinAll()
         }
         issueDownloadNotifier?.stop()
-        if (errorCount == 0) {
+        if (failedCount.get() == 0) {
             if (parentCollection is DownloadableStub) {
                 parentCollection.setDownloadDate(Date(), applicationContext)
             }
-            notifySuccess(Unit)
         } else {
-            val exception = CacheOperationFailedException(
-                "One or more sub operations failed"
+            throw CacheOperationFailedException(
+                "One or more sub operations failed or were cancelled"
             )
-            notifyFailure(
-                exception
-            )
-            throw exception
         }
     }
 
