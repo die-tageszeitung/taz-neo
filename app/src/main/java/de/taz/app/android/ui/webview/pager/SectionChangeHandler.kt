@@ -74,28 +74,13 @@ class SectionChangeHandler(
         val currentItem = adapter.articleList.getOrNull(position)
         val nextItem = adapter.articleList.getOrNull(position+1)
 
-        if (currentItem is ArticlePagerItem.ArticleRepresentation && nextItem is ArticlePagerItem.Tom) {
+        if (currentItem?.sectionKey != nextItem?.sectionKey) {
             addOffsetTransitionBetweenPagerItems(
                 positionOffsetPixels,
                 positionOffset,
                 currentView,
                 nextView
             )
-        } else if (currentItem is ArticlePagerItem.ArticleRepresentation && nextItem is ArticlePagerItem.ArticleRepresentation) {
-            val currentSection = currentItem.art.sectionKey
-            val nextSection = nextItem.art.sectionKey
-
-            if (currentSection != nextSection) {
-                addOffsetTransitionBetweenPagerItems(
-                    positionOffsetPixels,
-                    positionOffset,
-                    currentView,
-                    nextView
-                )
-            } else {
-                // remove the translationX if we are not in between sections:
-                appBarLayout.translationX = 0f
-            }
         } else {
             // remove the translationX if we are not in between sections:
             appBarLayout.translationX = 0f
