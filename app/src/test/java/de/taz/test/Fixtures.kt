@@ -21,6 +21,7 @@ import de.taz.app.android.api.models.Issue
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.Moment
 import de.taz.app.android.api.models.Page
+import de.taz.app.android.api.models.PageStub
 import de.taz.app.android.api.models.PageType
 import de.taz.app.android.api.models.ResourceInfo
 import de.taz.app.android.api.models.Section
@@ -144,15 +145,18 @@ object Fixtures {
     )
 
     val pageBase: Page = Page(
-        fileEntry.copy(name = "page01.pdf"),
-        "title",
-        "pagina",
-        PageType.left,
-        listOf(Frame(0f, 0f, 1f, 1f, "https://example.com")),
-        dateDownload = null,
-        "baseUrl",
-        podcast = null,
-        adIdList = null,
+        PageStub(
+            "page01.pdf",
+            "title",
+            "pagina",
+            PageType.left,
+            listOf(Frame(0f, 0f, 1f, 1f, "https://example.com")),
+            "baseUrl",
+            podcastFileName = null,
+            adIdList = null,
+        ),
+        pdfFile = fileEntry.copy(name = "page01.pdf"),
+        audioFile = null,
     )
 
     /**
@@ -259,7 +263,8 @@ object Fixtures {
     )
 
     fun Page.copyWithFileName(name: String) = copy(
-        pagePdf = pagePdf.copy(name = name)
+        pageStub = pageStub.copy(pdfFileName = name),
+        pdfFile = pdfFile.copy(name = name)
     )
 
     fun Audio.copyWithFileName(name: String) = copy(

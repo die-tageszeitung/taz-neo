@@ -8,7 +8,6 @@ import de.taz.app.android.api.models.PageStub
 import de.taz.app.android.persistence.join.IssuePageJoin
 import de.taz.app.android.util.SingletonHolder
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import java.util.Date
 
 class PageRepository private constructor(applicationContext: Context) :
@@ -37,7 +36,7 @@ class PageRepository private constructor(applicationContext: Context) :
             audioRepository.saveInternal(audio)
         }
 
-        appDatabase.pageDao().insertOrReplace(PageStub(page))
+        appDatabase.pageDao().insertOrReplace(page.pageStub)
         fileEntryRepository.save(page.pagePdf)
     }
 
@@ -58,29 +57,27 @@ class PageRepository private constructor(applicationContext: Context) :
                     issueKey.feedName,
                     issueKey.date,
                     issueKey.status,
-                    page.pagePdf.name,
+                    page.pdfFileName,
                     0
                 )
             )
 
-            requireNotNull(get(page.pagePdf.name)) { "Could not get Page(${page.pagePdf.name}) after it was saved" }
+            requireNotNull(get(page.pdfFileName)) { "Could not get Page(${page.pdfFileName}) after it was saved" }
         }
     }
 
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)
-    suspend fun getWithoutFile(fileName: String): PageStub? {
+    suspend fun getWithoutFile(fileName: String): Page? {
         return appDatabase.pageDao().get(fileName)
     }
 
     suspend fun getStub(fileName: String): PageStub? {
-        return appDatabase.pageDao().get(fileName)
+        return appDatabase.pageDao().get(fileName)?.pageStub
     }
 
     @Throws(NotFoundException::class)
     suspend fun getOrThrow(fileName: String): Page {
-        appDatabase.pageDao().get(fileName)?.let {
-            return pageStubToPage(it)
-        } ?: throw NotFoundException("Page $fileName not found in database")
+        return appDatabase.pageDao().get(fileName) ?: throw NotFoundException("Page $fileName not found in database")
     }
 
     suspend fun get(fileName: String): Page? {
@@ -93,75 +90,41 @@ class PageRepository private constructor(applicationContext: Context) :
 
     suspend fun getFrontPage(issueKey: IssueKey): Page? {
         return appDatabase.issuePageJoinDao()
-            .getFrontPageForIssue(issueKey.feedName, issueKey.date, issueKey.status)?.let {
-                pageStubToPage(it)
-            }
-    }
-
-    private suspend fun pageStubToPage(pageStub: PageStub): Page {
-        val file = fileEntryRepository.getOrThrow(pageStub.pdfFileName)
-        val audio = pageStub.podcastFileName?.let { audioRepository.get(it) }
-        return Page(
-            file,
-            pageStub.title,
-            pageStub.pagina,
-            pageStub.type,
-            pageStub.frameList,
-            pageStub.dateDownload,
-            pageStub.baseUrl,
-            audio,
-            pageStub.adIdList,
-        )
+            .getFrontPageForIssue(issueKey.feedName, issueKey.date, issueKey.status)
     }
 
     suspend fun delete(page: Page) {
-        getStub(page.pagePdf.name)?.let {
-            appDatabase.pageDao().delete(it)
-        }
-        fileEntryRepository.delete(page.pagePdf.name)
+        appDatabase.pageDao().delete(page.pageStub)
+        fileEntryRepository.delete(page.pdfFileName)
         page.podcast?.let { audioRepository.tryDelete(it) }
     }
 
     suspend fun delete(pages: List<Page>) {
         appDatabase.pageDao().delete(
-            pages.mapNotNull { getStub(it.pagePdf.name) }
+            pages.map { it.pageStub }
         )
 
-        fileEntryRepository.deleteList(pages.map { it.pagePdf.name })
+        fileEntryRepository.deleteList(pages.map { it.pdfFileName })
         pages.mapNotNull { it.podcast }.forEach {
             audioRepository.tryDelete(it)
         }
     }
 
     suspend fun deleteIfNoIssueRelated(pages: List<Page>) {
-        appDatabase.pageDao().deletePageFileEntriesIfNoIssueRelated(pages.map { it.pagePdf.name })
-        appDatabase.pageDao().deleteIfNoIssueRelated(pages.map { it.pagePdf.name })
+        appDatabase.pageDao().deletePageFileEntriesIfNoIssueRelated(pages.map { it.pdfFileName })
+        appDatabase.pageDao().deleteIfNoIssueRelated(pages.map { it.pdfFileName })
         pages.mapNotNull { it.podcast }.forEach {
             audioRepository.tryDelete(it)
         }
     }
 
-    suspend fun getDownloadDate(page: Page): Date? {
-        return appDatabase.pageDao().getDownloadDate(page.pagePdf.name)
-    }
-
-    suspend fun setDownloadDate(page: Page, date: Date?) {
-        update(PageStub(page).copy(dateDownload = date))
-    }
-
     suspend fun getPagesForIssueKey(issueKey: IssueKey): List<Page> {
         return appDatabase.pageDao()
-            .getPageStubListForIssue(issueKey.feedName, issueKey.date, issueKey.status)
-            .map { pageStub ->
-                pageStubToPage(pageStub)
-            }
+            .getPageListForIssue(issueKey.feedName, issueKey.date, issueKey.status)
     }
 
     fun getPagesForIssueKeyFlow(issueKey: IssueKey): Flow<List<Page>> {
         return appDatabase.pageDao()
-            .getPageStubFlowForIssue(issueKey.feedName, issueKey.date, issueKey.status)
-            .map { pageStubs ->
-                pageStubs.map { pageStubToPage(it) }
-            }
+            .getPageFlowForIssue(issueKey.feedName, issueKey.date, issueKey.status)
     }
 }

@@ -4,7 +4,6 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import java.util.Date
 
 @Entity(
     tableName = "Page",
@@ -25,20 +24,7 @@ data class PageStub(
     val pagina: String? = null,
     val type: PageType? = null,
     val frameList: List<Frame>? = null,
-    val dateDownload: Date?,
     val baseUrl: String,
     val podcastFileName: String?,
     val adIdList: List<String>?,
-) {
-    constructor(page: Page) : this(
-        page.pagePdf.name,
-        page.title,
-        page.pagina,
-        page.type,
-        page.frameList,
-        page.dateDownload,
-        page.baseUrl,
-        page.podcast?.file?.name,
-        page.adIdList,
-    )
-}
+)

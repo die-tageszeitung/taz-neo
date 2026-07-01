@@ -112,10 +112,9 @@ class Scrubber(applicationContext: Context) {
             deleteFrontPage(frontPageJoin)
         }
 
-        val orphanedPageStubs: List<PageStub> = getOrphanedPageStubs()
-        for (pageStub in orphanedPageStubs) {
-            val page = pageRepository.get(pageStub.pdfFileName)
-            page?.let { deletePage(page) }
+        val orphanedPages: List<Page> = getOrphanedPages()
+        for (page in orphanedPages) {
+            deletePage(page)
         }
 
         val orphanedArticleStubs: List<ArticleStub> = getOrphanedArticleStubs()
@@ -298,13 +297,13 @@ class Scrubber(applicationContext: Context) {
         }
     }
 
-    private suspend fun getOrphanedPageStubs(): List<PageStub> {
+    private suspend fun getOrphanedPages(): List<Page> {
         return appDatabase.pageDao()
             .getOrphanedPages()
     }
 
     private suspend fun deletePage(page: Page) {
-        val pageStub = PageStub(page)
+        val pageStub = page.pageStub
         try {
             appDatabase.pageDao().delete(pageStub)
             deleteFile(page.pagePdf)

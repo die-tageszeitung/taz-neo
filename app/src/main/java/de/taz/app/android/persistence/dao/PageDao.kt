@@ -2,18 +2,17 @@ package de.taz.app.android.persistence.dao
 
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.Transaction
 import de.taz.app.android.api.models.IssueStatus
+import de.taz.app.android.api.models.Page
 import de.taz.app.android.api.models.PageStub
 import kotlinx.coroutines.flow.Flow
-import java.util.Date
 
 @Dao
 interface PageDao : BaseDao<PageStub> {
-    @Query("SELECT Page.* FROM Page WHERE Page.pdfFileName == :fileName LIMIT 1")
-    suspend fun get(fileName: String): PageStub?
-
-    @Query("SELECT dateDownload FROM Page WHERE pdfFileName == :fileName")
-    suspend fun getDownloadDate(fileName: String): Date?
+    @Transaction
+    @Query("SELECT * FROM Page WHERE Page.pdfFileName == :fileName LIMIT 1")
+    suspend fun get(fileName: String): Page?
 
     @Query("""
         DELETE FROM FileEntry
@@ -31,6 +30,7 @@ interface PageDao : BaseDao<PageStub> {
     """)
     suspend fun deleteIfNoIssueRelated(pageNames: List<String>)
 
+    @Transaction
     @Query(
         """
         SELECT Page.* FROM Page 
@@ -41,12 +41,13 @@ interface PageDao : BaseDao<PageStub> {
             ORDER BY IssuePageJoin.`index` ASC
     """
     )
-    suspend fun getPageStubListForIssue(
+    suspend fun getPageListForIssue(
         issueFeed: String,
         issueDate: String,
         issueStatus: IssueStatus,
-    ): List<PageStub>
+    ): List<Page>
 
+    @Transaction
     @Query(
         """
         SELECT Page.* FROM Page
@@ -57,15 +58,16 @@ interface PageDao : BaseDao<PageStub> {
             ORDER BY IssuePageJoin.`index` ASC
     """
     )
-    fun getPageStubFlowForIssue(
+    fun getPageFlowForIssue(
         issueFeed: String,
         issueDate: String,
         issueStatus: IssueStatus,
-    ): Flow<List<PageStub>>
+    ): Flow<List<Page>>
 
+    @Transaction
     @Query(""" 
         SELECT Page.* FROM Page
          WHERE NOT EXISTS ( SELECT 1 FROM IssuePageJoin WHERE IssuePageJoin.pageKey = Page.pdfFileName )
     """)
-    suspend fun getOrphanedPages(): List<PageStub>
+    suspend fun getOrphanedPages(): List<Page>
 }

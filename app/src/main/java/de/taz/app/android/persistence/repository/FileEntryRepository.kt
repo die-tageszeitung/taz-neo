@@ -4,6 +4,7 @@ import android.content.Context
 import de.taz.app.android.api.interfaces.FileEntryOperations
 import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.api.models.FileEntry
+import de.taz.app.android.dataStore.StorageDataStore
 import de.taz.app.android.util.SingletonHolder
 import java.util.Date
 
@@ -13,6 +14,7 @@ class FileEntryRepository private constructor(
 ) : RepositoryBase(applicationContext) {
 
     companion object : SingletonHolder<FileEntryRepository, Context>(::FileEntryRepository)
+    val storageDataStore by lazy { StorageDataStore.getInstance(applicationContext) }
 
     suspend fun update(fileEntry: FileEntry) {
         appDatabase.fileEntryDao().update(fileEntry)
@@ -90,7 +92,11 @@ class FileEntryRepository private constructor(
     }
 
     suspend fun setDownloadDate(fileEntry: FileEntry, date: Date?) {
-        update(fileEntry.copy(dateDownload = date))
+        if(fileEntry.storageLocation == StorageLocation.NOT_STORED) {
+            update(fileEntry.copy(dateDownload = date, storageLocation = storageDataStore.storageLocation.get()))
+        } else {
+            update(fileEntry.copy(dateDownload = date))
+        }
     }
 
     suspend fun getDownloadDate(fileEntry: FileEntryOperations): Date? {
