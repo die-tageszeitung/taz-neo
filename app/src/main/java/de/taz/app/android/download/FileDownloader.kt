@@ -30,6 +30,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
+import java.io.BufferedOutputStream
 import java.io.File
 import java.security.MessageDigest
 import java.util.Date
@@ -162,7 +163,7 @@ class FileDownloader(
 
         val hash = MessageDigest.getInstance("SHA-256")
 
-        file.outputStream().use { fileStream ->
+        BufferedOutputStream(file.outputStream()).use { fileStream ->
             val buffer = ByteArray(COPY_BUFFER_SIZE)
             while (true) {
                 val read = channel.readAvailable(buffer)
@@ -170,6 +171,7 @@ class FileDownloader(
                 hash.update(buffer, 0, read)
                 fileStream.write(buffer, 0, read)
             }
+            fileStream.flush()
         }
 
         val digest = hash.digest()
