@@ -49,4 +49,12 @@ interface MomentDao: BaseDao<MomentStub> {
                                       AND Issue.status = Moment.issueStatus )
     """)
     suspend fun getOrphanedMoments(): List<MomentStub>
+
+    @Query("""
+        SELECT Moment.* From Moment
+        ORDER BY Moment.issueDate DESC
+        LIMIT 1
+        """)
+    suspend fun getRecent(): MomentStub?
+
 }

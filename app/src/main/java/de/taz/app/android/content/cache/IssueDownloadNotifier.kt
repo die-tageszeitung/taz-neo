@@ -49,7 +49,7 @@ class IssueDownloadNotifier(
     suspend fun stop() {
         try {
             notifyIssueDownloadStop(isAutomaticDownload)
-            WidgetHelper.updateWidget(applicationContext)
+            WidgetHelper.updateMomentWidgets(applicationContext)
         } catch (e: Exception) {
             log.warn("Error while notifying download stop for $issueKey",e)
             SentryWrapper.captureException(e)
