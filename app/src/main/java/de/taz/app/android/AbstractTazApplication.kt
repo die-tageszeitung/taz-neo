@@ -29,8 +29,8 @@ import java.util.UUID
 abstract class AbstractTazApplication : Application() {
     private val log by Log
 
-    private lateinit var authHelper: AuthHelper
-    private lateinit var generalDataStore: GeneralDataStore
+    private val authHelper by lazy { AuthHelper.getInstance(applicationContext) }
+    private val generalDataStore by lazy { GeneralDataStore.getInstance(applicationContext) }
     private var _tracker: Tracker? = null
     var isInitComplete = false
 
@@ -47,12 +47,12 @@ abstract class AbstractTazApplication : Application() {
         // Install the global exception handler
         UncaughtExceptionHandler(applicationContext)
 
-        authHelper = AuthHelper.getInstance(applicationContext)
-        generalDataStore = GeneralDataStore.getInstance(applicationContext)
-
-        applicationScope.launch {
+        applicationScope.launch(Dispatchers.IO) {
             generateInstallationId()
             setUpSentry()
+            enqueueScrubberWorker(this@AbstractTazApplication)
+            FirebaseHelper.getInstance(this@AbstractTazApplication)
+            TazCssHelper.getInstance(this@AbstractTazApplication)
         }
 
         if (BuildConfig.DEBUG) {
@@ -69,10 +69,6 @@ abstract class AbstractTazApplication : Application() {
         }
 
         setupTracker()
-        enqueueScrubberWorker(this)
-
-        FirebaseHelper.getInstance(this)
-        TazCssHelper.getInstance(this)
     }
 
     override fun onLowMemory() {

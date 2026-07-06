@@ -76,7 +76,10 @@ internal fun updateAppWidget(
                     val pendingIntent = PendingIntent.getActivity(
                         context,
                         0,
-                        Intent(context, SplashActivity::class.java),
+                        Intent(
+                            context,
+                            SplashActivity::class.java
+                        ).putExtra(SplashActivity.KEY_SHOW_HOME, true),
                         PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
                     )
 
