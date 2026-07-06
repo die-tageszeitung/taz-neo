@@ -1,0 +1,77 @@
+query FrontpageByFeedAndDateQuery($feedName: String, $issueDate: String!, $limit: Int!) {
+    product {
+        feedList(name: $feedName) {
+            issueList(issueDate: $issueDate, limit: $limit) {
+                baseUrl
+                status
+                date
+                version
+                minResourceVersion
+                moTime
+                moment {
+                    imageList {
+                        name
+                        storageType
+                        moTime
+                        sha256
+                        size
+                        resolution
+                        type
+                        alpha
+                    }
+                    creditList {
+                        name
+                        storageType
+                        moTime
+                        sha256
+                        size
+                        resolution
+                        type
+                        alpha
+                    }
+                    momentList {
+                        name
+                        storageType
+                        moTime
+                        sha256
+                        size
+                    }
+                    duration
+                }
+                pageList {
+                    pagePdf {
+                        name
+                        storageType
+                        moTime
+                        sha256
+                        size
+                    }
+                    title
+                    pagina
+                    type
+                    frameList {
+                        x1
+                        y1
+                        x2
+                        y2
+                        link
+                    }
+                    podcast {
+                        file {
+                            name
+                            storageType
+                            moTime
+                            sha256
+                            size
+                        }
+                        playtime
+                        duration
+                        speaker
+                        breaks
+                    }
+                    adIdList
+                }
+            }
+        }
+    }
+}

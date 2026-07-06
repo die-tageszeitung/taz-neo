@@ -3,7 +3,6 @@ package de.taz.app.android.ui.pdfViewer
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.res.Configuration.ORIENTATION_PORTRAIT
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.View
@@ -18,8 +17,6 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.Observer
-import androidx.lifecycle.asFlow
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -28,7 +25,6 @@ import de.taz.app.android.ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.IssueStatus
-import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.ViewBindingFragment
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.dataStore.TazApiCssDataStore
@@ -63,11 +59,13 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.launch
+import androidx.core.net.toUri
 
 class PdfPagerWrapperFragment : ViewBindingFragment<ActivityPdfDrawerLayoutBinding>(),
     SuccessfulLoginAction, BackFragment {
@@ -177,17 +175,11 @@ class PdfPagerWrapperFragment : ViewBindingFragment<ActivityPdfDrawerLayoutBindi
         // but it should not be triggered when [continueReadDirectly] is true
         if (displayableKey != null && !continueReadDirectly) {
             arguments?.remove(KEY_DISPLAYABLE)
-            val issueObserver = object : Observer<IssueStub?> {
-                override fun onChanged(issueStub: IssueStub?) {
-                    if (issueStub != null) {
-                        lifecycleScope.launch {
-                            showArticle(issueStub.issueKey, displayableKey)
-                        }
-                        pdfPagerViewModel.issueStubLiveData.removeObserver(this)
-                    }
-                }
+            lifecycleScope.launch {
+                // wait for issueStub to be not null then show article
+                val issueStub = pdfPagerViewModel.issueStubFlow.value ?:  pdfPagerViewModel.issueStubFlow.filterNotNull().first()
+                showArticle(issueStub.issueKey, displayableKey)
             }
-            pdfPagerViewModel.issueStubLiveData.observe(this, issueObserver)
         }
 
 
@@ -287,7 +279,7 @@ class PdfPagerWrapperFragment : ViewBindingFragment<ActivityPdfDrawerLayoutBindi
                         combine(
                             authHelper.isPollingForConfirmationEmail.asFlow(),
                             authHelper.isLoggedInFlow,
-                            pdfPagerViewModel.issueStubLiveData.asFlow(),
+                            pdfPagerViewModel.issueStubFlow.filterNotNull(),
                         ) { isPolling, isLoggedIn, issue -> (isPolling || isLoggedIn) to issue }
                             .collect { (isLoggedInOrPolling, issue) ->
                                 val isPublic = issue.status == IssueStatus.public
@@ -427,8 +419,8 @@ class PdfPagerWrapperFragment : ViewBindingFragment<ActivityPdfDrawerLayoutBindi
                     CustomTabColorSchemeParams.Builder().setToolbarColor(color).build()
                 )
                 .build()
-                .apply { launchUrl(context, Uri.parse(url)) }
-        } catch (e: ActivityNotFoundException) {
+                .apply { launchUrl(context, url.toUri()) }
+        } catch (_: ActivityNotFoundException) {
             val toastHelper = ToastHelper.getInstance(context.applicationContext)
             if (url.startsWith("mailto:")) {
                 toastHelper.showToast(R.string.toast_no_email_client)

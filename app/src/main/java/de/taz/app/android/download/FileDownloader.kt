@@ -58,15 +58,13 @@ class FileDownloader(
     private var downloaderJob: Job? = null
     private val initializationMutex = Mutex()
 
-    override suspend fun enqueueDownload(operation: ContentDownload) {
-        operation.notifyStart()
-        for (item in operation.cacheItems) {
-            log.debug("Offering ${item.fileEntryOperation.fileEntry.name} with priority ${item.priority()}")
-            queue.sendOrNotify(
-                item, operation
-            )
-        }
+    override suspend fun enqueueDownload(
+        operation: ContentDownload,
+        reEnqueueing: Boolean
+    ) {
         ensureDownloaderRunning()
+        operation.notifyStart()
+        queue.sendOrNotify(operation, reEnqueueing)
     }
 
     private val httpClient: HttpClient = HttpClient(HTTP_CLIENT_ENGINE)

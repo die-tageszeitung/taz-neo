@@ -10,6 +10,11 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import de.taz.app.android.api.models.Page
 import androidx.core.graphics.createBitmap
+import de.taz.app.android.content.ContentService
+import de.taz.app.android.download.DownloadPriority
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class PageAdapter(
     private val mContext: Context,
@@ -72,11 +77,16 @@ class PageAdapter(
 
         val pageView: PageView = (convertView as? PageView) ?: createPageView(parent)
 
+
         val page = pages[position]
         val pageSize = pageSizesCache[position]
 
         if (page.dateDownload == null) {
             pageView.blank()
+            CoroutineScope(Dispatchers.Default).launch {
+                ContentService.getInstance(mContext.applicationContext)
+                    .downloadToCache(page, priority = DownloadPriority.High)
+            }
         } else if (pageSize != null) {
             // We already know the page size. Set it up immediately
             pageView.setPage(page, pageSize)

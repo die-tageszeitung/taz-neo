@@ -21,6 +21,7 @@ enum class QueryType {
     DownloadStop,
     ErrorReport,
     Feed,
+    FrontpageByFeedAndDate,
     GetCustomerData,
     IssueByFeedAndDate,
     IssueVersionByFeedAndDate,

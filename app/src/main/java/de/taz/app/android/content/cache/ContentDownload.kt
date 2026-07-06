@@ -9,6 +9,7 @@ import de.taz.app.android.download.FileDownloader
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.singletons.StoragePathService
 import de.taz.app.android.singletons.StorageService
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -34,6 +35,31 @@ class ContentDownload(
 ) {
     override val loadingState: CacheState = CacheState.LOADING_CONTENT
     private val fileDownloader = FileDownloader.getInstance(applicationContext)
+
+    init {
+        // Ensure all items dynamically reflect the current priority of this operation
+        items.forEach { it.priority = { this.priority } }
+    }
+
+    override fun onPriorityRaised(newPriority: DownloadPriority) {
+        log.debug("Priority of $tag raised to $newPriority, re-enqueuing")
+        CoroutineScope(Dispatchers.Default).launch {
+            fileDownloader.enqueueDownload(
+                this@ContentDownload,
+                true,
+            )
+        }
+    }
+
+    override fun onRescheduled() {
+        log.debug("Rescheduled $tag - re-enqueueing")
+        CoroutineScope(Dispatchers.Default).launch {
+            fileDownloader.enqueueDownload(
+                this@ContentDownload,
+                true
+            )
+        }
+    }
 
     companion object {
         /**

@@ -1,87 +1,102 @@
 package de.taz.app.android.download
 
-import de.taz.app.android.MAX_SIMULTANEOUS_DOWNLOADS
 import de.taz.app.android.content.cache.ContentDownload
 import de.taz.app.android.content.cache.FileCacheItem
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.trySendBlocking
-import java.util.Collections
-import java.util.concurrent.PriorityBlockingQueue
+import java.util.concurrent.LinkedBlockingDeque
 
 /**
- * A blocking queue of CacheItems. The order is reversed, so a poll will return the item with the
- * HIGHEST natural order of CacheItem (DownloadPriority.HIGH) instead of the lowest.
- * Offer is overridden
+ * A blocking queue of CacheItems for every DownloadPriority.
  */
 object CacheItemQueue {
-    private val queue = PriorityBlockingQueue<FileCacheItem>(
-        MAX_SIMULTANEOUS_DOWNLOADS,
-        Collections.reverseOrder()
-    )
-    private val inQueueKeys = HashSet<String>()
+    private val queueMap = DownloadPriority.entries.associateWith {
+        LinkedBlockingDeque<FileCacheItem>()
+    }
+
+    private val inQueueKeysMap = HashMap<String, DownloadPriority>()
     private val additionalOperations = HashMap<String, MutableList<ContentDownload>>()
-    private val channel = Channel<Pair<FileCacheItem, List<ContentDownload>>>(Channel.UNLIMITED)
+
+    // Unlimited signal channel to wake up suspended receivers
+    private val signalChannel = Channel<Unit>(Channel.UNLIMITED)
+    private val reversedPriorities = DownloadPriority.entries.reversed()
 
     private val log by Log
     private val lock = Any()
-
-    /**
-     * This Runnable implements a bridge between thread world and Coroutine world.
-     * This single thread will wait blocking on the priority queue and sends any updates to a channel
-     * which then can be waited on in a suspend function.
-     */
-    private object Consumer : Runnable {
-        override fun run() {
-            while (true) {
-                val item = try {
-                    queue.take()
-                } catch (_: InterruptedException) {
-                    break
-                }
-                val ops = synchronized(lock) {
-                    inQueueKeys.remove(item.key)
-                    additionalOperations.remove(item.key) ?: emptyList()
-                }
-                channel.trySendBlocking(item to ops)
-            }
-        }
-    }
-
-    init {
-        // Start the Consumer that should run indefinitely
-        Thread(Consumer).apply {
-            isDaemon = true
-            name = "CacheItemQueueConsumer"
-            start()
-        }
-    }
 
     /**
      * It is favorable to not download the same file twice. This function will
      * check if the same item is already queued - if so do not enqueue it but add the operation
      * to the internal additionalOperations that can be returned on poll to inform other interested operations
      * in the updates for the CacheItem
-     * @param item The [FileCacheItem] to enqueue
      * @param operation The [ContentDownload] to notify upon completion
-     * @return A boolean indicating if the item has been enqueued
      */
-    fun sendOrNotify(item: FileCacheItem, operation: ContentDownload): Boolean =
+    fun sendOrNotify(operation: ContentDownload, reEnqueueing: Boolean) {
+        var addedCount = 0
         synchronized(lock) {
-            val ops = additionalOperations.getOrPut(item.key) { mutableListOf() }
-            ops.add(operation)
+            for (item in operation.cacheItems) {
+                log.debug("Offering ${item.fileEntryOperation.fileEntry.name} with priority ${item.priority()}")
+                val ops = additionalOperations.getOrPut(item.key) { mutableListOf() }
+                if (!ops.contains(operation)) {
+                    ops.add(operation)
+                }
 
-            return if (inQueueKeys.add(item.key)) {
-                queue.offer(item)
-            } else {
-                log.verbose("Deduplicated ${item.fileEntryOperation.fileEntry.name}")
-                false
+                val existing = inQueueKeysMap[item.key]
+                // if we do not find the item in the queue but we are rescheduling it is being downloaded
+                if (existing == null && reEnqueueing) {
+                    continue
+                }
+
+                // Only enqueue if new or upgrading priority from Normal to High
+                if (existing == null || (existing == DownloadPriority.Normal && operation.priority == DownloadPriority.High)) {
+                    inQueueKeysMap[item.key] = operation.priority
+                    addedCount++
+                }
+                // always queue items so that LIFO order persis
+                queueMap[operation.priority]?.offer(item)
             }
         }
 
+        // Signal receivers that new work is available after releasing the lock
+        // to avoid waking up threads that would immediately block on the lock again.
+        repeat(addedCount) {
+            signalChannel.trySend(Unit)
+        }
+    }
+
+    private fun pollNextTask(): Pair<FileCacheItem, List<ContentDownload>>? {
+        for (priority in reversedPriorities) {
+            val deque = queueMap[priority] ?: break
+            while (deque.isNotEmpty()) {
+                val item = deque.pollLast() ?: break
+
+                // If we can remove the key, it means this is the first (and highest priority)
+                // entry we've encountered for this file.
+                if (inQueueKeysMap.remove(item.key) != null) {
+                    val ops = additionalOperations.remove(item.key) ?: emptyList()
+                    return item to ops
+                }
+            }
+        }
+        return null
+    }
+
     /**
-     * Receive a new queue item if available, function suspends until a new item becomes available
+     * Receive a new queue item if available, function suspends until a new item becomes available.
+     * Always returns the highest priority task currently in the queue at the moment of waking.
      * @return The cache item in the queue with the highest priority
      */
-    suspend fun receive(): Pair<FileCacheItem, List<ContentDownload>> = channel.receive()
+    suspend fun receive(): Pair<FileCacheItem, List<ContentDownload>> {
+        while (true) {
+            val task = synchronized(lock) {
+                pollNextTask()
+            }
+            if (task != null) {
+                return task
+            }
+
+            // Wait for a signal that an item was added
+            signalChannel.receive()
+        }
+    }
 }

@@ -11,6 +11,7 @@ import de.taz.app.android.api.models.AppInfo
 import de.taz.app.android.api.models.AppInfoKey
 import de.taz.app.android.api.models.Issue
 import de.taz.app.android.api.models.IssueStatus
+import de.taz.app.android.download.DownloadPriority
 import de.taz.app.android.api.models.IssueWithPages
 import de.taz.app.android.api.models.Moment
 import de.taz.app.android.api.models.Page
@@ -48,9 +49,10 @@ class MetadataDownload(
     val download: ObservableDownload,
     private val allowCache: Boolean,
     private val retriesOnConnectionError: Int,
-    private val minStatus: IssueStatus
+    private val minStatus: IssueStatus,
+    priority: DownloadPriority = DownloadPriority.Normal
 ) : CacheOperation<MetadataCacheItem, ObservableDownload>(
-    applicationContext, emptyList(), CacheState.METADATA_PRESENT, tag
+    applicationContext, emptyList(), CacheState.METADATA_PRESENT, tag, priority
 ) {
     override val loadingState: CacheState = CacheState.LOADING_METADATA
     private val apiService = ApiService.getInstance(applicationContext)
@@ -74,7 +76,8 @@ class MetadataDownload(
             tag: String,
             allowCache: Boolean = false,
             retriesOnConnectionError: Int = METADATA_DOWNLOAD_RETRY_INDEFINITELY,
-            minStatus: IssueStatus = IssueStatus.public
+            minStatus: IssueStatus = IssueStatus.public,
+            priority: DownloadPriority = DownloadPriority.Normal
         ): MetadataDownload {
             return MetadataDownload(
                 context,
@@ -82,7 +85,8 @@ class MetadataDownload(
                 download,
                 allowCache,
                 retriesOnConnectionError,
-                minStatus
+                minStatus,
+                priority
             )
         }
     }

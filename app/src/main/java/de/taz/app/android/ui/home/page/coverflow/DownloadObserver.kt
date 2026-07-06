@@ -95,12 +95,10 @@ class DownloadObserver(
     // [WrappedDownload.prepare]
     private val tags: List<String> = run {
         val baseTag = "${issuePublication.feedName}/${issuePublication.date}"
-        val parentTag = "parent/$baseTag"
         val pdfTag = "$baseTag/pdf"
-        val parentPdfTag = "parent/$pdfTag"
         when (issuePublication) {
-            is IssuePublication -> listOf(parentTag, parentPdfTag)
-            is IssuePublicationWithPages -> listOf(parentPdfTag)
+            is IssuePublication -> listOf(baseTag, "metadata/$baseTag", "parent/$baseTag")
+            is IssuePublicationWithPages -> listOf(pdfTag, "metadata/$pdfTag", "parent/$pdfTag")
             else -> error("Unknown issuePublication: $issuePublication")
         }
     }
@@ -265,8 +263,10 @@ class DownloadObserver(
                 when (status.cacheState) {
                     CacheState.ABSENT ->
                         issueDownloadAndReadStatusFlow.value = IssueDownloadAndReadStatus.ABSENT
+                    CacheState.LOADING_METADATA,
                     CacheState.LOADING_CONTENT -> issueDownloadAndReadStatusFlow.value =
                         IssueDownloadAndReadStatus.LOADING
+                    CacheState.METADATA_PRESENT,
                     CacheState.PRESENT -> {
                         val downloadedStub = getIssueStubIfDownloaded()
                         if (downloadedStub != null) {

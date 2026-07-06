@@ -692,7 +692,7 @@ data class MomentPublication(
     override val date: String
 ) : AbstractCoverPublication {
     override fun getDownloadTag(): String {
-        return "$feedName/$date/moment"
+        return "/moment/$feedName/$date"
     }
 }
 
@@ -721,7 +721,7 @@ data class MomentKey(
 ) : AbstractCoverKey {
 
     override fun getDownloadTag(): String {
-        return "$feedName/$date/$status/moment"
+        return "/moment/$feedName/$date/$status"
     }
 }
 

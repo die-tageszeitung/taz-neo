@@ -435,7 +435,6 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
     }
 
     /**
-     * // TODO it seems wasteful to request a whole issue for the single purpose of getting the frontpage
      * function to get the front page of an issue by feedName and date
      * @param feedName - the name of the feed
      * @param issueDate - date of an issue
@@ -449,12 +448,12 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         val dateString = simpleDateFormat.format(issueDate)
         return transformToConnectivityException {
             graphQlClient.query(
-                QueryType.IssueByFeedAndDate, IssueVariables(feedName, dateString, 1)
+                QueryType.FrontpageByFeedAndDate, IssueVariables(feedName, dateString, 1)
             ).data?.product
                 ?.feedList
-                ?.first()
+                ?.firstOrNull()
                 ?.issueList
-                ?.first()
+                ?.firstOrNull()
                 ?.let { issue ->
                     issue.pageList?.firstOrNull()
                         ?.let { pageDto ->

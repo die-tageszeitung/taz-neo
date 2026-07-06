@@ -5,7 +5,6 @@ import androidx.core.net.toUri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import de.taz.app.android.ADVERTISEMENT_URL_STRING
 import de.taz.app.android.BuildConfig
@@ -20,6 +19,7 @@ import de.taz.app.android.api.models.Page
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.dataStore.GeneralDataStore
+import de.taz.app.android.download.DownloadPriority
 import de.taz.app.android.monkey.getApplicationScope
 import de.taz.app.android.monkey.isArticleKey
 import de.taz.app.android.monkey.isPageKey
@@ -47,6 +47,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
@@ -91,16 +92,16 @@ class PdfPagerViewModel(
 
     private var issuePublication: IssuePublicationWithPages? = null
 
-    private val issueStubFlow = MutableStateFlow<IssueStub?>(null)
+    private val _issueStubFlow = MutableStateFlow<IssueStub?>(null)
     val continueReadDisplayable = MutableStateFlow<IssueKeyWithDisplayableKey?>(null)
 
-    val issueStubLiveData = issueStubFlow.filterNotNull().asLiveData()
+    val issueStubFlow = _issueStubFlow.asStateFlow()
 
     val issueStub: IssueStub?
-        get() = issueStubFlow.value
+        get() = _issueStubFlow.value
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val pdfPageListFlow: StateFlow<List<Page>> = issueStubFlow.flatMapLatest {
+    val pdfPageListFlow: StateFlow<List<Page>> = _issueStubFlow.flatMapLatest {
         it?.issueKey?.let {
             issueKey -> pageRepository.getPagesForIssueKeyFlow(issueKey)
         } ?: flowOf(emptyList())
@@ -135,7 +136,7 @@ class PdfPagerViewModel(
 
             if (saveLastDisplayable) {
                 // Save current position to database to restore later on
-                issueStubFlow.value?.issueKey?.let {
+                _issueStubFlow.value?.issueKey?.let {
                     issueRepository.saveLastPagePosition(
                         it,
                         validPosition
@@ -255,7 +256,7 @@ class PdfPagerViewModel(
                 issueRepository.updateLastViewedDate(issueStub)
 
                 // Finally store the IssueStub, even it if is not downloaded yet
-                issueStubFlow.value = issueStub
+                _issueStubFlow.value = issueStub
 
                 // Update the latest page position if continueReadAutomatically is set
                 val lastPagePosition = if (continueReadAutomatically || continueReadDirectly) {
@@ -287,14 +288,14 @@ class PdfPagerViewModel(
                 }
             }
         } else {
-            issueStubFlow.value = null
+            _issueStubFlow.value = null
         }
     }
 
     fun goToPdfPage(link: String, saveLastDisplayable: Boolean = true) {
         // it is only possible to go to another page if we are on a regular issue
         // (otherwise we only have the first page)
-        if (issueStubFlow.value?.status == IssueStatus.regular) {
+        if (_issueStubFlow.value?.status == IssueStatus.regular) {
             viewModelScope.launch {
                 updateCurrentItemInternal(getPositionOfPdf(link), saveLastDisplayable)
             }
@@ -333,7 +334,7 @@ class PdfPagerViewModel(
      */
     fun showArticle(link: String, givenIssueKey: IssueKey? = null) {
         viewModelScope.launch(Dispatchers.Main) {
-            val issueKeyWithPages = givenIssueKey ?: issueStubFlow.value?.issueKey
+            val issueKeyWithPages = givenIssueKey ?: _issueStubFlow.value?.issueKey
             if (issueKeyWithPages == null) {
                 log.warn("Could not show article because there is no issue selected")
                 return@launch
@@ -379,73 +380,76 @@ class PdfPagerViewModel(
      * Will not emit anything until a issue is loaded.
      */
     val showSubscriptionElapsedFlow: Flow<Boolean> = combine(
-        issueStubFlow.filterNotNull(),
+        _issueStubFlow.filterNotNull(),
         authHelper.getShouldShowSubscriptionElapsedDialogFlow()
     ) { issue, shouldShowSubscriptionElapsedDialog ->
         val isPublic = issue.issueKey.status == IssueStatus.public
         isPublic && shouldShowSubscriptionElapsedDialog
     }
 
-    private val itemsToCFlow =
-        issueStubFlow.filterNotNull().map { issueStub ->
-            if (issueStub.isDownloaded(application)) {
-                val sortedArticlesOfIssueMap = articleRepository.getArticleListForIssue(issueStub.issueKey)
-                    .map { it.key }
-                    .withIndex()
-                    .associate { it.value to it.index }
-                val pages = mutableListOf<PageWithArticlesListItem>()
-                var imprint: Article? = null
-                pageRepository.getPagesForIssueKey(issueStub.issueKey).forEach { page ->
-                    val articlesOfPage = mutableListOf<Article>()
-                    page.frameList?.forEach { frame ->
-                        frame.link?.let { link ->
-                            if (link.isArticleKey()) {
-                                val article = getArticleForFrame(frame)
-                                val articleBeginsHere = articleBeginsOnPage(article, page)
-                                val articleNotListed = !isArticleListed(
-                                    article,
-                                    pages as List<PageWithArticlesListItem>
-                                )
-                                val showArticleOnThisPage =
-                                    (BuildConfig.IS_LMD || articleBeginsHere) && articleNotListed
-                                if (article != null && showArticleOnThisPage) {
-                                    if (article.isImprint()) {
-                                        imprint = article
-                                    } else {
-                                        articlesOfPage.add(article)
-                                    }
+    private val sortedArticlesOfIssueMapFlow = issueStubFlow.filterNotNull().map { issueStub ->
+        articleRepository.getArticleListForIssue(issueStub.issueKey)
+            .map { it.key }
+            .withIndex()
+            .associate { it.value to it.index }
+    }
+
+    val pagesWithArticleListFlow: Flow<List<PageWithArticlesListItem>> =
+        pdfPageListFlow.filter { pages ->
+            pages.isNotEmpty() && pages.all { it.dateDownload != null }
+        }.combine(
+            sortedArticlesOfIssueMapFlow
+        ) { pages, articleMap ->
+            val pagesWithArticles = mutableListOf<PageWithArticlesListItem>()
+            var imprint: Article? = null
+            pages.forEach { page ->
+                val articlesOfPage = mutableListOf<Article>()
+                page.frameList?.forEach { frame ->
+                    frame.link?.let { link ->
+                        if (link.isArticleKey()) {
+                            val article = getArticleForFrame(frame)
+                            val articleBeginsHere = articleBeginsOnPage(article, page)
+                            val articleNotListed = !isArticleListed(
+                                article,
+                                pagesWithArticles as List<PageWithArticlesListItem>
+                            )
+                            val showArticleOnThisPage =
+                                (BuildConfig.IS_LMD || articleBeginsHere) && articleNotListed
+                            if (article != null && showArticleOnThisPage) {
+                                if (article.isImprint()) {
+                                    imprint = article
+                                } else {
+                                    articlesOfPage.add(article)
                                 }
                             }
                         }
                     }
-                    // Add pages only if articles are starting on it
-                    val sortedArticlesOfPage =
-                        articlesOfPage.sortedBy {
-                            sortedArticlesOfIssueMap.getOrDefault(
-                                it.key,
-                                Int.MAX_VALUE
-                            )
-                        }
-                    pages.add(
-                        PageWithArticlesListItem.Page(
-                            PageWithArticles(
-                                pagePdf = requireNotNull(
-                                    fileEntryRepository.get(page.pagePdf.name)
-                                ) {
-                                    "Refreshing pagePdf fileEntry failed as fileEntry was null"
-                                },
-                                if (articlesOfPage.isNotEmpty()) page.pagina else null,
-                                page.title,
-                                sortedArticlesOfPage
-                            )
+                }
+                // Add pages only if articles are starting on it
+                val sortedArticlesOfPage =
+                    articlesOfPage.sortedBy {
+                        articleMap.getOrDefault(
+                            it.key,
+                            Int.MAX_VALUE
+                        )
+                    }
+                pagesWithArticles.add(
+                    PageWithArticlesListItem.Page(
+                        PageWithArticles(
+                            pagePdf = requireNotNull(
+                                fileEntryRepository.get(page.pagePdf.name)
+                            ) {
+                                "Refreshing pagePdf fileEntry failed as fileEntry was null"
+                            },
+                            if (articlesOfPage.isNotEmpty()) page.pagina else null,
+                            page.title,
+                            sortedArticlesOfPage
                         )
                     )
-                }
-                imprint?.let { pages.add(PageWithArticlesListItem.Imprint(it)) }
-                pages
-            } else {
-                null
+                )
             }
+            imprint?.let { pagesWithArticles.add(PageWithArticlesListItem.Imprint(it)) }
+            pagesWithArticles
         }
 
     /**
@@ -514,6 +518,13 @@ class PdfPagerViewModel(
         tracker.trackAdTapped(adId ?: url)
     }
 
-    val itemsToC = itemsToCFlow.filterNotNull().asLiveData()
+    // start a high priority download of thd pdf pages
+    init {
+        viewModelScope.launch {
+            pdfPageListFlow.first { it.isNotEmpty() }.forEach {
+                contentService.downloadToCache(it, DownloadPriority.High)
+            }
+        }
+    }
 
 }
