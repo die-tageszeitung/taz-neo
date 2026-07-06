@@ -130,20 +130,6 @@ class DrawerBodyPdfWithSectionsFragment :
                 TYPE_PAGE, 0
             )
 
-            pdfPagerViewModel.issueStubLiveData.observe(viewLifecycleOwner) { issueStub ->
-                drawerAudioPlayerViewModel.setIssueStub(issueStub)
-                val dateString = setDrawerDate(issueStub)
-                activityPdfDrawerDate.text = dateString
-            }
-
-            pdfPagerViewModel.itemsToC.observe(
-                viewLifecycleOwner
-            ) { items ->
-                items?.let {
-                    updateToc(items)
-                }
-            }
-
             pdfPagerViewModel.currentItem.observe(viewLifecycleOwner) { position ->
                 adapter.activePosition = position
             }
@@ -165,6 +151,12 @@ class DrawerBodyPdfWithSectionsFragment :
             viewLifecycleOwner.lifecycleScope.launch {
                 viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                     launch {
+                        pdfPagerViewModel.pagesWithArticleListFlow.collect { items ->
+                            updateToc(items)
+                        }
+                    }
+
+                    launch {
                         drawerAudioPlayerViewModel.isIssueActiveAudio.collect { isActive ->
                             val imageResource = if (isActive) {
                                 R.drawable.ic_audio_filled
@@ -179,6 +171,14 @@ class DrawerBodyPdfWithSectionsFragment :
                         drawerAudioPlayerViewModel.errorMessageFlow.filterNotNull().collect { message ->
                             toastHelper.showToast(message, long = true)
                             drawerAudioPlayerViewModel.clearErrorMessage()
+                        }
+                    }
+
+                    launch {
+                        pdfPagerViewModel.issueStubFlow.filterNotNull().collect { issueStub ->
+                            drawerAudioPlayerViewModel.setIssueStub(issueStub)
+                            val dateString = setDrawerDate(issueStub)
+                            activityPdfDrawerDate.text = dateString
                         }
                     }
                 }

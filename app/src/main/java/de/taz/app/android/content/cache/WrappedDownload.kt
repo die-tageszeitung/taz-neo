@@ -58,6 +58,22 @@ class WrappedDownload(
     private val resourceInfoRepository = ResourceInfoRepository.getInstance(applicationContext)
     private val apiService = ApiService.getInstance(applicationContext)
 
+    private var subOperationCacheItems: List<SubOperationCacheItem> = emptyList()
+    private var metadataDownload: MetadataDownload? = null
+
+    override fun onPriorityRaised(newPriority: DownloadPriority) {
+        metadataDownload?.priority = newPriority
+        subOperationCacheItems.forEach {
+            it.subOperation.priority = newPriority
+        }
+    }
+
+    override fun onRescheduled() {
+        subOperationCacheItems.forEach {
+            it.subOperation.onRescheduled()
+        }
+    }
+
     companion object {
         /**
          * Create a [WrappedDownload] object
@@ -113,19 +129,24 @@ class WrappedDownload(
 
         // Before downloading content we _always_ download the corresponding metadata.
         // Metadata can get stale and the references to the content will be broken
-        val metadataDownload = MetadataDownload.prepare(
+        val newMetadataDownload = MetadataDownload.prepare(
             applicationContext,
             parent,
-            parent.getDownloadTag(), // attention! don't use the tag of this wrapping operation otherwise there'll be a name conflict,
-            retriesOnConnectionError = METADATA_DOWNLOAD_RETRY_INDEFINITELY
+            contentService.determineMetadataTag(parent), // attention! don't use the tag of this wrapping operation otherwise there'll be a name conflict,
+            retriesOnConnectionError = METADATA_DOWNLOAD_RETRY_INDEFINITELY,
+            priority = priority
         )
+        metadataDownload = newMetadataDownload
 
         addItem(
-            SubOperationCacheItem(metadataDownload.tag, { priority }, metadataDownload),
+            SubOperationCacheItem(newMetadataDownload.tag, { priority }, newMetadataDownload),
         )
         val parentCollection = try {
-            metadataDownload.execute()
+            val result = newMetadataDownload.execute()
+            notifySuccessfulItem()
+            result
         } catch (originalException: Exception) {
+            notifyFailedItem(originalException)
             if (originalException is CancellationException) throw originalException
             throw CacheOperationFailedException("Retrieving metadata failed", originalException)
         }
@@ -153,7 +174,7 @@ class WrappedDownload(
 
         issueDownloadNotifier?.start()
 
-        val subOperationCacheItems = dependentCollections
+        subOperationCacheItems = dependentCollections
             .filter { !it.isDownloaded(applicationContext) }
             .map { createSubOperationCacheItem(it) }
 

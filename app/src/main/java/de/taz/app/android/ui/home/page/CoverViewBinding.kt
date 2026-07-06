@@ -61,7 +61,7 @@ class CoverViewBinding(
             coverPublication,
             maxRetries = METADATA_DOWNLOAD_DEFAULT_RETRIES
         )
-        contentService.downloadToCache(download, DownloadPriority.High)
+        contentService.downloadToCache(download)
 
         // Refresh from db
         val observableDownload =

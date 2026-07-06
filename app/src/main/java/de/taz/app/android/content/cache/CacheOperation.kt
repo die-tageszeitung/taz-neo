@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.Date
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -35,8 +36,21 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
     private val items: List<ITEM>,
     private val targetState: CacheState,
     val tag: String,
-    var priority: DownloadPriority = DownloadPriority.Normal
+    priority: DownloadPriority = DownloadPriority.Normal
 ) {
+
+    var priority: DownloadPriority = priority
+        set(value) {
+            val oldPriority = field
+            field = value
+            if (value > oldPriority) {
+                onPriorityRaised(value)
+            }
+        }
+
+    open fun onPriorityRaised(newPriority: DownloadPriority) {}
+    open fun onRescheduled() {}
+
     /**
      * The companion object implements shared state as the map of active operations
      * that needs to be synchronous to keep track of any cache operation ongoing and mutually
@@ -134,7 +148,7 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
         try {
             registerOperation()
         } catch (e: SameOperationActiveException) {
-            log.warn("Operation with tag $tag and class ${this::class.simpleName} is already scheduled")
+            log.warn("Operation with tag $tag and class ${this@CacheOperation::class.simpleName} is already scheduled")
 
             if (forceExecution) {
                 // Wait for the blocking operation to finish but disregard any outcome
@@ -147,6 +161,8 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
                 // if the blocking operation is of less priority than the new one bump it up
                 if (priority > e.blockingOperation.priority) {
                     e.blockingOperation.priority = priority
+                } else if (priority == e.blockingOperation.priority) {
+                    e.blockingOperation.onRescheduled()
                 }
                 // Exception SameOperationActiveException guarantees us to have the same RESULT
                 return@withContext e.blockingOperation.waitOnCompletion() as RESULT
@@ -157,13 +173,20 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
             return@withContext execute(forceExecution)
         }
 
+        val startTime = System.currentTimeMillis()
+        var success = false
         try {
             val result = doWork()
             notifySuccess(result)
+            success = true
             return@withContext result
         } catch (e: Exception) {
             notifyFailure(e)
             throw e
+        } finally {
+            val duration = System.currentTimeMillis() - startTime
+            val status = if (success) "SUCCEEDED" else "FAILED"
+            log.debug("CacheOperation ${this@CacheOperation::class.simpleName} [$tag] finished with status $status (priority: $priority) in ${duration}ms")
         }
     }
 

@@ -28,7 +28,9 @@ import io.ktor.serialization.kotlinx.json.json
 import io.ktor.serialization.kotlinx.serialization
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
+import java.util.concurrent.ConcurrentHashMap
 
+private const val CACHE_DURATION_MS = 5000L
 /**
  * class to get DTOs from the [BuildConfig.GRAPHQL_ENDPOINT]
  */
@@ -55,6 +57,8 @@ class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) co
 
     private val maxSimultaneousRequestSemaphore = Semaphore(MAX_SIMULTANEOUS_QUERIES)
 
+    private val queryCache = ConcurrentHashMap<Pair<QueryType, Variables?>, Pair<Long, WrapperDto>>()
+
     /**
      * function to get DTO from query
      * @param queryType - the type of the query to execute
@@ -67,6 +71,14 @@ class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) co
         GraphQlRecoverableServerException::class
     )
     suspend fun query(queryType: QueryType, variables: Variables? = null): WrapperDto {
+        val now = System.currentTimeMillis()
+        val cacheKey = Pair(queryType, variables)
+        queryCache[cacheKey]?.let { (expiry, cachedResponse) ->
+            if (now < expiry) {
+                return cachedResponse
+            }
+        }
+
         val query = queryService.get(queryType)
         variables?.let { query.variables = variables }
 
@@ -113,6 +125,9 @@ class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) co
                 authHelper.elapsedDateMessage.set(authInfo.message ?: "")
             }
         }
+
+        queryCache[cacheKey] = Pair(System.currentTimeMillis() + CACHE_DURATION_MS, wrapper)
+
         return wrapper
     }
 

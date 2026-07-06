@@ -20,6 +20,7 @@ class DownloadConnectionHelper(
                 response.status.value in 200..299
             }
         } catch (e: ConnectivityException.Recoverable) {
+            log.debug("no connectivity because of error: ${e.localizedMessage}")
             false
         }
     }

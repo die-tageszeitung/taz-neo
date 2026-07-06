@@ -8,6 +8,7 @@ import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.interfaces.DownloadableCollection
 import de.taz.app.android.api.interfaces.DownloadableStub
 import de.taz.app.android.api.interfaces.ObservableDownload
+import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.AppInfo
 import de.taz.app.android.api.models.AppInfoKey
 import de.taz.app.android.api.models.Article
@@ -28,12 +29,15 @@ import de.taz.app.android.persistence.repository.AbstractIssueKey
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
 import de.taz.app.android.persistence.repository.AppInfoRepository
 import de.taz.app.android.persistence.repository.ArticleRepository
+import de.taz.app.android.persistence.repository.FrontPageKey
+import de.taz.app.android.persistence.repository.FrontpagePublication
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssueKeyWithPages
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.persistence.repository.IssuePublicationWithPages
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.MomentKey
+import de.taz.app.android.persistence.repository.MomentPublication
 import de.taz.app.android.persistence.repository.MomentRepository
 import de.taz.app.android.persistence.repository.NotFoundException
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
@@ -77,6 +81,29 @@ class ContentService(
      */
     private fun determineParentTag(download: ObservableDownload): String {
         return "parent/${download.getDownloadTag()}"
+    }
+
+    /**
+     * Determine the tag for a metadata operation.
+     */
+    internal fun determineMetadataTag(download: ObservableDownload): String {
+        return when (download) {
+            is AbstractIssuePublication -> "metadata/issue/${download.feedName}/${download.date}"
+            is AbstractIssueKey -> "metadata/issue/${download.feedName}/${download.date}"
+            is IssueOperations -> "metadata/issue/${download.issueKey.feedName}/${download.issueKey.date}"
+            is MomentKey -> "metadata/moment/${download.feedName}/${download.date}"
+            is MomentPublication -> "metadata/moment/${download.feedName}/${download.date}"
+            is FrontPageKey -> "metadata/frontpage/${download.feedName}/${download.date}"
+            is FrontpagePublication -> "metadata/frontpage/${download.feedName}/${download.date}"
+            else -> {
+                val tag = download.getDownloadTag()
+                if (tag.endsWith("/pdf")) {
+                    "metadata/${tag.substringBeforeLast("/pdf")}"
+                } else {
+                    "metadata/$tag"
+                }
+            }
+        }
     }
 
     /**
@@ -198,16 +225,18 @@ class ContentService(
         maxRetries: Int = METADATA_DOWNLOAD_RETRY_INDEFINITELY,
         forceExecution: Boolean = false,
         minStatus: IssueStatus? = null,
-        allowCache: Boolean = true
+        allowCache: Boolean = true,
+        priority: DownloadPriority = DownloadPriority.Normal
     ): ObservableDownload {
         return MetadataDownload
             .prepare(
                 applicationContext,
                 download,
-                download.getDownloadTag(),
+                determineMetadataTag(download),
                 retriesOnConnectionError = maxRetries,
                 allowCache = allowCache,
-                minStatus = minStatus ?: authHelper.getMinStatus()
+                minStatus = minStatus ?: authHelper.getMinStatus(),
+                priority = priority
             )
             .execute(forceExecution = forceExecution)
     }

@@ -1,7 +1,6 @@
 package de.taz.app.android.ui.pdfViewer
 
 import android.content.Context
-import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
@@ -43,9 +42,11 @@ import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.pdfViewer.PdfPagerWrapperFragment.Companion.ARTICLE_PAGER_FRAGMENT_BACKSTACK_NAME
 import de.taz.app.android.util.Log
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 
 /**
@@ -89,14 +90,14 @@ class DrawerBodyPdfPagesFragment : ViewBindingFragment<FragmentDrawerBodyPdfPage
 
             pdfPagerViewModel.pdfPageListFlow
                 .flowWithLifecycle(lifecycle)
-                .filterNotNull()
+                .filter { pages ->
+                    pages.isNotEmpty() && pages.all { it.dateDownload != null }
+                }
+                .take(1)
                 .onEach { pages ->
                     // Keep showing the drawer loading screen until all pages are fully downloaded
-                    val allPagesDownloaded = pages.all { it.dateDownload != null }
-                    if (allPagesDownloaded && pages.isNotEmpty()) {
-                        initDrawAdapter(pages)
-                        hideLoadingScreen()
-                    }
+                    initDrawAdapter(pages)
+                    hideLoadingScreen()
                 }.launchIn(lifecycleScope)
 
             navigationRecyclerView.addOnItemTouchListener(
@@ -122,9 +123,6 @@ class DrawerBodyPdfPagesFragment : ViewBindingFragment<FragmentDrawerBodyPdfPage
                 )
             )
         }
-        pdfPagerViewModel.issueStubLiveData.observe(viewLifecycleOwner) {
-            drawerAudioPlayerViewModel.setIssueStub(it)
-        }
 
         setupFAB()
 
@@ -145,6 +143,12 @@ class DrawerBodyPdfPagesFragment : ViewBindingFragment<FragmentDrawerBodyPdfPage
                     drawerAudioPlayerViewModel.errorMessageFlow.filterNotNull().collect { message ->
                         toastHelper.showToast(message, long = true)
                         drawerAudioPlayerViewModel.clearErrorMessage()
+                    }
+                }
+
+                launch {
+                    pdfPagerViewModel.issueStubFlow.filterNotNull().collect {
+                        drawerAudioPlayerViewModel.setIssueStub(it)
                     }
                 }
             }
