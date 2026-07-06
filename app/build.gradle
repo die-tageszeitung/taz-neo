@@ -11,10 +11,10 @@ plugins {
     id 'com.github.triplet.play' version '4.0.0'
 
     // Only define the google-services globally, and apply them only for nonfree variants
-    id 'com.google.gms.google-services' version "4.4.4" apply false
+    id 'com.google.gms.google-services' version "4.5.0" apply false
 
     // Only define the sentry version globally, and apply it only for nonfree variants
-    id 'io.sentry.android.gradle' version '6.1.0' apply false
+    id 'io.sentry.android.gradle' version '6.14.0' apply false
 }
 
 
@@ -69,7 +69,7 @@ logger.quiet("Lmd versionName: $lmdVersionName versionCode: $lmdVersionCode")
 
 android {
     namespace 'de.taz.app.android'
-    compileSdk = 36
+    compileSdk = 37
 
     buildFeatures {
         viewBinding true
@@ -79,7 +79,7 @@ android {
     defaultConfig {
         applicationId "de.taz.app.android"
         minSdkVersion 23
-        targetSdkVersion 36
+        targetSdkVersion 37
 
         testOptions {
             unitTests {
@@ -326,15 +326,15 @@ androidComponents {
 }
 
 dependencies {
-    def coroutines_version = '1.10.2'
+    def coroutines_version = '1.11.0'
     def serialization_version = '1.10.0'
-    def glide_version = '5.0.5'
-    def ktor_version = '3.4.1'
-    def lifecycle_version = '2.10.0'
+    def glide_version = '5.0.7'
+    def ktor_version = '3.5.1'
+    def lifecycle_version = '2.11.0'
     def room_version = '2.8.4'
-    def work_version = '2.11.1'
-    def media3_version = '1.9.2'
-    def sentry_version = '8.13.2'
+    def work_version = '2.11.2'
+    def media3_version = '1.10.1'
+    def sentry_version = '8.47.0'
 
     // implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
@@ -348,10 +348,10 @@ dependencies {
 
 
     implementation 'androidx.appcompat:appcompat:1.7.1'
-    implementation 'androidx.core:core-ktx:1.17.0'
+    implementation 'androidx.core:core-ktx:1.19.0'
 
-    implementation 'androidx.collection:collection-ktx:1.5.0'
-    implementation 'androidx.datastore:datastore-preferences:1.2.0'
+    implementation 'androidx.collection:collection-ktx:1.6.0'
+    implementation 'androidx.datastore:datastore-preferences:1.2.1'
 
     implementation 'androidx.fragment:fragment-ktx:1.8.9'
 
@@ -371,7 +371,7 @@ dependencies {
 
     implementation 'androidx.viewpager2:viewpager2:1.1.0'
 
-    implementation 'androidx.browser:browser:1.9.0'
+    implementation 'androidx.browser:browser:1.10.0'
 
     implementation "androidx.room:room-runtime:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
@@ -392,10 +392,10 @@ dependencies {
 
     implementation 'org.conscrypt:conscrypt-android:2.5.3'
 
-    implementation 'com.google.android.material:material:1.13.0'
+    implementation 'com.google.android.material:material:1.14.0'
 
     // coverflow
-    implementation 'com.github.rubensousa:gravitysnaphelper:2.2.2'
+    implementation 'com.github.rubensousa:gravitysnaphelper:2.3.0'
 
     // mupdf
     implementation 'com.artifex.mupdf:fitz:1.27.1'
@@ -429,8 +429,8 @@ dependencies {
     testImplementation "androidx.work:work-testing:$work_version"
 
     // mocking
-    testImplementation 'org.mockito:mockito-core:5.22.0'
-    testImplementation 'org.mockito.kotlin:mockito-kotlin:6.2.3'
+    testImplementation 'org.mockito:mockito-core:5.23.0'
+    testImplementation 'org.mockito.kotlin:mockito-kotlin:6.3.0'
 
     // Core library
     testImplementation 'androidx.test:core-ktx:1.7.0'
@@ -443,7 +443,7 @@ dependencies {
     leakCanaryImplementation 'com.squareup.leakcanary:leakcanary-android:2.14'
 
     // google Flavor
-    nonfreeImplementation 'com.google.firebase:firebase-messaging:25.0.1'
+    nonfreeImplementation 'com.google.firebase:firebase-messaging:25.1.0'
 
     // atm version 2.0.2 won't let the gitlab CI pipeline build successfully
     nonfreeImplementation 'com.google.android.play:review-ktx:2.0.1'
