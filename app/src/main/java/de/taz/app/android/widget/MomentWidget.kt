@@ -5,10 +5,10 @@ import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.widget.RemoteViews
 import de.taz.app.android.R
-import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.MomentRepository
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.tracking.Tracker
@@ -28,20 +28,40 @@ class MomentWidget : AppWidgetProvider() {
         appWidgetManager: AppWidgetManager,
         appWidgetIds: IntArray,
     ) {
-        // There may be multiple widgets active, so update all of them
-        for (appWidgetId in appWidgetIds) {
-            updateAppWidget(context, appWidgetManager, appWidgetId)
+        val storageService = StorageService.getInstance(context.applicationContext)
+        val momentRepository = MomentRepository.getInstance(context.applicationContext)
+
+        val pendingResult = goAsync()
+
+        // Perform data fetching and bitmap decoding once for all widget instances
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val momentStub = momentRepository.getRecent() ?: return@launch
+                val moment = momentRepository.momentStubToMoment(momentStub)
+                val momentImage = moment.getMomentImage()
+                val imagePath = momentImage?.let { storageService.getAbsolutePath(it) }
+
+                val coverBitmap = if (imagePath != null && File(imagePath).exists()) {
+                    decodeSampledBitmapFromFile(imagePath, 400, 400)
+                } else {
+                    null
+                }
+
+                for (appWidgetId in appWidgetIds) {
+                    updateAppWidget(context, appWidgetManager, appWidgetId, coverBitmap)
+                }
+            } finally {
+                pendingResult.finish()
+            }
         }
     }
 
     override fun onEnabled(context: Context) {
-        val tracker = Tracker.getInstance(context.applicationContext)
-        tracker.trackWidgetEnabledEvent()
+        Tracker.getInstance(context.applicationContext).trackWidgetEnabledEvent()
     }
 
     override fun onDisabled(context: Context) {
-        val tracker = Tracker.getInstance(context.applicationContext)
-        tracker.trackWidgetDisabledEvent()
+        Tracker.getInstance(context.applicationContext).trackWidgetDisabledEvent()
     }
 }
 
@@ -49,29 +69,24 @@ internal fun updateAppWidget(
     context: Context,
     appWidgetManager: AppWidgetManager,
     appWidgetId: Int,
+    coverBitmap: Bitmap? = null
 ) {
+    val views = RemoteViews(context.packageName, R.layout.moment_widget)
 
-    val storageService = StorageService.getInstance(context.applicationContext)
-    val issueRepository = IssueRepository.getInstance(context.applicationContext)
-    val momentRepository = MomentRepository.getInstance(context.applicationContext)
+    if (coverBitmap != null) {
+        views.setImageViewBitmap(R.id.widget_cover_view, coverBitmap)
+    } else {
+        // Fallback to placeholder if no image is available
+        views.setImageViewResource(R.id.widget_cover_view, R.drawable.moment_example)
+    }
 
-    // Construct the RemoteViews object
-    CoroutineScope(Dispatchers.Default).launch {
-
-        val issueStub = issueRepository.getLatestIssueStub()
-
-        if (issueStub == null) return@launch
-        val momentImage = momentRepository.get(issueStub)?.getMomentImage()
-
-        if (momentImage != null) {
-            storageService.getAbsolutePath(momentImage)?.let {
-                if (File(it).exists()) {
-                    val bitmapOptions = BitmapFactory.Options()
-
-                    val myBitmap = BitmapFactory.decodeFile(it, bitmapOptions)
-
-                    val views = RemoteViews(context.packageName, R.layout.moment_widget)
-                    views.setImageViewBitmap(R.id.widget_cover_view, myBitmap)
+    // Using the system's official launch intent ensures the splash screen icon is shown
+    // correctly during a cold start, matching the launcher behavior and animations.
+    val intent = context.packageManager.getLaunchIntentForPackage(context.packageName)!!.apply {
+        // Ensure we switch to the existing task and return to the Home screen
+        addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        putExtra(SplashActivity.KEY_SHOW_HOME, true)
+    }
 
                     val pendingIntent = PendingIntent.getActivity(
                         context,
@@ -83,15 +98,45 @@ internal fun updateAppWidget(
                         PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
                     )
 
-                    views.setOnClickPendingIntent(
-                        R.id.widget_cover_view,
-                        pendingIntent
-                    )
+    views.setOnClickPendingIntent(
+        R.id.widget_cover_view,
+        pendingIntent
+    )
 
-                    // Instruct the widget manager to update the widget
-                    appWidgetManager.updateAppWidget(appWidgetId, views)
-                }
-            }
+    // Instruct the widget manager to update the widget
+    appWidgetManager.updateAppWidget(appWidgetId, views)
+}
+
+/**
+ * Decodes a bitmap from a file with downsampling to avoid memory issues and TransactionTooLargeException.
+ */
+private fun decodeSampledBitmapFromFile(path: String, reqWidth: Int, reqHeight: Int): Bitmap? {
+    return try {
+        val options = BitmapFactory.Options().apply {
+            inJustDecodeBounds = true
+        }
+        BitmapFactory.decodeFile(path, options)
+
+        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight)
+        options.inJustDecodeBounds = false
+
+        BitmapFactory.decodeFile(path, options)
+    } catch (_: Exception) {
+        null
+    }
+}
+
+private fun calculateInSampleSize(options: BitmapFactory.Options, reqWidth: Int, reqHeight: Int): Int {
+    val (height: Int, width: Int) = options.run { outHeight to outWidth }
+    var inSampleSize = 1
+
+    if (height > reqHeight || width > reqWidth) {
+        val halfHeight = height / 2
+        val halfWidth = width / 2
+
+        while (halfHeight / inSampleSize >= reqHeight && halfWidth / inSampleSize >= reqWidth) {
+            inSampleSize *= 2
         }
     }
+    return inSampleSize
 }

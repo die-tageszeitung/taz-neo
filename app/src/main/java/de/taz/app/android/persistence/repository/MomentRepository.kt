@@ -94,7 +94,7 @@ class MomentRepository private constructor(applicationContext: Context) :
         }
     }
 
-    private suspend fun momentStubToMoment(momentStub: MomentStub): Moment {
+    suspend fun momentStubToMoment(momentStub: MomentStub): Moment {
         return Moment(
             momentStub.issueFeedName,
             momentStub.issueDate,
@@ -154,6 +154,10 @@ class MomentRepository private constructor(applicationContext: Context) :
 
     suspend fun exists(momentKey: MomentKey): Boolean {
         return getStub(momentKey.feedName, momentKey.date, momentKey.status) != null
+    }
+
+    suspend fun getRecent(): MomentStub? {
+        return appDatabase.momentDao().getRecent()
     }
 
     suspend fun deleteMoment(issueFeedName: String, issueDate: String, issueStatus: IssueStatus) {

@@ -170,7 +170,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>(), SuccessfulLogin
     override fun onResume() {
         super.onResume()
         // Ensure the widget is updated on app start – so it will always show the latest issue:
-        WidgetHelper.updateWidget(applicationContext)
+        WidgetHelper.updateMomentWidgets(applicationContext)
     }
 
     override fun onNewIntent(intent: Intent) {

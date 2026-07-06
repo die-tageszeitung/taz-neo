@@ -1,30 +1,34 @@
 package de.taz.app.android.singletons
 
 import android.appwidget.AppWidgetManager
-import android.appwidget.AppWidgetManager.ACTION_APPWIDGET_UPDATE
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import de.taz.app.android.widget.MomentWidget
 
 /**
- * Singleton to handle calls to widget
+ * Helper to trigger updates for the app widgets.
  */
 object WidgetHelper {
 
     /**
-     * Update widgets if there are any active.
-     * Found on [SO](https://stackoverflow.com/a/7738687)
+     * Triggers an update for all active [MomentWidget] instances if any exist.
+     *
+     * Sending the [AppWidgetManager.ACTION_APPWIDGET_UPDATE] broadcast with the current
+     * widget IDs ensures that the [MomentWidget.onUpdate] method is triggered.
      */
-    fun updateWidget(context: Context) {
-        val intent = Intent(context, MomentWidget::class.java)
-        intent.action = ACTION_APPWIDGET_UPDATE
-        // Use an array and EXTRA_APPWIDGET_IDS instead of AppWidgetManager.EXTRA_APPWIDGET_ID,
-        // since it seems the onUpdate() is only fired on that:
-        val ids = AppWidgetManager.getInstance(context).getAppWidgetIds(
-            ComponentName(context, MomentWidget::class.java)
-        )
-        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
-        context.sendBroadcast(intent)
+    fun updateMomentWidgets(context: Context) {
+        val appWidgetManager = AppWidgetManager.getInstance(context)
+        val componentName = ComponentName(context, MomentWidget::class.java)
+        val ids = appWidgetManager.getAppWidgetIds(componentName)
+
+        // Only send the broadcast if there are active widgets to update
+        if (ids.isNotEmpty()) {
+            val intent = Intent(context, MomentWidget::class.java).apply {
+                action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
+                putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
+            }
+            context.sendBroadcast(intent)
+        }
     }
 }
