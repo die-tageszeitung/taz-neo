@@ -32,7 +32,6 @@ import de.taz.app.android.base.StartupActivity
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.FeedService
 import de.taz.app.android.content.cache.CacheOperationFailedException
-import de.taz.app.android.dataStore.CoachMarkDataStore
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.dataStore.StorageDataStore
 import de.taz.app.android.getTazApplication
@@ -42,10 +41,10 @@ import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.persistence.repository.IssuePublicationWithPages
+import de.taz.app.android.persistence.repository.MomentPublication
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.scrubber.Scrubber
 import de.taz.app.android.sentry.SentryWrapper
-import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.NotificationHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
@@ -62,6 +61,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import java.util.Date
 
@@ -77,19 +77,17 @@ class SplashActivity : StartupActivity() {
 
     private val log by Log
 
-    private lateinit var authHelper: AuthHelper
-    private lateinit var apiService: ApiService
-    private lateinit var toastHelper: ToastHelper
-    private lateinit var fileEntryRepository: FileEntryRepository
-    private lateinit var storageService: StorageService
-    private lateinit var coachMarkDataStore: CoachMarkDataStore
-    private lateinit var storageDataStore: StorageDataStore
-    private lateinit var generalDataStore: GeneralDataStore
-    private lateinit var contentService: ContentService
-    private lateinit var feedService: FeedService
-    private lateinit var appInfoRepository: AppInfoRepository
-    private lateinit var feedRepository: FeedRepository
-    private lateinit var resourceInfoRepository: ResourceInfoRepository
+    private val apiService by lazy { ApiService.getInstance(applicationContext) }
+    private val toastHelper by lazy { ToastHelper.getInstance(applicationContext) }
+    private val fileEntryRepository by lazy { FileEntryRepository.getInstance(applicationContext) }
+    private val storageService by lazy { StorageService.getInstance(applicationContext) }
+    private val storageDataStore by lazy { StorageDataStore.getInstance(applicationContext) }
+    private val generalDataStore by lazy { GeneralDataStore.getInstance(applicationContext) }
+    private val contentService by lazy { ContentService.getInstance(applicationContext) }
+    private val feedService by lazy { FeedService.getInstance(applicationContext) }
+    private val appInfoRepository by lazy { AppInfoRepository.getInstance(applicationContext) }
+    private val feedRepository by lazy { FeedRepository.getInstance(applicationContext) }
+    private val resourceInfoRepository by lazy { ResourceInfoRepository.getInstance(applicationContext) }
 
     private var showSplashScreen = true
 
@@ -98,6 +96,7 @@ class SplashActivity : StartupActivity() {
     companion object {
         private const val KEY_ISSUE_PUBLICATION = "KEY_ISSUE_PUBLICATION"
         private const val KEY_DISPLAYABLE = "KEY_DISPLAYABLE"
+        const val KEY_SHOW_HOME = "KEY_SHOW_HOME"
 
         fun newIntent(
             packageContext: Context,
@@ -125,25 +124,12 @@ class SplashActivity : StartupActivity() {
     private var minVersionDialog: AlertDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        splashStartMs = System.currentTimeMillis()
-        installSplashScreen().apply {
-            setKeepOnScreenCondition { showSplashScreen }
-        }
+        // installSplashScreen() must be called BEFORE super.onCreate()
+        val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
-
-        authHelper = AuthHelper.getInstance(applicationContext)
-        apiService = ApiService.getInstance(applicationContext)
-        toastHelper = ToastHelper.getInstance(applicationContext)
-        fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
-        storageService = StorageService.getInstance(applicationContext)
-        contentService = ContentService.getInstance(applicationContext)
-        coachMarkDataStore = CoachMarkDataStore.getInstance(applicationContext)
-        storageDataStore = StorageDataStore.getInstance(applicationContext)
-        generalDataStore = GeneralDataStore.getInstance(applicationContext)
-        feedService = FeedService.getInstance(applicationContext)
-        appInfoRepository = AppInfoRepository.getInstance(applicationContext)
-        feedRepository = FeedRepository.getInstance(applicationContext)
-        resourceInfoRepository = ResourceInfoRepository.getInstance(applicationContext)
+        
+        splashStartMs = System.currentTimeMillis()
+        splashScreen.setKeepOnScreenCondition { showSplashScreen }
 
         lifecycleScope.launch {
             initialize()
@@ -197,77 +183,86 @@ class SplashActivity : StartupActivity() {
     }
 
     private suspend fun initialize() {
-        log.verbose("Start initialize")
         val initializationStartTime = Date()
-
-        // 1. Parallelize non-network initialization tasks
-        val setupTasks = listOf(
-            lifecycleScope.async { generateNotificationChannels() },
-            lifecycleScope.async { verifyStorageLocation() },
-            lifecycleScope.async(Dispatchers.IO) { initResources() }
-        )
-
-        // 2. Start all download tasks in parallel early, including the minVersion check.
-        // This allows network requests to start while other initialization is happening.
-        val minVersionTask = lifecycleScope.async { checkMinVersion() }
-
-        val downloadTasks = listOf(
-            lifecycleScope.async {
-                checkAppVersion()
-                ensureAppInfo()
-            },
-            lifecycleScope.async {
-                downloadResourceFiles()
-            },
-            lifecycleScope.async {
-                initFeeds()
-            },
-        )
-
-        // 3. Ensure min version is checked first as it's a critical gatekeeper
-        if (!minVersionTask.await()) {
-            // Stop the initialization if the min version is not met.
-            // As we did not wait for the downloads and thus won't end up in a broken state
-            // we can mark the initComplete
-            getTazApplication().isInitComplete = true
+        if (getTazApplication().isInitComplete) {
+            log.verbose("Initialization already complete, skipping to next Activity")
+            finishOnInitCompleteAndContinue(Date())
             return
         }
+        withContext(Dispatchers.IO) {
+            log.verbose("Start initialize")
 
-        // 4. Ensure other setup tasks are completed
-        setupTasks.awaitAll()
+            // 1. Parallelize non-network initialization tasks
+            val setupTasks = listOf(
+                async { generateNotificationChannels() },
+                async { verifyStorageLocation() },
+                async { initResources() }
+            )
 
-        // 5. Wait for download tasks with a timeout.
-        // If offline data is already ready, we can use a shorter timeout to speed up startup.
-        val timeout = if (isOfflineReady()) DOWNLOAD_TASKS_REDUCED_TIMEOUT_MS else DOWNLOAD_TASKS_TIMEOUT_MS
+            // 2. Start all download tasks in parallel early, including the minVersion check.
+            // This allows network requests to start while other initialization is happening.
+            val minVersionTask = async { checkMinVersion() }
 
-        try {
-            withTimeout(timeout) {
+            val downloadTasks = listOf(
+                async {
+                    checkAppVersion()
+                    ensureAppInfo()
+                },
+                async {
+                    downloadResourceFiles()
+                },
+                async {
+                    initFeeds()
+                },
+            )
+
+            // 3. Ensure min version is checked first as it's a critical gatekeeper
+            if (!minVersionTask.await()) {
+                // Stop the initialization if the min version is not met.
+                // As we did not wait for the downloads and thus won't end up in a broken state
+                // we can mark the initComplete
+                withContext(Dispatchers.Main) {
+                    getTazApplication().isInitComplete = true
+                }
+                return@withContext
+            }
+
+            // 4. Ensure other setup tasks are completed
+            setupTasks.awaitAll()
+
+            // 5. Wait for download tasks with a timeout.
+            // If offline data is already ready, we can use a shorter timeout to speed up startup.
+            val timeout = if (isOfflineReady()) DOWNLOAD_TASKS_REDUCED_TIMEOUT_MS else DOWNLOAD_TASKS_TIMEOUT_MS
+
+            try {
+                withTimeout(timeout) {
+                    downloadTasks.awaitAll()
+                }
+
+            } catch (e: InitializationException) {
+                handleInitializationException(e)
+                return@withContext
+
+            } catch (e: TimeoutCancellationException) {
+                log.debug("Initialization download tasks took longer than ${timeout}ms")
+                if (isOfflineReady()) {
+                    log.debug("Offline data is ready - skip waiting for downloads and start App immediately")
+                    generalDataStore.skippedDownloadTasksLastTime.set(true)
+                    finishOnInitCompleteAndContinue(initializationStartTime)
+                    return@withContext
+                }
+            }
+
+            // Otherwise, if the offline data is not ready, we continue waiting for the download tasks.
+            try {
                 downloadTasks.awaitAll()
+                generalDataStore.skippedDownloadTasksLastTime.set(false)
+            } catch (e: InitializationException) {
+                handleInitializationException(e)
+                return@withContext
             }
-
-        } catch (e: InitializationException) {
-            handleInitializationException(e)
-            return
-
-        } catch (e: TimeoutCancellationException) {
-            log.debug("Initialization download tasks took longer than ${timeout}ms")
-            if (isOfflineReady()) {
-                log.debug("Offline data is ready - skip waiting for downloads and start App immediately")
-                generalDataStore.skippedDownloadTasksLastTime.set(true)
-                finishOnInitCompleteAndContinue(initializationStartTime)
-                return
-            }
+            finishOnInitCompleteAndContinue(initializationStartTime)
         }
-
-        // Otherwise, if the offline data is not ready, we continue waiting for the download tasks.
-        try {
-            downloadTasks.awaitAll()
-            generalDataStore.skippedDownloadTasksLastTime.set(false)
-        } catch (e: InitializationException) {
-            handleInitializationException(e)
-            return
-        }
-        finishOnInitCompleteAndContinue(initializationStartTime)
     }
 
     private suspend fun verifyStorageLocation() {
@@ -473,37 +468,54 @@ class SplashActivity : StartupActivity() {
     }
 
     /**
-     * To be called if the initialization is complete and the the app ready to be started.
+     * To be called if the initialization is complete and the app ready to be started.
      * Will finish the SplashActivity, start background tasks and continue to the next Activity
      */
     private suspend fun finishOnInitCompleteAndContinue(initializationStartTime: Date) {
         val initializationDuration = Date().time - initializationStartTime.time
         log.verbose("Initialization took $initializationDuration ms.")
-        getTazApplication().isInitComplete = true
-        startBackgroundTasks()
+        // we edit the UI and start this from IO thread - so ensure Context is correct
+        withContext(Dispatchers.Main) {
+            showSplashScreen = false
+            getTazApplication().isInitComplete = true
+            startBackgroundTasks()
 
-        // Check if we got an intent from notification.
-        val issuePublication: AbstractIssuePublication? =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                intent.getParcelableExtra(MainActivity.KEY_ISSUE_PUBLICATION, AbstractIssuePublication::class.java)
+            // Check if we got an intent from notification.
+            val issuePublication: AbstractIssuePublication? =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    intent.getParcelableExtra(
+                        MainActivity.KEY_ISSUE_PUBLICATION,
+                        AbstractIssuePublication::class.java
+                    )
+                } else {
+                    @Suppress("deprecation")
+                    intent.getParcelableExtra(MainActivity.KEY_ISSUE_PUBLICATION)
+                }
+            val displayableKey = intent.getStringExtra(MainActivity.KEY_DISPLAYABLE)
+            if (issuePublication != null && displayableKey != null) {
+                handlePassedIntent(issuePublication, displayableKey)
+            }
+            // Explicitly selectable storage migration, if there is any file to migrate start migration activity
+            else if (areMigrationsRequired()) {
+                Intent(this@SplashActivity, StorageOrganizationActivity::class.java).apply {
+                    startActivity(this)
+                }
+            } else if (this@SplashActivity.intent.getBooleanExtra(
+                    MainActivity.KEY_SHOW_HOME,
+                    false
+                )
+            ) {
+                Intent(this@SplashActivity, MainActivity::class.java).apply {
+                    putExtra(MainActivity.KEY_SHOW_HOME, true)
+                    addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                    startActivity(this)
+                }
             } else {
-                @Suppress("deprecation")
-                intent.getParcelableExtra(MainActivity.KEY_ISSUE_PUBLICATION)
+                startActualApp()
             }
-        val displayableKey = intent.getStringExtra(MainActivity.KEY_DISPLAYABLE)
-        if (issuePublication != null && displayableKey != null) {
-            handlePassedIntent(issuePublication, displayableKey)
-        }
-        // Explicitly selectable storage migration, if there is any file to migrate start migration activity
-        else if (areMigrationsRequired()) {
-            Intent(this@SplashActivity, StorageOrganizationActivity::class.java).apply {
-                startActivity(this)
-            }
-        } else {
-            startActualApp()
-        }
 
-        finish()
+            finish()
+        }
     }
 
     /**
@@ -656,6 +668,13 @@ class SplashActivity : StartupActivity() {
                 val intent = MainActivity.newIntent(
                     applicationContext,
                     issuePublication,
+                    displayableKey)
+                this.startActivity(intent)
+            }
+            is MomentPublication -> {
+                val intent = MainActivity.newIntent(
+                    applicationContext,
+                    IssuePublication(issuePublication.feedName, issuePublication.date),
                     displayableKey)
                 this.startActivity(intent)
             }

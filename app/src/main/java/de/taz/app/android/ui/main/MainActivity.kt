@@ -44,7 +44,6 @@ import de.taz.app.android.ui.issueViewer.IssueViewerWrapperFragment.Companion.KE
 import de.taz.app.android.ui.login.LoginBottomSheetFragment
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment.Companion.shouldShowSubscriptionElapsedDialog
-import de.taz.app.android.ui.main.MainActivity.Companion.KEY_DISPLAYABLE
 import de.taz.app.android.ui.pdfViewer.PdfPagerWrapperFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -59,6 +58,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>(), SuccessfulLogin
         const val KEY_ISSUE_PUBLICATION = "KEY_ISSUE_PUBLICATION"
         const val KEY_DISPLAYABLE = "KEY_DISPLAYABLE"
         const val KEY_DATE_STRING = "KEY_DATE_STRING"
+        const val KEY_SHOW_HOME = "KEY_SHOW_HOME"
 
         fun start(
             context: Context,
@@ -115,13 +115,11 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>(), SuccessfulLogin
     }
 
 
-    private lateinit var authHelper: AuthHelper
-    private lateinit var bookmarkRepository: BookmarkRepository
-    private lateinit var downloadDataStore: DownloadDataStore
-    private lateinit var generalDataStore: GeneralDataStore
-    private lateinit var coachMarkDataStore: CoachMarkDataStore
-    private lateinit var toastHelper: ToastHelper
-    private lateinit var tracker: Tracker
+    private val authHelper by lazy { AuthHelper.getInstance(applicationContext) }
+    private val bookmarkRepository by lazy { BookmarkRepository.getInstance(applicationContext) }
+    private val downloadDataStore by lazy { DownloadDataStore.getInstance(applicationContext) }
+    private val generalDataStore by lazy { GeneralDataStore.getInstance(applicationContext) }
+    private val toastHelper by lazy { ToastHelper.getInstance(applicationContext) }
 
     private val audioPlayerViewController = AudioPlayerViewController(this)
     private val issueFeedViewModel: IssueFeedViewModel by viewModels()
@@ -130,14 +128,6 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>(), SuccessfulLogin
         super.onCreate(savedInstanceState)
 
         viewBinding.root.setDefaultHorizontalInsets()
-
-        authHelper = AuthHelper.getInstance(applicationContext)
-        bookmarkRepository = BookmarkRepository.getInstance(applicationContext)
-        coachMarkDataStore = CoachMarkDataStore.getInstance(applicationContext)
-        downloadDataStore = DownloadDataStore.getInstance(applicationContext)
-        generalDataStore = GeneralDataStore.getInstance(applicationContext)
-        toastHelper = ToastHelper.getInstance(applicationContext)
-        tracker = Tracker.getInstance(applicationContext)
 
         if (savedInstanceState == null) {
             checkForIntentAndHandle()
@@ -186,6 +176,9 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>(), SuccessfulLogin
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
+        if (intent.getBooleanExtra(KEY_SHOW_HOME, false)) {
+            showHome()
+        }
         checkForIntentAndHandle()
     }
 
@@ -322,7 +315,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>(), SuccessfulLogin
         }
 
         val currentFragment =
-            supportFragmentManager.fragments.last()
+            supportFragmentManager.fragments.lastOrNull() ?: return
 
         when (currentFragment) {
             is HomeFragment ->
