@@ -307,7 +307,7 @@ class PdfPagerViewModel(
     }
 
     suspend fun onFrameLinkClicked(link: String) {
-        if (link.isArticleKey()) {
+        if (link.isArticleKey() && getCorrectArticle(link)!= null) {
             if(generalDataStore.openArticlePdfView.get()) {
                 showArticle(link)
             }
