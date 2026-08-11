@@ -51,6 +51,8 @@ class DrawerViewController(
     private val generalDataStore = GeneralDataStore.getInstance(context)
     private val glide = Glide.with(context)
 
+    private val accelerateDecelerateInterpolator = AccelerateDecelerateInterpolator()
+
     private var wasHidden = false
 
     private var isLogoBurger = false
@@ -178,7 +180,7 @@ class DrawerViewController(
                     .setDuration(LOGO_ANIMATION_DURATION_MS)
                     .setStartDelay(HIDE_LOGO_DELAY_MS)
                     .translationX(transX)
-                    .interpolator = AccelerateDecelerateInterpolator()
+                    .interpolator = accelerateDecelerateInterpolator
             }
         }
         wasHidden = true
@@ -193,7 +195,7 @@ class DrawerViewController(
                 .setDuration(LOGO_ANIMATION_DURATION_MS)
                 .setStartDelay(0L)
                 .translationX(NO_TRANSLATION)
-                .setInterpolator(AccelerateDecelerateInterpolator())
+                .interpolator = accelerateDecelerateInterpolator
         }
 
         wasHidden = false
