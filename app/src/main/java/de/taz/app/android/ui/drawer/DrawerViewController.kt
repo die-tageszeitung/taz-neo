@@ -166,7 +166,7 @@ class DrawerViewController(
         return offsetOnOpenDrawer + offsetOnClosedDrawer
     }
 
-    private suspend fun hideDrawerLogoAnimatedWithDelay() {
+    private fun hideDrawerLogoAnimatedWithDelay() {
         val hideList = listOf(R.id.feed_logo, R.id.burger_wrapper)
 
         hideList.forEach { idToHide ->
