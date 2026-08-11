@@ -169,10 +169,10 @@ class DrawerViewController(
     private suspend fun hideDrawerLogoAnimatedWithDelay() {
         val hideList = listOf(R.id.feed_logo, R.id.burger_wrapper)
 
-        val transX = -getFeedLogoWidth().toFloat() + drawerLogoPeak
-
         hideList.forEach { idToHide ->
             val viewToHide = rootView.findViewById<View>(idToHide)
+            val transX = -viewToHide.measuredWidth.toFloat() + drawerLogoPeak + if (idToHide != R.id.feed_logo) drawerLogoMarginStart else 0
+
             if (transX != viewToHide.translationX) {
                 viewToHide.animate()
                     .setDuration(LOGO_ANIMATION_DURATION_MS)
