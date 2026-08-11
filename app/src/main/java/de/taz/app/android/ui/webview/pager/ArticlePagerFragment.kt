@@ -53,6 +53,7 @@ import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.databinding.FragmentWebviewArticlePagerBinding
 import de.taz.app.android.monkey.AppBarLayoutState
+import de.taz.app.android.monkey.LogoScrollBehavior
 import de.taz.app.android.monkey.addOnStateChangeListener
 import de.taz.app.android.monkey.isCollapsed
 import de.taz.app.android.monkey.isExpanded
@@ -150,6 +151,11 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
         fileEntryRepository = FileEntryRepository.getInstance(context.applicationContext)
         storageService = StorageService.getInstance(context.applicationContext)
     }
+
+    private val logoScrollBehavior = LogoScrollBehavior(
+        onScrolledIn = { drawerAndLogoViewModel.setFeedLogo() },
+        onScrolledOut = { drawerAndLogoViewModel.setBurgerIcon() },
+    )
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -313,8 +319,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
                         generalDataStore.animateDrawerLogo.asFlow().collect { animateLogo ->
                             viewBinding?.feedLogo?.setupLogoScrollBehavior(
                                 enabled = animateLogo,
-                                onScrolledIn = { drawerAndLogoViewModel.setFeedLogo() },
-                                onScrolledOut = { drawerAndLogoViewModel.setBurgerIcon() },
+                                logoScrollBehavior = logoScrollBehavior,
                             )
                         }
                     }
