@@ -64,7 +64,7 @@ class DrawerViewController(
     private val burgerWidthFromDimens =
         resources.getDimensionPixelSize(R.dimen.drawer_burger_menu_width)
 
-    private val drawerTranslationX = resources.getDimensionPixelSize(R.dimen.drawer_logo_translation_x)
+    private val drawerLogoMarginStart = resources.getDimensionPixelSize(R.dimen.drawer_logo_margin_start)
     private val drawerLogoPeak = resources.getDimensionPixelSize(R.dimen.drawer_logo_peak_when_hidden)
 
     private var isListDrawer = false
@@ -149,14 +149,14 @@ class DrawerViewController(
      */
     private fun calculateTranslationXOnDrawerSlide(slideOffset: Float): Float {
         val screenWidth = resources.displayMetrics.widthPixels
-        val logoTranslationForClosedDrawer = if (isLogoBurger) -drawerTranslationX else NO_TRANSLATION.toInt()
+        val logoTranslationForClosedDrawer = if (isLogoBurger) -drawerLogoMarginStart else NO_TRANSLATION.toInt()
         val drawerWidthLogoBiggerThenScreenWidth =
             drawerLogoWrapper.width + navView.width > screenWidth
 
         val logoTranslationForOpenDrawer = if (drawerWidthLogoBiggerThenScreenWidth) {
-            screenWidth - navView.width - drawerLogoWrapper.width - drawerTranslationX
+            screenWidth - navView.width - drawerLogoWrapper.width - drawerLogoMarginStart
         } else {
-           drawerTranslationX
+           drawerLogoMarginStart
         }
         // translation needed for logo when drawer is open (slideOffset = 1) with logo too wide:
         val offsetOnOpenDrawer = slideOffset * logoTranslationForOpenDrawer
