@@ -169,7 +169,7 @@ class BookmarkRepository(
 
     /**
      * To not end in a sync loop we need the [fromRemote] flag. This indicates that the bookmark is
-     * removed because of synchronization and will not trigger synchronization again.
+     * removed because of synchronisation and will not trigger synchronization again.
      */
     fun removeBookmarkAsync(article: Article, fromRemote: Boolean = false): Deferred<Unit> =
         removeBookmarkAsync(article.key, article.mediaSyncId, fromRemote)
@@ -201,31 +201,8 @@ class BookmarkRepository(
         triggerStateFlowUpdate()
     }
 
-    private suspend fun deleteAllBookmarksLocally(bookmarkedArticles: List<Article>) {
-
-        changeMutex.withLock {
-            bookmarkedArticles.forEach {
-                state.remove(it.articleFileName)
-            }
-        }
-
-        val bookmarkTimes = bookmarkedArticles.map { ArticleBookmarkTime(it.articleFileName, null) }
-        appDatabase.withTransaction {
-            appDatabase.articleDao().updateBookmarkedTimes(bookmarkTimes)
-        }
-
-        bookmarkedArticles.forEach {
-            tracker.trackRemoveBookmarkEvent(it.articleFileName, it.mediaSyncId)
-        }
-    }
-
-    suspend fun deleteAllBookmarks() {
-        val bookmarkedArticles = getBookmarkedArticles()
-        if (bookmarkedArticles.isNotEmpty()) {
-            deleteAllBookmarksLocally(bookmarkedArticles)
-            handleRemoveAllBookmarksWhenSynchronizationIsEnabled(bookmarkedArticles)
-            triggerStateFlowUpdate()
-        }
+    suspend fun removeAllBookmarks() {
+        getBookmarkedArticles().forEach { removeBookmarkAsync(it) }
     }
 
     // fully resets the bookmark state
@@ -451,7 +428,7 @@ class BookmarkRepository(
 
     /**
      * Find out if [localButNotRemoteBookmarks] needs to be synchronized or deleted locally.
-     * Therefore, we look at the timestamp of when we bookmarked it:
+     * Therefore we look at the timestamp of when we bookmarked it:
      */
     private suspend fun handleLocalButNotOnRemoteBookmarks(localButNotRemoteBookmarks: List<BookmarkRepresentation>) {
         localButNotRemoteBookmarks.forEach {
@@ -486,21 +463,6 @@ class BookmarkRepository(
         }
     }
 
-    private suspend fun deleteAllRemoteBookmarks(allBookmarks: List<Article>) {
-        val mediaSyncIds = allBookmarks.mapNotNull { it.mediaSyncId }
-        try {
-            val success = apiService.deleteAllRemoteBookmarks()
-            if (success) {
-                bookmarkSynchronizationRepository.deleteAll()
-            } else {
-                bookmarkSynchronizationRepository.markAllAsLocallyChanged(mediaSyncIds)
-            }
-        } catch (e: Exception) {
-            bookmarkSynchronizationRepository.markAllAsLocallyChanged(mediaSyncIds)
-            log.warn("Could not synchronize deleted bookmarks. ${e.message}")
-        }
-    }
-
     private suspend fun pushLocalBookmarkToRemote(bookmarkRepresentation: BookmarkRepresentation) {
         bookmarkSynchronizationRepository.save(bookmarkRepresentation, SynchronizeFromType.LOCAL)
         try {
@@ -516,15 +478,6 @@ class BookmarkRepository(
         }
     }
 
-    private suspend fun handleRemoveAllBookmarksWhenSynchronizationIsEnabled(bookmarkedArticles: List<Article>) {
-        if (bookmarkedArticles.isEmpty()) {
-            return
-        }
-        val bookmarksSynchronizationEnabled = generalDataStore.bookmarksSynchronizationEnabled.get()
-        if (bookmarksSynchronizationEnabled) {
-            deleteAllRemoteBookmarks(bookmarkedArticles)
-        }
-    }
     private suspend fun handleRemoveBookmarkWhenSynchronizationIsEnabled(articleMediaSyncId: Int?) {
         if (articleMediaSyncId == null) {
             return

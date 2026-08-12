@@ -47,7 +47,7 @@
             android:contentDescription="@string/navigation_drawer_open"
             android:focusable="true"
             android:importantForAccessibility="yes"
-            android:layout_marginStart="@dimen/drawer_logo_margin_start"
+            android:layout_marginStart="@dimen/drawer_logo_translation_x"
             android:translationY="@dimen/drawer_logo_translation_y"
             android:translationZ="100dp"
             app:layout_behavior="com.google.android.material.behavior.HideViewOnScrollBehavior"

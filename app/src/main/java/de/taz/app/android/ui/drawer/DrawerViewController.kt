@@ -51,8 +51,6 @@ class DrawerViewController(
     private val generalDataStore = GeneralDataStore.getInstance(context)
     private val glide = Glide.with(context)
 
-    private val accelerateDecelerateInterpolator = AccelerateDecelerateInterpolator()
-
     private var wasHidden = false
 
     private var isLogoBurger = false
@@ -66,7 +64,7 @@ class DrawerViewController(
     private val burgerWidthFromDimens =
         resources.getDimensionPixelSize(R.dimen.drawer_burger_menu_width)
 
-    private val drawerLogoMarginStart = resources.getDimensionPixelSize(R.dimen.drawer_logo_margin_start)
+    private val drawerTranslationX = resources.getDimensionPixelSize(R.dimen.drawer_logo_translation_x)
     private val drawerLogoPeak = resources.getDimensionPixelSize(R.dimen.drawer_logo_peak_when_hidden)
 
     private var isListDrawer = false
@@ -92,7 +90,7 @@ class DrawerViewController(
         }
 
         if (wasHidden && state.logoState != LogoState.HIDDEN) {
-            showDrawerLogoAnimated()
+            showDrawerLogoAnimated(state)
         }
 
         when (state.logoState) {
@@ -151,14 +149,14 @@ class DrawerViewController(
      */
     private fun calculateTranslationXOnDrawerSlide(slideOffset: Float): Float {
         val screenWidth = resources.displayMetrics.widthPixels
-        val logoTranslationForClosedDrawer = if (isLogoBurger) -drawerLogoMarginStart else NO_TRANSLATION.toInt()
+        val logoTranslationForClosedDrawer = if (isLogoBurger) -drawerTranslationX else NO_TRANSLATION.toInt()
         val drawerWidthLogoBiggerThenScreenWidth =
             drawerLogoWrapper.width + navView.width > screenWidth
 
         val logoTranslationForOpenDrawer = if (drawerWidthLogoBiggerThenScreenWidth) {
-            screenWidth - navView.width - drawerLogoWrapper.width - drawerLogoMarginStart
+            screenWidth - navView.width - drawerLogoWrapper.width - drawerTranslationX
         } else {
-           drawerLogoMarginStart
+           drawerTranslationX
         }
         // translation needed for logo when drawer is open (slideOffset = 1) with logo too wide:
         val offsetOnOpenDrawer = slideOffset * logoTranslationForOpenDrawer
@@ -168,34 +166,34 @@ class DrawerViewController(
         return offsetOnOpenDrawer + offsetOnClosedDrawer
     }
 
-    private fun hideDrawerLogoAnimatedWithDelay() {
+    private suspend fun hideDrawerLogoAnimatedWithDelay() {
         val hideList = listOf(R.id.feed_logo, R.id.burger_wrapper)
+
+        val transX = -getFeedLogoWidth().toFloat() + drawerLogoPeak
 
         hideList.forEach { idToHide ->
             val viewToHide = rootView.findViewById<View>(idToHide)
-            val transX = -viewToHide.measuredWidth.toFloat() + drawerLogoPeak + if (idToHide != R.id.feed_logo) drawerLogoMarginStart else 0
-
             if (transX != viewToHide.translationX) {
                 viewToHide.animate()
                     .setDuration(LOGO_ANIMATION_DURATION_MS)
                     .setStartDelay(HIDE_LOGO_DELAY_MS)
                     .translationX(transX)
-                    .interpolator = accelerateDecelerateInterpolator
+                    .interpolator = AccelerateDecelerateInterpolator()
             }
         }
         wasHidden = true
     }
 
-    private fun showDrawerLogoAnimated() {
-        val idList = listOf(R.id.burger_wrapper, R.id.feed_logo)
+    private fun showDrawerLogoAnimated(state: DrawerState) {
+        val hideList = listOf(R.id.burger_wrapper, R.id.feed_logo)
 
-        idList.forEach { idToHide ->
-            val view = rootView.findViewById<View>(idToHide)
-            view.animate()
+        hideList.forEach { idToHide ->
+            val viewToHide = rootView.findViewById<View>(idToHide)
+            viewToHide.animate()
                 .setDuration(LOGO_ANIMATION_DURATION_MS)
                 .setStartDelay(0L)
                 .translationX(NO_TRANSLATION)
-                .interpolator = accelerateDecelerateInterpolator
+                .setInterpolator(AccelerateDecelerateInterpolator())
         }
 
         wasHidden = false

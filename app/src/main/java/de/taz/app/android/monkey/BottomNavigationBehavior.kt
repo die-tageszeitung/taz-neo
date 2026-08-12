@@ -18,34 +18,28 @@ fun View.getHideViewOnScrollBehavior(): HideViewOnScrollBehavior<View>? {
     return coordinatorLayoutParams?.behavior as? HideViewOnScrollBehavior
 }
 
-
-class LogoScrollBehavior(
-    onScrolledIn: () -> Unit,
-    onScrolledOut: () -> Unit
-): HideViewOnScrollBehavior<View>() {
-    init {
-        setViewEdge(EDGE_LEFT)
-
-        addOnScrollStateChangedListener { _, scrollState ->
-            if (scrollState == HideViewOnScrollBehavior.STATE_SCROLLED_IN) {
-                onScrolledIn()
-            } else {
-                onScrolledOut()
-            }
-        }
-    }
-}
-
 /**
  * Sets up the scroll behavior for the logo that toggles between burger and feed logo
  * based on scroll position.
  */
 fun View.setupLogoScrollBehavior(
     enabled: Boolean,
-    logoScrollBehavior: LogoScrollBehavior,
+    onScrolledIn: () -> Unit,
+    onScrolledOut: () -> Unit
 ) {
     if (enabled) {
-        setBottomNavigationBehavior(logoScrollBehavior)
+        val behavior = HideViewOnScrollBehavior<View>().apply {
+            setViewEdge(EDGE_LEFT)
+
+            addOnScrollStateChangedListener { _, scrollState ->
+                if (scrollState == HideViewOnScrollBehavior.STATE_SCROLLED_IN) {
+                    onScrolledIn()
+                } else {
+                    onScrolledOut()
+                }
+            }
+        }
+        setBottomNavigationBehavior(behavior)
     } else {
         setBottomNavigationBehavior(null)
     }

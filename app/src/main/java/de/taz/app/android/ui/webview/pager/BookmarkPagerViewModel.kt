@@ -69,4 +69,9 @@ class BookmarkPagerViewModel(
     fun debookmarkArticle(article: Article) {
         bookmarkRepository.removeBookmarkAsync(article)
     }
+
+    suspend fun removeAllBookmarks() {
+        bookmarkRepository.removeAllBookmarks()
+    }
+
 }
