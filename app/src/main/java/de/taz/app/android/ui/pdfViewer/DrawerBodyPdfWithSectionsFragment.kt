@@ -378,39 +378,43 @@ class DrawerBodyPdfWithSectionsFragment :
     }
 
     private fun showCoachMarks() {
-        val coachMarks = mutableListOf<BaseCoachMark>()
+        val binding = viewBinding ?: return
+        val root = binding.root
 
-        viewBinding?.apply {
-            val firstSection = requireView().findViewById<TextView>(R.id.preview_page_title)
-            val firstPage = requireView().findViewById<ImageView>(R.id.preview_page_image)
-            val tocItem = requireView().findViewById<ConstraintLayout>(R.id.toc_item)
-            val firstArticle = requireView().findViewById<TextView>(R.id.article_title)
-            val firstArticleTeaser = requireView().findViewById<TextView>(R.id.article_teaser)
-            val firstArticleAuthorMinsString = requireView().findViewById<TextView>(R.id.article_author_and_read_minutes)?.text?.toString() ?: ""
-            // Take everything until the first digit from eg "von Anna Arthur 3min"
-            val firstArticleAuthor = firstArticleAuthorMinsString.takeWhile { !it.isDigit() }
-            // Get the remainder (the "3 min" part)
-            val firstArticleMin = firstArticleAuthorMinsString.substringAfter(firstArticleAuthor)
+        val firstSection = root.findViewById<TextView>(R.id.preview_page_title)
+        val firstPage = root.findViewById<ImageView>(R.id.preview_page_image)
+        val tocItem = root.findViewById<ConstraintLayout>(R.id.toc_item)
+        val firstArticle = root.findViewById<TextView>(R.id.article_title)
+        val firstArticleTeaser = root.findViewById<TextView>(R.id.article_teaser)
+        val authorMinsString = root.findViewById<TextView>(R.id.article_author_and_read_minutes)?.text?.toString() ?: ""
 
-            coachMarks.addAll(
-                listOf(
-                    PdfDrawerListMomentCoachMark.create(activityPdfDrawerFrontPage),
-                    PdfDrawerSwitchViewToPagesCoachMark.create(switchDrawerLayout),
-                    PdfDrawerPlayAllCoachMark.create(playIssueLayout),
-                    PdfDrawerGoToPageCoachMark.create(firstPage),
-                    PdfDrawerGoToArticleCoachMark.create(
-                        tocItem,
-                        firstArticle.text.toString(),
-                        firstArticleTeaser.text.toString(),
-                        firstArticleAuthor,
-                        firstArticleMin,
-                        firstArticle.width
-                    ),
-                    PdfDrawerGoToSectionCoachMark.create(firstSection),
-                    DrawerEnqueueCoachMark(),
-                    DrawerBookmarkCoachMark(),
+        // Take everything until the first digit from eg "von Anna Arthur 3min"
+        val articleAuthor = authorMinsString.takeWhile { !it.isDigit() }
+        // Get the remainder (the "3 min" part)
+        val articleMin = authorMinsString.removePrefix(articleAuthor)
+
+        val coachMarks = buildList {
+            add(PdfDrawerListMomentCoachMark.create(binding.activityPdfDrawerFrontPage))
+            if (!BuildConfig.IS_LMD) {
+                add(PdfDrawerSwitchViewToPagesCoachMark.create(binding.switchDrawerLayout))
+            }
+            add(PdfDrawerPlayAllCoachMark.create(binding.playIssueLayout))
+            add(PdfDrawerGoToPageCoachMark.create(firstPage))
+            add(
+                PdfDrawerGoToArticleCoachMark.create(
+                    tocItem,
+                    firstArticle?.text?.toString() ?: "",
+                    firstArticleTeaser?.text?.toString() ?: "",
+                    articleAuthor,
+                    articleMin,
+                    firstArticle?.width ?: 0
                 )
             )
+            if (!BuildConfig.IS_LMD) {
+                add(PdfDrawerGoToSectionCoachMark.create(firstSection))
+            }
+            add(DrawerEnqueueCoachMark())
+            add(DrawerBookmarkCoachMark())
         }
 
         if (coachMarks.isNotEmpty()) {
