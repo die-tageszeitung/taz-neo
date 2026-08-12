@@ -155,8 +155,5 @@ interface ArticleDao : BaseDao<ArticleStub> {
     @Update(entity = ArticleStub::class)
     suspend fun updateBookmarkedTime(articleBookmarkTime: ArticleBookmarkTime)
 
-    @Update(entity = ArticleStub::class)
-    suspend fun updateBookmarkedTimes(articleBookmarkTimes: List<ArticleBookmarkTime>)
-
     // endregion Bookmarks
 }

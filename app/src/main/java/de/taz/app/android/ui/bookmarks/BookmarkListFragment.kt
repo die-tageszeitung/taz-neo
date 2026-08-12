@@ -241,7 +241,7 @@ class BookmarkListFragment : BaseMainFragment<FragmentBookmarksBinding>() {
             .setPositiveButton(R.string.fragment_bookmarks_delete) { dialog, _ ->
                 lifecycleScope.launch {
                     val amount = recycleAdapter?.itemCount ?: 0
-                    bookmarkRepository.deleteAllBookmarks()
+                    bookmarkRepository.removeAllBookmarks()
                     log.debug("All bookmarks deleted")
                     recycleAdapter?.notifyItemRangeRemoved(0, amount)
                     dialog.dismiss()

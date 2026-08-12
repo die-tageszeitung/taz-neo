@@ -98,7 +98,7 @@
     <dimen name="list_item_pdf_page_toc_bookmark_icon_size">22dp</dimen>
     <dimen name="list_item_pdf_page_toc_divider_margin_vertical">20dp</dimen>
 
-    <dimen name="drawer_logo_margin_start">-5dp</dimen>
+    <dimen name="drawer_logo_translation_x">-5dp</dimen>
     <dimen name="drawer_logo_translation_y">40dp</dimen>
     <dimen name="drawer_logo_elevation">5dp</dimen>
     <dimen name="drawer_logo_corner_radius">0dp</dimen>

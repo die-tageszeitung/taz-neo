@@ -150,6 +150,7 @@ class IssueViewerWrapperFragment : TazViewerFragment(), SuccessfulLoginAction {
                         // Refresh UI with the updated metadata
                         withContext(Dispatchers.Main) {
                             issueViewerViewModel.refresh()
+                            setupIssueDisplay(IssueKey(newKey), showContinueReadDialog = false)
                         }
                     } catch (e: Exception) {
                         log.error("Failed to download updated issue. Showing old cached issue instead", e)

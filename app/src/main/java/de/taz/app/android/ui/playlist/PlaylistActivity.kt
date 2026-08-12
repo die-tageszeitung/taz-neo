@@ -62,6 +62,11 @@ class PlaylistActivity:
         }
         viewBinding.playlistRv.adapter = playlistAdapter
 
+        setupBottomNavigation(
+            viewBinding.navigationBottom,
+            BottomNavigationItem.Playlist
+        )
+
         viewBinding.root.findViewById<TextView>(R.id.fragment_header_default_title)
             ?.setText(R.string.audioplayer_playlist)
     }
@@ -70,10 +75,6 @@ class PlaylistActivity:
         super.onResume()
         // If player is running ensure it is the small one at start:
         audioPlayerService.minimizePlayer()
-        setupBottomNavigation(
-            viewBinding.navigationBottom,
-            BottomNavigationItem.Playlist
-        )
     }
 
     @SuppressLint("MissingSuperCall")
