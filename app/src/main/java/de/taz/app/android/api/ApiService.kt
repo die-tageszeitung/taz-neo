@@ -876,13 +876,37 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                 variables,
             ).data?.deleteCustomerData
         }
-        if (response?.ok == false) {
-            log.warn("Could not delete remote bookmark: ${response.error}")
-        }
         if (response?.ok == true) {
             log.verbose("Remote bookmark $articleMediaSyncId successfully deleted.")
             return true
         } else {
+            if (response?.ok == false) {
+                log.warn("Could not delete remote bookmark: ${response.error}")
+            }
+            return false
+        }
+    }
+    /**
+     * Delete from customerData all bookmarks
+     */
+    suspend fun deleteAllRemoteBookmarks(): Boolean {
+        val variables = GetCustomerDataVariables(
+            CUSTOMER_DATA_CATEGORY_BOOKMARKS, CUSTOMER_DATA_CATEGORY_BOOKMARKS_ALL
+        )
+
+        val response = transformToConnectivityException {
+            graphQlClient.query(
+                QueryType.DeleteCustomerData,
+                variables,
+            ).data?.deleteCustomerData
+        }
+        if (response?.ok == true) {
+            log.verbose("All remote bookmarks successfully deleted.")
+            return true
+        } else {
+            if (response?.ok == false) {
+                log.warn("Could not delete remote bookmark: ${response.error}")
+            }
             return false
         }
     }
