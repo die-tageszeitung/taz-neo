@@ -50,6 +50,7 @@ import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.main.MainActivity
+import de.taz.app.android.ui.pdfViewer.PageWithArticlesListItem
 import de.taz.app.android.ui.pdfViewer.PdfPagerWrapperFragment.Companion.ARTICLE_PAGER_FRAGMENT_BACKSTACK_NAME
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.flow.Flow
@@ -102,7 +103,7 @@ class DrawerBodyPdfWithSectionsFragment :
             navigationPageArticleRecyclerView.setDefaultBottomInset()
 
             if (BuildConfig.IS_LMD) {
-                switchDrawerLayout.visibility = View.GONE
+                switchDrawerLayout.visibility = View.INVISIBLE
             }
 
             // Shrink the logo on collapsing appbar
@@ -260,16 +261,21 @@ class DrawerBodyPdfWithSectionsFragment :
      * @param items List of pages and articles on each page
      */
     private fun updateToc(items: List<PageWithArticlesListItem>) {
+        if (items.isEmpty()) return
+
         adapter.pages = items
+
+        // Notify adapter if it doesn't handle it internally
+        adapter.notifyDataSetChanged()
 
         viewBinding?.apply {
             // Setup drawer header front page
-            Glide
-                .with(requireContext())
-                .load(storageService.getAbsolutePath((items.first() as PageWithArticlesListItem.Page).page.pagePdf))
-                .into(activityPdfDrawerFrontPage)
-
-            navigationPageArticleRecyclerView.adapter = adapter
+            // Safe access to the first page preview
+            (items.firstOrNull { it is PageWithArticlesListItem.Page } as? PageWithArticlesListItem.Page)?.let { firstPage ->
+                Glide.with(requireContext())
+                    .load(storageService.getAbsolutePath(firstPage.page.pagePdf))
+                    .into(activityPdfDrawerFrontPage)
+            }
             hideLoadingScreen()
         }
 
