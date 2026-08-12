@@ -27,6 +27,7 @@ import de.taz.app.android.persistence.repository.IssuePublicationWithPages
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.MomentRepository
 import de.taz.app.android.sentry.SentryWrapper
+import de.taz.app.android.sentry.SentryWrapperLevel
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.CannotDetermineBaseUrlException
@@ -189,7 +190,12 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
             val viewModel = ::homeViewModel.get()
 
             applicationScope.launch {
-                contentService.deleteIssue(issuePublication)
+                try {
+                    contentService.deleteIssue(issuePublication)
+                } catch (e: CacheOperationFailedException) {
+                    log.warn("deletion of issue $issuePublication failed")
+                    SentryWrapper.captureException(e)
+                }
                 viewModel.notifyMomentChanged(simpleDateFormat.parse(issuePublication.date)!!)
                 withContext(Dispatchers.Main) {
                     dismiss()
