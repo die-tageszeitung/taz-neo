@@ -33,6 +33,7 @@
     <color name="link">@color/lmdBlue</color>
     <color name="colorAutofillBackground">@color/lmdBlue10Percent</color>
 
-
     <color name="error">@color/red</color>
+
+    <color name="drawer_logo_color">@color/lmdBlue</color>
 </resources>
