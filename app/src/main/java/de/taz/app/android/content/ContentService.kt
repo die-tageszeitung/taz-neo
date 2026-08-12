@@ -265,7 +265,7 @@ class ContentService(
      *
      * @param issuePublication The issueKey the content of which should be deleted
      */
-    @Throws(NotFoundException::class)
+    @Throws(NotFoundException::class, CacheOperationFailedException::class)
     suspend fun deleteIssue(issuePublication: AbstractIssuePublication) {
         IssueDeletion.prepare(applicationContext, issuePublication)
             .execute()
