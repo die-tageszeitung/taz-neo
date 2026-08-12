@@ -248,7 +248,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>(), SuccessfulLogin
             val homeFragment =
                 supportFragmentManager.fragments.firstOrNull { it is HomeFragment } as? HomeFragment
 
-            if(supportFragmentManager.fragments.last { it.isVisible } is HomeFragment) {
+            if(supportFragmentManager.fragments.lastOrNull { it.isVisible } is HomeFragment) {
                 lifecycleScope.launch { homeFragment?.skipToHome() }
             } else {
                 supportFragmentManager.popBackStackImmediate(
