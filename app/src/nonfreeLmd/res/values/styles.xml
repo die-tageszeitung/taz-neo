@@ -24,4 +24,8 @@
         <item name="android:fontFamily">@font/appFontAlternativeItalic</item>
         <item name="android:textColor">@color/textColor</item>
     </style>
+
+    <style name="Widget.App.Drawer.Pdf.Header.Date" parent="Widget.App.Drawer.Lmd.Header.Date"/>
+    <style name="Widget.App.Drawer.Sections.Article.Teaser" parent="Widget.App.Drawer.Lmd.Teaser"/>
+    <style name="TextAppearance.App.Drawer.Sections.Article.Meta.Author" parent="TextAppearance.App.Drawer.Lmd.Meta.Author"/>
 </resources>

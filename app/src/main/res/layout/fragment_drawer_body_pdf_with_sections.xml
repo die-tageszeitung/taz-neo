@@ -161,14 +161,16 @@
                     <TextView
                         android:id="@+id/fragment_drawer_play_issue_icon_text"
                         style="@style/Widget.App.Drawer.Pdf.Header.IconTexts"
-                        android:layout_width="match_parent"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/fragment_drawer_body_pdf_with_sections_small_margin"
                         android:ellipsize="end"
                         android:maxLines="1"
                         android:text="@string/drawer_play_issue"
                         android:textColor="@color/textColor"
-                        app:layout_constraintBottom_toBottomOf="parent" />
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>
         </com.google.android.material.appbar.CollapsingToolbarLayout>

@@ -73,8 +73,8 @@ class DrawerViewController(
 
     init {
         CoroutineScope(Dispatchers.Default).launch {
-            if (!BuildConfig.IS_LMD && generalDataStore.pdfMode.get()) {
-                isListDrawer = generalDataStore.useListDrawer.get()
+            if (generalDataStore.pdfMode.get()) {
+                isListDrawer = BuildConfig.IS_LMD || generalDataStore.useListDrawer.get()
                 togglePdfDrawer(isListDrawer)
             }
         }
@@ -381,13 +381,14 @@ class DrawerViewController(
     }
 
     private fun togglePdfDrawer(showList: Boolean) = CoroutineScope(Dispatchers.Main).launch {
-        if (!BuildConfig.IS_LMD && generalDataStore.pdfMode.get()) {
+        val showListOrLMd = showList || BuildConfig.IS_LMD
+        if (generalDataStore.pdfMode.get()) {
             drawerLayout.findViewById<FragmentContainerView>(R.id.fragment_container_view_drawer_body)
-                ?.isVisible = !showList
+                ?.isVisible = !showListOrLMd
             drawerLayout.findViewById<FragmentContainerView>(R.id.fragment_container_view_drawer_body_list)
-                ?.isVisible = showList
-            isListDrawer = showList
-            generalDataStore.useListDrawer.set(showList)
+                ?.isVisible = showListOrLMd
+            isListDrawer = showListOrLMd
+            generalDataStore.useListDrawer.set(showListOrLMd)
         }
     }
 }

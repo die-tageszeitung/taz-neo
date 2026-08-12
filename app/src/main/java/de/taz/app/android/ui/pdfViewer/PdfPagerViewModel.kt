@@ -433,20 +433,22 @@ class PdfPagerViewModel(
                             Int.MAX_VALUE
                         )
                     }
-                pagesWithArticles.add(
-                    PageWithArticlesListItem.Page(
-                        PageWithArticles(
-                            pagePdf = requireNotNull(
-                                fileEntryRepository.get(page.pagePdf.name)
-                            ) {
-                                "Refreshing pagePdf fileEntry failed as fileEntry was null"
-                            },
-                            if (articlesOfPage.isNotEmpty()) page.pagina else null,
-                            page.title,
-                            sortedArticlesOfPage
+                if (!BuildConfig.IS_LMD || sortedArticlesOfPage.isNotEmpty()) {
+                    pagesWithArticles.add(
+                        PageWithArticlesListItem.Page(
+                            PageWithArticles(
+                                pagePdf = requireNotNull(
+                                    fileEntryRepository.get(page.pagePdf.name)
+                                ) {
+                                    "Refreshing pagePdf fileEntry failed as fileEntry was null"
+                                },
+                                if (articlesOfPage.isNotEmpty()) page.pagina else null,
+                                page.title,
+                                sortedArticlesOfPage
+                            )
                         )
                     )
-                )
+                }
             }
             imprint?.let { pagesWithArticles.add(PageWithArticlesListItem.Imprint(it)) }
             pagesWithArticles
