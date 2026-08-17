@@ -303,6 +303,16 @@ var tazApi = (function() {
         content.style.paddingRight = parseFloat(getComputedStyle(content).paddingRight) + padding + "px";
     }
 
+    function setPaddingBottom(padding) {
+        var content = document.getElementById("content") || document.body;
+        content.style.paddingBottom = padding + "px";
+    }
+
+    function setPaddingTop(padding) {
+        var content = document.getElementById("content") || document.body;
+        content.style.paddingTop = padding + "px";
+    }
+
     function setWebViewNowVisible() {
         window.dispatchEvent(
             new Event("native:webview:didBecomeVisible")
@@ -363,6 +373,8 @@ var tazApi = (function() {
         enableArticleColumnMode: enableArticleColumnMode,
         disableArticleColumnMode: disableArticleColumnMode,
         setPaddingRight: setPaddingRight,
+        setPaddingBottom: setPaddingBottom,
+        setPaddingTop: setPaddingTop,
         setWebViewNowVisible: setWebViewNowVisible,
         enableIconAudioListener: enableIconAudioListener,
         setAudioIconToPlay: setAudioIconToPlay,
