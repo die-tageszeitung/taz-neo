@@ -63,7 +63,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
-import kotlinx.coroutines.withTimeoutOrNull
 import java.util.Date
 
 const val CHANNEL_ID_NEW_VERSION = "NEW_VERSION"
@@ -232,40 +231,36 @@ class SplashActivity : StartupActivity() {
             setupTasks.awaitAll()
 
             // 5. Wait for download tasks with a timeout.
-            val offlineReady = isOfflineReady()
-            val timeout = if (offlineReady) DOWNLOAD_TASKS_REDUCED_TIMEOUT_MS else DOWNLOAD_TASKS_TIMEOUT_MS
+            // If offline data is already ready, we can use a shorter timeout to speed up startup.
+            val timeout = if (isOfflineReady()) DOWNLOAD_TASKS_REDUCED_TIMEOUT_MS else DOWNLOAD_TASKS_TIMEOUT_MS
 
-            // Attempt to await all tasks within the timeout
-            val completed = try {
-                withTimeoutOrNull(timeout) {
+            try {
+                withTimeout(timeout) {
                     downloadTasks.awaitAll()
-                    true
-                } ?: false
-            } catch (e: Exception) {
-                if (handlePotentialInitException(e)) return@withContext
-                true // If it's an unhandled exception, we treat it as "completed" to avoid redundant retries
-            }
+                }
 
-            if (!completed) {
+            } catch (e: InitializationException) {
+                handleInitializationException(e)
+                return@withContext
+
+            } catch (e: TimeoutCancellationException) {
                 log.debug("Initialization download tasks took longer than ${timeout}ms")
-                if (offlineReady) {
+                if (isOfflineReady()) {
                     log.debug("Offline data is ready - skip waiting for downloads and start App immediately")
                     generalDataStore.skippedDownloadTasksLastTime.set(true)
                     finishOnInitCompleteAndContinue(initializationStartTime)
                     return@withContext
                 }
-
-                // Otherwise, if the offline data is not ready, we continue waiting indefinitely.
-                try {
-                    downloadTasks.awaitAll()
-                } catch (e: Exception) {
-                    if (handlePotentialInitException(e)) return@withContext
-                    // For other exceptions, we fall through as per original logic
-                }
             }
 
-            // Successful completion (either in time or after waiting)
-            generalDataStore.skippedDownloadTasksLastTime.set(false)
+            // Otherwise, if the offline data is not ready, we continue waiting for the download tasks.
+            try {
+                downloadTasks.awaitAll()
+                generalDataStore.skippedDownloadTasksLastTime.set(false)
+            } catch (e: InitializationException) {
+                handleInitializationException(e)
+                return@withContext
+            }
             finishOnInitCompleteAndContinue(initializationStartTime)
         }
     }
@@ -464,14 +459,12 @@ class SplashActivity : StartupActivity() {
      * Handle initialization errors by showing a error dialog
      */
     private fun handleInitializationException(e: InitializationException) {
-        applicationScope.launch(Dispatchers.Main) {
-            log.error("Error while initializing")
-            e.printStackTrace()
-            // hide splash screen so dialog can be shown
-            showSplashScreen = false
-            showConnectionErrorDialog()
-            SentryWrapper.captureException(e)
-        }
+        log.error("Error while initializing")
+        e.printStackTrace()
+        // hide splash screen so dialog can be shown
+        showSplashScreen = false
+        showConnectionErrorDialog()
+        SentryWrapper.captureException(e)
     }
 
     /**
@@ -615,26 +608,24 @@ class SplashActivity : StartupActivity() {
         }
     }
 
-    private suspend fun showMinVersionDialog(minVersion: Semver, currentVersion: Semver) {
-        withContext(Dispatchers.Main) {
-            // Stop showing the splash screen to ensure the dialog is shown
-            showSplashScreen = false
+    private fun showMinVersionDialog(minVersion: Semver, currentVersion: Semver) {
+        // Stop showing the splash screen to ensure the dialog is shown
+        showSplashScreen = false
 
-            val message =
-                getString(R.string.required_min_version_description, currentVersion, minVersion)
+        val message =
+            getString(R.string.required_min_version_description, currentVersion, minVersion)
 
-            minVersionDialog = MaterialAlertDialogBuilder(this@SplashActivity)
-                .setTitle(R.string.required_min_version_title)
-                .setMessage(message)
-                .setPositiveButton(R.string.close_okay) { _, _ ->
-                    openUpdateOption()
-                    finish()
-                }
-                .setNegativeButton(R.string.cancel_button) { _, _ -> finish() }
-                .setCancelable(false)
-                .setOnDismissListener { finish() }
-                .show()
-        }
+        minVersionDialog = MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.required_min_version_title)
+            .setMessage(message)
+            .setPositiveButton(R.string.close_okay) { _, _ ->
+                openUpdateOption()
+                finish()
+            }
+            .setNegativeButton(R.string.cancel_button) { _, _ -> finish() }
+            .setCancelable(false)
+            .setOnDismissListener { finish() }
+            .show()
     }
 
     private fun openUpdateOption() {
@@ -688,19 +679,6 @@ class SplashActivity : StartupActivity() {
                 this.startActivity(intent)
             }
         }
-    }
-
-    // Helper to handle the specific exception pattern and avoid duplication
-    private fun handlePotentialInitException(e: Exception): Boolean {
-        val initEx = when {
-            e is InitializationException -> e
-            e.cause is InitializationException -> InitializationException("Download tasks failed", e)
-            else -> null
-        }
-        return if (initEx != null) {
-            handleInitializationException(initEx)
-            true
-        } else false
     }
 }
 

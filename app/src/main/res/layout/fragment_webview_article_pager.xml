@@ -7,11 +7,6 @@
     android:layout_height="match_parent"
     android:background="@color/backgroundColor">
 
-    <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/webview_pager_viewpager"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
     <androidx.cardview.widget.CardView
         android:id="@+id/burger_wrapper"
         android:layout_width="wrap_content"
@@ -81,6 +76,12 @@
 
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/webview_pager_viewpager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
     <include
         android:id="@+id/loading_screen"
