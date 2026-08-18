@@ -173,7 +173,7 @@ class ArticleWebViewFragment :
             } else {
                 // For tablets the bottom navigation layout does not collapse, so we need
                 // extra margin here, so the content won' be behind the nav bar
-                addBottomPaddingIfNecessary()
+                addBottomMarginIfNecessary()
             }
 
             if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.N) {

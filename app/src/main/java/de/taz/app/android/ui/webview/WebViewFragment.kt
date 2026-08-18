@@ -9,12 +9,15 @@ import android.os.Bundle
 import android.util.TypedValue
 import android.view.View
 import android.view.View.LAYER_TYPE_HARDWARE
+import android.view.ViewGroup
 import android.view.ViewParent
 import android.view.WindowInsets
 import android.webkit.WebSettings
 import androidx.annotation.IntDef
 import androidx.core.content.ContextCompat
 import androidx.core.view.doOnLayout
+import androidx.core.view.marginBottom
+import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -112,8 +115,6 @@ abstract class WebViewFragment<
     val issueViewerViewModel: IssueViewerViewModel by activityViewModels()
     val helpFabViewModel: HelpFabViewModel by activityViewModels()
 
-    private var appBarOffsetListener: AppBarLayout.OnOffsetChangedListener? = null
-
     abstract suspend fun reloadAfterCssChange()
 
     abstract val webView: AppWebView?
@@ -157,6 +158,10 @@ abstract class WebViewFragment<
                         ensureDownloadedAndShow()
                     }.launchIn(lifecycleScope)
 
+                generalDataStore.hideAppbarOnScroll.asFlow().onEach {
+                    webView?.setCoordinatorBottomMatchingBehaviourEnabled(it)
+                }.launchIn(lifecycleScope)
+
                 viewModel.tapToScrollFlow
                     .onEach {
                         tapToScroll = it
@@ -177,8 +182,6 @@ abstract class WebViewFragment<
                     .onEach {
                         multiColumnMode = it
                         setupScrollPositionListener(it)
-                        addBottomPaddingIfNecessary()
-                        addTopPaddingIfNecessary()
                     }.launchIn(lifecycleScope)
             }
         }
@@ -242,6 +245,10 @@ abstract class WebViewFragment<
                     else -> false
                 }
             }
+
+            // For tablets the bottom navigation layout does not collapse, so we need
+            // extra margin here, so the content won' be behind the nav bar
+            addBottomMarginIfNecessary()
 
             addJavascriptInterface(TazApiJS(this@WebViewFragment), TAZ_API_JS)
             setBackgroundColor(ContextCompat.getColor(context, R.color.backgroundColor))
@@ -548,8 +555,6 @@ abstract class WebViewFragment<
 
     open fun onPageRendered() {
         isRendered = true
-        addBottomPaddingIfNecessary()
-        addTopPaddingIfNecessary()
     }
 
     override fun onPageFinishedLoading() {
@@ -578,7 +583,6 @@ abstract class WebViewFragment<
     }
 
     override fun onDestroyView() {
-        appBarLayout?.removeOnOffsetChangedListener(appBarOffsetListener)
         webView?.destroy()
         super.onDestroyView()
     }
@@ -683,9 +687,11 @@ abstract class WebViewFragment<
         return false
     }
 
-    fun addBottomPaddingIfNecessary() {
+    fun addBottomMarginIfNecessary() {
         val isTablet = resources.getBoolean(R.bool.isTablet)
-        if (!isTablet || multiColumnMode) return
+        val needsMargin = isTablet && !multiColumnMode
+
+        if (!needsMargin) return
 
         val navBar = bottomNavigationLayout ?: return
         val targetWebView = webView ?: return
@@ -693,38 +699,11 @@ abstract class WebViewFragment<
         // doOnLayout ensures the height is available, so it is not set to 0 accidentally
         navBar.doOnLayout {
             val height = it.height
-            // Pass the height to JS to add padding inside the webview content instead of resizing the view
-            targetWebView.callTazApi("setPaddingBottom", height / resources.displayMetrics.density)
-        }
-    }
-
-    fun addTopPaddingIfNecessary() {
-        if (multiColumnMode) return
-
-        val appBar = appBarLayout ?: return
-        val targetWebView = webView ?: return
-
-        // If the webview and app bar are direct siblings (like in SectionWebView),
-        // the CoordinatorLayout's behavior handles the layout perfectly.
-        if (appBar.parent == targetWebView.parent) return
-
-        // Ensure we have a measured height before attaching the listener to avoid
-        // sending 0 padding on the first frame.
-        appBar.doOnLayout {
-            // Remove previous listener to avoid duplicates
-            appBarOffsetListener?.let { appBar.removeOnOffsetChangedListener(it) }
-
-            appBarOffsetListener = AppBarLayout.OnOffsetChangedListener { appBarLayout, _ ->
-                // In fixed-height mode, appBarLayout.bottom is the exact clearance needed.
-                val requiredPadding = appBarLayout.bottom.coerceAtLeast(0)
-                targetWebView.callTazApi("setPaddingTop", requiredPadding / resources.displayMetrics.density)
+            if (targetWebView.marginBottom != height) {
+                targetWebView.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                    bottomMargin = height
+                }
             }
-
-            appBar.addOnOffsetChangedListener(appBarOffsetListener)
-
-            // Immediate update for the first rendering
-            val initialPadding = appBar.bottom.coerceAtLeast(0)
-            targetWebView.callTazApi("setPaddingTop", initialPadding / resources.displayMetrics.density)
         }
     }
 
