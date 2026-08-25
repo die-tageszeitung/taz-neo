@@ -12,7 +12,7 @@ import de.taz.app.android.api.models.SearchHit
 import de.taz.app.android.ui.share.ShareArticleBottomSheet
 import de.taz.app.android.monkey.getHideViewOnScrollBehavior
 import de.taz.app.android.monkey.isPublicArticle
-import de.taz.app.android.monkey.setBottomNavigationBehavior
+import de.taz.app.android.monkey.setHideViewOnScrollBehavior
 
 class ArticleBottomActionBarNavigationHelper(
     private val onClickHandler: (MenuItem) -> Unit
@@ -130,14 +130,14 @@ class ArticleBottomActionBarNavigationHelper(
         expand(animate = false)
         if (!isFixed && !isFixedForever) {
             defaultBehavior = behaviorView?.getHideViewOnScrollBehavior()
-            behaviorView?.setBottomNavigationBehavior(null)
+            behaviorView?.setHideViewOnScrollBehavior(null)
             isFixed = true
         }
     }
 
     fun releaseToolbar() {
         if (isFixed && !isFixedForever) {
-            behaviorView?.setBottomNavigationBehavior(defaultBehavior)
+            behaviorView?.setHideViewOnScrollBehavior(defaultBehavior)
             isFixed = false
         }
     }

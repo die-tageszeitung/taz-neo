@@ -13,46 +13,10 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/burger_wrapper"
+        <de.taz.app.android.ui.logo.LogoView
+            android:id="@+id/logo_view"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:translationY="@dimen/drawer_logo_translation_y"
-            app:cardBackgroundColor="@android:color/transparent"
-            app:cardCornerRadius="@dimen/drawer_logo_corner_radius"
-            app:cardElevation="@dimen/drawer_logo_elevation"
-            app:cardUseCompatPadding="false"
-            app:layout_constraintLeft_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <ImageView
-                android:id="@+id/burger_logo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:adjustViewBounds="true"
-                android:background="@color/drawer_logo_color"
-                android:clickable="true"
-                android:contentDescription="@string/navigation_drawer_close"
-                android:focusable="true"
-                android:importantForAccessibility="yes"
-                android:scaleType="centerInside" />
-
-        </androidx.cardview.widget.CardView>
-
-        <ImageView
-            android:id="@+id/feed_logo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:clickable="true"
-            android:contentDescription="@string/navigation_drawer_open"
-            android:focusable="true"
-            android:importantForAccessibility="yes"
-            android:layout_marginStart="@dimen/drawer_logo_margin_start"
-            android:translationY="@dimen/drawer_logo_translation_y"
-            android:translationZ="100dp"
-            app:layout_behavior="com.google.android.material.behavior.HideViewOnScrollBehavior"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:layout_height="wrap_content" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"

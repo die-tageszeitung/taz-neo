@@ -228,3 +228,6 @@ app/src/nonfreeLmd/res/font/benton_sans_bold.otf
 app/src/nonfreeLmd/res/font/benton_sans_regular.otf
 
 .kotlin
+
+# ai stuff
+.artifacts
