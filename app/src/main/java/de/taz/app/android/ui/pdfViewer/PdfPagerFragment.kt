@@ -1,7 +1,6 @@
 package de.taz.app.android.ui.pdfViewer
 
 import android.content.Context
-import android.content.res.Configuration
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
@@ -16,7 +15,6 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.behavior.HideViewOnScrollBehavior.EDGE_BOTTOM
-import com.google.android.material.behavior.HideViewOnScrollBehavior.EDGE_LEFT
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Page
@@ -32,8 +30,10 @@ import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.databinding.FragmentPdfPagerBinding
 import de.taz.app.android.monkey.getHideViewOnScrollBehavior
+import de.taz.app.android.monkey.withPreviousValue
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
+import de.taz.app.android.ui.drawer.LogoState
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setupBottomNavigation
@@ -129,6 +129,15 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
                         toggleHelpFab(it)
                     }
                 }
+                launch {
+                    drawerAndLogoViewModel.logoStateFlow
+                        .withPreviousValue()
+                        .collect { (current, previous) ->
+                            viewBinding?.logoView?.transitionState(
+                                (previous ?: LogoState.UNDEFINED) to current
+                            )
+                        }
+                }
             }
         }
 
@@ -138,12 +147,16 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
                 viewBinding?.readerView?.displayedViewIndex = position
             }
         }
-        initializeDrawerLogos()
+        viewBinding?.logoView?.setOnClickListener {
+            tracker.trackDrawerOpenEvent(dragged = false)
+            drawerAndLogoViewModel.openDrawer()
+        }
         setupFAB()
     }
 
     override fun onResume() {
         super.onResume()
+        drawerAndLogoViewModel.setBurgerIcon()
         viewBinding?.navigationBottomPdf?.let {
             requireActivity().setupBottomNavigation(
                 it,
@@ -310,38 +323,6 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
         }
     }
 
-    private fun initializeDrawerLogos() = viewBinding?.apply {
-        lifecycleScope.launch {
-            (parentFragment as? PdfPagerWrapperFragment)?.drawerViewController?.apply {
-                initialize()
-                ensureFeedLogo(feedLogo)
-                ensureBurgerIcon(burgerWrapper, burgerLogo)
-            }
-
-            // Adjust padding when we have cutout display
-            val extraPadding = generalDataStore.displayCutoutExtraPadding.get()
-            if (extraPadding > 0 && resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                viewBinding?.feedLogo?.translationY += extraPadding
-                viewBinding?.burgerWrapper?.translationY += extraPadding
-            }
-
-            feedLogo.getHideViewOnScrollBehavior()?.apply {
-                setViewEdge(EDGE_LEFT)
-                slideOut(feedLogo)
-            }
-
-            feedLogo.setOnClickListener {
-                tracker.trackDrawerOpenEvent(dragged = false)
-                drawerAndLogoViewModel.openDrawer()
-            }
-            burgerLogo.setOnClickListener {
-                tracker.trackDrawerOpenEvent(dragged = false)
-                drawerAndLogoViewModel.openDrawer()
-            }
-
-        }
-    }
-
     private fun setupFAB() {
         viewBinding?.pdfPagerFabHelp?.let { floatingActionButton ->
 
@@ -375,7 +356,7 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
 
     private fun showCoachMarks() {
         val burgerMenuCoachMark =
-            BurgerMenuCoachMark.create(requireActivity().findViewById(R.id.drawer_logo))
+            BurgerMenuCoachMark.create(viewBinding?.logoView?.findViewById(R.id.burger_logo) ?: requireActivity().findViewById(R.id.drawer_logo))
 
         val pdfPageCoachMark = PdfPageCoachMark()
         val pdfSelectCoachMark = PdfSelectCoachMark()
@@ -389,6 +370,7 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
         )
         CoachMarkDialog.create(coachMarks).show(childFragmentManager, CoachMarkDialog.TAG)
     }
+
     private suspend fun toggleHelpFab(show: Boolean) {
         if (issueContentViewModel.fabHelpEnabledFlow.first()) {
             if (show) {

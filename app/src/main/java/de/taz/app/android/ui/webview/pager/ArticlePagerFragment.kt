@@ -26,7 +26,6 @@ import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.behavior.HideViewOnScrollBehavior
 import com.google.android.material.behavior.HideViewOnScrollBehavior.EDGE_BOTTOM
-import com.google.android.material.behavior.HideViewOnScrollBehavior.EDGE_LEFT
 import de.taz.app.android.ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
@@ -53,7 +52,6 @@ import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.databinding.FragmentWebviewArticlePagerBinding
 import de.taz.app.android.monkey.AppBarLayoutState
-import de.taz.app.android.monkey.LogoScrollBehavior
 import de.taz.app.android.monkey.addOnStateChangeListener
 import de.taz.app.android.monkey.isCollapsed
 import de.taz.app.android.monkey.isExpanded
@@ -71,29 +69,26 @@ import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.BackFragment
-import de.taz.app.android.ui.TazViewerFragment
 import de.taz.app.android.ui.bottomSheet.MultiColumnModeBottomSheetFragment
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsBottomSheetFragment
 import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
-import de.taz.app.android.ui.drawer.LogoState
 import de.taz.app.android.ui.issueViewer.IssueContentDisplayMode
 import de.taz.app.android.ui.issueViewer.IssueKeyWithDisplayableKey
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.pdfViewer.PdfPagerViewModel
-import de.taz.app.android.ui.pdfViewer.PdfPagerWrapperFragment
 import de.taz.app.android.ui.pdfViewer.PdfPagerWrapperFragment.Companion.ARTICLE_PAGER_FRAGMENT_BACKSTACK_NAME
 import de.taz.app.android.ui.share.ShareArticleBottomSheet
 import de.taz.app.android.ui.webview.ArticleWebViewFragment.CollapsibleLayoutProvider
 import de.taz.app.android.ui.webview.HelpFabViewModel
 import de.taz.app.android.ui.webview.TapIconsViewModel
-import de.taz.app.android.util.Log
 import de.taz.app.android.monkey.getHideViewOnScrollBehavior
 import de.taz.app.android.monkey.isArticleKey
+import de.taz.app.android.monkey.withPreviousValue
+import de.taz.app.android.ui.drawer.LogoState
+import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
-import de.taz.app.android.monkey.setupLogoScrollBehavior
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
@@ -152,20 +147,10 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
         storageService = StorageService.getInstance(context.applicationContext)
     }
 
-    private val logoScrollBehavior = LogoScrollBehavior(
-        onScrolledIn = { drawerAndLogoViewModel.setFeedLogo() },
-        onScrolledOut = { drawerAndLogoViewModel.setBurgerIcon() },
-    )
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         viewBinding?.apply {
-            feedLogo.getHideViewOnScrollBehavior()?.apply {
-                setViewEdge(EDGE_LEFT)
-            }
-
-
             articleBottomActionBarNavigationHelper
                 .setBottomNavigationFromContainer(navigationBottom)
 
@@ -186,6 +171,11 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
 
             val isArticleActiveModeFlow = issueContentViewModel.activeDisplayModeFlow.map {
                 it == IssueContentDisplayMode.Article
+            }
+
+            logoView.setOnClickListener {
+                tracker.trackDrawerOpenEvent(dragged = false)
+                drawerAndLogoViewModel.openDrawer()
             }
 
             viewLifecycleOwner.lifecycleScope.launch {
@@ -300,32 +290,16 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
                     }
 
                     launch {
-                        // in an ideal world this would be handled in DrawerViewController, but we
-                        // would need to iterate all the views, that wouldn't be performant
-                        drawerAndLogoViewModel.drawerState.collect {
-                            if (it.logoState == LogoState.FEED) {
-                                feedLogo.getHideViewOnScrollBehavior()?.slideIn(feedLogo)
-                                // wait for the logo to be slided in far enough to hide the burger
-                                delay(226) // = HideViewOnScrollBehavior.DEFAULT_ENTER_ANIMATION_DURATION_MS
-                                burgerLogo.visibility = View.GONE
-                            } else if (it.logoState == LogoState.BURGER) {
-                                burgerLogo.visibility = View.VISIBLE
-                                feedLogo.getHideViewOnScrollBehavior()?.slideOut(feedLogo)
+                        drawerAndLogoViewModel.logoStateFlow
+                            .withPreviousValue()
+                            .collect { (current, previous) ->
+                                logoView.transitionState(
+                                    (previous ?: LogoState.UNDEFINED) to current
+                                )
                             }
-                        }
-                    }
-
-                    launch {
-                        generalDataStore.animateDrawerLogo.asFlow().collect { animateLogo ->
-                            viewBinding?.feedLogo?.setupLogoScrollBehavior(
-                                enabled = animateLogo,
-                                logoScrollBehavior = logoScrollBehavior,
-                            )
-                        }
                     }
                 }
             }
-            initializeDrawerLogos()
             setupHeader()
             setupViewPager()
             setupFAB()
@@ -333,32 +307,17 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
                 if (isHidden || !isResumed) {
                     return@addOnStateChangeListener
                 }
-                when(it) {
+                when (it) {
                     AppBarLayoutState.EXPANDED ->
                         drawerAndLogoViewModel.setFeedLogo()
+
                     AppBarLayoutState.CLOSED ->
                         drawerAndLogoViewModel.setBurgerIcon()
+
                     else -> Unit
                 }
             }
         }
-    }
-
-    private fun initializeDrawerLogos() = viewBinding?.apply {
-        lifecycleScope.launch {
-            val dvc = (parentFragment?.parentFragment as? TazViewerFragment)?.drawerViewController ?: (parentFragment as? PdfPagerWrapperFragment)?.drawerViewController
-            dvc?.ensureFeedLogo(feedLogo)
-            dvc?.ensureBurgerIcon(burgerWrapper, burgerLogo)
-        }
-        feedLogo.setOnClickListener {
-            tracker.trackDrawerOpenEvent(dragged = false)
-            drawerAndLogoViewModel.openDrawer()
-        }
-        burgerLogo.setOnClickListener {
-            tracker.trackDrawerOpenEvent(dragged = false)
-            drawerAndLogoViewModel.openDrawer()
-        }
-
     }
 
     private fun showCoachMarks() {
@@ -840,8 +799,6 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
             val extraPadding = generalDataStore.displayCutoutExtraPadding.get()
             if (extraPadding > 0 && resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
                 viewBinding?.header?.root?.setPadding(0, extraPadding, 0, 0)
-                viewBinding?.feedLogo?.translationY += extraPadding
-                viewBinding?.burgerWrapper?.translationY += extraPadding
             }
         }
     }
@@ -866,7 +823,12 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
                     val count = articleRepository.getSectionArticlesByArticleName(
                         article.key
                     ).size
-                    setHeaderForSection(index, count, sectionStub, article.pageNameList.firstOrNull())
+                    setHeaderForSection(
+                        index,
+                        count,
+                        sectionStub,
+                        article.pageNameList.firstOrNull()
+                    )
                 }
 
                 if (issueStub?.isWeekend == true) {
@@ -1004,6 +966,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
         viewBinding?.webviewPagerViewpager?.setCurrentItem(0, true)
     }
 
+
     private fun setLogoDependingOnAppBarState() {
         viewBinding?.appBarLayout?.apply {
             if (isExpanded()) {
@@ -1020,6 +983,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
             setLogoDependingOnAppBarState()
         }
     }
+
     override fun getAppBarLayout(): AppBarLayout? = viewBinding?.appBarLayout
     override fun getBottomNavigationLayout(): View? = viewBinding?.navigationBottom
 }
