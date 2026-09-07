@@ -20,11 +20,15 @@ class DrawerAndLogoViewModel(
     application: Application
 ) : AndroidViewModel(application) {
 
-    private val _drawerState = MutableStateFlow<DrawerState>(DrawerState.Closed())
+    private val _drawerState = MutableStateFlow<DrawerState>(DrawerState.Closed(logoState = LogoState.UNDEFINED))
     val drawerState = _drawerState.asStateFlow()
     val logoStateFlow = drawerState.map { it.logoState }
 
     fun setFeedLogo() {
+        if (_drawerState.value.logoState == LogoState.FEED) {
+            return
+        }
+
         _drawerState.value = when (val state = _drawerState.value) {
             is DrawerState.Closed -> state.copy(logoState = LogoState.FEED)
             is DrawerState.Open -> state.copy(logoState = LogoState.FEED)
@@ -32,6 +36,10 @@ class DrawerAndLogoViewModel(
     }
 
     fun setBurgerIcon() {
+        if (_drawerState.value.logoState == LogoState.BURGER) {
+            return
+        }
+
         _drawerState.value = when (val state = _drawerState.value) {
             is DrawerState.Closed -> state.copy(logoState = LogoState.BURGER)
             is DrawerState.Open -> state.copy(logoState = LogoState.BURGER)
@@ -39,6 +47,10 @@ class DrawerAndLogoViewModel(
     }
 
     fun hideLogo() {
+        if (_drawerState.value.logoState == LogoState.HIDDEN) {
+            return
+        }
+
         _drawerState.value = when (val state = _drawerState.value) {
             is DrawerState.Closed -> state.copy(logoState = LogoState.HIDDEN)
             is DrawerState.Open -> state.copy(logoState = LogoState.HIDDEN)
@@ -75,19 +87,19 @@ sealed class DrawerState {
     abstract val isListDrawer: Boolean
     abstract val logoState: LogoState
 
-    data class Open(
+    data class Closed(
         override val isListDrawer: Boolean = false,
-        override val logoState: LogoState = LogoState.FEED,
+        override val logoState: LogoState = LogoState.UNDEFINED
     ) :
         DrawerState()
 
-    data class Closed(
+    data class Open(
         override val isListDrawer: Boolean = false,
-        override val logoState: LogoState = LogoState.FEED
+        override val logoState: LogoState = LogoState.UNDEFINED
     ) :
         DrawerState()
 }
 
 enum class LogoState {
-    BURGER, CLOSE, FEED, HIDDEN
+    BURGER, CLOSE, FEED, HIDDEN, UNDEFINED
 }

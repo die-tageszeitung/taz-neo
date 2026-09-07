@@ -11,7 +11,6 @@ import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.commit
@@ -77,6 +76,8 @@ class PdfPagerWrapperFragment : ViewBindingFragment<ActivityPdfDrawerLayoutBindi
 
         const val ARTICLE_PAGER_FRAGMENT_BACKSTACK_NAME =
             "ARTICLE_PAGER_FRAGMENT_BACKSTACK_NAME"
+
+        private const val PDF_PAGER_FRAGMENT_TAG = "PDF_PAGER_FRAGMENT_TAG"
 
         fun newInstance(
             issuePublication: IssuePublicationWithPages,
@@ -165,10 +166,16 @@ class PdfPagerWrapperFragment : ViewBindingFragment<ActivityPdfDrawerLayoutBindi
             }.launchIn(lifecycleScope)
 
         if (savedInstanceState == null) {
-            childFragmentManager.beginTransaction().add(
-                R.id.activity_pdf_fragment_placeholder,
-                PdfPagerFragment()
-            ).commit()
+            val articlePagerFragment = ArticlePagerFragment()
+            childFragmentManager.beginTransaction()
+                .add(R.id.activity_pdf_fragment_placeholder, PdfPagerFragment(), PDF_PAGER_FRAGMENT_TAG)
+                .add(
+                    R.id.activity_pdf_fragment_placeholder,
+                    articlePagerFragment,
+                    ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
+                )
+                .hide(articlePagerFragment)
+                .commit()
         }
 
         // I guess this is used by LMd or when clicked a notification with article link,
@@ -305,16 +312,13 @@ class PdfPagerWrapperFragment : ViewBindingFragment<ActivityPdfDrawerLayoutBindi
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // pdf mode always has burger icon
-        drawerAndLogoViewModel.setBurgerIcon()
-
         viewBinding?.apply {
             drawerViewController = DrawerViewController(
                 requireContext(),
                 pdfDrawerLayout,
                 drawerLogoWrapper,
                 navView,
-                view,
+                viewLifecycleOwner.lifecycleScope
             )
 
             // Adjust extra padding when we have cutout display
@@ -389,22 +393,22 @@ class PdfPagerWrapperFragment : ViewBindingFragment<ActivityPdfDrawerLayoutBindi
 
     private suspend fun showArticle(issueKey: IssueKey, displayableKey: String?) {
         issueContentViewModel.setDisplayable(issueKey, displayableKey)
-        showArticlePagerFragment(ArticlePagerFragment())
+        showArticlePagerFragment()
     }
 
     private fun showImprint(issueKeyWithDisplayableKey: IssueKeyWithDisplayableKey) {
         issueContentViewModel.setDisplayable(issueKeyWithDisplayableKey)
-        showArticlePagerFragment(ArticlePagerFragment())
+        showArticlePagerFragment()
     }
 
-    private fun showArticlePagerFragment(fragment: Fragment) {
-        if (childFragmentManager.findFragmentByTag(ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE) == null) {
+    private fun showArticlePagerFragment() {
+        val articleFragment =
+            childFragmentManager.findFragmentByTag(ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE)
+        val pdfFragment = childFragmentManager.findFragmentByTag(PDF_PAGER_FRAGMENT_TAG)
+        if (articleFragment != null && articleFragment.isHidden) {
             childFragmentManager.commit {
-                add(
-                    R.id.activity_pdf_fragment_placeholder,
-                    fragment,
-                    ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
-                )
+                pdfFragment?.let { hide(it) }
+                show(articleFragment)
                 addToBackStack(ARTICLE_PAGER_FRAGMENT_BACKSTACK_NAME)
             }
         }

@@ -9,21 +9,16 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_LOCKED_CLOSED
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import de.taz.app.android.R
 import de.taz.app.android.base.ViewBindingFragment
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.ActivityTazViewerBinding
-import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
 import de.taz.app.android.ui.drawer.DrawerState
 import de.taz.app.android.ui.drawer.DrawerViewController
-import de.taz.app.android.util.Log
 import kotlinx.coroutines.launch
-import java.util.concurrent.ExecutionException
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createInstance
 
@@ -49,7 +44,6 @@ abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>
     private val drawerAndLogoViewModel: DrawerAndLogoViewModel by activityViewModels()
 
     private var viewerFragment: Fragment? = null
-    private val log by Log
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -82,7 +76,7 @@ abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>
                 drawerLayout,
                 drawerLogoWrapper,
                 navView,
-                view
+                viewLifecycleOwner.lifecycleScope
             )
             if (enableDrawer) {
                 setupDrawer()

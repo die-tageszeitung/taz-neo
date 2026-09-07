@@ -50,6 +50,7 @@ import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.main.MainActivity
+import de.taz.app.android.ui.pdfViewer.PageWithArticlesListItem
 import de.taz.app.android.ui.pdfViewer.PdfPagerWrapperFragment.Companion.ARTICLE_PAGER_FRAGMENT_BACKSTACK_NAME
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.flow.Flow
@@ -102,7 +103,7 @@ class DrawerBodyPdfWithSectionsFragment :
             navigationPageArticleRecyclerView.setDefaultBottomInset()
 
             if (BuildConfig.IS_LMD) {
-                switchDrawerLayout.visibility = View.GONE
+                switchDrawerLayout.visibility = View.INVISIBLE
             }
 
             // Shrink the logo on collapsing appbar
@@ -260,16 +261,21 @@ class DrawerBodyPdfWithSectionsFragment :
      * @param items List of pages and articles on each page
      */
     private fun updateToc(items: List<PageWithArticlesListItem>) {
+        if (items.isEmpty()) return
+
         adapter.pages = items
+
+        // Notify adapter if it doesn't handle it internally
+        adapter.notifyDataSetChanged()
 
         viewBinding?.apply {
             // Setup drawer header front page
-            Glide
-                .with(requireContext())
-                .load(storageService.getAbsolutePath((items.first() as PageWithArticlesListItem.Page).page.pagePdf))
-                .into(activityPdfDrawerFrontPage)
-
-            navigationPageArticleRecyclerView.adapter = adapter
+            // Safe access to the first page preview
+            (items.firstOrNull { it is PageWithArticlesListItem.Page } as? PageWithArticlesListItem.Page)?.let { firstPage ->
+                Glide.with(requireContext())
+                    .load(storageService.getAbsolutePath(firstPage.page.pagePdf))
+                    .into(activityPdfDrawerFrontPage)
+            }
             hideLoadingScreen()
         }
 
@@ -378,39 +384,43 @@ class DrawerBodyPdfWithSectionsFragment :
     }
 
     private fun showCoachMarks() {
-        val coachMarks = mutableListOf<BaseCoachMark>()
+        val binding = viewBinding ?: return
+        val root = binding.root
 
-        viewBinding?.apply {
-            val firstSection = requireView().findViewById<TextView>(R.id.preview_page_title)
-            val firstPage = requireView().findViewById<ImageView>(R.id.preview_page_image)
-            val tocItem = requireView().findViewById<ConstraintLayout>(R.id.toc_item)
-            val firstArticle = requireView().findViewById<TextView>(R.id.article_title)
-            val firstArticleTeaser = requireView().findViewById<TextView>(R.id.article_teaser)
-            val firstArticleAuthorMinsString = requireView().findViewById<TextView>(R.id.article_author_and_read_minutes)?.text?.toString() ?: ""
-            // Take everything until the first digit from eg "von Anna Arthur 3min"
-            val firstArticleAuthor = firstArticleAuthorMinsString.takeWhile { !it.isDigit() }
-            // Get the remainder (the "3 min" part)
-            val firstArticleMin = firstArticleAuthorMinsString.substringAfter(firstArticleAuthor)
+        val firstSection = root.findViewById<TextView>(R.id.preview_page_title)
+        val firstPage = root.findViewById<ImageView>(R.id.preview_page_image)
+        val tocItem = root.findViewById<ConstraintLayout>(R.id.toc_item)
+        val firstArticle = root.findViewById<TextView>(R.id.article_title)
+        val firstArticleTeaser = root.findViewById<TextView>(R.id.article_teaser)
+        val authorMinsString = root.findViewById<TextView>(R.id.article_author_and_read_minutes)?.text?.toString() ?: ""
 
-            coachMarks.addAll(
-                listOf(
-                    PdfDrawerListMomentCoachMark.create(activityPdfDrawerFrontPage),
-                    PdfDrawerSwitchViewToPagesCoachMark.create(switchDrawerLayout),
-                    PdfDrawerPlayAllCoachMark.create(playIssueLayout),
-                    PdfDrawerGoToPageCoachMark.create(firstPage),
-                    PdfDrawerGoToArticleCoachMark.create(
-                        tocItem,
-                        firstArticle.text.toString(),
-                        firstArticleTeaser.text.toString(),
-                        firstArticleAuthor,
-                        firstArticleMin,
-                        firstArticle.width
-                    ),
-                    PdfDrawerGoToSectionCoachMark.create(firstSection),
-                    DrawerEnqueueCoachMark(),
-                    DrawerBookmarkCoachMark(),
+        // Take everything until the first digit from eg "von Anna Arthur 3min"
+        val articleAuthor = authorMinsString.takeWhile { !it.isDigit() }
+        // Get the remainder (the "3 min" part)
+        val articleMin = authorMinsString.removePrefix(articleAuthor)
+
+        val coachMarks = buildList {
+            add(PdfDrawerListMomentCoachMark.create(binding.activityPdfDrawerFrontPage))
+            if (!BuildConfig.IS_LMD) {
+                add(PdfDrawerSwitchViewToPagesCoachMark.create(binding.switchDrawerLayout))
+            }
+            add(PdfDrawerPlayAllCoachMark.create(binding.playIssueLayout))
+            add(PdfDrawerGoToPageCoachMark.create(firstPage))
+            add(
+                PdfDrawerGoToArticleCoachMark.create(
+                    tocItem,
+                    firstArticle?.text?.toString() ?: "",
+                    firstArticleTeaser?.text?.toString() ?: "",
+                    articleAuthor,
+                    articleMin,
+                    firstArticle?.width ?: 0
                 )
             )
+            if (!BuildConfig.IS_LMD) {
+                add(PdfDrawerGoToSectionCoachMark.create(firstSection))
+            }
+            add(DrawerEnqueueCoachMark())
+            add(DrawerBookmarkCoachMark())
         }
 
         if (coachMarks.isNotEmpty()) {

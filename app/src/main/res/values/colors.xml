@@ -168,4 +168,5 @@
 
     <color name="ic_download_done_color">@color/green</color>
 
+    <color name="drawer_logo_color">@color/tazRed</color>
 </resources>

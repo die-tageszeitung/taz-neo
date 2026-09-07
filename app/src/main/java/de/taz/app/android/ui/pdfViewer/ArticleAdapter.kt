@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.audioPlayer.AudioPlayerService
@@ -186,9 +187,14 @@ class ArticleAdapter(
                 }
 
                 else -> {
-                    authorsAndReadMinutesString = "$authors $readMinutes"
+                    authorsAndReadMinutesString = if (BuildConfig.IS_LMD) {
+                        "von $authors $readMinutes"
+                    } else {
+                        "$authors $readMinutes"
+                    }
                     authorSpanStart = 0
-                    authorSpanEnd = authors.length
+                    authorSpanEnd =
+                        authorsAndReadMinutesString.takeWhile { !it.isDigit() }.length - 1
                     readMinutesSpanStart = authorSpanEnd + 1
                     readMinutesSpanEnd = readMinutesSpanStart + readMinutes.length
                 }
