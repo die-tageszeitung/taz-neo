@@ -11,7 +11,7 @@ class ArticlePagerAdapter(
 ) : FragmentStateAdapter(fragment) {
 
     // TODO check why not needed in taz but in LMD
-    val articlePagerItems = articleList.map { ArticlePagerItem.ArticleRepresentation(it) }
+    val articlePagerItems: List<ArticlePagerItem> = articleList.map { ArticlePagerItem.ArticleRepresentation(it) }
 
     override fun createFragment(position: Int): Fragment {
         val article = articleList[position]

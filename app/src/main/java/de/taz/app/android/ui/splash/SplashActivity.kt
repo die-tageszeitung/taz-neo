@@ -8,7 +8,6 @@ import android.app.PendingIntent.FLAG_CANCEL_CURRENT
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import androidx.annotation.RequiresApi
@@ -41,7 +40,6 @@ import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.persistence.repository.IssuePublicationWithPages
-import de.taz.app.android.persistence.repository.MomentPublication
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.scrubber.Scrubber
 import de.taz.app.android.sentry.SentryWrapper
@@ -65,6 +63,8 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withTimeoutOrNull
 import java.util.Date
+import androidx.core.net.toUri
+import kotlin.time.Duration.Companion.milliseconds
 
 const val CHANNEL_ID_NEW_VERSION = "NEW_VERSION"
 const val NEW_VERSION_REQUEST_CODE = 0
@@ -237,7 +237,7 @@ class SplashActivity : StartupActivity() {
 
             // Attempt to await all tasks within the timeout
             val completed = try {
-                withTimeoutOrNull(timeout) {
+                withTimeoutOrNull(timeout.milliseconds) {
                     downloadTasks.awaitAll()
                     true
                 } ?: false
@@ -384,9 +384,7 @@ class SplashActivity : StartupActivity() {
 
     private fun downloadFromServerIntent(): Intent {
         return Intent(Intent(Intent.ACTION_VIEW)).setData(
-            Uri.parse(
-                DEBUG_VERSION_DOWNLOAD_ENDPOINT
-            )
+            DEBUG_VERSION_DOWNLOAD_ENDPOINT.toUri()
         )
     }
 
@@ -578,7 +576,7 @@ class SplashActivity : StartupActivity() {
      */
     private suspend fun checkMinVersion(): Boolean {
         try {
-            val minVersion = withTimeout(MIN_VERSION_QUERY_TIMEOUT_MS) {
+            val minVersion = withTimeout(MIN_VERSION_QUERY_TIMEOUT_MS.milliseconds) {
                 apiService.getMinAppVersion()
             }
 
@@ -588,10 +586,7 @@ class SplashActivity : StartupActivity() {
             }
 
 
-            val currentVersion = getCurrentAppVersion()
-            if (currentVersion == null) {
-                return true
-            }
+            val currentVersion = getCurrentAppVersion() ?: return true
 
             if (currentVersion.isLowerThan(minVersion)) {
                 showMinVersionDialog(minVersion, currentVersion)
@@ -600,7 +595,7 @@ class SplashActivity : StartupActivity() {
 
         } catch (e : ConnectivityException) {
             log.error("Could not get the minVersion on startup. Skip check until next app start and continue.", e)
-        } catch (e: TimeoutCancellationException) {
+        } catch (_: TimeoutCancellationException) {
             log.warn("Could not get the minVersion on startup in time. Skip check until next app start and continue.")
         }
         return true
@@ -609,7 +604,7 @@ class SplashActivity : StartupActivity() {
     private fun getCurrentAppVersion(): Semver? {
         return try {
             Semver(BuildConfig.VERSION_NAME, Semver.SemverType.LOOSE)
-        } catch (e: SemverException) {
+        } catch (_: SemverException) {
             log.error("Could not get current app version from versionName: ${BuildConfig.VERSION_NAME}")
             null
         }
@@ -641,19 +636,19 @@ class SplashActivity : StartupActivity() {
         if (BuildConfig.IS_NON_FREE) {
             openMarket()
         } else {
-            val uri = Uri.parse(getString(R.string.app_free_download_link))
+            val uri = getString(R.string.app_free_download_link).toUri()
             startActivity(Intent(Intent.ACTION_VIEW, uri))
         }
     }
 
     private fun openMarket() {
         try {
-            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=$packageName")))
-        } catch (e: ActivityNotFoundException) {
+            startActivity(Intent(Intent.ACTION_VIEW, "market://details?id=$packageName".toUri()))
+        } catch (_: ActivityNotFoundException) {
             startActivity(
                 Intent(
                     Intent.ACTION_VIEW,
-                    Uri.parse("https://play.google.com/store/apps/details?id=$packageName")
+                    "https://play.google.com/store/apps/details?id=$packageName".toUri()
                 )
             )
         }
@@ -677,13 +672,6 @@ class SplashActivity : StartupActivity() {
                 val intent = MainActivity.newIntent(
                     applicationContext,
                     issuePublication,
-                    displayableKey)
-                this.startActivity(intent)
-            }
-            is MomentPublication -> {
-                val intent = MainActivity.newIntent(
-                    applicationContext,
-                    IssuePublication(issuePublication.feedName, issuePublication.date),
                     displayableKey)
                 this.startActivity(intent)
             }
@@ -713,8 +701,7 @@ class InitializationException(message: String, override val cause: Throwable? = 
 private suspend fun checkForNewestIssue(feedService: FeedService, toastHelper: ToastHelper) {
     try {
         feedService.refreshFeedAndGetIssueKeyIfNew()
-    } catch (e: ConnectivityException) {
-
+    } catch (_: ConnectivityException) {
         toastHelper.showConnectionToServerFailedToast()
     }
 }
