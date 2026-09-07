@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
 import android.webkit.WebViewClient
+import androidx.activity.addCallback
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.api.models.ResourceInfoKey
@@ -41,6 +42,11 @@ class WelcomeActivity : ViewBindingActivity<ActivityWelcomeBinding>() {
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        onBackPressedDispatcher.addCallback(this) {
+            finish()
+        }
+
         viewBinding.root.setDefaultInsets()
 
         storageService = StorageService.getInstance(applicationContext)
@@ -77,12 +83,6 @@ class WelcomeActivity : ViewBindingActivity<ActivityWelcomeBinding>() {
         super.onResume()
         // Track as if this would be a regular webview
         tracker.trackWebViewScreen(welcomeSlidesHtmlFile)
-    }
-
-    @SuppressLint("MissingSuperCall")
-    @Deprecated("Deprecated in Java")
-    override fun onBackPressed() {
-        finish()
     }
 
     private suspend fun ensureResourceInfoIsDownloadedAndShowWelcomeSlides() {
@@ -124,5 +124,4 @@ class WelcomeActivity : ViewBindingActivity<ActivityWelcomeBinding>() {
             }
         }
     }
-
 }

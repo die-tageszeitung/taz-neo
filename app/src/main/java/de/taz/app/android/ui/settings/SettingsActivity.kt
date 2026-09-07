@@ -2,6 +2,7 @@ package de.taz.app.android.ui.settings
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import androidx.activity.addCallback
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -20,12 +21,17 @@ import kotlinx.coroutines.launch
 
 class SettingsActivity : ViewBindingActivity<ActivitySettingsBinding>() {
 
+    @Suppress("UNUSED") // this is necessary so the audio player is shown
     private val audioPlayerViewController = AudioPlayerViewController(this)
 
     private lateinit var authHelper: AuthHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        onBackPressedDispatcher.addCallback(this) {
+            backPressed()
+        }
 
         authHelper = AuthHelper.getInstance(applicationContext)
 
@@ -49,13 +55,7 @@ class SettingsActivity : ViewBindingActivity<ActivitySettingsBinding>() {
         )
     }
 
-    @SuppressLint("MissingSuperCall")
-    @Deprecated("Deprecated in Java")
-    override fun onBackPressed() {
-        if (audioPlayerViewController.onBackPressed()) {
-            return
-        }
-
+    fun backPressed() {
         if (supportFragmentManager.backStackEntryCount > 0) {
             supportFragmentManager.popBackStack()
         } else {

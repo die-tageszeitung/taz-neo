@@ -3,12 +3,11 @@ package de.taz.app.android.ui.issueViewer
 import android.content.Context
 import android.os.Bundle
 import android.view.View
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import de.taz.app.android.R
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.dataStore.TazApiCssDataStore
@@ -17,7 +16,6 @@ import de.taz.app.android.monkey.isArticleKey
 import de.taz.app.android.persistence.repository.BookmarkRepository
 import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.singletons.KeepScreenOnHelper
-import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.IssueLoaderFragment
 import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import de.taz.app.android.ui.webview.pager.SectionPagerFragment
@@ -34,14 +32,14 @@ import kotlinx.coroutines.runBlocking
  *
  * Additional fragments are loaded to ensure the transitions are smooth.
  *
- * [sectionPagerFragment] is used to show the sections of the issue
- * [articlePagerFragment] is used to show the articles of the issue
- * [loaderFragment] shows the initial loading screen
+ * [SectionPagerFragment] is used to show the sections of the issue
+ * [ArticlePagerFragment] is used to show the articles of the issue
+ * [IssueLoaderFragment] shows the initial loading screen
  *
  * TODO Hopefully we can merge this with the [IssueViewerWrapperFragment]
  */
 class IssueViewerFragment :
-    BaseViewModelFragment<IssueViewerViewModel, FragmentIssueContentBinding>(), BackFragment {
+    BaseViewModelFragment<IssueViewerViewModel, FragmentIssueContentBinding>() {
 
     override val viewModel: IssueViewerViewModel by activityViewModels()
 
@@ -60,6 +58,9 @@ class IssueViewerFragment :
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        requireActivity().onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
+
         if (savedInstanceState == null) {
             // reset viewModel when creating anew
             viewModel.setDisplayable(null)
@@ -124,27 +125,34 @@ class IssueViewerFragment :
         }
     }
 
-    override fun onBackPressed(): Boolean {
-        return childFragmentManager.fragments.lastOrNull { it.isVisible }?.let {
-            when ((it as? BackFragment?)?.onBackPressed()) {
-                true -> true
-                false -> {
-                    val lastSectionKey = viewModel.lastSectionKey
-                        ?: viewModel.currentDisplayable?.let { displayableKey ->
-                            if (displayableKey.isArticleKey()) {
-                                runBlocking {
-                                    sectionRepository.getSectionStubForArticle(
-                                        displayableKey
-                                    )?.key
-                                }
-                            } else {
-                                null
+    val onBackPressedCallback = object : OnBackPressedCallback(true) {
+        fun finish() {
+            remove()
+            requireActivity().onBackPressedDispatcher.onBackPressed()
+        }
+
+        override fun handleOnBackPressed() {
+            childFragmentManager.fragments.lastOrNull { it.isVisible }?.let {
+                val lastSectionKey = viewModel.lastSectionKey
+                    ?: viewModel.currentDisplayable?.let { displayableKey ->
+                        if (displayableKey.isArticleKey()) {
+                            runBlocking {
+                                sectionRepository.getSectionStubForArticle(
+                                    displayableKey
+                                )?.key
                             }
+                        } else {
+                            null
                         }
-                    runIfNotNull(
-                        viewModel.issueKeyAndDisplayableKeyFlow.value?.issueKey,
-                        lastSectionKey
-                    ) { currentIssueKey, displayableKey ->
+                    }
+
+                runIfNotNull(
+                    viewModel.issueKeyAndDisplayableKeyFlow.value?.issueKey,
+                    lastSectionKey
+                ) { currentIssueKey, displayableKey ->
+                    if (viewModel.currentDisplayable == displayableKey) {
+                        finish()
+                    } else {
                         lifecycleScope.launch {
                             viewModel.setDisplayable(
                                 IssueKeyWithDisplayableKey(
@@ -153,13 +161,9 @@ class IssueViewerFragment :
                                 )
                             )
                         }
-                        true
-                    } ?: false
-                }
-
-                null -> false
-            }
-        } ?: false
+                    }
+                } ?: finish()
+            } ?: finish()
+        }
     }
-
 }

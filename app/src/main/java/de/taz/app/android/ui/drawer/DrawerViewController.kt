@@ -1,11 +1,12 @@
 package de.taz.app.android.ui.drawer
 
-import android.content.Context
 import android.view.View
 import android.widget.ImageView
 import androidx.core.view.GravityCompat
 import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.activity.OnBackPressedCallback
+import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentContainerView
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
@@ -22,7 +23,7 @@ import kotlinx.coroutines.launch
  * Additionally, it handles the offset in onDrawerSlide of their drawer.
  */
 class DrawerViewController(
-    context: Context,
+    private val activity: FragmentActivity,
     private val drawerLayout: DrawerLayout,
     private val drawerLogoWrapper: View,
     private val navView: View,
@@ -31,11 +32,11 @@ class DrawerViewController(
 
     private val log by Log
 
-    private val generalDataStore = GeneralDataStore.getInstance(context)
+    private val generalDataStore = GeneralDataStore.getInstance(activity.applicationContext)
 
     private val drawerLogo: ImageView = drawerLogoWrapper.findViewById(R.id.drawer_logo)
     private val drawerLogoController = DrawerLogoController(
-        context,
+        activity,
         drawerLogoWrapper,
         drawerLogo,
         navView,
@@ -53,7 +54,13 @@ class DrawerViewController(
                 togglePdfDrawer(isListDrawer)
             }
             // Pre-load the feed logo
-            LogoController.getInstance(context).getFeedDrawable()
+            LogoController.getInstance(activity).getFeedDrawable()
+        }
+    }
+
+    val onBackCallback = object : OnBackPressedCallback(true) {
+        override fun handleOnBackPressed() {
+            closeDrawer()
         }
     }
 
@@ -61,11 +68,14 @@ class DrawerViewController(
         log.info("handling DrawerState: $state")
 
         if (state is DrawerState.Open) {
+            activity.onBackPressedDispatcher.addCallback(activity, onBackCallback)
             if (isListDrawer != state.isListDrawer) {
                 togglePdfDrawer(state.isListDrawer)
             }
             openDrawer()
             return
+        } else {
+            onBackCallback.remove()
         }
 
         drawerLogoController.updateLogoState(state.logoState)

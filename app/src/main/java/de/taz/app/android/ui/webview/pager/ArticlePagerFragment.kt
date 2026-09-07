@@ -68,7 +68,7 @@ import de.taz.app.android.singletons.SnackBarHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
-import de.taz.app.android.ui.BackFragment
+import de.taz.app.android.ui.TazViewerFragment
 import de.taz.app.android.ui.bottomSheet.MultiColumnModeBottomSheetFragment
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsBottomSheetFragment
 import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
@@ -99,7 +99,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 
-class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding>(), BackFragment,
+class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding>(),
     CollapsibleLayoutProvider {
 
     private val log by Log
@@ -627,26 +627,6 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
     private fun expandAppBarIfCollapsed() = viewBinding?.appBarLayout?.apply {
         if (!isExpanded()) {
             setExpanded(true, false)
-        }
-    }
-
-    override fun onBackPressed(): Boolean {
-        try {
-            val isImprint =
-                (getCurrentArticlePagerItem() as? ArticlePagerItem.ArticleRepresentation)?.art?.article?.isImprint() == true
-            val isTom = getCurrentArticlePagerItem() is ArticlePagerItem.Tom
-
-            return if (isImprint || isTom) {
-                // go back by popping backstack
-                requireActivity().supportFragmentManager.popBackStackImmediate()
-                true
-            } else {
-                false
-            }
-        } catch (npe: NullPointerException) {
-            log.warn("We got a NPE when trying to call getCurrentArticlePagerItem(). Probably viewBinding is gone.")
-            SentryWrapper.captureException(npe)
-            return false
         }
     }
 

@@ -9,11 +9,9 @@ import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.WindowInsets
 import android.widget.FrameLayout
-import android.widget.LinearLayout
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.OptIn
 import androidx.appcompat.app.AppCompatActivity
-import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.GravityCompat
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
@@ -26,7 +24,6 @@ import androidx.media3.ui.TimeBar
 import androidx.media3.ui.TimeBar.OnScrubListener
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import de.taz.app.android.R
 import de.taz.app.android.audioPlayer.DisplayMode.DISPLAY_MODE_MOBILE
 import de.taz.app.android.audioPlayer.DisplayMode.DISPLAY_MODE_MOBILE_EXPANDED
@@ -894,23 +891,6 @@ class AudioPlayerViewController(
         onBackPressedCallback.apply {
             remove()
             isEnabled = false
-        }
-    }
-
-    /**
-     * Explicitly handle a back action from  [AppCompatActivity.onBackPressed] if the Activity
-     * uses some custom logic there. This function should be called first before any other handling.
-     * Note that it is not required to call this function if no custom [AppCompatActivity.onBackPressed]
-     * is used as [AudioPlayerViewController] registers its own [OnBackPressedCallback] which will be used
-     * by default by [AppCompatActivity].
-     */
-    @Deprecated("Activity.OnBackPressed is deprecated. We should move all our back logic to use onBackPressedDispatchers")
-    fun onBackPressed(): Boolean {
-        return if (onBackPressedCallback.isEnabled) {
-            onBackPressedCallback.handleOnBackPressed()
-            true
-        } else {
-            false
         }
     }
     // endregion

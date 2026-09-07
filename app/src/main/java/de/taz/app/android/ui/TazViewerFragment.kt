@@ -30,7 +30,7 @@ import kotlin.reflect.full.createInstance
  * This activity creates an instance of [fragmentClass] which is then shown
  *
  */
-abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>(), BackFragment {
+abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>() {
 
     abstract val fragmentClass: KClass<out Fragment>
 
@@ -72,7 +72,7 @@ abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>
 
         viewBinding?.apply {
             drawerViewController = DrawerViewController(
-                requireContext(),
+                requireActivity(),
                 drawerLayout,
                 drawerLogoWrapper,
                 navView,
@@ -122,14 +122,6 @@ abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>
                 drawerViewController.handleDrawerLogoState(it)
             }
         }
-    }
-
-    override fun onBackPressed(): Boolean {
-        if (drawerAndLogoViewModel.drawerState.value is DrawerState.Open) {
-            drawerAndLogoViewModel.closeDrawer()
-            return true
-        }
-        return (viewerFragment as? BackFragment)?.onBackPressed() ?: false
     }
 
     override fun onDestroy() {
