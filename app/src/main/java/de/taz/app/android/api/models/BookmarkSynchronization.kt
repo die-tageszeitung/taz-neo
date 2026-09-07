@@ -32,5 +32,12 @@ data class BookmarkSynchronization(
         this.locallyChangedTime = Date()
     }
 }
-
+/**
+ * Used to update bookmark states with partial updates.
+ * See https://developer.android.com/reference/androidx/room/Update
+ */
+data class BookmarkSynchronizationLocallyChangedTime(
+    @PrimaryKey val mediaSyncId: Int,
+    var locallyChangedTime: Date = Date(),
+)
 enum class SynchronizeFromType { LOCAL, REMOTE }

@@ -3,9 +3,12 @@ package de.taz.app.android.singletons
 import android.content.Context
 import androidx.annotation.VisibleForTesting
 import de.taz.app.android.content.ContentService
+import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.dataStore.StorageDataStore
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.persistence.repository.IssueRepository
+import de.taz.app.android.sentry.SentryWrapper
+import de.taz.app.android.sentry.SentryWrapperLevel
 import de.taz.app.android.util.SingletonHolder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -49,7 +52,13 @@ class IssueCountHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     private suspend fun ensureIssueCount(max: Int, downloaded: Int) = ensureCountLock.withLock {
         if (downloaded > max) {
             issueRepository.getIssueStubToDelete()?.let {
-                contentService.deleteIssue(IssuePublication(it.issueKey))
+                val issuePublication = IssuePublication(it.issueKey)
+                try {
+                    contentService.deleteIssue(issuePublication)
+                } catch (e: CacheOperationFailedException) {
+                    log.warn("deletion of issue $issuePublication failed")
+                    SentryWrapper.captureException(e)
+                }
             }
         }
     }

@@ -33,6 +33,7 @@ import de.taz.app.android.coachMarks.SectionPlaylistCoachMark
 import de.taz.app.android.coachMarks.TazLogoCoachMark
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentWebviewSectionPagerBinding
+import de.taz.app.android.monkey.LogoScrollBehavior
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.monkey.withPreviousValue
 import de.taz.app.android.sentry.SentryWrapper
@@ -81,6 +82,11 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
         tracker = Tracker.getInstance(context.applicationContext)
         generalDataStore = GeneralDataStore.getInstance(context.applicationContext)
     }
+
+    private val logoScrollBehavior = LogoScrollBehavior(
+        onScrolledIn = { drawerAndLogoViewModel.setFeedLogo() },
+        onScrolledOut = { drawerAndLogoViewModel.setBurgerIcon() }
+    )
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -162,8 +168,7 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
                         }.collect { shouldAnimate ->
                             viewBinding?.feedLogo?.setupLogoScrollBehavior(
                                 enabled = shouldAnimate,
-                                onScrolledIn = { drawerAndLogoViewModel.setFeedLogo() },
-                                onScrolledOut = { drawerAndLogoViewModel.setBurgerIcon() }
+                                logoScrollBehavior = logoScrollBehavior,
                             )
                         }
                     }

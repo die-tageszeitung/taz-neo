@@ -3,6 +3,7 @@ package de.taz.app.android.persistence.repository
 import android.content.Context
 import de.taz.app.android.api.dto.BookmarkRepresentation
 import de.taz.app.android.api.models.BookmarkSynchronization
+import de.taz.app.android.api.models.BookmarkSynchronizationLocallyChangedTime
 import de.taz.app.android.api.models.SynchronizeFromType
 import de.taz.app.android.util.SingletonHolder
 import java.util.Date
@@ -40,6 +41,12 @@ class BookmarkSynchronizationRepository private constructor(applicationContext: 
         appDatabase.bookmarkSynchronizationDao().update(bookmarkSynchronization)
     }
 
+    suspend fun markAllAsLocallyChanged(mediaSyncIds: List<Int>) {
+        appDatabase.bookmarkSynchronizationDao().markAsChangedLocally(
+            mediaSyncIds.map { BookmarkSynchronizationLocallyChangedTime(it) }
+        )
+    }
+
     suspend fun get(mediaSyncId: Int): BookmarkSynchronization? {
         return appDatabase.bookmarkSynchronizationDao().get(mediaSyncId)
     }
@@ -47,5 +54,9 @@ class BookmarkSynchronizationRepository private constructor(applicationContext: 
     suspend fun delete(mediaSyncId: Int) {
         val bookmarkSynchronization = get(mediaSyncId) ?: return
         appDatabase.bookmarkSynchronizationDao().delete(bookmarkSynchronization)
+    }
+
+    suspend fun deleteAll() {
+        appDatabase.bookmarkSynchronizationDao().deleteAll()
     }
 }

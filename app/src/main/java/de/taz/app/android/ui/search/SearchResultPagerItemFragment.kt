@@ -206,7 +206,7 @@ class SearchResultPagerItemFragment : ViewBindingFragment<FragmentWebviewArticle
     private fun addBaseUrlToImgSrc(html: String, baseUrl: String): String {
         return html.replace(
             Regex(
-                """src=["'](.+?\.(?:png|jpg|jpeg))["']""",
+                """src=["']((?!https://)[^"]+?\.(?:png|jpg|jpeg))["']""",
                 RegexOption.IGNORE_CASE
             ), "src=\"$baseUrl/$1\""
         )

@@ -34,6 +34,8 @@
     <string name="fragment_bookmarks_description">Sie haben noch keine Artikel in Ihrer Leseliste.\n\n Speichern Sie Artikel für später in Ihrer persönlichen Leseliste. Einfach das Sternchen bei den Artikeln aktivieren.</string>
     <string name="search_description">Auf die Suche, fertig, los!\n\n\nOb Autor:innen, einzelne Artikel oder Themen – mit der Suchfunktion geht’s direkt zu den gewünschten Inhalten.</string>
 
+    <string name="audioplayer_playlist">Audioliste</string>
+
     <!-- region coach marks  -->
     <string name="coach_mark_archive_title">Archiv</string>
     <string name="coach_mark_archive_text">Für die Übersicht aller Ausgaben auf einen Blick: Einfach nach oben scrollen.</string>
