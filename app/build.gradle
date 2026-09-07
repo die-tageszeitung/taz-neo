@@ -327,14 +327,14 @@ androidComponents {
 
 dependencies {
     def coroutines_version = '1.11.0'
-    def serialization_version = '1.10.0'
-    def glide_version = '5.0.7'
+    def serialization_version = '1.11.0'
+    def glide_version = '5.0.9'
     def ktor_version = '3.5.1'
     def lifecycle_version = '2.11.0'
     def room_version = '2.8.4'
     def work_version = '2.11.2'
     def media3_version = '1.10.1'
-    def sentry_version = '8.47.0'
+    def sentry_version = '8.48.0'
 
     // implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
@@ -390,7 +390,7 @@ dependencies {
     implementation "io.ktor:ktor-client-content-negotiation:$ktor_version"
     testImplementation "io.ktor:ktor-client-mock:$ktor_version"
 
-    implementation 'org.conscrypt:conscrypt-android:2.5.3'
+    implementation 'org.conscrypt:conscrypt-android:2.6.1'
 
     implementation 'com.google.android.material:material:1.14.0'
 
@@ -423,7 +423,7 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
 
     testImplementation 'org.robolectric:robolectric:4.16.1'
-    testImplementation 'org.conscrypt:conscrypt-openjdk-uber:2.5.2'
+    testImplementation 'org.conscrypt:conscrypt-openjdk-uber:2.6.1'
 
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutines_version"
     testImplementation "androidx.work:work-testing:$work_version"
@@ -443,9 +443,10 @@ dependencies {
     leakCanaryImplementation 'com.squareup.leakcanary:leakcanary-android:2.14'
 
     // google Flavor
-    nonfreeImplementation 'com.google.firebase:firebase-messaging:25.1.0'
+    nonfreeImplementation 'com.google.firebase:firebase-messaging:25.1.1'
 
     // atm version 2.0.2 won't let the gitlab CI pipeline build successfully
+    // https://issuetracker.google.com/issues/374691245
     nonfreeImplementation 'com.google.android.play:review-ktx:2.0.1'
 
     // add Java 8+ API desugaring support
