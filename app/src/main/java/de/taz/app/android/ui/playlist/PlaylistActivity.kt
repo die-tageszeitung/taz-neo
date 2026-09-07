@@ -3,6 +3,7 @@ package de.taz.app.android.ui.playlist
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.widget.TextView
+import androidx.activity.addCallback
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
@@ -24,7 +25,9 @@ import kotlinx.coroutines.launch
 class PlaylistActivity:
     ViewBindingActivity<ActivityPlaylistBinding>() {
 
+    @Suppress("UNUSED") // this is necessary so the audio player is shown
     private val audioPlayerViewController = AudioPlayerViewController(this)
+
     private lateinit var audioPlayerService: AudioPlayerService
     private lateinit var playlistAdapter: PlaylistAdapter
     private lateinit var playlistRepository: PlaylistRepository
@@ -34,6 +37,11 @@ class PlaylistActivity:
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        onBackPressedDispatcher.addCallback(this) {
+            bottomNavigationBack()
+        }
+
         audioPlayerService = AudioPlayerService.getInstance(applicationContext)
         playlistAdapter = PlaylistAdapter(audioPlayerService)
         playlistRepository = PlaylistRepository.getInstance(applicationContext)
@@ -74,15 +82,6 @@ class PlaylistActivity:
             viewBinding.navigationBottom,
             BottomNavigationItem.Playlist
         )
-    }
-
-    @SuppressLint("MissingSuperCall")
-    @Deprecated("Deprecated in Java")
-    override fun onBackPressed() {
-        if (audioPlayerViewController.onBackPressed()) {
-            return
-        }
-        bottomNavigationBack()
     }
 
     private fun setupUserInteractionsHandlers(playlistData: Playlist) {

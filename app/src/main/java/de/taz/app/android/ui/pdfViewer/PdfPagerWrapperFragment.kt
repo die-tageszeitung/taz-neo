@@ -6,6 +6,7 @@ import android.content.res.Configuration.ORIENTATION_PORTRAIT
 import android.os.Build
 import android.os.Bundle
 import android.view.View
+import androidx.activity.OnBackPressedCallback
 import androidx.browser.customtabs.CustomTabColorSchemeParams
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
@@ -37,7 +38,6 @@ import de.taz.app.android.singletons.KeepScreenOnHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
-import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.SuccessfulLoginAction
 import de.taz.app.android.ui.bottomSheet.ContinueReadBottomSheetFragment
 import de.taz.app.android.ui.bottomSheet.SHOW_CONTINUE_READ_THE_SAME_NOT_MORE_THAN
@@ -67,7 +67,7 @@ import kotlinx.coroutines.launch
 import androidx.core.net.toUri
 
 class PdfPagerWrapperFragment : ViewBindingFragment<ActivityPdfDrawerLayoutBinding>(),
-    SuccessfulLoginAction, BackFragment {
+    SuccessfulLoginAction {
 
     companion object {
         private const val KEY_ISSUE_PUBLICATION = "KEY_ISSUE_PUBLICATION"
@@ -126,6 +126,9 @@ class PdfPagerWrapperFragment : ViewBindingFragment<ActivityPdfDrawerLayoutBindi
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        requireActivity().onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
+
         issuePublication = try {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
                 @Suppress("deprecation")
@@ -314,7 +317,7 @@ class PdfPagerWrapperFragment : ViewBindingFragment<ActivityPdfDrawerLayoutBindi
 
         viewBinding?.apply {
             drawerViewController = DrawerViewController(
-                requireContext(),
+                requireActivity(),
                 pdfDrawerLayout,
                 drawerLogoWrapper,
                 navView,
@@ -470,7 +473,12 @@ class PdfPagerWrapperFragment : ViewBindingFragment<ActivityPdfDrawerLayoutBindi
         tracker.trackPdfModeLoginHintDialog()
     }
 
-    override fun onBackPressed(): Boolean {
-        return popArticlePagerFragmentIfOpen()
+    private val onBackPressedCallback = object : OnBackPressedCallback(true) {
+        override fun handleOnBackPressed() {
+            if (!popArticlePagerFragmentIfOpen()) {
+                remove()
+                requireActivity().onBackPressedDispatcher.onBackPressed()
+            }
+        }
     }
 }

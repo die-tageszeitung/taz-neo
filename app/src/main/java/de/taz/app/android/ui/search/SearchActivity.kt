@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
@@ -69,6 +70,8 @@ class SearchActivity :
     // region Activity functions
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        onBackPressedDispatcher.addCallback(this, backPressedCallback)
 
         apiService = ApiService.getInstance(this)
         articleRepository = ArticleRepository.getInstance(applicationContext)
@@ -211,27 +214,23 @@ class SearchActivity :
         )
     }
 
-    @Deprecated("Deprecated in Java")
-    override fun onBackPressed() {
-        // If there is a fragment on the backstack, we let Android handle the back functionality
-        if (supportFragmentManager.backStackEntryCount != 0) {
-            super.onBackPressed()
-            return
-        }
+    val backPressedCallback = object : OnBackPressedCallback(true) {
+        override fun handleOnBackPressed() {
+            // If there is a fragment on the backstack, we let Android handle the back functionality
+            if (supportFragmentManager.backStackEntryCount != 0) {
+                supportFragmentManager.popBackStack()
+                return
+            }
 
-        // When the audio player is open, we use audioplayer backstack
-        if (audioPlayerViewController.onBackPressed()) {
-            return
-        }
+            // When the advanced search is open, we close it
+            if (viewModel.isAdvancedSearchOpen.value) {
+                viewModel.closeAdvancedSearch()
+                return
+            }
 
-        // When the advanced search is open, we close it
-        if (viewModel.isAdvancedSearchOpen.value) {
-            viewModel.closeAdvancedSearch()
-            return
+            // Otherwise we close the Search Activity and go back to the previous tab
+            bottomNavigationBack()
         }
-
-        // Otherwise we close the Search Activity and go back to the previous tab
-        bottomNavigationBack()
     }
 
     override fun onDestroy() {

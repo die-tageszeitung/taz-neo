@@ -33,6 +33,7 @@ class BookmarkViewerActivity : AppCompatActivity() {
         }
     }
 
+    @Suppress("UNUSED") // this is necessary so the audio player is shown
     private val audioPlayerViewController = AudioPlayerViewController(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,15 +50,6 @@ class BookmarkViewerActivity : AppCompatActivity() {
                 intent.getStringExtra(KEY_SHOWN_ARTICLE),
             )
         ).commit()
-    }
-
-    @Deprecated("Deprecated in Java")
-    override fun onBackPressed() {
-        if (audioPlayerViewController.onBackPressed()) {
-            return
-        }
-
-        super.onBackPressed()
     }
 
     /**

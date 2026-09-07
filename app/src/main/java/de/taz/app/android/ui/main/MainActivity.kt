@@ -1,11 +1,11 @@
 package de.taz.app.android.ui.main
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.webkit.WebView
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.view.WindowCompat
@@ -20,7 +20,6 @@ import de.taz.app.android.R
 import de.taz.app.android.appReview.ReviewFlow
 import de.taz.app.android.audioPlayer.AudioPlayerViewController
 import de.taz.app.android.base.ViewBindingActivity
-import de.taz.app.android.dataStore.CoachMarkDataStore
 import de.taz.app.android.dataStore.DownloadDataStore
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.ActivityMainBinding
@@ -34,8 +33,6 @@ import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.IssueCountHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.singletons.WidgetHelper
-import de.taz.app.android.tracking.Tracker
-import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.SuccessfulLoginAction
 import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.home.page.IssueFeedViewModel
@@ -121,11 +118,14 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>(), SuccessfulLogin
     private val generalDataStore by lazy { GeneralDataStore.getInstance(applicationContext) }
     private val toastHelper by lazy { ToastHelper.getInstance(applicationContext) }
 
+    @Suppress("UNUSED") // this is necessary so the audio player is shown
     private val audioPlayerViewController = AudioPlayerViewController(this)
     private val issueFeedViewModel: IssueFeedViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        onBackPressedDispatcher.addCallback(this, backpressedCallback)
 
         viewBinding.root.setDefaultHorizontalInsets()
 
@@ -161,7 +161,8 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>(), SuccessfulLogin
         // Force light icons (false = white icons for dark backgrounds) on the navigation bar
         // Only for tablets with Android 10 and 11, as later on Android handle the color properly
         if ((Build.VERSION.SDK_INT == Build.VERSION_CODES.Q || Build.VERSION.SDK_INT == Build.VERSION_CODES.R)
-            && resources.getBoolean(R.bool.isTablet)) {
+            && resources.getBoolean(R.bool.isTablet)
+        ) {
             val controller = WindowCompat.getInsetsController(window, window.decorView)
             controller.isAppearanceLightNavigationBars = false
         }
@@ -217,6 +218,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>(), SuccessfulLogin
             trackingOptInBottomSheetConditions -> showTrackingConsentBottomSheet(
                 allowNotificationsBottomSheetConditions
             )
+
             allowNotificationsBottomSheetConditions -> showAllowNotificationsBottomSheet()
             else -> Unit // do nothing else
         }
@@ -248,7 +250,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>(), SuccessfulLogin
             val homeFragment =
                 supportFragmentManager.fragments.firstOrNull { it is HomeFragment } as? HomeFragment
 
-            if(supportFragmentManager.fragments.lastOrNull { it.isVisible } is HomeFragment) {
+            if (supportFragmentManager.fragments.lastOrNull { it.isVisible } is HomeFragment) {
                 lifecycleScope.launch { homeFragment?.skipToHome() }
             } else {
                 supportFragmentManager.popBackStackImmediate(
@@ -263,7 +265,8 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>(), SuccessfulLogin
         runOnUiThread {
             // Ensure we are at the Home level if we were deep in the backstack
             if (supportFragmentManager.fragments.isNotEmpty() &&
-                supportFragmentManager.fragments.lastOrNull { it.isVisible } !is HomeFragment) {
+                supportFragmentManager.fragments.lastOrNull { it.isVisible } !is HomeFragment
+            ) {
                 supportFragmentManager.popBackStackImmediate(
                     null,
                     FragmentManager.POP_BACK_STACK_INCLUSIVE
@@ -306,46 +309,34 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>(), SuccessfulLogin
 
     private var doubleBackToExitPressedOnce = false
 
+    val backpressedCallback = object : OnBackPressedCallback(true) {
+        override fun handleOnBackPressed() {
+            val currentFragment =
+                supportFragmentManager.fragments.lastOrNull { it.isVisible }
 
-    @SuppressLint("MissingSuperCall")
-    @Deprecated("Deprecated in Java")
-    override fun onBackPressed() {
-        if (audioPlayerViewController.onBackPressed()) {
-            return
-        }
-
-        val currentFragment =
-            supportFragmentManager.fragments.lastOrNull() ?: return
-
-        when (currentFragment) {
-            is HomeFragment ->
+            if (currentFragment is HomeFragment) {
+                // TODO: onhome is currently always true - either update onHome logic or remove if statement
                 if (currentFragment.onHome) {
                     if (doubleBackToExitPressedOnce) {
                         moveTaskToBack(true)
                         finish()
-                    }
+                    } else {
+                        doubleBackToExitPressedOnce = true
+                        toastHelper.showToast(getString(R.string.toast_click_again_to_exit))
 
-                    this.doubleBackToExitPressedOnce = true
-                    toastHelper.showToast(getString(R.string.toast_click_again_to_exit))
-
-                    lifecycleScope.launch(Dispatchers.Default) {
-                        delay(DOUBLE_BACK_TO_EXIT_INTERVAL)
-                        doubleBackToExitPressedOnce = false
+                        lifecycleScope.launch(Dispatchers.Default) {
+                            delay(DOUBLE_BACK_TO_EXIT_INTERVAL)
+                            doubleBackToExitPressedOnce = false
+                        }
                     }
                 } else {
                     showHome()
                 }
-
-            is BackFragment ->
-                if (currentFragment.onBackPressed())
-                    return
-                else
-                    if (!supportFragmentManager.popBackStackImmediate())
-                        super.onBackPressed()
-
-            else ->
-                if (!supportFragmentManager.popBackStackImmediate())
-                    super.onBackPressed()
+            } else {
+                isEnabled = false
+                onBackPressedDispatcher.onBackPressed()
+                isEnabled = true
+            }
         }
     }
 
@@ -384,7 +375,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>(), SuccessfulLogin
                     KEY_ISSUE_PUBLICATION,
                     AbstractIssuePublication::class.java
                 )
-            }  else {
+            } else {
                 @Suppress("deprecation")
                 intent.getParcelableExtra(KEY_ISSUE_PUBLICATION)
             }
