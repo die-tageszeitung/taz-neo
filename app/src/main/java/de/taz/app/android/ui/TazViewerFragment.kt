@@ -74,14 +74,14 @@ abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>
             drawerViewController = DrawerViewController(
                 requireActivity(),
                 drawerLayout,
-                drawerLogoWrapper,
+                drawerLogoView,
                 navView,
                 viewLifecycleOwner.lifecycleScope
             )
             if (enableDrawer) {
                 setupDrawer()
             } else {
-                drawerLogo.visibility = View.GONE
+                drawerLogoView.visibility = View.GONE
                 drawerLayout.setDrawerLockMode(LOCK_MODE_LOCKED_CLOSED)
             }
         }
@@ -98,7 +98,6 @@ abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>
                 }
             }
 
-            drawerViewController.initialize()
             drawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener {
                 override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
                     drawerViewController.handleOnDrawerSlider(slideOffset)

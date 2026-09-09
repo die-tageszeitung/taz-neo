@@ -33,7 +33,6 @@ import de.taz.app.android.coachMarks.TazLogoCoachMark
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentWebviewSectionPagerBinding
 import de.taz.app.android.monkey.reduceDragSensitivity
-import de.taz.app.android.monkey.withPreviousValue
 import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
@@ -49,7 +48,6 @@ import de.taz.app.android.util.Log
 import de.taz.app.android.monkey.getHideViewOnScrollBehavior
 import de.taz.app.android.monkey.isSectionKey
 import de.taz.app.android.util.runIfNotNull
-import de.taz.app.android.ui.drawer.LogoState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
@@ -83,9 +81,9 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
         viewBinding?.apply {
             webviewPagerViewpager.reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
 
-            initializeDrawerLogos()
             setupViewPager()
             setupFAB()
+            setupLogoTranslationY()
 
             logoView.setOnClickListener {
                 tracker.trackDrawerOpenEvent(dragged = false)
@@ -155,19 +153,6 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
                             }
                     }
 
-                    launch {
-                        // Wait for the initial section type before starting the logo collector
-                        // This prevents the "FEED" logo from showing up briefly for advertisements
-                        currentSectionTypeFlow.filterNotNull().first()
-
-                        drawerAndLogoViewModel.logoStateFlow
-                            .withPreviousValue()
-                            .collect { (current, previous) ->
-                                val logoView = viewBinding?.logoView ?: return@collect
-                                logoView.transitionState((previous ?: LogoState.UNDEFINED) to current)
-                            }
-                    }
-
                     currentSectionTypeFlow
                         .filterNotNull()
                         .onEach {
@@ -178,14 +163,17 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
         }
     }
 
-    private fun initializeDrawerLogos() = lifecycleScope.launch {
-        /* TODO add onclick functionality
-        viewBinding?.apply {
-            LogoController.getInstance(requireContext()).setupLogos(burgerLogo, burgerWrapper, feedLogo) {
-                tracker.trackDrawerOpenEvent(dragged = false)
-                drawerAndLogoViewModel.openDrawer()
-            }
-        }*/
+    private fun setupLogoTranslationY() {
+        lifecycleScope.launch {
+            val extraPadding = generalDataStore.displayCutoutExtraPadding.get()
+            val extraPaddingFloat =
+                if (extraPadding > 0 && resources.configuration.orientation == android.content.res.Configuration.ORIENTATION_PORTRAIT) {
+                    extraPadding.toFloat()
+                } else {
+                    0f
+                }
+            viewBinding?.logoView?.translationY = extraPaddingFloat
+        }
     }
 
     private fun setupViewPager() {

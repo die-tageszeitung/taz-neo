@@ -1,7 +1,6 @@
 package de.taz.app.android.ui.drawer
 
 import android.view.View
-import android.widget.ImageView
 import androidx.core.view.GravityCompat
 import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
@@ -11,6 +10,7 @@ import androidx.fragment.app.FragmentContainerView
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.dataStore.GeneralDataStore
+import de.taz.app.android.ui.logo.LogoView
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -25,7 +25,7 @@ import kotlinx.coroutines.launch
 class DrawerViewController(
     private val activity: FragmentActivity,
     private val drawerLayout: DrawerLayout,
-    private val drawerLogoWrapper: View,
+    private val drawerLogoView: LogoView,
     private val navView: View,
     private val scope: CoroutineScope
 ) {
@@ -33,17 +33,6 @@ class DrawerViewController(
     private val log by Log
 
     private val generalDataStore = GeneralDataStore.getInstance(activity.applicationContext)
-
-    private val drawerLogo: ImageView = drawerLogoWrapper.findViewById(R.id.drawer_logo)
-    private val drawerLogoController = DrawerLogoController(
-        activity,
-        drawerLogoWrapper,
-        drawerLogo,
-        navView,
-        scope
-    ) {
-        closeDrawer()
-    }
 
     private var isListDrawer = false
 
@@ -64,7 +53,7 @@ class DrawerViewController(
         }
     }
 
-    suspend fun handleDrawerLogoState(state: DrawerState) {
+    fun handleDrawerLogoState(state: DrawerState) {
         log.info("handling DrawerState: $state")
 
         if (state is DrawerState.Open) {
@@ -78,16 +67,7 @@ class DrawerViewController(
             onBackCallback.remove()
         }
 
-        drawerLogoController.updateLogoState(state.logoState)
         closeDrawer()
-    }
-
-    suspend fun hideLogoWrapper() {
-        drawerLogoController.hideLogoWrapper()
-    }
-
-    fun showLogoWrapper() {
-        drawerLogoController.showLogoWrapper()
     }
 
     /**
@@ -95,15 +75,7 @@ class DrawerViewController(
      * The [slideOffset] can be between 0 (closed drawer) and 1 (open drawer).
      */
     fun handleOnDrawerSlider(slideOffset: Float) {
-        drawerLogoController.handleOnDrawerSlider(slideOffset)
-    }
-
-    fun initialize() {
-        drawerLogoController.initialize()
-    }
-
-    suspend fun setFeedLogo() {
-        drawerLogoController.setFeedLogo()
+        drawerLogoView.handleOnDrawerSlider(slideOffset, navView)
     }
 
     private fun closeDrawer() {

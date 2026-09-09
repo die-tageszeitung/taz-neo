@@ -129,15 +129,6 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
                         toggleHelpFab(it)
                     }
                 }
-                launch {
-                    drawerAndLogoViewModel.logoStateFlow
-                        .withPreviousValue()
-                        .collect { (current, previous) ->
-                            viewBinding?.logoView?.transitionState(
-                                (previous ?: LogoState.UNDEFINED) to current
-                            )
-                        }
-                }
             }
         }
 
@@ -152,6 +143,20 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
             drawerAndLogoViewModel.openDrawer()
         }
         setupFAB()
+        setupLogoTranslationY()
+    }
+
+    private fun setupLogoTranslationY() {
+        lifecycleScope.launch {
+            val extraPadding = generalDataStore.displayCutoutExtraPadding.get()
+            val extraPaddingFloat =
+                if (extraPadding > 0 && resources.configuration.orientation == android.content.res.Configuration.ORIENTATION_PORTRAIT) {
+                    extraPadding.toFloat()
+                } else {
+                    0f
+                }
+            viewBinding?.logoView?.translationY = extraPaddingFloat
+        }
     }
 
     override fun onResume() {

@@ -172,7 +172,7 @@ class SplashActivity : StartupActivity() {
                 if (it > 0) {
                     val extraPadding =
                         it + resources.getDimensionPixelSize(R.dimen.space_between_status_bar_and_content_applied_when_cutout) - resources.getDimensionPixelSize(
-                            R.dimen.drawer_logo_translation_y
+                            R.dimen.logo_margin_top
                         )
                     applicationScope.launch {
                         generalDataStore.displayCutoutExtraPadding.set(extraPadding)

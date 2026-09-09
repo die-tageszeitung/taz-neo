@@ -12,9 +12,11 @@ import kotlinx.coroutines.flow.map
  * [DrawerState] holds following properties:
  * [DrawerState.Open] - the drawer is opened
  * [DrawerState.Closed] - the drawer is closed
- * [DrawerState.isBurger] – whether the logo is the burger icon or not
- * [DrawerState.isHidden] – whether the logo is hidden or not
- * [DrawerState.percentMorphedToBurger] - Float [0,1] indicating how much the logo should be hidden.
+ * and the states contain a LogoState
+ * [LogoState.BURGER] – whether the logo is the burger icon or not
+ * [LogoState.HIDDEN] – whether the logo is hidden or not
+ * [LogoState.FEED] – whether the logo is the feed logo
+ * [LogoState.CLOSE] – whether the logo is the close logo
  */
 class DrawerAndLogoViewModel(
     application: Application
@@ -23,6 +25,17 @@ class DrawerAndLogoViewModel(
     private val _drawerState = MutableStateFlow<DrawerState>(DrawerState.Closed(logoState = LogoState.UNDEFINED))
     val drawerState = _drawerState.asStateFlow()
     val logoStateFlow = drawerState.map { it.logoState }
+
+    fun setCloseButton() {
+        if (_drawerState.value.logoState == LogoState.CLOSE) {
+            return
+        }
+
+        _drawerState.value = when (val state = _drawerState.value) {
+            is DrawerState.Closed -> state.copy(logoState = LogoState.CLOSE)
+            is DrawerState.Open -> state.copy(logoState = LogoState.CLOSE)
+        }
+    }
 
     fun setFeedLogo() {
         if (_drawerState.value.logoState == LogoState.FEED) {

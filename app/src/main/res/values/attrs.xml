@@ -14,4 +14,8 @@
         <attr name="appWidgetInnerRadius" format="dimension" />
         <attr name="appWidgetRadius" format="dimension" />
     </declare-styleable>
+
+    <declare-styleable name="LogoView">
+        <attr name="listenForCloseState" format="boolean" />
+    </declare-styleable>
 </resources>
