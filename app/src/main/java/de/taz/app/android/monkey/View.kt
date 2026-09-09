@@ -1,9 +1,19 @@
 package de.taz.app.android.monkey
 
+import android.content.ContextWrapper
 import android.view.View
+import androidx.activity.ComponentActivity
+import androidx.annotation.MainThread
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelLazy
+import androidx.lifecycle.ViewModelProvider.Factory
+import androidx.lifecycle.findViewTreeLifecycleOwner
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewmodel.CreationExtras
+import kotlinx.coroutines.CoroutineScope
 
 /*
  * These functions are used to set the default insets by either the system bars or the displayCutout
@@ -67,3 +77,38 @@ fun View.setOnTapListener(delay: Long = 300L, listenerFun: (View) -> Unit) {
         postDelayed({ isClickable = true }, delay)
     }
 }
+
+fun View.lifecycleScope(): CoroutineScope? = findViewTreeLifecycleOwner()?.lifecycleScope
+
+fun View.getActivity(): ComponentActivity? {
+    var context = getContext()
+    while (context is ContextWrapper) {
+        if (context is ComponentActivity) {
+            return context
+        }
+        context = context.baseContext
+    }
+    return null
+}
+
+fun View.requireActivity(): ComponentActivity = requireNotNull(getActivity())
+
+
+@MainThread
+inline fun <reified VM : ViewModel> View.activityViewModels(
+    noinline extrasProducer: (() -> CreationExtras)? = null,
+    noinline factoryProducer: (() -> Factory)? = null
+): Lazy<VM> {
+    val factoryPromise = factoryProducer ?: {
+        requireActivity().defaultViewModelProviderFactory
+    }
+
+    return ViewModelLazy(
+        VM::class,
+        { requireActivity().viewModelStore },
+        factoryPromise,
+        { extrasProducer?.invoke() ?: requireActivity().defaultViewModelCreationExtras }
+    )
+}
+
+

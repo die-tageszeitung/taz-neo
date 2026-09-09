@@ -289,20 +289,12 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
                         }
                     }
 
-                    launch {
-                        drawerAndLogoViewModel.logoStateFlow
-                            .withPreviousValue()
-                            .collect { (current, previous) ->
-                                logoView.transitionState(
-                                    (previous ?: LogoState.UNDEFINED) to current
-                                )
-                            }
-                    }
                 }
             }
             setupHeader()
             setupViewPager()
             setupFAB()
+            setupLogoTranslationY()
             appBarLayout.addOnStateChangeListener {
                 if (isHidden || !isResumed) {
                     return@addOnStateChangeListener
@@ -780,6 +772,19 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
             if (extraPadding > 0 && resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
                 viewBinding?.header?.root?.setPadding(0, extraPadding, 0, 0)
             }
+        }
+    }
+
+    private fun setupLogoTranslationY() {
+        lifecycleScope.launch {
+            val extraPadding = generalDataStore.displayCutoutExtraPadding.get()
+            val extraPaddingFloat =
+                if (extraPadding > 0 && resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                    extraPadding.toFloat()
+                } else {
+                    0f
+                }
+            viewBinding?.logoView?.translationY = extraPaddingFloat
         }
     }
 

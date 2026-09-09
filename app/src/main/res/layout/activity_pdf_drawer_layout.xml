@@ -46,32 +46,13 @@
             android:clipChildren="false"
             android:clipToPadding="false">
 
-            <androidx.cardview.widget.CardView
-                android:id="@+id/drawer_logo_wrapper"
+            <de.taz.app.android.ui.logo.LogoView
+                android:id="@+id/drawer_logo_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:translationY="@dimen/drawer_logo_translation_y"
-                android:alpha="0"
-                app:cardBackgroundColor="@android:color/transparent"
-                app:cardCornerRadius="@dimen/drawer_logo_corner_radius"
-                app:cardElevation="@dimen/drawer_logo_elevation"
-                app:cardUseCompatPadding="false"
                 app:layout_constraintLeft_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
-
-                <ImageView
-                    android:id="@+id/drawer_logo"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:adjustViewBounds="true"
-                    android:background="@color/drawer_logo_color"
-                    android:clickable="true"
-                    android:src="@drawable/ic_burger_menu"
-                    android:contentDescription="@string/navigation_drawer_close"
-                    android:focusable="true"
-                    android:importantForAccessibility="yes"
-                    android:scaleType="centerInside" />
-            </androidx.cardview.widget.CardView>
+                app:layout_constraintTop_toTopOf="parent"
+                app:listenForCloseState="true" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
 

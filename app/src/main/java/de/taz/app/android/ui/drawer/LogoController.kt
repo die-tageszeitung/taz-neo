@@ -1,16 +1,11 @@
 package de.taz.app.android.ui.drawer
 
 import android.content.Context
-import android.content.res.Configuration
 import android.graphics.drawable.Drawable
 import android.util.TypedValue
-import android.view.View
-import android.widget.ImageView
 import androidx.core.content.res.ResourcesCompat
-import androidx.core.view.updateLayoutParams
 import com.bumptech.glide.Glide
 import de.taz.app.android.R
-import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.persistence.repository.ImageRepository
 import de.taz.app.android.singletons.StorageService
@@ -22,8 +17,7 @@ private const val UNKNOWN = -1
 const val NO_TRANSLATION = 0f
 
 /**
- * Shared controller for logo resources, dimensions, and basic UI updates.
- * Used by [DrawerLogoController] and [de.taz.app.android.ui.logo.LogoView].
+ * controller for logo resources and dimensions.
  */
 class LogoController private constructor(context: Context) {
 
@@ -32,15 +26,12 @@ class LogoController private constructor(context: Context) {
     private val imageRepository = ImageRepository.getInstance(context)
     private val storageService = StorageService.getInstance(context)
     private val tazApiCssDataStore = TazApiCssDataStore.getInstance(context)
-    private val generalDataStore = GeneralDataStore.getInstance(context)
     private val glide = Glide.with(context)
 
     val burgerDrawable = ResourcesCompat.getDrawable(resources, R.drawable.ic_burger_menu, null)
     val closeDrawable = ResourcesCompat.getDrawable(resources, R.drawable.ic_close_drawer, null)
 
-    val burgerWidthFromDimens = resources.getDimensionPixelSize(R.dimen.drawer_burger_menu_width)
-    val drawerLogoMarginStart = resources.getDimensionPixelSize(R.dimen.drawer_logo_margin_start)
-    val drawerLogoPeakWhenHidden = resources.getDimensionPixelSize(R.dimen.drawer_logo_peak_when_hidden)
+    val burgerWidth = resources.getDimensionPixelSize(R.dimen.drawer_burger_menu_width)
 
     private var _feedLogoDrawable: Drawable? = null
     private var _feedLogoHeight = UNKNOWN
@@ -103,100 +94,33 @@ class LogoController private constructor(context: Context) {
                 imageDrawable.intrinsicWidth.toFloat(),
                 resources.displayMetrics
             ) * getScaleFactor()).toInt()
+            tazApiCssDataStore.logoWidth.set(_feedLogoWidth)
         }
         return _feedLogoWidth
     }
 
-    /* TODO simplify? split up? */
-    fun ensureIconAndSize(
-        imageView: ImageView,
-        newWidth: Int,
-        newHeight: Int,
-        drawable: Drawable?,
-        translationX: Float? = null
-    ) {
-        if ((drawable != null) && (imageView.drawable != drawable)) {
-            imageView.setImageDrawable(drawable)
-        }
-        if (imageView.height != newHeight || imageView.width != newWidth) {
-            imageView.updateLayoutParams {
-                height = newHeight
-                width = newWidth
-            }
-        }
-        if (translationX != null) {
-            imageView.translationX = translationX
-        }
-    }
-
-    suspend fun ensureFeedLogo(imageView: ImageView) {
-        val drawable = getFeedDrawable() ?: return
-        val newHeight = getFeedLogoHeight()
-        val newWidth = getFeedLogoWidth()
-
-        if (newHeight == UNKNOWN || newWidth == UNKNOWN) {
-            return
-        }
-
-        ensureIconAndSize(imageView, newWidth, newHeight, drawable)
-        tazApiCssDataStore.logoWidth.set(newWidth)
-    }
-
-    suspend fun ensureBurgerIcon(imageView: ImageView) {
-        ensureIconAndSize(
-            imageView,
-            burgerWidthFromDimens,
-            getFeedLogoHeight(),
-            burgerDrawable,
-            NO_TRANSLATION
-        )
-    }
-
-    suspend fun ensureBurgerIcon(wrapperView: View, imageView: ImageView) {
-        wrapperView.updateLayoutParams {
-            width = burgerWidthFromDimens
-        }
-        ensureIconAndSize(
-            imageView,
-            burgerWidthFromDimens,
-            getFeedLogoHeight(),
-            burgerDrawable,
-            NO_TRANSLATION
-        )
-    }
-
     /**
-     * Calculates the translationX needed to hide the logo wrapper, leaving only a "peak" visible.
+     * Pure math helper to calculate the logo's X position during drawer sliding.
      */
-    fun calculateHiddenTranslationX(wrapperView: View): Float {
-        val width = if (wrapperView.measuredWidth > 0) {
-            wrapperView.measuredWidth.toFloat()
+    fun calculateTranslationX(
+        slideOffset: Float,
+        screenWidth: Int,
+        navViewWidth: Int?,
+        logoWidth: Int,
+        effectiveStateForClosedOffset: LogoState,
+        drawerLogoTranslationX: Float,
+        marginStart: Float
+    ): Float {
+        val logoTranslationForClosedDrawer = (if (effectiveStateForClosedOffset == LogoState.BURGER ||
+            effectiveStateForClosedOffset == LogoState.HIDDEN
+        ) 0f else marginStart) + drawerLogoTranslationX
+
+        val logoTranslationForOpenDrawer = if (navViewWidth != null && logoWidth + navViewWidth > screenWidth) {
+            (screenWidth - navViewWidth - logoWidth).toFloat()
         } else {
-            // Fallback to burger width if not measured yet
-            burgerWidthFromDimens.toFloat()
-        }
-        return -width + drawerLogoPeakWhenHidden
-    }
-
-    suspend fun setupLogos(
-        burgerLogo: ImageView,
-        burgerWrapper: View,
-        feedLogo: ImageView? = null,
-        onClick: () -> Unit
-    ) {
-        feedLogo?.let { ensureFeedLogo(it) }
-        ensureBurgerIcon(burgerWrapper, burgerLogo)
-
-        // Adjust padding when we have cut out display
-        val extraPadding = generalDataStore.displayCutoutExtraPadding.get()
-        if (extraPadding > 0 && resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-            val extraPaddingFloat = extraPadding.toFloat()
-            val baseTranslation = resources.getDimension(R.dimen.drawer_logo_translation_y)
-            feedLogo?.translationY = baseTranslation + extraPaddingFloat
-            burgerWrapper.translationY = baseTranslation + extraPaddingFloat
+            marginStart
         }
 
-        feedLogo?.setOnClickListener { onClick() }
-        burgerLogo.setOnClickListener { onClick() }
+        return slideOffset * logoTranslationForOpenDrawer + (1 - slideOffset) * logoTranslationForClosedDrawer
     }
 }

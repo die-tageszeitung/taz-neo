@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android">
+
     <ImageView
         android:id="@+id/burger_logo"
         android:layout_width="wrap_content"
@@ -8,11 +9,27 @@
         android:background="@color/drawer_logo_color"
         android:contentDescription="@string/navigation_drawer_open"
         android:scaleType="centerInside"
-        android:src="@drawable/ic_burger_menu" />
+        android:src="@drawable/ic_burger_menu"
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/close_logo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:contentDescription="@string/navigation_drawer_close"
+        android:scaleType="centerInside"
+        android:background="@color/drawer_logo_color"
+        android:src="@drawable/ic_close_drawer"
+        android:visibility="gone" />
 
     <ImageView
         android:id="@+id/feed_logo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:contentDescription="@string/navigation_drawer_open" />
+        android:layout_gravity="center"
+        android:contentDescription="@string/navigation_drawer_open"
+        android:scaleType="centerInside"
+        android:visibility="gone" />
+
 </merge>

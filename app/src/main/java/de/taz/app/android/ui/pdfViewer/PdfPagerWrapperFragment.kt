@@ -319,18 +319,10 @@ class PdfPagerWrapperFragment : ViewBindingFragment<ActivityPdfDrawerLayoutBindi
             drawerViewController = DrawerViewController(
                 requireActivity(),
                 pdfDrawerLayout,
-                drawerLogoWrapper,
+                drawerLogoView,
                 navView,
                 viewLifecycleOwner.lifecycleScope
             )
-
-            // Adjust extra padding when we have cutout display
-            lifecycleScope.launch {
-                val extraPadding = generalDataStore.displayCutoutExtraPadding.get()
-                if (extraPadding > 0 && resources.configuration.orientation == ORIENTATION_PORTRAIT) {
-                    navView.setPadding(0, extraPadding, 0, 0)
-                }
-            }
 
             pdfDrawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener {
                 override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
@@ -347,6 +339,14 @@ class PdfPagerWrapperFragment : ViewBindingFragment<ActivityPdfDrawerLayoutBindi
 
                 override fun onDrawerStateChanged(newState: Int) = Unit
             })
+
+            // Adjust extra padding when we have cutout display
+            lifecycleScope.launch {
+                val extraPadding = generalDataStore.displayCutoutExtraPadding.get()
+                if (extraPadding > 0 && resources.configuration.orientation == ORIENTATION_PORTRAIT) {
+                    navView.setPadding(0, extraPadding, 0, 0)
+                }
+            }
         }
     }
 
