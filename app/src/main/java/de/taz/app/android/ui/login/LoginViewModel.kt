@@ -75,7 +75,7 @@ class LoginViewModel @JvmOverloads constructor(
         }
 
     var username: String? = runBlocking { authHelper.email.get() }
-    var backToSettingsAfterEmailSent = false
+    var isPasswordResetRequest = false
     val backToArticle: Boolean
         get() = articleName != null
 
@@ -634,7 +634,7 @@ class LoginViewModel @JvmOverloads constructor(
 
     fun backAfterEmailSent() {
         status = LoginViewModelState.LOADING
-        val statusBefore = if (backToSettingsAfterEmailSent) {
+        val statusBefore = if (isPasswordResetRequest) {
             LoginViewModelState.DONE
         } else {
             statusBeforePasswordRequest ?: LoginViewModelState.INITIAL

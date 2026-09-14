@@ -12,7 +12,7 @@ class PasswordEmailSentFragment: LoginBaseFragment<FragmentLoginForgotPasswordEm
         super.onViewCreated(view, savedInstanceState)
 
         viewBinding?.fragmentLoginForgotPasswordEmailSentBack?.apply {
-            if (viewModel.backToSettingsAfterEmailSent) {
+            if (viewModel.isPasswordResetRequest) {
                 setText(R.string.fragment_login_success_login_back_settings)
             }
             setOnClickListener {

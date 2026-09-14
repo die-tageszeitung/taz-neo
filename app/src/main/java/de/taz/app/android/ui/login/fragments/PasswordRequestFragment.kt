@@ -91,7 +91,11 @@ class PasswordRequestFragment : SubscriptionBaseFragment<FragmentLoginForgotPass
             )
 
             backButton.setOnClickListener {
-                loginFlowBack()
+                if(viewModel.isPasswordResetRequest) {
+                    viewModel.backAfterEmailSent()
+                } else {
+                    loginFlowBack()
+                }
             }
         }
     }

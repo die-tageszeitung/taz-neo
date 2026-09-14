@@ -98,7 +98,7 @@ class LoginBottomSheetFragment : FullscreenViewBindingBottomSheetFragment<Fragme
                     viewModel.apply {
                         username = authHelper.email.get()
                         status = LoginViewModelState.PASSWORD_REQUEST
-                        backToSettingsAfterEmailSent = true
+                        isPasswordResetRequest = true
                     }
                 }
             }
@@ -240,7 +240,9 @@ class LoginBottomSheetFragment : FullscreenViewBindingBottomSheetFragment<Fragme
 
     private fun handleOnBackPressed() {
         hideSoftInputKeyboard()
-        if (viewBinding.loadingScreen.root.isVisible) {
+        if (viewModel.isPasswordResetRequest) {
+            viewModel.backAfterEmailSent()
+        } else if (viewBinding.loadingScreen.root.isVisible) {
             hideLoadingScreen()
         } else if (childFragmentManager.backStackEntryCount == 2) {
             // FIXME (johannes): as we don't have a history within the LoginViewModel,
