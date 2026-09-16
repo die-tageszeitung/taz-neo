@@ -12,6 +12,7 @@ import de.taz.app.android.api.variables.GetCustomerDataVariables
 import de.taz.app.android.api.variables.IssueVariables
 import de.taz.app.android.api.variables.NotificationVariables
 import de.taz.app.android.api.variables.PasswordResetVariables
+import de.taz.app.android.api.variables.PodcastVariables
 import de.taz.app.android.api.variables.SaveCustomerDataVariables
 import de.taz.app.android.api.variables.SearchVariables
 import de.taz.app.android.api.variables.SubscriptionFormDataVariables
@@ -42,6 +43,7 @@ private val module = SerializersModule {
         subclass(IssueVariables::class)
         subclass(NotificationVariables::class)
         subclass(PasswordResetVariables::class)
+        subclass(PodcastVariables::class)
         subclass(SaveCustomerDataVariables::class)
         subclass(SearchVariables::class)
         subclass(SubscriptionFormDataVariables::class)

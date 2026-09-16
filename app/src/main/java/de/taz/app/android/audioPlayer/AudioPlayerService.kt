@@ -18,14 +18,17 @@ import de.taz.app.android.api.models.Audio
 import de.taz.app.android.api.models.AudioSpeaker
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.Page
+import de.taz.app.android.api.models.PodcastEpisode
 import de.taz.app.android.api.models.SearchHit
 import de.taz.app.android.audioPlayer.MediaItemHelper.Companion.belongsTo
 import de.taz.app.android.audioPlayer.MediaItemHelper.Companion.indexOfMediaItem
 import de.taz.app.android.dataStore.AudioPlayerDataStore
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.PlaylistRepository
+import de.taz.app.android.persistence.repository.PodcastRepository
 import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.tracking.Tracker
+import de.taz.app.android.ui.listen.MARK_AS_PLAYED_THRESHOLD
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.SingletonHolder
 import kotlinx.coroutines.CoroutineScope
@@ -84,7 +87,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
 
         // The Player/Controller is being started/connected.
         // The player UI might already be shown
-        data class Connecting(val playWhenReady: Boolean) : PlayerState()
+        data class Connecting(val playWhenReady: Boolean, val startPositionMs: Long = 0L) : PlayerState()
 
         // The Player/Controller is ready and a regular playlist MediaItem is queued on the Player
         // The player UI is shown.
@@ -126,6 +129,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
 
     private val articleRepository = ArticleRepository.getInstance(applicationContext)
     private val playlistRepository = PlaylistRepository.getInstance(applicationContext)
+    private val podcastRepository = PodcastRepository.getInstance(applicationContext)
 
     // Play the disclaimer only once per app session:
     private var disclaimerPlayed = false
@@ -214,6 +218,18 @@ class AudioPlayerService private constructor(private val applicationContext: Con
         }
     }
 
+    fun playPodcast(episode: PodcastEpisode) {
+        isIssuePlayer = false
+        val startPositionMs = if (episode.alreadyPlayed < MARK_AS_PLAYED_THRESHOLD) {
+            (episode.alreadyPlayed * (episode.audio.duration ?: 0f) * 1000).toLong()
+        } else {
+            0L
+        }
+        initItems(startPositionMs = startPositionMs) {
+            audioPlayerItemInitHelper.initPodcast(episode)
+        }
+    }
+
     fun playPodcast(issueStub: IssueStub, page: Page, audio: Audio) {
         isIssuePlayer = false
         initItems {
@@ -248,7 +264,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
             is PlayerState.AudioReady -> toggleAudioControllerPlaying(state.controller)
             is PlayerState.DisclaimerReady -> toggleAudioControllerPlaying(state.controller)
             is PlayerState.AudioError -> resumeAfterError(state.controller)
-            is PlayerState.Connecting -> PlayerState.Connecting(!state.playWhenReady)
+            is PlayerState.Connecting -> forceState(PlayerState.Connecting(!state.playWhenReady, state.startPositionMs))
 
             // Try to re-prepare and play the audio
             PlayerState.Idle -> setCurrentAndPlay()
@@ -314,6 +330,19 @@ class AudioPlayerService private constructor(private val applicationContext: Con
      */
     fun dismissPlayer() {
         val controller = getControllerFromState()
+        val currentItem = getCurrent()
+        val currentPosition = controller?.currentPosition ?: 0L
+        val duration = controller?.duration ?: 0L
+
+        if (currentItem?.type == AudioPlayerItem.Type.PODCAST && currentItem.playableKey != null && duration > 0) {
+            val progress = currentPosition.toFloat() / duration.toFloat()
+            val episodeId = currentItem.playableKey.toIntOrNull()
+            if (episodeId != null) {
+                launch(Dispatchers.IO) {
+                    podcastRepository.updateAlreadyPlayed(episodeId, progress)
+                }
+            }
+        }
 
         controller?.apply {
             stop()
@@ -646,6 +675,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
     private fun initItems(
         enqueueInsteadOfPlay: Boolean = false,
         articleKey: String? = null,
+        startPositionMs: Long = 0L,
         init: suspend () -> List<AudioPlayerItem>,
     ) {
         initItemScope.launch {
@@ -695,7 +725,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
                                     newItems.map {
                                         mediaItemHelper.getMediaItem(it)
                                     })
-                                seekTo(index, 0L)
+                                seekTo(index, startPositionMs)
 
                                 playWhenReady = true
                                 prepare()
@@ -710,7 +740,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
                                 setMediaItems(newItems.map {
                                     mediaItemHelper.getMediaItem(it)
                                 })
-                                seekTo(index, 0L)
+                                seekTo(index, startPositionMs)
                                 playWhenReady = true
                                 prepare()
                             }
@@ -719,7 +749,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
                         PlayerState.Idle, is PlayerState.Connecting -> {
                             _audioQueueState.value = Playlist(index, newItems)
 
-                            connectController(true)
+                            connectController(true, startPositionMs)
                         }
                     }
                 }
@@ -731,7 +761,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
 
 
     private fun setCurrentAndPlay() {
-        when (state.value) {
+        when (val currentState = state.value) {
             is PlayerState.AudioReady, is PlayerState.DisclaimerReady, is PlayerState.AudioError -> {
                 val controller = requireNotNull(getControllerFromState())
                 val (currentIdx, items) = _audioQueueState.value
@@ -745,7 +775,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
                     prepare()
                 }
             }
-            is PlayerState.Connecting -> forceState(PlayerState.Connecting(playWhenReady = true))
+            is PlayerState.Connecting -> forceState(PlayerState.Connecting(playWhenReady = true, currentState.startPositionMs))
             PlayerState.Idle -> connectController(playWhenReady = true)
         }
     }
@@ -776,10 +806,10 @@ class AudioPlayerService private constructor(private val applicationContext: Con
         }
     }
 
-    private fun connectController(playWhenReady: Boolean) {
+    private fun connectController(playWhenReady: Boolean, startPositionMs: Long = 0L) {
         log.verbose("Connecting MediaController")
         launch {
-            forceState(PlayerState.Connecting(playWhenReady))
+            forceState(PlayerState.Connecting(playWhenReady, startPositionMs))
 
             val sessionToken =
                 SessionToken(
@@ -812,7 +842,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
         }
 
         when (val state = state.value) {
-            is PlayerState.Connecting -> prepareCurrentPlaylist(controller, state.playWhenReady)
+            is PlayerState.Connecting -> prepareCurrentPlaylist(controller, state.playWhenReady, state.startPositionMs)
 
             // Unexpected: Just dismiss this edge case (Keep it simple)
             PlayerState.Idle, is PlayerState.AudioError, is PlayerState.AudioReady, is PlayerState.DisclaimerReady -> dismissPlayer() // FIXME dismiss with error
@@ -830,7 +860,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
         }
     }
 
-    private fun prepareCurrentPlaylist(controller: MediaController, playWhenReady: Boolean) {
+    private fun prepareCurrentPlaylist(controller: MediaController, playWhenReady: Boolean, startPositionMs: Long = 0L) {
         log.verbose("prepareCurrentPlaylist(...) playlist: ${_audioQueueState.value}")
         val (currentItemIdx, currentItems) = _audioQueueState.value
 
@@ -847,7 +877,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
                 setMediaItems(currentItems.map {
                     mediaItemHelper.getMediaItem(it)
                 })
-                seekTo(currentItemIdx, 0L)
+                seekTo(currentItemIdx, startPositionMs)
             }
             setPlayWhenReady(playWhenReady)
             setAutoPlayNext(autoPlayNextPreference.value || isPlaylistPlayer)

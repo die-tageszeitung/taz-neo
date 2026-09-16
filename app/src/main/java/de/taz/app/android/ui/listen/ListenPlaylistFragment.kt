@@ -1,32 +1,20 @@
-package de.taz.app.android.ui.playlist
+package de.taz.app.android.ui.listen
 
-import android.annotation.SuppressLint
 import android.os.Bundle
-import android.widget.TextView
-import androidx.activity.addCallback
+import android.view.View
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
-import de.taz.app.android.R
 import de.taz.app.android.audioPlayer.AudioPlayerService
-import de.taz.app.android.audioPlayer.AudioPlayerViewController
 import de.taz.app.android.audioPlayer.Playlist
 import de.taz.app.android.audioPlayer.PlaylistAdapter
 import de.taz.app.android.audioPlayer.UiState
-import de.taz.app.android.audioPlayer.UiState.PlayerState
-import de.taz.app.android.base.ViewBindingActivity
-import de.taz.app.android.databinding.ActivityPlaylistBinding
+import de.taz.app.android.base.ViewBindingFragment
+import de.taz.app.android.databinding.FragmentListenPlaylistBinding
 import de.taz.app.android.persistence.repository.PlaylistRepository
 import de.taz.app.android.tracking.Tracker
-import de.taz.app.android.ui.navigation.BottomNavigationItem
-import de.taz.app.android.ui.navigation.bottomNavigationBack
-import de.taz.app.android.ui.navigation.setupBottomNavigation
 import kotlinx.coroutines.launch
 
-class PlaylistActivity:
-    ViewBindingActivity<ActivityPlaylistBinding>() {
-
-    @Suppress("UNUSED") // this is necessary so the audio player is shown
-    private val audioPlayerViewController = AudioPlayerViewController(this)
+class ListenPlaylistFragment : ViewBindingFragment<FragmentListenPlaylistBinding>() {
 
     private lateinit var audioPlayerService: AudioPlayerService
     private lateinit var playlistAdapter: PlaylistAdapter
@@ -35,17 +23,13 @@ class PlaylistActivity:
 
     private var isPlaylistInitialized = false
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        onBackPressedDispatcher.addCallback(this) {
-            bottomNavigationBack()
-        }
-
-        audioPlayerService = AudioPlayerService.getInstance(applicationContext)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        val context = requireContext()
+        audioPlayerService = AudioPlayerService.getInstance(context.applicationContext)
         playlistAdapter = PlaylistAdapter(audioPlayerService)
-        playlistRepository = PlaylistRepository.getInstance(applicationContext)
-        tracker = Tracker.getInstance(applicationContext)
+        playlistRepository = PlaylistRepository.getInstance(context.applicationContext)
+        tracker = Tracker.getInstance(context.applicationContext)
 
         // init playlist state:
         lifecycleScope.launch {
@@ -63,29 +47,22 @@ class PlaylistActivity:
         lifecycleScope.launch {
             audioPlayerService.uiState.collect {
                 val playerState = it.getPlayerStateOrNull()
-                if (playerState is PlayerState.Playing || playerState is PlayerState.Paused || it is UiState.Hidden) {
-                    viewBinding.playlistRv.adapter?.notifyItemChanged(audioPlayerService.persistedPlaylistState.value.currentItemIdx)
+                if (playerState is UiState.PlayerState.Playing || playerState is UiState.PlayerState.Paused || it is UiState.Hidden) {
+                    viewBinding?.playlistRv?.adapter?.notifyItemChanged(audioPlayerService.persistedPlaylistState.value.currentItemIdx)
                 }
             }
         }
-        viewBinding.playlistRv.adapter = playlistAdapter
-
-        viewBinding.root.findViewById<TextView>(R.id.fragment_header_default_title)
-            ?.setText(R.string.audioplayer_playlist)
+        viewBinding?.playlistRv?.adapter = playlistAdapter
     }
 
     override fun onResume() {
         super.onResume()
         // If player is running ensure it is the small one at start:
         audioPlayerService.minimizePlayer()
-        setupBottomNavigation(
-            viewBinding.navigationBottom,
-            BottomNavigationItem.Playlist
-        )
     }
 
     private fun setupUserInteractionsHandlers(playlistData: Playlist) {
-        viewBinding.apply {
+        viewBinding?.apply {
             playlistEmpty.isVisible = playlistData.items.isEmpty()
 
             if (playlistData.currentItemIdx != -1) {

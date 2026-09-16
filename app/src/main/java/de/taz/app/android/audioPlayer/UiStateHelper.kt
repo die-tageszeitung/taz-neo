@@ -6,6 +6,7 @@ import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.SectionOperations
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.Page
+import de.taz.app.android.api.models.PodcastEpisode
 import de.taz.app.android.api.models.SearchHit
 import de.taz.app.android.persistence.repository.AbstractIssueKey
 import de.taz.app.android.singletons.StorageService
@@ -67,6 +68,20 @@ class UiStateHelper(val applicationContext: Context) {
         )
     }
 
+    fun podcastAsUiItem(episode: PodcastEpisode): AudioPlayerItem.UiItem {
+        val title = episode.title ?: episode.headLine ?: ""
+        val coverImageUriString = episode.icon?.fileEntry?.let { storageService.getFileUri(it) }
+        val coverImageUri = coverImageUriString?.let { Uri.parse(it) }
+        return AudioPlayerItem.UiItem(
+            title,
+            episode.authors,
+            coverImageUri,
+            null,
+            null, // Podcasts shall not open the issue when being clicked in the player
+            AudioPlayerItem.Type.PODCAST,
+        )
+    }
+
 
     private fun getAudioTitle(article: Article): String {
         return article.title ?: article.key
@@ -106,8 +121,10 @@ class UiStateHelper(val applicationContext: Context) {
         }
 
         val seekBreaks = !playlist.getCurrentItem()?.audio?.breaks.isNullOrEmpty()
+        val currentItemType = playlist.getCurrentItem()?.type
+        val showHelp = currentItemType != AudioPlayerItem.Type.PODCAST && currentItemType != AudioPlayerItem.Type.DISCLAIMER
 
-        return UiState.Controls(skipNext, skipPrevious, autoPlayNext, seekBreaks)
+        return UiState.Controls(skipNext, skipPrevious, autoPlayNext, seekBreaks, showHelp)
 
     }
 
@@ -124,6 +141,7 @@ class UiStateHelper(val applicationContext: Context) {
         UiState.ControlValue.HIDDEN,
         UiState.ControlValue.HIDDEN,
         UiState.ControlValue.HIDDEN,
-        seekBreaks = false
+        seekBreaks = false,
+        showHelp = false
     )
 }

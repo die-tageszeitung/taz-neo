@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ImageView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/podcast_image"
+    android:layout_width="@dimen/podcast_card_width"
+    android:layout_height="@dimen/podcast_card_width"
+    android:layout_marginHorizontal="10dp"
+    android:contentDescription="@string/listen_podcasts_preview_image_accessibility"
+    android:scaleType="centerCrop"
+    tools:src="@tools:sample/avatars" />
+

@@ -196,6 +196,22 @@
         <item name="android:textColor">@color/read_minutes</item>
     </style>
 
+    <style name="TextAppearance.App.Design.Tab.ListenTabTextAppearance" parent="TextAppearance.Design.Tab">
+        <!-- Override the textSize, so it can be set depending on the display size -->
+        <item name="android:textSize">@dimen/fragment_header_default_text_size</item>
+        <item name="android:fontFamily">@font/appFontBold</item>
+        <item name="android:maxLines">1</item>
+        <!-- Better vertical centering for single-line tabs -->
+        <item name="android:includeFontPadding">false</item>
+        <!-- Modern way to control line height and spacing -->
+        <item name="android:lineSpacingExtra">0dp</item>
+        <item name="android:letterSpacing">0</item>
+        <!-- Set some autosizing limits options -->
+        <item name="autoSizeTextType">uniform</item>
+        <item name="autoSizeMinTextSize">8sp</item>
+        <item name="textAllCaps">false</item>
+    </style>
+
     <style name="Widget.App.Drawer.Pdf.Header.Date" parent="Widget.App.TextView.Date.Small">
         <item name="android:textColor">@color/fragment_drawer_date_text_color</item>
     </style>

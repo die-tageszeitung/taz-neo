@@ -8,7 +8,7 @@ import com.google.android.material.snackbar.Snackbar
 import de.taz.app.android.R
 import de.taz.app.android.ui.bookmarks.BookmarkListActivity
 import de.taz.app.android.ui.bookmarks.BookmarkListItem
-import de.taz.app.android.ui.playlist.PlaylistActivity
+import de.taz.app.android.ui.listen.ListenActivity
 
 /**
  * Singleton to simplify the creation of snackBars
@@ -134,7 +134,7 @@ object SnackBarHelper {
 
     private fun showPlaylist(context: Context) {
         Intent(
-            context, PlaylistActivity::class.java
+            context, ListenActivity::class.java
         ).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
             .apply { context.startActivity(this) }
     }

@@ -248,18 +248,6 @@ data class AudioWithFile(
     constructor(audio: Audio) : this(AudioStub(audio), audio.file)
 }
 
-data class ImageWithFile(
-    @Embedded val imageStub: ImageStub,
-    @Relation(
-        parentColumn = "fileEntryName",
-        entityColumn = "name"
-    )
-    val fileEntry: FileEntry?
-) {
-    // Helper constructor to wrap an Image model
-    constructor(image: Image) : this(ImageStub(image), FileEntry(image))
-}
-
 data class AuthorJoinWithFile(
     @Embedded val authorJoin: ArticleAuthorImageJoin,
     @Relation(

@@ -7,6 +7,7 @@ import android.provider.OpenableColumns
 import android.util.Base64
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.MAX_BYTES
 import de.taz.app.android.R
@@ -55,6 +56,17 @@ class ErrorReportFragment : BaseMainFragment<FragmentErrorReportBinding>() {
         viewBinding?.apply {
 
             settingsHeader.fragmentHeaderDefaultTitle.setText(R.string.settings_header)
+            settingsHeader.fragmentHeaderDefaultIcon.apply {
+                setImageResource(R.drawable.ic_settings)
+                // When new image is set, the tint is lost, so we need to set color again:
+                setColorFilter(
+                    ResourcesCompat.getColor(
+                        resources,
+                        R.color.textColor,
+                        null
+                    )
+                )
+            }
 
             lifecycleScope.launch {
                 // read email from settings

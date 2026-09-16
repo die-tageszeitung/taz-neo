@@ -11,9 +11,9 @@
         android:icon="@drawable/ic_bookmark"
         android:title="@string/tab_bar_bookmarks" />
     <item
-        android:id="@+id/bottom_navigation_action_playlist"
-        android:icon="@drawable/ic_playlist_outlined"
-        android:title="@string/tab_bar_playlist" />
+        android:id="@+id/bottom_navigation_action_listen"
+        android:icon="@drawable/ic_listen"
+        android:title="@string/tab_bar_listen" />
     <item
         android:id="@+id/bottom_navigation_action_search"
         android:icon="@drawable/ic_search"

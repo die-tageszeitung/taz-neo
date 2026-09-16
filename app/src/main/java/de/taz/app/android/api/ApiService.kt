@@ -20,6 +20,7 @@ import de.taz.app.android.api.mappers.IssueStatusMapper
 import de.taz.app.android.api.mappers.MinAppVersionMapper
 import de.taz.app.android.api.mappers.MomentMapper
 import de.taz.app.android.api.mappers.PageMapper
+import de.taz.app.android.api.mappers.PodcastMapper
 import de.taz.app.android.api.mappers.ResourceInfoMapper
 import de.taz.app.android.api.mappers.SearchMapper
 import de.taz.app.android.api.mappers.SubscriptionFormDataMapper
@@ -36,6 +37,7 @@ import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.Moment
 import de.taz.app.android.api.models.Page
 import de.taz.app.android.api.models.PasswordResetInfo
+import de.taz.app.android.api.models.Podcast
 import de.taz.app.android.api.models.ResourceInfo
 import de.taz.app.android.api.models.Search
 import de.taz.app.android.api.models.Sorting
@@ -55,6 +57,7 @@ import de.taz.app.android.api.variables.GetCustomerDataVariables
 import de.taz.app.android.api.variables.IssueVariables
 import de.taz.app.android.api.variables.NotificationVariables
 import de.taz.app.android.api.variables.PasswordResetVariables
+import de.taz.app.android.api.variables.PodcastVariables
 import de.taz.app.android.api.variables.SaveCustomerDataVariables
 import de.taz.app.android.api.variables.SearchFilter
 import de.taz.app.android.api.variables.SearchVariables
@@ -949,6 +952,24 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
             null
         }
         return date
+    }
+
+    /**
+     * function to get list of all podcasts.
+     * @param limit describes how many episodes for each podcast should be fetched.
+     */
+    @Throws(ConnectivityException::class)
+    suspend fun getPodcastList(limit: Int = 1): List<Podcast>? {
+        val tag = "podcastList"
+        log.debug("call graphql $tag with limit $limit")
+        return transformToConnectivityException {
+            graphQlClient.query(
+                QueryType.PodcastList,
+                PodcastVariables(limit)
+            ).data?.product?.podcastList?.map {
+                PodcastMapper.from(it)
+            }
+        }
     }
     // endregion
 }

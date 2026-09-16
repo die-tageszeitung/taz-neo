@@ -295,7 +295,7 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
                 root.findViewById<View?>(R.id.bottom_navigation_action_bookmark)!!
             )
             val homePlaylistCoachMark = HomePlaylistCoachMark.create(
-                root.findViewById<View?>(R.id.bottom_navigation_action_playlist)!!
+                root.findViewById<View?>(R.id.bottom_navigation_action_listen)!!
             )
             val homeSearchCoachMark = HomeSearchCoachMark.create(
                 root.findViewById<View?>(R.id.bottom_navigation_action_search)!!
