@@ -102,6 +102,10 @@
         <item name="lineHeight">14.4sp</item>
     </style>
 
+    <style name="Widget.App.TextView.Podcast.Info" parent="Widget.App.TextView.Listing.Info">
+        <item name="android:textColor">@color/textColor</item>
+    </style>
+
     <style name="Widget.App.TextView.Listing.Head" parent="Widget.App.TextView">
         <item name="android:fontFamily">@font/appFontBold</item>
         <item name="android:textSize">15sp</item>
@@ -125,7 +129,11 @@
     <style name="Widget.App.TextView.Listing.Author" parent="Widget.App.TextView">
         <item name="android:fontFamily">@font/appFontBold</item>
         <item name="android:textSize">13.5sp</item>
-        <item name="lineHeight">20sp</item>
+        <item name="lineHeight">16.875sp</item>
+    </style>
+
+    <style name="Widget.App.TextView.Listing.Author.Unbold" parent="Widget.App.TextView.Listing.Author">
+        <item name="android:fontFamily">@font/appFontRegular</item>
     </style>
 
     <style name="Widget.App.TextView.Listing.Metadata" parent="Widget.App.TextView">

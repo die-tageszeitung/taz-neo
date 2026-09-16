@@ -76,7 +76,7 @@
             android:name=".ui.settings.ErrorReportActivity"
             android:theme="@style/noAnimationOnActivityChange" />
         <activity
-            android:name=".ui.playlist.PlaylistActivity"
+            android:name=".ui.listen.ListenActivity"
             android:theme="@style/noAnimationOnActivityChange" />
         <activity
             android:name=".ui.splash.SplashActivity"

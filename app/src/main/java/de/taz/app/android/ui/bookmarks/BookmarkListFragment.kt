@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
+import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -104,8 +105,20 @@ class BookmarkListFragment : BaseMainFragment<FragmentBookmarksBinding>() {
             }
         }
 
-        view.findViewById<TextView>(R.id.fragment_header_default_title)
-            ?.setText(R.string.fragment_bookmarks_title)
+        viewBinding?.apply {
+            bookmarksHeader.fragmentHeaderDefaultTitle.setText(R.string.fragment_bookmarks_title)
+            bookmarksHeader.fragmentHeaderDefaultIcon.apply {
+                setImageResource(R.drawable.ic_bookmark)
+                // When new image is set, the tint is lost, so we need to set color again:
+                setColorFilter(
+                    ResourcesCompat.getColor(
+                        resources,
+                        R.color.textColor,
+                        null
+                    )
+                )
+            }
+        }
     }
 
     override fun onResume() {

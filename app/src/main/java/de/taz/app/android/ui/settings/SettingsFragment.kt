@@ -20,6 +20,7 @@ import androidx.browser.customtabs.CustomTabColorSchemeParams
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.net.toUri
 import androidx.core.text.HtmlCompat
 import androidx.core.view.isGone
@@ -116,9 +117,21 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        view.findViewById<TextView>(R.id.fragment_header_default_title)
-            ?.setText(R.string.settings_header)
+
         viewBinding?.apply {
+            settingsHeader.fragmentHeaderDefaultTitle.setText(R.string.settings_header)
+            settingsHeader.fragmentHeaderDefaultIcon.apply {
+                setImageResource(R.drawable.ic_settings)
+                // When new image is set, the tint is lost, so we need to set color again:
+                setColorFilter(
+                    ResourcesCompat.getColor(
+                        resources,
+                        R.color.textColor,
+                        null
+                    )
+                )
+            }
+
             fragmentSettingsSupportReportBug.setOnClickListener { reportBug() }
             fragmentSettingsAccountManageAccount.setOnClickListener {
                 LoginBottomSheetFragment.newInstance()

@@ -17,6 +17,8 @@ import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.MomentStub
 import de.taz.app.android.api.models.Page
 import de.taz.app.android.api.models.PageStub
+import de.taz.app.android.api.models.PodcastEntity
+import de.taz.app.android.api.models.PodcastEpisodeEntity
 import de.taz.app.android.api.models.ResourceInfoStub
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.api.models.ViewerState
@@ -40,6 +42,7 @@ import de.taz.app.android.persistence.dao.MomentDao
 import de.taz.app.android.persistence.dao.MomentFilesJoinDao
 import de.taz.app.android.persistence.dao.MomentImageJoinDao
 import de.taz.app.android.persistence.dao.PageDao
+import de.taz.app.android.persistence.dao.PodcastDao
 import de.taz.app.android.persistence.dao.ResourceInfoDao
 import de.taz.app.android.persistence.dao.ResourceInfoFileEntryJoinDao
 import de.taz.app.android.persistence.dao.SectionArticleJoinDao
@@ -57,6 +60,7 @@ import de.taz.app.android.persistence.join.MomentImageJoin
 import de.taz.app.android.persistence.join.ResourceInfoFileEntryJoin
 import de.taz.app.android.persistence.join.SectionArticleJoin
 import de.taz.app.android.persistence.join.SectionImageJoin
+import de.taz.app.android.persistence.migrations.Migration42to43
 import de.taz.app.android.persistence.migrations.Migration10to11
 import de.taz.app.android.persistence.migrations.Migration11to12
 import de.taz.app.android.persistence.migrations.Migration12to13
@@ -118,7 +122,7 @@ import de.taz.app.android.persistence.typeconverters.StorageTypeConverter
 import de.taz.app.android.persistence.typeconverters.StringListTypeConverter
 import de.taz.app.android.util.SingletonHolder
 
-const val DATABASE_VERSION = 42
+const val DATABASE_VERSION = 43
 const val DATABASE_NAME = "db"
 
 fun allMigrations() = arrayOf(
@@ -163,6 +167,7 @@ fun allMigrations() = arrayOf(
     Migration39to40(),
     Migration40to41(),
     Migration41to42(),
+    Migration42to43(),
 )
 
 @Database(
@@ -192,6 +197,8 @@ fun allMigrations() = arrayOf(
         SectionStub::class,
         SectionArticleJoin::class,
         SectionImageJoin::class,
+        PodcastEntity::class,
+        PodcastEpisodeEntity::class,
     ],
     version = DATABASE_VERSION
 )
@@ -254,4 +261,5 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun sectionArticleJoinDao(): SectionArticleJoinDao
     abstract fun sectionDao(): SectionDao
     abstract fun sectionImageJoinDao(): SectionImageJoinDao
+    abstract fun podcastDao(): PodcastDao
 }

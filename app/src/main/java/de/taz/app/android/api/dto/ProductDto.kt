@@ -13,5 +13,6 @@ data class ProductDto(
     val appName: AppNameDto? = null,
     val globalBaseUrl: String? = null,
     val feedList: List<FeedDto>? = null,
-    val androidVersion: Int? = null
+    val androidVersion: Int? = null,
+    val podcastList: List<PodcastDto>? = null
 )

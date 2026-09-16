@@ -1,37 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.appbar.MaterialToolbar
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.appbar.MaterialToolbar xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/header_default"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/backgroundColor"
-    app:contentInsetStart="@dimen/fragment_header_default_margin_horizontal"
-    app:contentInsetEnd="@dimen/fragment_header_default_margin_horizontal"
     android:paddingTop="@dimen/fragment_header_default_padding_top"
-    app:layout_constraintTop_toTopOf="parent">
+    app:contentInsetEnd="@dimen/fragment_header_default_margin_horizontal"
+    app:contentInsetStart="@dimen/fragment_header_default_margin_horizontal">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/fragment_header_default_title"
-            style="@style/Widget.App.Header.Default.Title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="bottom|start"
-            android:text="@string/fragment_default_header_title"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/header_wrapper"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingBottom="5dp">
+
+            <ImageView
+                android:id="@+id/fragment_header_default_icon"
+                android:layout_width="@dimen/icon_size"
+                android:layout_height="@dimen/icon_size"
+                android:importantForAccessibility="no"
+                app:layout_constraintBottom_toBottomOf="@id/fragment_header_default_title"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/fragment_header_default_title"
+                tools:src="@drawable/ic_bookmark" />
+
+            <TextView
+                android:id="@+id/fragment_header_default_title"
+                style="@style/Widget.App.Header.Default.Title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/fragment_header_icon_margin"
+                android:text="@string/fragment_default_header_title"
+                app:layout_constraintStart_toEndOf="@id/fragment_header_default_icon"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_goneMarginStart="0dp" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <de.taz.app.android.ui.DottedLineView
             android:id="@+id/dotted_line"
             android:layout_width="match_parent"
-            android:layout_height="5dp"
+            android:layout_height="@dimen/fragment_header_dotted_line_height"
+            android:importantForAccessibility="no"
             app:color="@color/textColor"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/fragment_header_default_title" />
+            app:layout_constraintTop_toBottomOf="@id/header_wrapper" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-
 </com.google.android.material.appbar.MaterialToolbar>

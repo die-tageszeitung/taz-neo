@@ -63,6 +63,7 @@ sealed class UiState {
         val skipPrevious: ControlValue,
         val autoPlayNext: ControlValue,
         val seekBreaks: Boolean,
+        val showHelp: Boolean,
     )
 
     enum class ControlValue {

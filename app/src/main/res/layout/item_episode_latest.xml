@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingHorizontal="16dp">
+
+    <Button
+        android:id="@+id/play_episode_button"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/default_touch_area_size"
+        android:layout_marginTop="15dp"
+        android:clickable="false"
+        android:text="@string/listen_podcast_play_newest_button"
+        app:icon="@drawable/ic_play_outline"
+        app:iconGravity="textStart"
+        app:iconPadding="8dp"
+        android:importantForAccessibility="no"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/episode_title"
+        style="@style/Widget.App.TextView.Marketing.Head"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/play_episode_button"
+        tools:text="Latest Episode Title" />
+
+    <TextView
+        android:id="@+id/episode_teaser"
+        style="@style/Widget.App.TextView.Info.BodyText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:ellipsize="end"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/episode_title"
+        tools:text="Teaser text for the latest featured episode. It should be more prominent and have more space around it." />
+
+    <TextView
+        android:id="@+id/episode_authors"
+        style="@style/Widget.App.TextView.Listing.Author"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/episode_teaser"
+        app:layout_goneMarginStart="0dp"
+        tools:text="Von Karl Liebknecht, Rosa Luxemburg" />
+
+    <TextView
+        android:id="@+id/episode_date"
+        style="@style/Widget.App.TextView.Podcast.Info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/episode_authors"
+        app:layout_goneMarginStart="0dp"
+        tools:text="19.08.2026" />
+
+    <TextView
+        android:id="@+id/episode_duration"
+        style="@style/Widget.App.TextView.Podcast.Info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        app:layout_constraintBaseline_toBaselineOf="@id/episode_date"
+        app:layout_constraintStart_toEndOf="@id/episode_date"
+        tools:text="15 min" />
+
+    <TextView
+        android:id="@+id/episode_playtime_left"
+        style="@style/Widget.App.TextView.Podcast.Info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="3dp"
+        android:visibility="gone"
+        app:layout_constraintBaseline_toBaselineOf="@id/episode_date"
+        app:layout_constraintStart_toEndOf="@id/episode_duration"
+        tools:text="@string/listen_podcast_playtime_left"
+        tools:visibility="visible" />
+
+    <TextView
+        android:id="@+id/episode_playtime_left_icon"
+        style="@style/Widget.App.TextView.Podcast.Info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="3dp"
+        android:visibility="gone"
+        android:textColor="@color/green"
+        android:text="@string/listen_podcast_episode_completed_check_mark"
+        app:layout_constraintBaseline_toBaselineOf="@id/episode_date"
+        app:layout_constraintStart_toEndOf="@id/episode_playtime_left"
+        tools:visibility="visible"/>
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/bottom_barrier"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:barrierDirection="bottom"
+        app:constraint_referenced_ids="episode_date, episode_duration" />
+
+    <View
+        android:id="@+id/solid_line"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="25dp"
+        android:background="@color/textColor"
+        android:importantForAccessibility="no"
+        app:layout_constraintTop_toBottomOf="@id/bottom_barrier" />
+
+    <TextView
+        android:id="@+id/earlier_episodes_title"
+        style="@style/Widget.App.TextView.Listing.Date"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:focusable="true"
+        android:clickable="true"
+        android:text="@string/listen_podcast_earlier_episodes"
+        app:layout_constraintTop_toBottomOf="@id/solid_line" />
+
+    <ImageView
+        android:id="@+id/fragment_bookmark_separator_line_dotted"
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:layout_marginTop="10dp"
+        android:src="@drawable/dotted_line_bookmarks"
+        android:importantForAccessibility="no"
+        app:layout_constraintTop_toBottomOf="@id/earlier_episodes_title"
+        tools:ignore="ContentDescription" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

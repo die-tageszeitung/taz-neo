@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingHorizontal="16dp">
+
+    <TextView
+        android:id="@+id/episode_title"
+        style="@style/Widget.App.TextView.Listing.Head"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Episode Title" />
+
+    <TextView
+        android:id="@+id/episode_teaser"
+        style="@style/Widget.App.TextView.Listing.Subline"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/episode_title"
+        tools:text="Teaser text for featured episodes. Teaser text for featured episodes. Teaser text for featured episodes. Teaser text for featured episodes." />
+
+    <TextView
+        android:id="@+id/episode_authors"
+        style="@style/Widget.App.TextView.Listing.Author"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/play_episode_button"
+        app:layout_constraintTop_toBottomOf="@id/episode_teaser"
+        app:layout_goneMarginStart="0dp"
+        tools:text="Von Karl Liebknecht, Rosa Luxemburg" />
+
+    <TextView
+        android:id="@+id/episode_date"
+        style="@style/Widget.App.TextView.Podcast.Info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        app:layout_constraintStart_toEndOf="@id/play_episode_button"
+        app:layout_constraintTop_toBottomOf="@id/episode_authors"
+        app:layout_goneMarginStart="0dp"
+        tools:text="19.08.2026" />
+
+    <TextView
+        android:id="@+id/episode_duration"
+        style="@style/Widget.App.TextView.Podcast.Info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        app:layout_constraintBaseline_toBaselineOf="@id/episode_date"
+        app:layout_constraintStart_toEndOf="@id/episode_date"
+        tools:text="45 min" />
+
+    <TextView
+        android:id="@+id/episode_playtime_left"
+        style="@style/Widget.App.TextView.Podcast.Info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="3dp"
+        android:visibility="gone"
+        app:layout_constraintBaseline_toBaselineOf="@id/episode_date"
+        app:layout_constraintStart_toEndOf="@id/episode_duration"
+        tools:text="@string/listen_podcast_playtime_left"
+        tools:visibility="visible"/>
+
+    <TextView
+        android:id="@+id/episode_playtime_left_icon"
+        style="@style/Widget.App.TextView.Podcast.Info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="3dp"
+        android:visibility="gone"
+        android:textColor="@color/green"
+        android:text="@string/listen_podcast_episode_completed_check_mark"
+        app:layout_constraintBaseline_toBaselineOf="@id/episode_date"
+        app:layout_constraintStart_toEndOf="@id/episode_playtime_left"
+        tools:visibility="visible"/>
+
+    <View
+        android:id="@+id/play_episode_button"
+        android:layout_width="@dimen/default_touch_area_size"
+        android:layout_height="@dimen/default_touch_area_size"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/circle_background"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/episode_teaser" />
+
+    <ImageView
+        android:id="@+id/play_episode_play_icon"
+        android:layout_width="@dimen/audioplayer_playlist_big_icon_size"
+        android:layout_height="@dimen/audioplayer_playlist_big_icon_size"
+        android:importantForAccessibility="no"
+        android:src="@drawable/ic_play_outlined_box"
+        app:layout_constraintBottom_toBottomOf="@id/play_episode_button"
+        app:layout_constraintEnd_toEndOf="@id/play_episode_button"
+        app:layout_constraintStart_toStartOf="@id/play_episode_button"
+        app:layout_constraintTop_toTopOf="@id/play_episode_button"
+        app:tint="@color/buttonTextColor" />
+
+    <ImageView
+        android:id="@+id/play_episode_pause_icon"
+        android:layout_width="@dimen/audioplayer_playlist_big_icon_size"
+        android:layout_height="@dimen/audioplayer_playlist_big_icon_size"
+        android:importantForAccessibility="no"
+        android:src="@drawable/ic_pause_outlined_box"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/play_episode_button"
+        app:layout_constraintEnd_toEndOf="@id/play_episode_button"
+        app:layout_constraintStart_toStartOf="@id/play_episode_button"
+        app:layout_constraintTop_toTopOf="@id/play_episode_button"
+        app:tint="@color/buttonTextColor" />
+
+    <com.google.android.material.progressindicator.CircularProgressIndicator
+        android:id="@+id/audio_progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:indicatorColor="@color/backgroundColor"
+        app:indicatorSize="44dp"
+        app:trackColor="@color/audio_player_small_progress_unplayed_color"
+        app:trackThickness="@dimen/audioplayer_small_progress_indicator_thickness"
+        app:layout_constraintStart_toStartOf="@id/play_episode_button"
+        app:layout_constraintEnd_toEndOf="@id/play_episode_button"
+        app:layout_constraintTop_toTopOf="@id/play_episode_button"
+        app:layout_constraintBottom_toBottomOf="@id/play_episode_button"
+        />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/bottom_barrier"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:barrierDirection="bottom"
+        app:constraint_referenced_ids="episode_date, episode_duration, play_episode_button" />
+
+    <ImageView
+        android:id="@+id/fragment_bookmark_separator_line_dotted"
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:layout_marginTop="15dp"
+        android:src="@drawable/dotted_line_bookmarks"
+        android:importantForAccessibility="no"
+        app:layout_constraintTop_toBottomOf="@id/bottom_barrier"
+        tools:ignore="ContentDescription" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

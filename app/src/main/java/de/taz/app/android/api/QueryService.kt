@@ -39,6 +39,7 @@ enum class QueryType {
     Cancellation,
     SubscriptionFormData,
     CustomerInfo,
+    PodcastList,
 }
 
 /**

@@ -52,7 +52,7 @@ import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.drawer.DrawerLayout
 import de.taz.app.android.ui.main.MainActivity
-import de.taz.app.android.ui.playlist.PlaylistActivity
+import de.taz.app.android.ui.listen.ListenActivity
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -64,7 +64,7 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
-private const val CIRCULAR_PROGRESS_TICKS = 1000L
+const val CIRCULAR_PROGRESS_TICKS = 1000L
 private val PLAYBACK_SPEEDS =
     floatArrayOf(0.5F, 0.7F, 0.8F, 0.9F, 1.0F, 1.1F, 1.2F, 1.3F, 1.5F, 2.0F)
 private const val DELAYED_LOADING_STATE_MS = 500L
@@ -267,7 +267,7 @@ class AudioPlayerViewController(
     private fun showPlaylist() {
         activity.startActivity(
             Intent(
-                activity, PlaylistActivity::class.java
+                activity, ListenActivity::class.java
             ).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
         )
     }
@@ -478,6 +478,9 @@ class AudioPlayerViewController(
 
         setExpandedPlayerViewVisibility(isLoading = false)
 
+        expandedHelpIcon.isVisible = controls.showHelp
+        expandedHelpTouchArea.isVisible = controls.showHelp
+
         val imageResourceId = if (isPlaying) {
             R.drawable.ic_pause_outline
         } else {
@@ -549,6 +552,12 @@ class AudioPlayerViewController(
 
     private fun AudioplayerOverlayBinding.setExpandedPlayerViewVisibility(isLoading: Boolean) {
         val isShowingPlayer = !isLoading
+        val type = boundUiItem?.type
+        val showHelp = isShowingPlayer && type != AudioPlayerItem.Type.PODCAST && type != AudioPlayerItem.Type.DISCLAIMER
+
+        expandedHelpIcon.isVisible = showHelp
+        expandedHelpTouchArea.isVisible = showHelp
+
         expandedAudioImage.isVisible = isShowingPlayer && boundUiItem?.hasCoverImage == true
         expandedAudioTitle.isVisible = isShowingPlayer
         expandedAudioAuthor.isVisible = isShowingPlayer

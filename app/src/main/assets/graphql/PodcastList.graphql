@@ -1,0 +1,38 @@
+query podcastList($limit: Int!) {
+    product {
+        podcastList(len: $limit) {
+            id
+            name
+            title
+            displayName
+            version
+            useDefaultIcon
+            defaultIcon {
+                name
+            }
+            episodeCnt
+            episodeList {
+                id
+                pubTime
+                mediaSyncId
+                title
+                teaser
+                headLine
+                authors
+                icon {
+                    name
+                }
+                audio {
+                    file {
+                        name
+                    }
+                    transcription {
+                        name
+                    }
+                    playtime
+                    duration
+                }
+            }
+        }
+    }
+}

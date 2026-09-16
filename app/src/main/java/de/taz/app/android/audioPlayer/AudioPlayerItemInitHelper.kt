@@ -5,9 +5,12 @@ import de.taz.app.android.BuildConfig
 import de.taz.app.android.api.interfaces.SectionOperations
 import de.taz.app.android.api.models.ArticleType
 import de.taz.app.android.api.models.Audio
+import de.taz.app.android.api.models.AudioSpeaker
 import de.taz.app.android.api.models.Issue
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.Page
+import de.taz.app.android.api.models.Podcast
+import de.taz.app.android.api.models.PodcastEpisode
 import de.taz.app.android.api.models.SearchHit
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.persistence.repository.ArticleRepository
@@ -112,30 +115,26 @@ class AudioPlayerItemInitHelper(
         }
     }
 
-    suspend fun initPagePodcast(issueStub: IssueStub, page: Page, audio: Audio): List<AudioPlayerItem> {
-        val podcastAudioItem = AudioPlayerItem(
-            generateId(audio),
-            audio,
-            storagePathService.determineBaseUrl(audio.file, issueStub),
-            uiStateHelper.podcastAsUiItem(page),
-            issueKey = null, // podcasts are not really associated with a single issue
-            playableKey = null,
-            type = AudioPlayerItem.Type.PODCAST,
+    suspend fun initPodcast(episode: PodcastEpisode): List<AudioPlayerItem> {
+        val podcastAudio = episode.audio
+        val file = podcastAudio.file
+            ?: throw AudioPlayerException.Generic("No audio file for podcast episode ${episode.id}")
+        val audio = Audio(
+            file = file,
+            playtime = podcastAudio.playtime,
+            duration = podcastAudio.duration,
+            speaker = AudioSpeaker.PODCAST,
+            breaks = null
         )
-        return listOf(podcastAudioItem)
+        return listOf(createPodcastItem(audio, null, uiStateHelper.podcastAsUiItem(episode), episode.id.toString()))
+    }
+
+    suspend fun initPagePodcast(issueStub: IssueStub, page: Page, audio: Audio): List<AudioPlayerItem> {
+        return listOf(createPodcastItem(audio, issueStub, uiStateHelper.podcastAsUiItem(page), null))
     }
 
     suspend fun initSectionPodcast(issueStub: IssueStub?, section: SectionOperations, audio: Audio): List<AudioPlayerItem> {
-        val podcastAudioItem = AudioPlayerItem(
-            generateId(audio),
-            audio,
-            storagePathService.determineBaseUrl(audio.file, issueStub),
-            uiStateHelper.podcastAsUiItem(section),
-            issueKey = null, // podcasts are not really associated with a single issue
-            playableKey = null,
-            type = AudioPlayerItem.Type.PODCAST,
-        )
-        return listOf(podcastAudioItem)
+        return listOf(createPodcastItem(audio, issueStub, uiStateHelper.podcastAsUiItem(section), null))
     }
 
     suspend fun initSearchHitAudio(searchHit: SearchHit): List<AudioPlayerItem>{
@@ -183,6 +182,23 @@ class AudioPlayerItemInitHelper(
                 type = AudioPlayerItem.Type.ARTICLE,
             )
         }
+    }
+
+    private suspend fun createPodcastItem(
+        audio: Audio,
+        issueStub: IssueStub?,
+        uiItem: AudioPlayerItem.UiItem,
+        playableKey: String?
+    ): AudioPlayerItem {
+        return AudioPlayerItem(
+            generateId(audio),
+            audio,
+            storagePathService.determineBaseUrl(audio.file, issueStub),
+            uiItem,
+            issueKey = null,
+            playableKey = playableKey,
+            type = AudioPlayerItem.Type.PODCAST
+        )
     }
 
     private fun generateId(audio: Audio): String {

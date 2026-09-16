@@ -6,8 +6,8 @@ import androidx.annotation.IdRes
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import de.taz.app.android.R
 import de.taz.app.android.ui.bookmarks.BookmarkListActivity
+import de.taz.app.android.ui.listen.ListenActivity
 import de.taz.app.android.ui.main.MainActivity
-import de.taz.app.android.ui.playlist.PlaylistActivity
 import de.taz.app.android.ui.search.SearchActivity
 import de.taz.app.android.ui.settings.SettingsActivity
 import kotlin.reflect.KClass
@@ -15,7 +15,7 @@ import kotlin.reflect.KClass
 sealed class BottomNavigationItem(@IdRes val itemId: Int) {
     data object Home : BottomNavigationItem(R.id.bottom_navigation_action_home)
     data object Bookmark : BottomNavigationItem(R.id.bottom_navigation_action_bookmark)
-    data object Playlist : BottomNavigationItem(R.id.bottom_navigation_action_playlist)
+    data object Listen : BottomNavigationItem(R.id.bottom_navigation_action_listen)
     data object Search : BottomNavigationItem(R.id.bottom_navigation_action_search)
     data object Settings : BottomNavigationItem(R.id.bottom_navigation_action_settings)
     class ChildOf(val parent: BottomNavigationItem) : BottomNavigationItem(0)
@@ -55,8 +55,8 @@ fun Activity.setupBottomNavigation(
                 true
             }
 
-            R.id.bottom_navigation_action_playlist -> {
-                navigateToPlaylist()
+            R.id.bottom_navigation_action_listen -> {
+                navigateToListen()
                 // return false so the icon gets not marked as "active"
                 false
             }
@@ -83,7 +83,7 @@ fun Activity.bottomNavigationBack() {
 
 private fun Activity.navigateToMain() = startActivity(this, MainActivity::class)
 private fun Activity.navigateToBookmarks() = startActivity(this, BookmarkListActivity::class)
-private fun Activity.navigateToPlaylist() = startActivity(this, PlaylistActivity::class)
+private fun Activity.navigateToListen() = startActivity(this, ListenActivity::class)
 private fun Activity.navigateToSearch() = startActivity(this, SearchActivity::class)
 private fun Activity.navigateToSettings() = startActivity(this, SettingsActivity::class)
 

@@ -3,7 +3,7 @@
     <dimen name="fragment_header_default_padding_top">61dp</dimen>
     <dimen name="fragment_header_default_height">86dp</dimen>
 
-    <dimen name="fragment_header_default_text_size">32sp</dimen>
+    <dimen name="fragment_header_default_text_size">28sp</dimen>
     <dimen name="fragment_header_section_text_size">32sp</dimen>
     <dimen name="fragment_header_article_text_size">22sp</dimen>
     <dimen name="fragment_header_title_section_text_size">38sp</dimen>

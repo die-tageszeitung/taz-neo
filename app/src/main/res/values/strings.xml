@@ -55,7 +55,9 @@
 
     <string name="tab_bar_home">Home</string>
     <string name="tab_bar_bookmarks">Leseliste</string>
-    <string name="tab_bar_playlist">Audioliste</string>
+    <string name="tab_bar_listen">Hören</string>
+    <string name="tab_bar_listen_podcasts">podcasts</string>
+    <string name="tab_bar_listen_playlist">audioliste</string>
     <string name="tab_bar_search">Suche</string>
 
     <string name="bottom_navigation_action_bookmark">Zu den Lesezeichen hinzufügen</string>
@@ -747,6 +749,21 @@
     <string name="feed_name_taz">taz</string>
     <string name="feed_name_wochentaz">wochentaz</string>
     <string name="feed_name_lmd">le monde diplomatique</string>
+
+    <string name="listen_podcast_episode_duration_minutes">%1$s min</string>
+    <string name="listen_podcast_play_newest_button">Neueste Folge</string>
+    <string name="listen_podcast_earlier_episodes">Vorherige Folgen:</string>
+    <string name="listen_podcast_playtime_left"> • %s min verbleibend</string>
+    <string name="listen_podcast_episode_completed"> • fertig</string>
+    <string name="listen_podcast_episode_completed_check_mark"> ✓</string>
+    <string name="listen_podcast_episode_less_then_a_minute"> • weniger als 1 min verbleibend</string>
+    <string name="listen_podcast_loading_more">Weitere Episoden werden geladen…</string>
+    <string name="listen_podcasts_play_episode_accessibility">Folge abspielen</string>
+    <string name="listen_podcasts_pause_episode_accessibility">Folge pausieren</string>
+    <string name="listen_podcasts_preview_image_accessibility">Vorschaubild des Podcasts</string>
+    <string name="listen_podcasts_selected_accessibility">ausgewählt</string>
+    <string name="listen_podcasts_next_accessibility">zum nächsten Podcast</string>
+    <string name="listen_podcasts_prev_accessibility">zum vorherigen Podcast</string>
 
     <string name="datepicker_title">Gehe zur Ausgabe vom</string>
 </resources>
