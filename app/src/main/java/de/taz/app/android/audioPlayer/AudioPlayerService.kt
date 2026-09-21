@@ -329,13 +329,26 @@ class AudioPlayerService private constructor(private val applicationContext: Con
      * Dismiss the player and/or the playlist
      */
     fun dismissPlayer() {
-        val controller = getControllerFromState()
-        val currentItem = getCurrent()
-        val currentPosition = controller?.currentPosition ?: 0L
-        val duration = controller?.duration ?: 0L
+        updateAlreadyPlayed()
+        getControllerFromState()?.apply {
+            stop()
+            onControllerDismiss(this)
+        }
 
+        initItemJob.cancelChildren()
+        forceState(PlayerState.Idle)
+    }
+
+    fun updateAlreadyPlayed(
+        item: AudioPlayerItem? = getCurrent(),
+        positionMs: Long? = getControllerFromState()?.currentPosition,
+        durationMs: Long? = getControllerFromState()?.duration
+    ) {
+        val currentItem = item ?: getCurrent()
+        val currentPosition = positionMs ?: getControllerFromState()?.currentPosition ?: 0L
+        val duration = durationMs ?: getControllerFromState()?.duration ?: 0L
         if (currentItem?.type == AudioPlayerItem.Type.PODCAST && currentItem.playableKey != null && duration > 0) {
-            val progress = currentPosition.toFloat() / duration.toFloat()
+            val progress = (currentPosition.toFloat() / duration.toFloat()).coerceIn(0f, 1f)
             val episodeId = currentItem.playableKey.toIntOrNull()
             if (episodeId != null) {
                 launch(Dispatchers.IO) {
@@ -343,14 +356,6 @@ class AudioPlayerService private constructor(private val applicationContext: Con
                 }
             }
         }
-
-        controller?.apply {
-            stop()
-            onControllerDismiss(this)
-        }
-
-        initItemJob.cancelChildren()
-        forceState(PlayerState.Idle)
     }
 
     fun onErrorEventHandled(errorEvent: AudioPlayerErrorEvent) {
@@ -365,6 +370,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
         tracker.trackAudioPlayerSeekPositionEvent()
         getControllerFromState()?.apply {
             this.seekTo(positionMs)
+            updateAlreadyPlayed(positionMs = positionMs)
         }
     }
 
@@ -425,11 +431,13 @@ class AudioPlayerService private constructor(private val applicationContext: Con
 
     fun skipToNext() {
         tracker.trackAudioPlayerSkipNextEvent()
+        updateAlreadyPlayed()
         getControllerFromState()?.seekToNextMediaItem()
     }
 
     fun skipToPrevious() {
         tracker.trackAudioPlayerSkipPreviousEvent()
+        updateAlreadyPlayed()
         getControllerFromState()?.seekToPreviousMediaItem()
     }
 
@@ -495,6 +503,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
             return
         }
         tracker.trackPlaylistClearedEvent()
+        updateAlreadyPlayed()
         _persistedPlaylistState.value = Playlist(currentItemIdx = -1, items = emptyList())
 
         getControllerFromState()?.apply {
@@ -698,6 +707,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
                         _playlistEvents.value = AudioPlayerPlaylistAddedEvent
                     }
                 } else {
+                    updateAlreadyPlayed()
                     // if an [articleKey] is given, we use the index of it for the
                     // initialization of the audioQueue Playlist(index, items)
                     val indexOfArticle = articleKey?.let {
@@ -979,7 +989,12 @@ class AudioPlayerService private constructor(private val applicationContext: Con
                 // and end the audio player.
                 Player.PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM -> onAudioEnded()
 
-                else -> trySetStateIsPlaying(playWhenReady)
+                else -> {
+                    if (!playWhenReady) {
+                        updateAlreadyPlayed()
+                    }
+                    trySetStateIsPlaying(playWhenReady)
+                }
             }
         }
 
@@ -997,7 +1012,8 @@ class AudioPlayerService private constructor(private val applicationContext: Con
             when (reason) {
                 // A new [AudioPlayerItem] is being played on a new playlist
                 Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED -> onPlaylistChanged(mediaItem)
-                Player.MEDIA_ITEM_TRANSITION_REASON_AUTO, Player.MEDIA_ITEM_TRANSITION_REASON_SEEK, Player.MEDIA_ITEM_TRANSITION_REASON_REPEAT ->
+                Player.MEDIA_ITEM_TRANSITION_REASON_AUTO -> onMediaItemAutoTransition(mediaItem)
+                Player.MEDIA_ITEM_TRANSITION_REASON_SEEK, Player.MEDIA_ITEM_TRANSITION_REASON_REPEAT ->
                     onMediaItemSeek(mediaItem)
             }
         }
@@ -1036,6 +1052,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
 
     private fun onAudioError(error: PlaybackException) {
         log.info("Error on playing Audio: $error}", error)
+        updateAlreadyPlayed()
         SentryWrapper.captureException(error)
         val controller = getControllerFromState()
         if (controller != null) {
@@ -1045,6 +1062,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
 
     private fun onAudioEnded() {
         log.info("onAudioEnded()")
+        updateAlreadyPlayed()
         val currentState = state.value
         val currentPlaylist = _audioQueueState.value
         val currentItem = currentPlaylist.getCurrentItem()
@@ -1059,6 +1077,21 @@ class AudioPlayerService private constructor(private val applicationContext: Con
             // Once the Audio has stopped, dismiss the player
             dismissPlayer()
         }
+    }
+
+    private fun onMediaItemAutoTransition(nextMediaItem: MediaItem) {
+        log.verbose("onMediaItemAutoTransition($nextMediaItem)")
+        val currentPlaylist = _audioQueueState.value
+        val previousItem = currentPlaylist.getCurrentItem()
+        if (previousItem != null) {
+            val durationMs = previousItem.audio.duration?.let { (it * 1000).toLong() } ?: 0L
+            updateAlreadyPlayed(
+                item = previousItem,
+                positionMs = durationMs,
+                durationMs = durationMs
+            )
+        }
+        onMediaItemSeek(nextMediaItem)
     }
 
     /**

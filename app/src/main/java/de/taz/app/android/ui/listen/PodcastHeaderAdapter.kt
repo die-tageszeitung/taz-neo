@@ -221,8 +221,22 @@ private class PodcastCarouselAdapter(
         holder.bind(getItem(position))
     }
 
+    override fun onBindViewHolder(holder: ViewHolder, position: Int, payloads: MutableList<Any>) {
+        if (payloads.isEmpty()) {
+            super.onBindViewHolder(holder, position, payloads)
+        } else {
+            // Data changed, but we don't want to reload the image if it's the same.
+            // holder.bind(getItem(position)) would reload Glide.
+            // If we have a payload, it means it's a data update (like progress).
+            // We only re-bind if the image path actually changed.
+            holder.updateIfImageChanged(getItem(position))
+        }
+    }
+
     inner class ViewHolder(private val binding: ItemPodcastCardBinding) : RecyclerView.ViewHolder(binding.root) {
         private val storageService = StorageService.getInstance(binding.root.context.applicationContext)
+        private var currentImagePath: String? = null
+
         fun bind(podcast: Podcast) {
             val position = bindingAdapterPosition
             if (position == RecyclerView.NO_POSITION) return
@@ -237,6 +251,13 @@ private class PodcastCarouselAdapter(
                 }
 
                 val imagePath = previewImage.fileEntry?.let { storageService.getAbsolutePath(it) }
+                
+                // If it's the same image, don't trigger Glide at all to avoid flicker
+                if (imagePath == currentImagePath && podcastImage.drawable != null) {
+                    return@with
+                }
+                
+                currentImagePath = imagePath
 
                 Glide.with(root.context)
                     .load(imagePath)
@@ -247,10 +268,28 @@ private class PodcastCarouselAdapter(
                 }
             }
         }
+
+        fun updateIfImageChanged(podcast: Podcast) {
+            val episode = podcast.episodeList.firstOrNull()
+            val previewImage = if (episode?.icon != null) {
+                episode.icon
+            } else {
+                podcast.defaultIcon
+            }
+            val imagePath = previewImage.fileEntry?.let { storageService.getAbsolutePath(it) }
+            if (imagePath != currentImagePath) {
+                bind(podcast)
+            }
+        }
     }
 
     private class PodcastDiffCallback : DiffUtil.ItemCallback<Podcast>() {
         override fun areItemsTheSame(oldItem: Podcast, newItem: Podcast): Boolean = oldItem.id == newItem.id
         override fun areContentsTheSame(oldItem: Podcast, newItem: Podcast): Boolean = oldItem == newItem
+
+        override fun getChangePayload(oldItem: Podcast, newItem: Podcast): Any? {
+            if (oldItem.id == newItem.id) return "DATA_CHANGE"
+            return super.getChangePayload(oldItem, newItem)
+        }
     }
 }
