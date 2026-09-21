@@ -33,7 +33,7 @@ class ListenPodcastFragment : ViewBindingFragment<FragmentListenPodcastBinding>(
             val isCurrent = currentItem?.type == AudioPlayerItem.Type.PODCAST &&
                     currentItem.playableKey == episode.id.toString()
 
-            if (isCurrent) {
+            if (isCurrent && audioPlayerService.isPlaying()) {
                 audioPlayerService.toggleAudioPlaying()
             } else {
                 audioPlayerService.playPodcast(episode)
@@ -49,6 +49,7 @@ class ListenPodcastFragment : ViewBindingFragment<FragmentListenPodcastBinding>(
         viewBinding?.podcastRecyclerView?.apply {
             adapter = concatAdapter
             layoutManager = LinearLayoutManager(context)
+            itemAnimator = null
 
             addOnScrollListener(object : RecyclerView.OnScrollListener() {
                 override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
