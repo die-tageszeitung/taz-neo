@@ -258,9 +258,14 @@ private class PodcastCarouselAdapter(
                 }
                 
                 currentImagePath = imagePath
+                // Immediately cancel any pending/previous Glide loads on this recycled view
+                Glide.with(binding.podcastImage.context).clear(binding.podcastImage)
 
-                Glide.with(root.context)
+                // Load the new image with explicit scaling
+                Glide.with(binding.podcastImage.context)
                     .load(imagePath)
+                  //  .error(R.drawable.error) // TODO ask Christian for an error placeholder
+                    .centerCrop()
                     .into(podcastImage)
 
                 podcastImage.setOnClickListener {
