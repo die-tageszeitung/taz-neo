@@ -651,9 +651,9 @@
     <string name="coach_mark_home_bookmarks_text">Hier finden Sie alle gespeicherten Artikel.</string>
     <string name="coach_mark_home_bookmarks_icon_content_description">Stern-Symbol</string>
 
-    <string name="coach_mark_home_playlist_title">Audioliste</string>
-    <string name="coach_mark_home_playlist_text">Hier können Sie vorgelesene Artikel anhören. Tippen Sie auf den Titel, um die Wiedergabe zu starten.</string>
-    <string name="coach_mark_home_playlist_icon_content_description">Audiolisten-Symbol</string>
+    <string name="coach_mark_home_listen_title">Hören</string>
+    <string name="coach_mark_home_listen_text">Hier finden Sie taz-Podcasts und Ihre Audioliste – Artikel, die Sie sich vorlesen lassen können.</string>
+    <string name="coach_mark_home_listen_icon_content_description">Hören-Symbol</string>
 
     <string name="coach_mark_home_search_title">Suche</string>
     <string name="coach_mark_home_search_text">Durchsuchen Sie alle Ausgaben der taz von 1981 bis heute – nach Stichworten, Namen oder Autor:innen.</string>
@@ -728,6 +728,20 @@
 
     <string name="coach_mark_pdf_drawer_list_article_title">Zum Artikel</string>
     <string name="coach_mark_pdf_drawer_list_article_text">Tippen Sie auf den Text, um zum Artikel zu gelangen</string>
+
+    <string name="coach_mark_listen_latest_episode_title">Direkt reinhören</string>
+    <string name="coach_mark_listen_latest_episode_text">Tippen Sie auf "Neueste Folge", um die aktuelle Episode zu starten.</string>
+
+    <string name="coach_mark_listen_podcast_carousel_title">Weitere Podcasts entdecken</string>
+    <string name="coach_mark_listen_podcast_carousel_text">Streichen Sie nach links, um andere taz-Podcasts zu sehen.</string>
+    <string name="coach_mark_listen_podcast_carousel_content_description">Bild mit Swipe-Geste zur Seite</string>
+
+    <string name="coach_mark_listen_older_episodes_title">Ältere Folgen finden</string>
+    <string name="coach_mark_listen_older_episodes_text">Streichen Sie nach oben, um frühere Folgen dieses Podcasts zu sehen.</string>
+    <string name="coach_mark_listen_older_episodes_content_description">Bild mit Swipe-Geste nach oben</string>
+
+    <string name="coach_mark_listen_playlist_title">Ihre Audioliste</string>
+    <string name="coach_mark_listen_playlist_text">Tippen Sie auf „Audioliste“, um zu Ihren gespeicherten Artikeln zu wechseln.</string>
     <!-- endregion -->
 
     <string name="fragment_webview_article_tap_left">Hier tippen um nach links zu kommen</string>

@@ -24,7 +24,7 @@ android:layout_height="match_parent">
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:contentDescription="@string/coach_mark_pdf_page_content_description"
-        android:src="@drawable/ic_pdf_page" />
+        android:src="@drawable/ic_scroll_horizontally" />
 
     <TextView
         android:id="@+id/coach_mark_header"

@@ -9,14 +9,18 @@ import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
+import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.annotation.LayoutRes
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.graphics.createBitmap
 import androidx.fragment.app.Fragment
 import de.taz.app.android.R
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.tracking.Tracker
+import de.taz.app.android.util.Log
 import kotlin.math.abs
 
 
@@ -25,11 +29,14 @@ abstract class BaseCoachMark(@LayoutRes private val layoutResId: Int) : Fragment
     protected var menuItem: View? = null
     protected var textString: String? = null
     protected var resizeIcon: Boolean = false
+    protected var repositionLayout: Boolean = false
     protected var useShortArrow: Boolean = false
     protected var verticalBias: Float = 0.5f
+    protected var iconHorizontalBias: Float = 0.5f
+    protected var textHorizontalBias: Float = 0.5f
 
     // Some menuItems are at the position where the close icon is
-    // In that case the coachmark should be the last and we move the close button
+    // In that case the coachmark should be the last, and we move the close button
     // down to where the next icon is
     var moveCloseButtonToWhereNextIs = false
 
@@ -57,6 +64,9 @@ abstract class BaseCoachMark(@LayoutRes private val layoutResId: Int) : Fragment
             resizeCoachMarkIcon()
         }
         getLocationAndSetPosition()
+        if (repositionLayout) {
+            repositionLayout()
+        }
         onCoachMarkCreated()
     }
 
@@ -149,11 +159,11 @@ abstract class BaseCoachMark(@LayoutRes private val layoutResId: Int) : Fragment
         paint.isAntiAlias = true
 
         // Get the middle of icon
-        val midOfIconX = icon.x + width * 0.5
+        val midOfIconX = icon.x + width * iconHorizontalBias
         val midOfIconY = icon.y + height * verticalBias
 
         // get the center
-        val centerX = resources.displayMetrics.widthPixels * 0.5
+        val centerX = resources.displayMetrics.widthPixels * textHorizontalBias
         val centerY = resources.displayMetrics.heightPixels * verticalBias
 
         val slope = abs(centerY - midOfIconY) / abs(centerX - midOfIconX)
@@ -222,5 +232,23 @@ abstract class BaseCoachMark(@LayoutRes private val layoutResId: Int) : Fragment
         val rectangle = Rect()
         requireActivity().window.decorView.getWindowVisibleDisplayFrame(rectangle)
         return rectangle.top
+    }
+
+    /**
+     * When the icon is in the upper half move the text layout below and vice versa
+     */
+    private fun repositionLayout() {
+        val layout =
+            requireView().findViewById<RelativeLayout>(R.id.coach_mark_text_layout) ?: return
+        val iconWrapper = requireView().findViewById<RelativeLayout>(R.id.coach_mark_icon_wrapper)
+        val screenHeight = resources.displayMetrics.heightPixels
+        verticalBias = if (iconWrapper.y > screenHeight / 2) {
+            0.4f
+        } else {
+            0.6f
+        }
+        val params = layout.layoutParams as ConstraintLayout.LayoutParams
+        params.verticalBias = verticalBias
+        layout.layoutParams = params
     }
 }

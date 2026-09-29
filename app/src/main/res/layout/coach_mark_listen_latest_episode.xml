@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <RelativeLayout
+            android:id="@+id/coach_mark_text_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:paddingStart="@dimen/coach_mark_text_layout_padding_start"
+            android:paddingEnd="@dimen/coach_mark_text_layout_padding_end"
+            android:rotation="-7"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_max="@dimen/coach_mark_max_width">
+
+
+            <TextView
+                android:id="@+id/coach_mark_header"
+                style="@style/TextAppearance.CoachMark.Header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:accessibilityHeading="true"
+                android:text="@string/coach_mark_listen_latest_episode_title"
+                tools:ignore="UnusedAttribute" />
+
+            <TextView
+                android:id="@+id/coach_mark_text"
+                style="@style/TextAppearance.CoachMark.Text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/coach_mark_header"
+                android:text="@string/coach_mark_listen_latest_episode_text" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/coach_mark_icon_wrapper"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:ignore="MissingConstraints">
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/default_touch_area_size"
+                android:text="@string/listen_podcast_play_newest_button"
+                app:icon="@drawable/ic_play_outline"
+                app:iconGravity="textStart"
+                app:iconPadding="8dp" />
+        </RelativeLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</RelativeLayout>

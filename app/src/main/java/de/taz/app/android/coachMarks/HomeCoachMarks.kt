@@ -37,10 +37,11 @@ class HomeBookmarksCoachMark() : BaseCoachMark(R.layout.coach_mark_home_bookmark
     }
 }
 
-class HomePlaylistCoachMark() : BaseCoachMark(R.layout.coach_mark_home_playlist) {
+class HomePlaylistCoachMark() : BaseCoachMark(R.layout.coach_mark_home_listen) {
     companion object {
         fun create(menuItem: View) = HomePlaylistCoachMark().apply {
             this.menuItem = menuItem
+            this.textHorizontalBias = 0.45f
             this.resizeIcon = true
         }
     }
