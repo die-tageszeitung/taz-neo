@@ -316,7 +316,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
         val viewBinding = viewBinding ?: return
 
         val tazLogoCoachMark =
-            TazLogoCoachMark.create(requireActivity().findViewById(R.id.drawer_logo))
+            TazLogoCoachMark.create(viewBinding.logoView)
 
         val bookmarkCoachMark = ArticleBookmarkCoachMark.create(
             viewBinding.navigationBottom

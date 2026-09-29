@@ -4,18 +4,20 @@ import android.view.View
 import android.widget.ImageView
 import androidx.core.graphics.drawable.toBitmap
 import de.taz.app.android.R
+import de.taz.app.android.ui.logo.LogoView
 
 
 class TazLogoCoachMark : BaseCoachMark(R.layout.coach_mark_taz_logo) {
     companion object {
-        fun create(menuItem: ImageView) = TazLogoCoachMark().apply {
+        fun create(menuItem: LogoView) = TazLogoCoachMark().apply {
             this.menuItem = menuItem
             this.resizeIcon = true
         }
     }
 
     override fun onCoachMarkCreated() {
-        view?.findViewById<ImageView>(R.id.drawer_logo)?.setImageBitmap(
+        view?.findViewById<ImageView>(R.id.feed_logo) ?:
+        view?.findViewById<ImageView>(R.id.burger_logo)?.setImageBitmap(
             (this.menuItem as ImageView).drawable.toBitmap()
         )
         super.onCoachMarkCreated()

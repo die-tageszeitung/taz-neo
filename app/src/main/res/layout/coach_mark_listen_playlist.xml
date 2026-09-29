@@ -16,8 +16,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-            android:paddingStart="@dimen/coach_mark_text_layout_padding_start"
-            android:paddingEnd="@dimen/coach_mark_text_layout_padding_end"
+        android:paddingStart="@dimen/coach_mark_text_layout_padding_start"
+        android:paddingEnd="@dimen/coach_mark_text_layout_padding_end"
         android:rotation="-7"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -28,47 +28,53 @@
         <TextView
             android:id="@+id/coach_mark_header"
             style="@style/TextAppearance.CoachMark.Header"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:accessibilityHeading="true"
-            android:text="@string/coach_mark_home_playlist_title"
+            android:text="@string/coach_mark_listen_playlist_title"
             tools:ignore="UnusedAttribute" />
 
         <TextView
             android:id="@+id/coach_mark_text"
             style="@style/TextAppearance.CoachMark.Text"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/coach_mark_header"
-            android:text="@string/coach_mark_home_playlist_text" />
+            android:text="@string/coach_mark_listen_playlist_text" />
     </RelativeLayout>
 
     <RelativeLayout
         android:id="@+id/coach_mark_icon_wrapper"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingTop="12dp"
         tools:ignore="MissingConstraints">
 
-        <ImageView
-            android:id="@+id/coach_mark_icon"
-            android:layout_width="@dimen/icon_size"
-            android:layout_height="@dimen/icon_size"
-            android:layout_centerHorizontal="true"
-            android:accessibilityTraversalAfter="@id/coach_mark_text"
-            android:contentDescription="@string/coach_mark_home_playlist_icon_content_description"
-            android:src="@drawable/ic_playlist_outlined"
-            app:tint="@color/white"
-            tools:ignore="UnusedAttribute" />
-
-        <TextView
-            style="@style/TextAppearance.App.BottomNavigation.Item.Active"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/coach_mark_icon"
-            android:layout_centerHorizontal="true"
-            android:text="@string/tab_bar_listen"
-            android:textColor="@color/white" />
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/tab_playlist_icon"
+                android:layout_width="@dimen/icon_size"
+                android:layout_height="@dimen/icon_size"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_playlist_outlined"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="@color/white" />
+
+            <TextView
+                android:id="@+id/tab_playlist_text"
+                style="@style/Widget.App.Header.Default.Title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/fragment_header_icon_margin"
+                android:text="@string/tab_bar_listen_playlist"
+                android:textColor="@color/white"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@id/tab_playlist_icon" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </RelativeLayout>
 

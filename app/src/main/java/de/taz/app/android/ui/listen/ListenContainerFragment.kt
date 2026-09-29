@@ -2,10 +2,25 @@ package de.taz.app.android.ui.listen
 
 import android.os.Bundle
 import android.view.View
+import android.widget.Button
+import android.widget.ImageView
+import androidx.core.view.isVisible
 import androidx.fragment.app.commit
+import androidx.lifecycle.lifecycleScope
+import com.google.android.material.behavior.HideViewOnScrollBehavior.EDGE_BOTTOM
 import de.taz.app.android.R
 import de.taz.app.android.base.ViewBindingFragment
+import de.taz.app.android.coachMarks.CoachMarkDialog
+import de.taz.app.android.coachMarks.LatestEpisodeCoachMark
+import de.taz.app.android.coachMarks.OlderEpisodesCoachMark
+import de.taz.app.android.coachMarks.PlaylistTabCoachMark
+import de.taz.app.android.coachMarks.PodcastCarouselCoachMark
+import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentListenContainerBinding
+import de.taz.app.android.monkey.getHideViewOnScrollBehavior
+import de.taz.app.android.util.Log
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 
 class ListenContainerFragment : ViewBindingFragment<FragmentListenContainerBinding>() {
 
@@ -14,6 +29,9 @@ class ListenContainerFragment : ViewBindingFragment<FragmentListenContainerBindi
     }
 
     private var selectedPosition = 0
+    private val generalDataStore by lazy { GeneralDataStore.getInstance(requireContext().applicationContext) }
+    private val log by Log
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -34,6 +52,7 @@ class ListenContainerFragment : ViewBindingFragment<FragmentListenContainerBindi
         if (savedInstanceState == null) {
             showFragment(0)
         }
+        setupFAB()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -88,6 +107,42 @@ class ListenContainerFragment : ViewBindingFragment<FragmentListenContainerBindi
                     resources.getColor(R.color.textColorAccent, null)
                 )
             }
+        }
+    }
+
+    private fun setupFAB() {
+        val viewBinding = viewBinding ?: return
+        viewBinding.fabHelp.apply {
+            setOnClickListener {
+                log.verbose("show coach marks in listen container fragment")
+                showCoachMarks()
+            }
+
+            getHideViewOnScrollBehavior()?.setViewEdge(EDGE_BOTTOM)
+
+            generalDataStore.helpFabEnabled.asFlow()
+                .onEach { isVisible = it }
+                .launchIn(lifecycleScope)
+        }
+    }
+
+    private fun showCoachMarks() {
+        val binding = viewBinding ?: return
+
+        // Safely find views from the root hierarchy (which includes child fragments)
+        val playButton = binding.root.findViewById<Button>(R.id.play_episode_button)
+        val carouselNext = binding.root.findViewById<ImageView>(R.id.carousel_go_next)
+
+        val coachMarks = listOfNotNull(
+            playButton?.let { LatestEpisodeCoachMark.create(it) },
+            carouselNext?.let { PodcastCarouselCoachMark.create(it) },
+            OlderEpisodesCoachMark(),
+            PlaylistTabCoachMark.create(binding.tabPlaylist)
+        )
+
+        if (coachMarks.isNotEmpty()) {
+            CoachMarkDialog.create(coachMarks)
+                .show(childFragmentManager, CoachMarkDialog.TAG)
         }
     }
 }

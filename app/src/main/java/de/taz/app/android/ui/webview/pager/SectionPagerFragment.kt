@@ -383,7 +383,7 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
 
     private fun showCoachMarks() {
         val tazLogoCoachMark =
-            TazLogoCoachMark.create(requireActivity().findViewById(R.id.drawer_logo))
+            TazLogoCoachMark.create(viewBinding!!.logoView )
 
         val sectionBookmarkCoachMark = SectionBookmarkCoachMark()
         val sectionPlaylistCoachMark = SectionPlaylistCoachMark()
