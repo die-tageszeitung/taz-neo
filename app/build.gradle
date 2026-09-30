@@ -382,7 +382,7 @@ dependencies {
 
     implementation "androidx.work:work-runtime-ktx:$work_version"
 
-    implementation "io.ktor:ktor-client-android:$ktor_version"
+    implementation "io.ktor:ktor-client-okhttp:$ktor_version"
     implementation("io.ktor:ktor-network-jvm:$ktor_version") {
         because "We use io.ktor.network.sockets.SocketTimeoutException on ConnectivityException which is only defined on this module. " +
                 "Although unused we keep it here in case we want switch to the ktor CIO engine"
