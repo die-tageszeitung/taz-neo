@@ -4,7 +4,7 @@ import de.taz.app.android.CONNECTION_FAILURE_BACKOFF_TIME_MS
 import de.taz.app.android.MAX_CONNECTION_FAILURE_BACKOFF_TIME_MS
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.util.Log
-import io.ktor.client.engine.android.Android
+import io.ktor.client.engine.okhttp.OkHttp
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -30,7 +30,7 @@ data class WaitingCall(
 const val INFINITE = -1
 
 // Default ktor client engine to be used
-val HTTP_CLIENT_ENGINE = Android.create()
+val HTTP_CLIENT_ENGINE = OkHttp.create()
 
 
 abstract class ConnectionHelper {
