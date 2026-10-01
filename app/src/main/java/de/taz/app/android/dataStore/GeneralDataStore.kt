@@ -13,11 +13,11 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.ui.home.HomeFragment
-import de.taz.app.android.ui.home.page.IssueFeedFragment
 import de.taz.app.android.util.SingletonHolder
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 
 // region old setting names
@@ -59,6 +59,9 @@ private const val SETTINGS_HELP_FAB_ENABLED = "settings_help_fab_enabled"
 private const val SETTINGS_PDF_DRAWER_LIST = "settings_pdf_drawer_list"
 private const val SETTINGS_ARTICLE_PDF= "settings_article_pdf"
 private const val SKIPPED_DOWNLOAD_TASKS_LAST_TIME= "skipped_download_tasks_last_time"
+private const val KEY_LAST_VERSION_CODE = "key_last_version_code"
+private const val SHOW_NEW_LISTEN_ANNOUNCEMENT = "show_new_lsiten_announcenment"
+private const val SHOW_LISTEN_TAB_BADGE = "listen_tab_badge_clicked"
 
 // Deprecated/Removed setting keys
 private const val ENABLE_EXPERIMENTAL_ARTICLE_READER = "ENABLE_EXPERIMENTAL_ARTICLE_READER"
@@ -223,6 +226,24 @@ class GeneralDataStore private constructor(applicationContext: Context) {
     val skippedDownloadTasksLastTime = SimpleDataStoreEntry(
         dataStore, booleanPreferencesKey(SKIPPED_DOWNLOAD_TASKS_LAST_TIME), false
     )
+
+    val lastVersionCode: SimpleDataStoreEntry<Long> =
+        SimpleDataStoreEntry(dataStore, longPreferencesKey(KEY_LAST_VERSION_CODE), 0L)
+
+    val showNewListenAnnouncement = SimpleDataStoreEntry(
+        dataStore, booleanPreferencesKey(SHOW_NEW_LISTEN_ANNOUNCEMENT), true
+    )
+    val showListenTabBadge = SimpleDataStoreEntry(
+        dataStore, booleanPreferencesKey(SHOW_LISTEN_TAB_BADGE), true
+    )
+
+    fun markListenTabAsClicked() {
+        val repositoryScope =
+            CoroutineScope(Dispatchers.IO + SupervisorJob() + CoroutineName("GeneralDataStore-Persistent-Writer"))
+        repositoryScope.launch {
+            showListenTabBadge.set(false)
+        }
+    }
 
     init {
         CoroutineScope(

@@ -36,11 +36,13 @@ import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentHomeBinding
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.monkey.setRefreshingWithCallback
+import de.taz.app.android.singletons.AppUpdateChecker
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.home.page.IssueFeedViewModel
 import de.taz.app.android.ui.home.page.archive.ArchiveFragment
 import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
+import de.taz.app.android.ui.listen.NewFeatureAnnouncementDialog
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setupBottomNavigation
 import de.taz.app.android.util.Log
@@ -69,6 +71,7 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
     private var refreshJob: Job? = null
 
 
+    private lateinit var appUpdateChecker: AppUpdateChecker
     private lateinit var feedService: FeedService
     private lateinit var toastHelper: ToastHelper
     private lateinit var generalDataStore: GeneralDataStore
@@ -78,6 +81,7 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
+        appUpdateChecker = AppUpdateChecker.getInstance(context.applicationContext)
         feedService = FeedService.getInstance(context.applicationContext)
         toastHelper = ToastHelper.getInstance(context.applicationContext)
         generalDataStore = GeneralDataStore.getInstance(context.applicationContext)
@@ -124,6 +128,15 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
                 when (state) {
                     State.ARCHIVE -> tracker.trackArchiveScreen(pdfMode)
                     State.COVERFLOW -> tracker.trackCoverflowScreen(pdfMode)
+                }
+            }
+            .launchIn(viewLifecycleOwner.lifecycleScope)
+
+        generalDataStore.showNewListenAnnouncement.asFlow()
+            .flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+            .onEach { show ->
+                if (show && appUpdateChecker.checkAndMarkAppUpdated()) {
+                    NewFeatureAnnouncementDialog.show(childFragmentManager)
                 }
             }
             .launchIn(viewLifecycleOwner.lifecycleScope)
