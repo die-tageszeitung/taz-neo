@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/transparent">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/dialog_layout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="10dp"
+        android:background="@drawable/announcement_background_rounded"
+        android:backgroundTint="@color/backgroundColor"
+        android:padding="20dp"
+        app:layout_constraintBottom_toTopOf="@id/announcement_pointer"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintWidth_max="660dp">
+
+        <TextView
+            android:id="@+id/announcement_title"
+            style="@style/TextAppearance.CoachMark.Header"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:includeFontPadding="false"
+            android:text="@string/announcement_listen_title"
+            android:textColor="@color/black"
+            app:layout_constraintEnd_toStartOf="@id/button_close"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/button_close_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/announcement_listen_close_content_description"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_close_audio_player"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/button_close"
+            android:layout_width="@dimen/default_touch_area_size"
+            android:layout_height="@dimen/default_touch_area_size"
+            app:layout_constraintBottom_toBottomOf="@id/button_close_icon"
+            app:layout_constraintEnd_toEndOf="@id/button_close_icon"
+            app:layout_constraintStart_toStartOf="@id/button_close_icon"
+            app:layout_constraintTop_toTopOf="@id/button_close_icon" />
+
+        <TextView
+            android:id="@+id/announcement_message"
+            style="@style/TextAppearance.CoachMark.Text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:includeFontPadding="false"
+            android:text="@string/announcement_listen_text"
+            android:textColor="@color/textColor"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/announcement_title" />
+
+        <Button
+            android:id="@+id/button_try_direct"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="10dp"
+            android:text="@string/announcement_listen_button"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/announcement_message"
+            app:layout_constraintWidth_max="@dimen/button_max_width" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <ImageView
+        android:id="@+id/announcement_pointer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@null"
+        android:src="@drawable/ic_announcement_arrow"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/dialog_layout"
+        app:tint="@color/backgroundColor" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

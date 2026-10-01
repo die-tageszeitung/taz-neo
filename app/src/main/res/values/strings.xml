@@ -60,6 +60,8 @@
     <string name="tab_bar_listen_playlist">audioliste</string>
     <string name="tab_bar_search">Suche</string>
 
+    <string name="tab_bar_new_badge">NEU</string>
+
     <string name="bottom_navigation_action_bookmark">Zu den Lesezeichen hinzufügen</string>
     <string name="bottom_navigation_action_home">Zum Home-Bildschirm</string>
     <string name="bottom_navigation_action_audio">Audio abspielen</string>
@@ -780,4 +782,10 @@
     <string name="listen_podcasts_prev_accessibility">zum vorherigen Podcast</string>
 
     <string name="datepicker_title">Gehe zur Ausgabe vom</string>
+
+    <!-- Listen tab announcement tooltip -->
+    <string name="announcement_listen_title">Neu: Podcasts und Audioliste</string>
+    <string name="announcement_listen_text">Tippen Sie auf „Hören“ für taz-Podcasts. In der Audioliste sammeln Sie Artikel, die Sie sich vorlesen lassen möchten.</string>
+    <string name="announcement_listen_button">Direkt ausprobieren</string>
+    <string name="announcement_listen_close_content_description">Schließen</string>
 </resources>

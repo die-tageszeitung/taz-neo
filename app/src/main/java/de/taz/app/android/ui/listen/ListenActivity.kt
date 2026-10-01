@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.addCallback
 import de.taz.app.android.audioPlayer.AudioPlayerViewController
 import de.taz.app.android.base.ViewBindingActivity
+import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.ActivityListenBinding
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.bottomNavigationBack
@@ -13,10 +14,12 @@ class ListenActivity : ViewBindingActivity<ActivityListenBinding>() {
 
     @Suppress("UNUSED") // this is necessary so the audio player is shown
     private val audioPlayerViewController = AudioPlayerViewController(this)
+    private val generalDataStore = GeneralDataStore.getInstance(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        generalDataStore.markListenTabAsClicked()
         onBackPressedDispatcher.addCallback(this) {
             bottomNavigationBack()
         }

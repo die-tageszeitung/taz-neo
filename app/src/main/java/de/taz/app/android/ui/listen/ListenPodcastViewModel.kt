@@ -37,6 +37,9 @@ class ListenPodcastViewModel(
     private val _isFetchingMore = MutableStateFlow(false)
     val isFetchingMoreFlow: StateFlow<Boolean> = _isFetchingMore.asStateFlow()
 
+    private val _isRefreshing = MutableStateFlow(false)
+    val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
+
     val episodeItems: StateFlow<List<EpisodeListItem>> =
         combine(_episodes, _isFetchingMore) { episodes, loading ->
             // if loading add the loadingMore item
@@ -80,6 +83,7 @@ class ListenPodcastViewModel(
 
     fun fetchPodcasts() {
         viewModelScope.launch {
+            _isRefreshing.value = true
             if (_podcasts.value.isEmpty()) {
                 _uiState.value = ListenPodcastUiState.Loading
             }
@@ -96,6 +100,8 @@ class ListenPodcastViewModel(
                 } else {
                     _uiState.value = ListenPodcastUiState.Success
                 }
+            } finally {
+                _isRefreshing.value = false
             }
         }
     }

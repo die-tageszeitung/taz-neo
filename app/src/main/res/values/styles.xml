@@ -98,6 +98,7 @@
         <item name="android:textColor">@color/buttonTextColor</item>
         <item name="fontFamily">@font/appFontBold</item>
         <item name="android:includeFontPadding">false</item>
+        <item name="android:textSize">16sp</item>
         <item name="backgroundTint">@color/buttonColor</item>
     </style>
 
@@ -590,7 +591,7 @@
 
     <style name="TextAppearance.CoachMark.Text" parent="TextAppearance.AppCompat">
         <item name="android:fontFamily">@font/appFontCoachMarkText</item>
-        <item name="android:textSize">16sp</item>
+        <item name="android:textSize">16.5sp</item>
         <item name="android:textColor">@color/white</item>
         <item name="android:letterSpacing">0</item>
     </style>

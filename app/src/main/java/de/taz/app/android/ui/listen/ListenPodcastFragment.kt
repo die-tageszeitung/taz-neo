@@ -41,6 +41,9 @@ class ListenPodcastFragment : ViewBindingFragment<FragmentListenPodcastBinding>(
         }
 
         setupRecyclerView()
+        viewBinding?.swipeRefreshLayout?.setOnRefreshListener {
+            viewModel.fetchPodcasts()
+        }
         observeViewModel()
     }
 
@@ -75,11 +78,16 @@ class ListenPodcastFragment : ViewBindingFragment<FragmentListenPodcastBinding>(
                 repeatOnLifecycle(Lifecycle.State.STARTED) {
                     launch {
                         viewModel.uiState.collect { state ->
-                            binding.loadingProgress.isVisible = state is ListenPodcastUiState.Loading
                             binding.errorText.isVisible = state is ListenPodcastUiState.Error && episodeListAdapter.itemCount == 0
                             binding.podcastRecyclerView.isVisible = state is ListenPodcastUiState.Success || 
                                     (state is ListenPodcastUiState.Loading && episodeListAdapter.itemCount > 0) ||
                                     (state is ListenPodcastUiState.Error && episodeListAdapter.itemCount > 0)
+                        }
+                    }
+
+                    launch {
+                        viewModel.isRefreshing.collect { refreshing ->
+                            binding.swipeRefreshLayout.isRefreshing = refreshing
                         }
                     }
 
