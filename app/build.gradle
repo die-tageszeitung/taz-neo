@@ -167,6 +167,10 @@ android {
             versionCode tazVersionCode
             versionName tazVersionName
 
+            manifestPlaceholders["deepLinkHost"] = "taz.de"
+            manifestPlaceholders["deepLinkSchema"] = "https"
+            manifestPlaceholders["deepLinkSchema2"] = "http"
+
             buildConfigField "String", "GRAPHQL_ENDPOINT", "\"taz.de/appGraphQl\""
             buildConfigField "String", "DISPLAYED_FEED", "\"taz\""
             // Set the default signingConfig for taz flavors.
@@ -179,6 +183,10 @@ android {
             applicationId "de.monde_diplomatique.android.app"
             versionCode lmdVersionCode
             versionName lmdVersionName
+
+            manifestPlaceholders["deepLinkHost"] = "example.com"
+            manifestPlaceholders["deepLinkSchema"] = "ohng4thoPiu7peiy0eep1oohai4aepaebareusaish"
+            manifestPlaceholders["deepLinkSchema2"] = "2hng4thoPiu7peiy0eep1oohai4aepaebareusaish"
 
             buildConfigField "String", "GRAPHQL_ENDPOINT", "\"monde-diplomatique.de/appGraphQl\""
             buildConfigField "Boolean", "IS_LMD", "true"

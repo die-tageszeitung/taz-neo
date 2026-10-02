@@ -1,0 +1,23 @@
+query GetArticlesByMediaSyncId(
+    $mediaSyncIds: String!,
+    $articleOrder: ArticleOrder,
+){
+    getArticlesByMediaSyncId(mediaSyncIds: $mediaSyncIds, order: $articleOrder) {
+        authInfo {
+            status
+            message
+        }
+        articleList {
+            article {
+                articleHtml {
+                    name
+                    storageType
+                    moTime
+                    sha256
+                    size
+                }
+            }
+            date
+        }
+    }
+}

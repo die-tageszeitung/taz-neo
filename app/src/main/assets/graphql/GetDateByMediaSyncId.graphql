@@ -1,0 +1,10 @@
+query GetDateByMediaSyncId(
+    $mediaSyncIds: String!,
+){
+    getDateByMediaSyncId(mediaSyncIds: $mediaSyncIds) {
+        dateList {
+            mediaSyncId
+            date
+        }
+    }
+}
