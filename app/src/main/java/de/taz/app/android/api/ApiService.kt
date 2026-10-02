@@ -9,6 +9,7 @@ import de.taz.app.android.CUSTOMER_DATA_VAL_DATE
 import de.taz.app.android.R
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.dto.BookmarkRepresentation
+import de.taz.app.android.api.dto.GetArticlesByMediaSyncId
 import de.taz.app.android.api.mappers.AppInfoMapper
 import de.taz.app.android.api.mappers.AuthInfoMapper
 import de.taz.app.android.api.mappers.AuthTokenInfoMapper
@@ -45,6 +46,7 @@ import de.taz.app.android.api.models.SubscriptionFormData
 import de.taz.app.android.api.models.SubscriptionInfo
 import de.taz.app.android.api.models.SubscriptionResetInfo
 import de.taz.app.android.api.variables.AppVariables
+import de.taz.app.android.api.variables.ArticleOrder
 import de.taz.app.android.api.variables.AuthenticationVariables
 import de.taz.app.android.api.variables.CancellationVariables
 import de.taz.app.android.api.variables.CheckSubscriptionIdVariables
@@ -53,7 +55,9 @@ import de.taz.app.android.api.variables.DownloadStartVariables
 import de.taz.app.android.api.variables.DownloadStopVariables
 import de.taz.app.android.api.variables.ErrorReportVariables
 import de.taz.app.android.api.variables.FeedVariables
+import de.taz.app.android.api.variables.GetArticlesByMediaSyncIdVariables
 import de.taz.app.android.api.variables.GetCustomerDataVariables
+import de.taz.app.android.api.variables.GetDateByMediaSyncIdVariables
 import de.taz.app.android.api.variables.IssueVariables
 import de.taz.app.android.api.variables.NotificationVariables
 import de.taz.app.android.api.variables.PasswordResetVariables
@@ -798,6 +802,42 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
             ?.let { SubscriptionFormDataMapper.from(it) }
             ?: throw Exception("Missing SubscriptionFormData response - was null")
     }
+
+    /**
+     * function to get the dates for mediaSyncId s
+     */
+    @Throws(ConnectivityException::class)
+    suspend fun getDatesByMediaSyncId(
+        mediaSyncId: String
+    ): List<String> {
+        val response = transformToConnectivityException {
+            graphQlClient.query(
+                QueryType.GetDateByMediaSyncId,
+                GetDateByMediaSyncIdVariables(mediaSyncId)
+            )
+        }
+        return response.data?.getDateByMediaSyncId?.dateList?.map { it.date } ?: emptyList()
+    }
+
+    /**
+     * function to get articles for mediaSyncId(s)
+     */
+    @Throws(ConnectivityException::class)
+    suspend fun getDateAndDisplayableKeyForMediaSyncId(
+        mediaSyncId: String
+    ): Pair<String, String?>? {
+        val data = transformToConnectivityException {
+            graphQlClient.query(
+                QueryType.GetArticlesByMediaSyncId,
+                GetArticlesByMediaSyncIdVariables(mediaSyncId, ArticleOrder.dateDesc)
+            )
+        }.data
+        return data?.getArticlesByMediaSyncId?.articleList?.firstOrNull()?.let {
+            it.date to it.article?.articleHtml?.name
+        }
+    }
+
+
 
     /**
      * function to get the customer type

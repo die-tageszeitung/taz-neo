@@ -8,7 +8,9 @@ import de.taz.app.android.api.variables.DownloadStartVariables
 import de.taz.app.android.api.variables.DownloadStopVariables
 import de.taz.app.android.api.variables.ErrorReportVariables
 import de.taz.app.android.api.variables.FeedVariables
+import de.taz.app.android.api.variables.GetArticlesByMediaSyncIdVariables
 import de.taz.app.android.api.variables.GetCustomerDataVariables
+import de.taz.app.android.api.variables.GetDateByMediaSyncIdVariables
 import de.taz.app.android.api.variables.IssueVariables
 import de.taz.app.android.api.variables.NotificationVariables
 import de.taz.app.android.api.variables.PasswordResetVariables
@@ -39,7 +41,9 @@ private val module = SerializersModule {
         subclass(DownloadStopVariables::class)
         subclass(ErrorReportVariables::class)
         subclass(FeedVariables::class)
+        subclass(GetArticlesByMediaSyncIdVariables::class)
         subclass(GetCustomerDataVariables::class)
+        subclass(GetDateByMediaSyncIdVariables::class)
         subclass(IssueVariables::class)
         subclass(NotificationVariables::class)
         subclass(PasswordResetVariables::class)

@@ -57,6 +57,7 @@
         -->
         <activity
             android:name=".ui.main.MainActivity"
+            android:exported="true"
             android:theme="@style/noAnimationOnActivityChange"
             android:windowSoftInputMode="stateHidden|adjustNothing" />
         <activity
@@ -89,6 +90,38 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".ui.UrlCatcherActivity"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:noHistory="true"
+            android:theme="@style/SplashTheme">
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="${deepLinkSchema}" />
+                <data android:scheme="${deepLinkSchema2}" />
+                <data android:host="${deepLinkHost}" />
+                <data android:host="www.${deepLinkHost}" />
+                <data android:host="epaper.${deepLinkHost}" />
+
+                <data android:path="/\\!0*" />
+                <data android:path="/\\!1*" />
+                <data android:path="/\\!2*" />
+                <data android:path="/\\!3*" />
+                <data android:path="/\\!4*" />
+                <data android:path="/\\!5*" />
+                <data android:path="/\\!6*" />
+                <data android:path="/\\!7*" />
+                <data android:path="/\\!8*" />
+                <data android:path="/\\!9*" />
+                <data android:pathAdvancedPattern="/\\![0-9]*" />
+            </intent-filter>
+
+        </activity>
 
         <meta-data
             android:name="io.sentry.auto-init"
@@ -118,8 +151,16 @@
                 <action android:name="android.media.action.MEDIA_PLAY_FROM_SEARCH" />
             </intent-filter>
         </service>
-        <meta-data android:name="com.google.android.gms.car.application"
-            android:resource="@xml/automotive_app_desc"/>
+        <meta-data
+            android:name="com.google.android.gms.car.application"
+            android:resource="@xml/automotive_app_desc" />
     </application>
-
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data android:scheme="https" />
+        </intent>
+        <package android:name="de.taz.taz.newsapp" />
+    </queries>
 </manifest>

@@ -1,6 +1,7 @@
 package de.taz.app.android.api.dto
 
 import de.taz.app.android.api.models.PasswordResetInfo
+import de.taz.app.android.api.variables.GetDateByMediaSyncIdVariables
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -26,4 +27,6 @@ data class DataDto (
     val subscriptionReset: SubscriptionResetInfoDto? = null,
     val trialSubscription: SubscriptionInfoDto? = null,
     val subscriptionFormData: SubscriptionFormDataDto? = null,
+    val getDateByMediaSyncId: GetDateByMediaSyncId? = null,
+    val getArticlesByMediaSyncId: GetArticlesByMediaSyncId? = null,
 )
