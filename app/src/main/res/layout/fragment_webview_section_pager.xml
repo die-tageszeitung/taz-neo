@@ -26,7 +26,6 @@
                 android:id="@+id/webview_pager_viewpager"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                app:layout_behavior="@string/appbar_scrolling_view_behavior"
                 app:layout_constraintBottom_toTopOf="@id/navigation_bottom_webview_pager"
                 app:layout_constraintTop_toTopOf="parent" />
 

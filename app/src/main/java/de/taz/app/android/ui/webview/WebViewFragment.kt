@@ -158,10 +158,6 @@ abstract class WebViewFragment<
                         ensureDownloadedAndShow()
                     }.launchIn(lifecycleScope)
 
-                generalDataStore.hideAppbarOnScroll.asFlow().onEach {
-                    webView?.setCoordinatorBottomMatchingBehaviourEnabled(it)
-                }.launchIn(lifecycleScope)
-
                 viewModel.tapToScrollFlow
                     .onEach {
                         tapToScroll = it
@@ -187,6 +183,9 @@ abstract class WebViewFragment<
         }
     }
 
+    private var appBarOffsetListener: AppBarLayout.OnOffsetChangedListener? = null
+    private var appBarLayoutChangeListener: View.OnLayoutChangeListener? = null
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -195,6 +194,28 @@ abstract class WebViewFragment<
         }
 
         configureWebView()
+        setupAppBarLayoutTranslation()
+    }
+
+    private fun setupAppBarLayoutTranslation() {
+        val appBar = appBarLayout ?: return
+
+        val offsetListener = AppBarLayout.OnOffsetChangedListener { abl, verticalOffset ->
+            val translation = max(0f, (abl.height + verticalOffset).toFloat())
+            webView?.translationY = translation
+        }
+        appBarOffsetListener = offsetListener
+        appBar.addOnOffsetChangedListener(offsetListener)
+
+        val layoutChangeListener = View.OnLayoutChangeListener { _, _, _, _, bottom, _, _, _, _ ->
+            webView?.translationY = max(0f, bottom.toFloat())
+        }
+        appBarLayoutChangeListener = layoutChangeListener
+        appBar.addOnLayoutChangeListener(layoutChangeListener)
+
+        if (appBar.height > 0) {
+            webView?.translationY = max(0f, appBar.bottom.toFloat())
+        }
     }
 
     override fun onMultiColumnLayoutReady(contentWidth: Int?) {
@@ -583,6 +604,16 @@ abstract class WebViewFragment<
     }
 
     override fun onDestroyView() {
+        appBarOffsetListener?.let {
+            appBarLayout?.removeOnOffsetChangedListener(it)
+        }
+        appBarOffsetListener = null
+
+        appBarLayoutChangeListener?.let {
+            appBarLayout?.removeOnLayoutChangeListener(it)
+        }
+        appBarLayoutChangeListener = null
+
         webView?.destroy()
         super.onDestroyView()
     }
