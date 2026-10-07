@@ -7,14 +7,14 @@ plugins {
     id 'org.jetbrains.kotlin.plugin.allopen'
 
     // Must be in sync with the "def room_version" below
-    id 'androidx.room' version '2.8.4'
-    id 'com.github.triplet.play' version '4.0.0'
+    id 'androidx.room' version '2.8.5'
+    id 'com.github.triplet.play' version '4.1.1'
 
     // Only define the google-services globally, and apply them only for nonfree variants
     id 'com.google.gms.google-services' version "4.5.0" apply false
 
     // Only define the sentry version globally, and apply it only for nonfree variants
-    id 'io.sentry.android.gradle' version '6.14.0' apply false
+    id 'io.sentry.android.gradle' version '6.23.0' apply false
 }
 
 
@@ -78,7 +78,7 @@ android {
 
     defaultConfig {
         applicationId "de.taz.app.android"
-        minSdkVersion 23
+        minSdkVersion 24
         targetSdkVersion 37
 
         testOptions {
@@ -337,12 +337,12 @@ dependencies {
     def coroutines_version = '1.11.0'
     def serialization_version = '1.11.0'
     def glide_version = '5.0.9'
-    def ktor_version = '3.5.1'
+    def ktor_version = '3.6.0'
     def lifecycle_version = '2.11.0'
-    def room_version = '2.8.4'
-    def work_version = '2.11.2'
-    def media3_version = '1.10.1'
-    def sentry_version = '8.48.0'
+    def room_version = '2.8.5'
+    def work_version = '2.12.0'
+    def media3_version = '1.11.1'
+    def sentry_version = '8.58.0'
 
     // implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
@@ -355,13 +355,13 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-guava:$coroutines_version"
 
 
-    implementation 'androidx.appcompat:appcompat:1.7.1'
-    implementation 'androidx.core:core-ktx:1.19.0'
+    implementation 'androidx.appcompat:appcompat:1.8.0'
+    implementation 'androidx.core:core-ktx:1.19.1'
 
     implementation 'androidx.collection:collection-ktx:1.6.0'
     implementation 'androidx.datastore:datastore-preferences:1.2.1'
 
-    implementation 'androidx.fragment:fragment-ktx:1.8.9'
+    implementation 'androidx.fragment:fragment-ktx:1.9.1'
 
     implementation 'androidx.recyclerview:recyclerview:1.4.0'
 
@@ -369,7 +369,7 @@ dependencies {
     implementation "com.github.bumptech.glide:okhttp3-integration:$glide_version"
     ksp "com.github.bumptech.glide:ksp:$glide_version"
 
-    implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.2.2'
 
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-process:$lifecycle_version"
@@ -399,7 +399,7 @@ dependencies {
     implementation "io.ktor:ktor-client-content-negotiation:$ktor_version"
     testImplementation "io.ktor:ktor-client-mock:$ktor_version"
 
-    implementation 'org.conscrypt:conscrypt-android:2.6.1'
+    implementation 'org.conscrypt:conscrypt-android:2.7.0'
 
     implementation 'com.google.android.material:material:1.14.0'
 
@@ -431,15 +431,16 @@ dependencies {
     testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
     testImplementation 'junit:junit:4.13.2'
 
+    // Tests fails with 4.17.0 at the moment
     testImplementation 'org.robolectric:robolectric:4.16.1'
-    testImplementation 'org.conscrypt:conscrypt-openjdk-uber:2.6.1'
+    testImplementation 'org.conscrypt:conscrypt-openjdk-uber:2.7.0'
 
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutines_version"
     testImplementation "androidx.work:work-testing:$work_version"
 
     // mocking
-    testImplementation 'org.mockito:mockito-core:5.23.0'
-    testImplementation 'org.mockito.kotlin:mockito-kotlin:6.3.0'
+    testImplementation 'org.mockito:mockito-core:5.24.0'
+    testImplementation 'org.mockito.kotlin:mockito-kotlin:6.4.0'
 
     // Core library
     testImplementation 'androidx.test:core-ktx:1.7.0'
@@ -452,7 +453,7 @@ dependencies {
     leakCanaryImplementation 'com.squareup.leakcanary:leakcanary-android:2.14'
 
     // google Flavor
-    nonfreeImplementation 'com.google.firebase:firebase-messaging:25.1.1'
+    nonfreeImplementation 'com.google.firebase:firebase-messaging:25.1.3'
 
     // atm version 2.0.2 won't let the gitlab CI pipeline build successfully
     // https://issuetracker.google.com/issues/374691245
