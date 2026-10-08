@@ -524,7 +524,12 @@ class PdfPagerViewModel(
     init {
         viewModelScope.launch {
             pdfPageListFlow.first { it.isNotEmpty() }.forEach {
-                contentService.downloadToCache(it, DownloadPriority.High)
+                try {
+                    contentService.downloadToCache(it, DownloadPriority.High)
+                } catch (e: CacheOperationFailedException) {
+                    log.error("Failed to download pdf page ${it.pagePdf.name} with high priority", e)
+                    issueDownloadFailedErrorFlow.emit(true)
+                }
             }
         }
     }
