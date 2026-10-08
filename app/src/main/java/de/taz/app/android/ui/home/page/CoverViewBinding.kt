@@ -61,7 +61,11 @@ class CoverViewBinding(
             coverPublication,
             maxRetries = METADATA_DOWNLOAD_DEFAULT_RETRIES
         )
-        contentService.downloadToCache(download)
+        try {
+            contentService.downloadToCache(download)
+        } catch (_: CacheOperationFailedException) {
+            // Do nothing, fail gracefully
+        }
 
         // Refresh from db
         val observableDownload =

@@ -10,8 +10,12 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import de.taz.app.android.api.models.Page
 import androidx.core.graphics.createBitmap
+import de.taz.app.android.R
 import de.taz.app.android.content.ContentService
+import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.download.DownloadPriority
+import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -25,6 +29,7 @@ class PageAdapter(
 
     private val pageSizesCache = SparseArray<PointF>()
     private var sharedHqBm: Bitmap? = null
+    private val log by Log
 
     override fun getCount() = pages.size
 
@@ -84,8 +89,14 @@ class PageAdapter(
         if (page.dateDownload == null) {
             pageView.blank()
             CoroutineScope(Dispatchers.Default).launch {
-                ContentService.getInstance(mContext.applicationContext)
-                    .downloadToCache(page, priority = DownloadPriority.High)
+                try {
+                    ContentService.getInstance(mContext.applicationContext)
+                        .downloadToCache(page, priority = DownloadPriority.High)
+                } catch (e: CacheOperationFailedException) {
+                    log.error("Failed to download pdf page ${page.pagePdf.name} with high priority", e)
+                    ToastHelper.getInstance(mContext.applicationContext)
+                        .showToast(R.string.toast_problem_showing_pdf, long = true)
+                }
             }
         } else if (pageSize != null) {
             // We already know the page size. Set it up immediately

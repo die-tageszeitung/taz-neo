@@ -11,6 +11,7 @@ import de.taz.app.android.api.models.ArticleBookmarkTime
 import de.taz.app.android.api.models.ArticleType
 import de.taz.app.android.api.models.SynchronizeFromType
 import de.taz.app.android.content.ContentService
+import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.tracking.Tracker
@@ -431,11 +432,16 @@ class BookmarkRepository(
             val downloadedArticle = contentService.downloadArticle(
                 article.articleFileName, article.issueDate
             )
-            // Download Issue meta data to display issues moment in bookmark list
+            // Download Issue metadata to display issues moment in bookmark list
             issue ?: issueRepository.getIssueStubForArticle(article)?.let { issue ->
                 val moment = momentRepository.get(issue.issueKey)
                 if (moment != null) {
-                    contentService.downloadToCache(moment)
+                    try {
+                        contentService.downloadToCache(moment)
+                    } catch (e: CacheOperationFailedException) {
+                        // Fail gracefully but log error
+                        log.error("Could not download moment ${moment.issueDate}", e)
+                    }
                 }
             }
 
